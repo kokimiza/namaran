@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="A Namara Rust READ drill from 2026-09-21: tracing a loop expression that has no implicit termination condition of its own, only the break that carries its value out.">
+<title>Namara — Rust / READ — 2026-09-21</title>
+<link rel="canonical" href="https://namara.jocarium.productions/rust/read/2026-09-21">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namara", "item": "https://namara.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / READ", "item": "https://namara.jocarium.productions/rust/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-21" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / READ — 2026-09-21",
+      "url": "https://namara.jocarium.productions/rust/read/2026-09-21",
+      "datePublished": "2026-09-21",
+      "dateModified": "2026-09-21",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "Rust — loop as an expression, terminated only by break with a value" },
+      "author": { "@type": "Organization", "name": "Namara" },
+      "publisher": { "@type": "Organization", "name": "Namara" },
+      "isPartOf": { "@type": "WebSite", "name": "Namara", "url": "https://namara.jocarium.productions/" },
+      "description": "A Namara Rust READ drill from 2026-09-21: tracing a loop expression that has no implicit termination condition of its own, only the break that carries its value out."
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namara</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-21">C23</a>
+  <a href="/cpp/read/2026-09-21">C++26</a>
+  <a href="/rust/read/2026-09-21" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/read/2026-09-21">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-09-21" class="active" aria-current="page">READ</a>
+  <a href="/rust/write/2026-09-21">WRITE</a>
+  <a href="/rust/debug/2026-09-21">DEBUG</a>
+</nav>
+
+<main>
+  <h2>2026-09-21</h2>
+  <div class="code-frame">
+    <p class="code-filename">loop_break.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> <span class="kw">mut</span> n = <span class="nu">1</span>;
+    <span class="kw">let</span> result = <span class="kw">loop</span> {
+        n *= <span class="nu">2</span>;
+        <span class="kw">if</span> n &gt; <span class="nu">20</span> {
+            <span class="kw">break</span> n;
+        }
+    };
+    <span class="mc">println!</span>(<span class="st">"{result}"</span>);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    このコードは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>32</code>(その後に改行)。<code>n</code>は<code>1, 2, 4, 8, 16, 32</code>と2倍になっていき、<code>32 &gt; 20</code>になった時点で<code>break n;</code>が実行されます。<code>while</code>や<code>for</code>には「条件を満たす間だけ回る」という終了条件が構文に組み込まれていますが、<code>loop</code>にはそれがなく、明示的に<code>break</code>しない限り無限ループになります。その代わり<code>loop</code>は式であり、<code>break</code>に値を添えることでその値が<code>loop</code>式全体の値になります(ここでは<code>result</code>に<code>32</code>が入る)。<code>while</code>・<code>for</code>は評価結果が常に<code>()</code>で値を持ち出せないので、ループの結果を変数へ渡したいときは、この<code>loop</code> + <code>break</code>値という形が使われます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/read">Today</a></li>
+    <li><a href="/rust/read/archive">Archive</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

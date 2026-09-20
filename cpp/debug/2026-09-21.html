@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="A Namara C++ DEBUG drill from 2026-09-21: a class that validates its invariant in the constructor but exposes a setter that skips the same check.">
+<title>Namara — C++ / DEBUG — 2026-09-21</title>
+<link rel="canonical" href="https://namara.jocarium.productions/cpp/debug/2026-09-21">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namara", "item": "https://namara.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namara.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-21" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-09-21",
+      "url": "https://namara.jocarium.productions/cpp/debug/2026-09-21",
+      "datePublished": "2026-09-21",
+      "dateModified": "2026-09-21",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "C++ — a setter that bypasses the invariant check in the constructor" },
+      "author": { "@type": "Organization", "name": "Namara" },
+      "publisher": { "@type": "Organization", "name": "Namara" },
+      "isPartOf": { "@type": "WebSite", "name": "Namara", "url": "https://namara.jocarium.productions/" },
+      "description": "A Namara C++ DEBUG drill from 2026-09-21: a class that validates its invariant in the constructor but exposes a setter that skips the same check."
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namara</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-21">C23</a>
+  <a href="/cpp/debug/2026-09-21" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-09-21">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-21">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-21">READ</a>
+  <a href="/cpp/write/2026-09-21">WRITE</a>
+  <a href="/cpp/debug/2026-09-21" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main>
+  <h2>2026-09-21</h2>
+  <div class="code-frame">
+    <p class="code-filename">percentage_setter.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;stdexcept&gt;</span>
+
+<span class="kw">class</span> <span class="ty">Percentage</span> {
+<span class="kw">public</span>:
+    <span class="kw">explicit</span> <span class="fn">Percentage</span>(<span class="ty">int</span> value) : <span class="fn">value_</span>(value) {
+        <span class="kw">if</span> (value &lt; <span class="nu">0</span> || value &gt; <span class="nu">100</span>) {
+            <span class="kw">throw</span> std::<span class="fn">invalid_argument</span>(<span class="st">"out of range"</span>);
+        }
+    }
+    <span class="ty">int</span> <span class="fn">value</span>() <span class="kw">const</span> { <span class="kw">return</span> value_; }
+    <span class="ty">void</span> <span class="fn">setValue</span>(<span class="ty">int</span> value) { value_ = value; }
+<span class="kw">private</span>:
+    <span class="ty">int</span> value_;
+};
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="ty">Percentage</span> <span class="fn">p</span>(<span class="nu">50</span>);
+    p.<span class="fn">setValue</span>(<span class="nu">150</span>);
+    std::cout &lt;&lt; p.<span class="fn">value</span>() &lt;&lt; <span class="st">"\n"</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>Percentage</code>はコンストラクタで<code>0</code>〜<code>100</code>の不変条件を検査していますが、このコードは<code>150</code>を保持してしまいます。何が問題で、どう直せばよいでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        不変条件を検査しているのはコンストラクタだけで、後から値を変える<code>setValue</code>は同じ検査を一切していません。「型で不変条件を守る」という設計は、その値を変更しうるすべての経路が検査を通ることで初めて成り立ちます。コンストラクタだけ検査しても、検査を通らない<code>setValue</code>のような抜け道が1つでもあれば、不変条件はいつでも破られます。<code>setValue</code>にもコンストラクタと同じ検査を入れれば直ります:
+      </p>
+      <pre class="code"><code><span class="ty">void</span> <span class="fn">setValue</span>(<span class="ty">int</span> value) {
+    <span class="kw">if</span> (value &lt; <span class="nu">0</span> || value &gt; <span class="nu">100</span>) {
+        <span class="kw">throw</span> std::<span class="fn">invalid_argument</span>(<span class="st">"out of range"</span>);
+    }
+    value_ = value;
+}
+</code></pre>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
