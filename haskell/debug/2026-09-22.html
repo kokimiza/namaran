@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="A Namaran Haskell DEBUG drill from 2026-09-22: converting a Double to fixed-point cents with truncate, which loses a cent whenever floating-point representation error lands just under the intended value.">
+<title>Namaran — Haskell / DEBUG — 2026-09-22</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-09-22">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-22" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-09-22",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-09-22",
+      "datePublished": "2026-09-22",
+      "dateModified": "2026-09-22",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "Haskell — truncate vs round when converting a Double to fixed-point cents" },
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "A Namaran Haskell DEBUG drill from 2026-09-22: converting a Double to fixed-point cents with truncate, which loses a cent whenever floating-point representation error lands just under the intended value."
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-22">C23</a>
+  <a href="/cpp/debug/2026-09-22">C++26</a>
+  <a href="/rust/debug/2026-09-22">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-22" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-09-22">READ</a>
+  <a href="/haskell/write/2026-09-22">WRITE</a>
+  <a href="/haskell/debug/2026-09-22" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main>
+  <h2>2026-09-22</h2>
+  <div class="code-frame">
+    <p class="code-filename">ToCents.hs</p>
+    <pre class="code"><code><span class="kw">module</span> <span class="ty">Main</span> <span class="kw">where</span>
+
+<span class="kw">newtype</span> <span class="ty">Cents</span> = <span class="ty">Cents</span> <span class="ty">Integer</span> <span class="kw">deriving</span> (<span class="ty">Eq</span>, <span class="ty">Show</span>)
+
+<span class="fn">toCents</span> <span class="op">::</span> <span class="ty">Double</span> <span class="op">-&gt;</span> <span class="ty">Cents</span>
+<span class="fn">toCents</span> x = <span class="ty">Cents</span> (truncate (x * <span class="nu">100</span>))
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (toCents <span class="nu">0.29</span>)
+</code></pre>
+  </div>
+
+  <p class="question">
+    小数(<code>Double</code>)を100分の1単位のセントに変換するつもりの<code>toCents</code>です。入力は<code>0.29</code>(29セントのつもり)。いまの出力は<code>Cents 28</code>ですが、本来の出力は<code>Cents 29</code>です。何が問題で、どう直せばよいでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>0.29</code>は2進浮動小数点数では正確に表せないため、<code>Double</code>として保持されている実際の値はわずかに<code>0.29</code>より小さく、<code>x * 100</code>を計算すると<code>29.0</code>ちょうどではなく<code>28.999999999999996</code>のような値になります。<code>truncate</code>は0方向への切り捨てなので、この<code>28.999999999999996</code>は<code>28</code>に切り捨てられてしまい、意図していた<code>29</code>より1セント少なくなります。固定小数点数を扱うときに浮動小数点数からの変換へ<code>truncate</code>を使うと、こうした表現誤差がそのまま「1セント少ない」バグとして現れます。直し方は、最も近い整数に丸める<code>round</code>に変えるだけです:
+      </p>
+      <pre class="code"><code><span class="fn">toCents</span> <span class="op">::</span> <span class="ty">Double</span> <span class="op">-&gt;</span> <span class="ty">Cents</span>
+<span class="fn">toCents</span> x = <span class="ty">Cents</span> (round (x * <span class="nu">100</span>))
+</code></pre>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="A Namaran Rust DEBUG drill from 2026-09-22: a segment tree range-minimum query that forgets to advance past an included node, silently pulling in extra values.">
+<title>Namaran — Rust / DEBUG — 2026-09-22</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-09-22">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-22" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-09-22",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-09-22",
+      "datePublished": "2026-09-22",
+      "dateModified": "2026-09-22",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "Rust — an off-by-one in a segment tree's range-minimum query" },
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "A Namaran Rust DEBUG drill from 2026-09-22: a segment tree range-minimum query that forgets to advance past an included node, silently pulling in extra values."
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-22">C23</a>
+  <a href="/cpp/debug/2026-09-22">C++26</a>
+  <a href="/rust/debug/2026-09-22" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-22">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-09-22">READ</a>
+  <a href="/rust/write/2026-09-22">WRITE</a>
+  <a href="/rust/debug/2026-09-22" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main>
+  <h2>2026-09-22</h2>
+  <div class="code-frame">
+    <p class="code-filename">segtree_query.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">build</span>(a: &amp;[<span class="ty">i32</span>]) -&gt; <span class="ty">Vec</span>&lt;<span class="ty">i32</span>&gt; {
+    <span class="kw">let</span> n = a.<span class="fn">len</span>();
+    <span class="kw">let</span> <span class="kw">mut</span> tree = <span class="mc">vec!</span>[<span class="ty">i32</span>::<span class="nu">MAX</span>; <span class="nu">2</span> * n];
+    tree[n..].<span class="fn">clone_from_slice</span>(a);
+    <span class="kw">for</span> i <span class="kw">in</span> (<span class="nu">1</span>..n).<span class="fn">rev</span>() {
+        tree[i] = tree[<span class="nu">2</span> * i].<span class="fn">min</span>(tree[<span class="nu">2</span> * i + <span class="nu">1</span>]);
+    }
+    tree
+}
+
+<span class="kw">fn</span> <span class="fn">range_min</span>(tree: &amp;[<span class="ty">i32</span>], n: <span class="ty">usize</span>, <span class="kw">mut</span> l: <span class="ty">usize</span>, <span class="kw">mut</span> r: <span class="ty">usize</span>) -&gt; <span class="ty">i32</span> {
+    <span class="kw">let</span> <span class="kw">mut</span> res = <span class="ty">i32</span>::<span class="nu">MAX</span>;
+    l += n;
+    r += n;
+    <span class="kw">while</span> l &lt; r {
+        <span class="kw">if</span> l % <span class="nu">2</span> == <span class="nu">1</span> {
+            res = res.<span class="fn">min</span>(tree[l]);
+        }
+        <span class="kw">if</span> r % <span class="nu">2</span> == <span class="nu">1</span> {
+            r -= <span class="nu">1</span>;
+            res = res.<span class="fn">min</span>(tree[r]);
+        }
+        l /= <span class="nu">2</span>;
+        r /= <span class="nu">2</span>;
+    }
+    res
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> a = [<span class="nu">5</span>, <span class="nu">2</span>, <span class="nu">8</span>, <span class="nu">1</span>, <span class="nu">9</span>, <span class="nu">3</span>, <span class="nu">7</span>, <span class="nu">4</span>];
+    <span class="kw">let</span> n = a.<span class="fn">len</span>();
+    <span class="kw">let</span> tree = <span class="fn">build</span>(&amp;a);
+    <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="fn">range_min</span>(&amp;tree, n, <span class="nu">4</span>, <span class="nu">8</span>));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    セグメント木で区間<code>[l, r)</code>の最小値を求めるつもりの<code>range_min</code>です。入力は<code>a = [5, 2, 8, 1, 9, 3, 7, 4]</code>・<code>range_min(&amp;tree, 8, 4, 8)</code>(<code>a[4..8] = [9, 3, 7, 4]</code>の最小値)。いまの出力は<code>1</code>ですが、本来の出力は<code>3</code>です。何が問題で、どう直せばよいでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>l</code>が奇数のとき、そのノード<code>tree[l]</code>を答えに取り込んだあと<code>l</code>を1つ右へ進める(<code>l += 1</code>)のを忘れています。進めないまま<code>l /= 2</code>するので、本来区間の外側にあるはずの親ノードまで区間の内側として扱われてしまいます。<code>range_min(&amp;tree, 8, 4, 8)</code>では<code>l = 12, r = 16</code>から始まり、2階層縮めて<code>l = 3, r = 4</code>になった時点で<code>l</code>は奇数なので<code>tree[3] = 3</code>(<code>a[4..8]</code>の最小値)を正しく取り込みますが、<code>l</code>を進めないまま<code>l /= 2</code>すると<code>l = 1</code>になり、これは木全体の根です。次のループで<code>l = 1</code>が奇数と判定されて<code>tree[1] = 1</code>(<code>a</code>全体の最小値)まで答えに取り込んでしまい、本来関係ない範囲外の値のせいで結果が<code>3</code>ではなく<code>1</code>になります。直し方は、取り込んだ後に<code>l</code>を1つ進める行を追加するだけです:
+      </p>
+      <pre class="code"><code><span class="kw">if</span> l % <span class="nu">2</span> == <span class="nu">1</span> {
+    res = res.<span class="fn">min</span>(tree[l]);
+    l += <span class="nu">1</span>;
+}
+</code></pre>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

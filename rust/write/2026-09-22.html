@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="A Namaran Rust WRITE drill from 2026-09-22: write the range-minimum query over a flat-array segment tree, given its already-built tree contents.">
+<title>Namaran — Rust / WRITE — 2026-09-22</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-09-22">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-22" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-09-22",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-09-22",
+      "datePublished": "2026-09-22",
+      "dateModified": "2026-09-22",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "Rust — writing the query half of a flat-array segment tree" },
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "A Namaran Rust WRITE drill from 2026-09-22: write the range-minimum query over a flat-array segment tree, given its already-built tree contents."
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-22">C23</a>
+  <a href="/cpp/write/2026-09-22">C++26</a>
+  <a href="/rust/write/2026-09-22" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-09-22">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-09-22">READ</a>
+  <a href="/rust/write/2026-09-22" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-09-22">DEBUG</a>
+</nav>
+
+<main>
+  <h2>2026-09-22</h2>
+  <div class="code-frame">
+    <p class="code-filename">range_min.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">range_min</span>(tree: &amp;[<span class="ty">i32</span>], n: <span class="ty">usize</span>, <span class="kw">mut</span> l: <span class="ty">usize</span>, <span class="kw">mut</span> r: <span class="ty">usize</span>) -&gt; <span class="ty">i32</span> {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>tree</code>は要素数<code>n</code>の配列に対する区間最小値のセグメント木で、葉が<code>tree[n..2*n]</code>に、内部ノード<code>tree[i]</code>(<code>1 &lt;= i &lt; n</code>)には子<code>tree[2*i]</code>・<code>tree[2*i+1]</code>の小さい方が入っています(<code>tree[0]</code>は未使用)。半開区間<code>[l, r)</code>(元の配列の添字基準)の最小値を返す<code>range_min</code>を書いてください。<code>l == r</code>(空区間)のときは<code>i32::MAX</code>を返します。例えば<code>tree = [i32::MAX, 1, 1, 3, 2, 1, 3, 4, 5, 2, 8, 1, 9, 3, 7, 4]</code>(<code>n = 8</code>、元の配列は<code>[5, 2, 8, 1, 9, 3, 7, 4]</code>)のとき、<code>range_min(&amp;tree, 8, 0, 8)</code> → <code>1</code>、<code>range_min(&amp;tree, 8, 4, 8)</code> → <code>3</code>、<code>range_min(&amp;tree, 8, 3, 3)</code> → <code>i32::MAX</code>(境界: 空区間)
+  </p>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">range_min</span>(tree: &amp;[<span class="ty">i32</span>], n: <span class="ty">usize</span>, <span class="kw">mut</span> l: <span class="ty">usize</span>, <span class="kw">mut</span> r: <span class="ty">usize</span>) -&gt; <span class="ty">i32</span> {
+    <span class="kw">let</span> <span class="kw">mut</span> res = <span class="ty">i32</span>::<span class="nu">MAX</span>;
+    l += n;
+    r += n;
+    <span class="kw">while</span> l &lt; r {
+        <span class="kw">if</span> l % <span class="nu">2</span> == <span class="nu">1</span> {
+            res = res.<span class="fn">min</span>(tree[l]);
+            l += <span class="nu">1</span>;
+        }
+        <span class="kw">if</span> r % <span class="nu">2</span> == <span class="nu">1</span> {
+            r -= <span class="nu">1</span>;
+            res = res.<span class="fn">min</span>(tree[r]);
+        }
+        l /= <span class="nu">2</span>;
+        r /= <span class="nu">2</span>;
+    }
+    res
+}
+</code></pre>
+      <p>
+        葉の位置に揃えるため<code>l</code>・<code>r</code>に<code>n</code>を足します。そこから、区間<code>[l, r)</code>を上の階層へ縮めながら、区間の外側にはみ出す葉だけを答えに取り込んでいきます。<code>l</code>が奇数(親から見て右の子)ならそのノード自体が区間に含まれる最大のまとまりなので取り込んで1つ右へ進め、<code>r</code>が奇数(区間の外)なら1つ左の(区間に含まれる)ノードを先に取り込んでから縮めます。最後に<code>l</code>・<code>r</code>をともに2で割って1つ上の階層に上がり、<code>l &lt; r</code>である限り繰り返します。これは参考実装であり、唯一の正解ではありません(木を再帰でたどる書き方もできます)。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

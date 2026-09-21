@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="A Namaran C++ READ drill from 2026-09-22: tracing the construction and destruction order of file-scope static objects around main, within a single translation unit.">
+<title>Namaran — C++ / READ — 2026-09-22</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-09-22">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-22" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-09-22",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-09-22",
+      "datePublished": "2026-09-22",
+      "dateModified": "2026-09-22",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "C++ — construction and destruction order of static-storage objects" },
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "A Namaran C++ READ drill from 2026-09-22: tracing the construction and destruction order of file-scope static objects around main, within a single translation unit."
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-22">C23</a>
+  <a href="/cpp/read/2026-09-22" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-09-22">Rust 2024</a>
+  <a href="/haskell/read/2026-09-22">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-22" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-09-22">WRITE</a>
+  <a href="/cpp/debug/2026-09-22">DEBUG</a>
+</nav>
+
+<main>
+  <h2>2026-09-22</h2>
+  <div class="code-frame">
+    <p class="code-filename">static_order.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+
+<span class="kw">struct</span> <span class="ty">Tracer</span> {
+    <span class="kw">const</span> <span class="ty">char</span>* name;
+    <span class="fn">Tracer</span>(<span class="kw">const</span> <span class="ty">char</span>* n) : <span class="fn">name</span>(n) { std::cout &lt;&lt; <span class="st">"+"</span> &lt;&lt; name &lt;&lt; <span class="st">'\n'</span>; }
+    ~<span class="fn">Tracer</span>() { std::cout &lt;&lt; <span class="st">"-"</span> &lt;&lt; name &lt;&lt; <span class="st">'\n'</span>; }
+};
+
+<span class="ty">Tracer</span> <span class="fn">a</span>(<span class="st">"a"</span>);
+<span class="ty">Tracer</span> <span class="fn">b</span>(<span class="st">"b"</span>);
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="ty">Tracer</span> <span class="fn">c</span>(<span class="st">"c"</span>);
+    std::cout &lt;&lt; <span class="st">"main\n"</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    このプログラムを実行すると、標準出力はどうなるでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>+a</code>・<code>+b</code>・<code>+c</code>・<code>main</code>・<code>-c</code>・<code>-b</code>・<code>-a</code>の7行です。同じ翻訳単位内にあるファイルスコープの静的記憶域オブジェクト(<code>a</code>・<code>b</code>)は、その動的初期化が宣言順に行われることが規格で保証されており、しかも<code>main</code>の最初の文より前に終わっています。だから<code>+a</code>・<code>+b</code>がまず出て、それから<code>main</code>に入り、ローカル変数<code>c</code>が構築されて<code>+c</code>、続けて<code>main</code>が出力されます。<code>main</code>を抜けるとき、まずローカル変数<code>c</code>が(スコープを抜ける通常の規則で)破棄されて<code>-c</code>。そのあと、動的初期化を行った静的記憶域オブジェクトは構築順とは逆順に破棄されるので、<code>b</code>・<code>a</code>の順で<code>-b</code>・<code>-a</code>が出ます。ただし、この「宣言順」の保証が効くのはあくまで同じ翻訳単位の中だけです。<code>a</code>・<code>b</code>を別々の<code>.cpp</code>ファイルに分けてしまうと、複数の翻訳単位をまたいだ初期化順序は規格上未規定になり、これが俗に「static initialization order fiasco」と呼ばれる問題につながります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

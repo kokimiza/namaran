@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="A Namaran C++ DEBUG drill from 2026-09-22: a global object's constructor uses another global that is declared later, so it runs before that global is constructed.">
+<title>Namaran — C++ / DEBUG — 2026-09-22</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-09-22">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-22" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-09-22",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-09-22",
+      "datePublished": "2026-09-22",
+      "dateModified": "2026-09-22",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "C++ — a global depending on another global that hasn't been constructed yet" },
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "A Namaran C++ DEBUG drill from 2026-09-22: a global object's constructor uses another global that is declared later, so it runs before that global is constructed."
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-22">C23</a>
+  <a href="/cpp/debug/2026-09-22" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-09-22">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-22">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-22">READ</a>
+  <a href="/cpp/write/2026-09-22">WRITE</a>
+  <a href="/cpp/debug/2026-09-22" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main>
+  <h2>2026-09-22</h2>
+  <div class="code-frame">
+    <p class="code-filename">boot_registrar.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+
+<span class="ty">int</span> <span class="fn">next_id</span>() {
+    <span class="kw">static</span> <span class="ty">int</span> next = <span class="nu">100</span>;
+    <span class="kw">return</span> next++;
+}
+
+<span class="kw">struct</span> <span class="ty">Counter</span> {
+    <span class="ty">int</span> value;
+    <span class="fn">Counter</span>() : <span class="fn">value</span>(<span class="fn">next_id</span>()) {}
+    <span class="ty">void</span> <span class="fn">increment</span>() { ++value; }
+};
+
+<span class="kw">extern</span> <span class="ty">Counter</span> counter;
+
+<span class="kw">struct</span> <span class="ty">Registrar</span> {
+    <span class="fn">Registrar</span>() { counter.<span class="fn">increment</span>(); }
+};
+
+<span class="ty">Registrar</span> registrar;
+<span class="ty">Counter</span> counter;
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    std::cout &lt;&lt; counter.value &lt;&lt; <span class="st">'\n'</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    起動時に<code>Registrar</code>が自分自身を<code>Counter</code>へ登録する(<code>increment</code>を呼ぶ)つもりのコードです。動作は未定義で保証されませんが、実際に動かすとたとえば<code>100</code>が出力されることが多く(加算した分が消えてしまいます)、<code>101</code>にはなりません。何が問題で、どう直せばよいでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>registrar</code>は<code>counter</code>より先に宣言されているため、同じ翻訳単位内での動的初期化順序の規則(宣言順)により<code>registrar</code>が先に構築されます。その時点で<code>counter</code>はまだ自分のコンストラクタが走っておらず、生存期間が始まっていません。そこへ<code>Registrar</code>のコンストラクタが<code>counter.increment()</code>を呼んでしまうのは、生存期間の始まっていないオブジェクトを操作する未定義動作です。しかもこの後<code>counter</code>自身のコンストラクタが実行されると、<code>value</code>は<code>next_id()</code>の値でまるごと上書きされるため、実行してみると<code>increment()</code>による加算は跡形もなく消え、たとえば<code>100</code>が出ます(<code>101</code>にはなりません)。これは複数の翻訳単位にオブジェクトを分けた場合に初期化順序を制御できなくなる「static initialization order fiasco」の、1つの翻訳単位内での縮図です。実務での対策も同じで、グローバルオブジェクトの代わりに関数ローカル<code>static</code>を返すアクセサ関数(Construct On First Use)に置き換え、初回アクセス時に必ず構築を終えた状態にします:
+      </p>
+      <pre class="code"><code><span class="ty">Counter</span>&amp; <span class="fn">counter</span>() {
+    <span class="kw">static</span> <span class="ty">Counter</span> instance;
+    <span class="kw">return</span> instance;
+}
+
+<span class="kw">struct</span> <span class="ty">Registrar</span> {
+    <span class="fn">Registrar</span>() { <span class="fn">counter</span>().<span class="fn">increment</span>(); }
+};
+
+<span class="ty">Registrar</span> registrar;
+</code></pre>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="A Namaran Rust READ drill from 2026-09-22: tracing a flat-array segment tree that answers a range-minimum query without ever allocating a node.">
+<title>Namaran — Rust / READ — 2026-09-22</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-09-22">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / READ", "item": "https://namaran.jocarium.productions/rust/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-22" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / READ — 2026-09-22",
+      "url": "https://namaran.jocarium.productions/rust/read/2026-09-22",
+      "datePublished": "2026-09-22",
+      "dateModified": "2026-09-22",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "Rust — an iterative, array-backed segment tree for range minimum" },
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "A Namaran Rust READ drill from 2026-09-22: tracing a flat-array segment tree that answers a range-minimum query without ever allocating a node."
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-22">C23</a>
+  <a href="/cpp/read/2026-09-22">C++26</a>
+  <a href="/rust/read/2026-09-22" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/read/2026-09-22">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-09-22" class="active" aria-current="page">READ</a>
+  <a href="/rust/write/2026-09-22">WRITE</a>
+  <a href="/rust/debug/2026-09-22">DEBUG</a>
+</nav>
+
+<main>
+  <h2>2026-09-22</h2>
+  <div class="code-frame">
+    <p class="code-filename">segtree_trace.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">build</span>(a: &amp;[<span class="ty">i32</span>]) -&gt; <span class="ty">Vec</span>&lt;<span class="ty">i32</span>&gt; {
+    <span class="kw">let</span> n = a.<span class="fn">len</span>();
+    <span class="kw">let</span> <span class="kw">mut</span> tree = <span class="mc">vec!</span>[<span class="ty">i32</span>::<span class="nu">MAX</span>; <span class="nu">2</span> * n];
+    tree[n..].<span class="fn">clone_from_slice</span>(a);
+    <span class="kw">for</span> i <span class="kw">in</span> (<span class="nu">1</span>..n).<span class="fn">rev</span>() {
+        tree[i] = tree[<span class="nu">2</span> * i].<span class="fn">min</span>(tree[<span class="nu">2</span> * i + <span class="nu">1</span>]);
+    }
+    tree
+}
+
+<span class="kw">fn</span> <span class="fn">query</span>(tree: &amp;[<span class="ty">i32</span>], n: <span class="ty">usize</span>, <span class="kw">mut</span> l: <span class="ty">usize</span>, <span class="kw">mut</span> r: <span class="ty">usize</span>) -&gt; <span class="ty">i32</span> {
+    <span class="kw">let</span> <span class="kw">mut</span> res = <span class="ty">i32</span>::<span class="nu">MAX</span>;
+    l += n;
+    r += n;
+    <span class="kw">while</span> l &lt; r {
+        <span class="kw">if</span> l % <span class="nu">2</span> == <span class="nu">1</span> {
+            res = res.<span class="fn">min</span>(tree[l]);
+            l += <span class="nu">1</span>;
+        }
+        <span class="kw">if</span> r % <span class="nu">2</span> == <span class="nu">1</span> {
+            r -= <span class="nu">1</span>;
+            res = res.<span class="fn">min</span>(tree[r]);
+        }
+        l /= <span class="nu">2</span>;
+        r /= <span class="nu">2</span>;
+    }
+    res
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> a = [<span class="nu">5</span>, <span class="nu">2</span>, <span class="nu">8</span>, <span class="nu">1</span>, <span class="nu">9</span>, <span class="nu">3</span>];
+    <span class="kw">let</span> n = a.<span class="fn">len</span>();
+    <span class="kw">let</span> tree = <span class="fn">build</span>(&amp;a);
+    <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="fn">query</span>(&amp;tree, n, <span class="nu">1</span>, <span class="nu">5</span>));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    このプログラムは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>1</code>です。これは区間最小値を管理するセグメント木を、ノードへのポインタを持つ木構造ではなく、1本の<code>Vec&lt;i32&gt;</code>に平らに詰め込んで表現したものです(Rustでは、親から子への所有権と、子から親を指し返す参照を同時に持つ木は借用のルール上素直には書けないため、こうした添字だけで親子関係を表す配列表現がよく使われます)。<code>build</code>は元の配列<code>a</code>を<code>tree[n..]</code>に葉として置き、内部ノード<code>tree[i]</code>には子<code>tree[2*i]</code>・<code>tree[2*i+1]</code>の小さい方を下から順に詰めます。<code>a = [5, 2, 8, 1, 9, 3]</code>に対して<code>tree = [_, 1, 1, 2, 1, 3, 5, 2, 8, 1, 9, 3]</code>(添字0は未使用)になります。<code>query(&amp;tree, 6, 1, 5)</code>は半開区間<code>[1, 5)</code>、つまり<code>a[1..5] = [2, 8, 1, 9]</code>の最小値を求めます。<code>l</code>・<code>r</code>に<code>n</code>を足して葉の位置に揃えたあと、<code>l</code>が奇数(右の子)ならそのノードを答えに取り込んで1つ右へ、<code>r</code>が奇数なら1つ左に戻してから取り込み、最後に<code>l</code>・<code>r</code>をともに2で割って1つ上の階層へ上がる、を<code>l &lt; r</code>の間繰り返します。<code>a[1..5]</code>の最小値は<code>1</code>なので、答えも<code>1</code>になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/read">Today</a></li>
+    <li><a href="/rust/read/archive">Archive</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
