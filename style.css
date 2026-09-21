@@ -563,8 +563,10 @@ details.answer summary::after {
   margin-top: var(--s-sibling);
 }
 
-/* Only inline code. A listing's <code> sits inside <pre> and must stay on the
-   slab — the chip background under slab text is unreadable. */
+/* Only inline code, in the question as well as the answer: a WRITE question
+   carries its examples as `input -> output` pairs. A listing's <code> sits
+   inside <pre> and must stay on the slab, where the chip is unreadable. */
+.question code,
 .answer-body :not(pre) > code {
   font-family: var(--font-mono);
   font-size: 0.85em;

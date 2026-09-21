@@ -26,9 +26,16 @@
 #                  ok file, so the published answer is the observed output.
 #   NAME.ng.EXT    must FAIL to compile: a "this doesn't compile" answer,
 #                  or a DEBUG drill whose bug is a compile error.
-#   NAME.bug.EXT   must compile (warnings allowed) but is never run and
-#                  never analyzed: a DEBUG drill whose bug is at run time
-#                  (undefined behavior, a hang, a wrong result).
+#   NAME.bug.EXT   must compile (warnings allowed); never analyzed. A DEBUG
+#                  drill whose bug is at run time (undefined behavior, a
+#                  hang, a wrong result).
+#   NAME.bug.stdout  optional, next to NAME.bug.EXT: the broken program is
+#                  built as it is (warnings allowed, no sanitizers) and run
+#                  (10s timeout), and its stdout must match this file. That
+#                  is the wrong output a DEBUG question quotes, so the drill
+#                  cannot claim one nobody observed. Leave it out when the
+#                  bug has no fixed output (undefined behavior, a hang, a
+#                  crash) — and then the question must not quote one either.
 #
 # Per combo, at least: READ one file of any kind; WRITE one ok file; DEBUG
 # one ok file plus one ng or bug file.
@@ -65,7 +72,7 @@ GHC="${NAMARA_GHC:-ghc}"
 HLINT="${NAMARA_HLINT:-hlint}"
 
 usage() {
-  sed -n '2,51p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+  sed -n '2,57p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
 }
 
 code_ext() {
@@ -133,6 +140,20 @@ sys.exit(1 if hints else 0)
 ' "$json" > "$LOG" 2>&1
 }
 
+# compile_plain LANG SRC BIN OUT — build a broken program as it is: warnings
+# allowed, no sanitizers, so that what it prints is what a reader would see.
+# Only used when a NAME.bug.stdout says the wrong output is worth checking.
+compile_plain() {
+  local lang="$1" src="$2" bin="$3" out="$4"
+  mkdir -p "$out/run"
+  case "$lang" in
+    c) run_logged "$CC" -std=c23 -g -o "$bin" "$src" ;;
+    cpp) run_logged "$CXX" -std=c++26 -g -o "$bin" "$src" ;;
+    rust) run_logged "$RUSTC" --edition 2024 --crate-name verify -C debug-assertions=on -o "$bin" "$src" ;;
+    haskell) run_logged "$GHC" -XHaskell2010 -outputdir "$out/run" -o "$bin" "$src" ;;
+  esac
+}
+
 # check_only LANG SRC OUT — does this file compile at all? (no warnings gate)
 check_only() {
   local lang="$1" src="$2" out="$3"
@@ -156,6 +177,11 @@ verify_sources() {
       *.ok."$ext") kind=ok ;;
       *.ng."$ext") kind=ng ;;
       *.bug."$ext") kind=bug ;;
+      *.bug.stdout)
+        [ -f "$src_dir/${base%.stdout}.$ext" ] ||
+          fail "$base has no matching ${base%.stdout}.$ext"
+        continue
+        ;;
       *.stdout)
         [ -f "$src_dir/${base%.stdout}.ok.$ext" ] ||
           fail "$base has no matching ${base%.stdout}.ok.$ext"
@@ -205,11 +231,25 @@ verify_sources() {
         ;;
       bug)
         n_bug=$((n_bug + 1))
-        if check_only "$lang" "$f" "$out"; then
-          pass "$base (compiles; run-time bug, not executed)"
-        else
+        if ! check_only "$lang" "$f" "$out"; then
           fail "$base was expected to compile, but it doesn't:"
           show_log
+          continue
+        fi
+        stdout_file="$src_dir/$name.bug.stdout"
+        if [ ! -f "$stdout_file" ]; then
+          pass "$base (compiles; not executed — no $name.bug.stdout)"
+        elif ! compile_plain "$lang" "$f" "$bin" "$out"; then
+          fail "$base has a $name.bug.stdout but does not build with the strict flags off:"
+          show_log
+        elif ! (cd "$out" && timeout 10 "$bin" > "$out/actual.stdout" 2> "$out/stderr.txt"); then
+          fail "$base: running it failed or timed out. A bug with no fixed output (undefined behavior, a hang, a crash) must not have a $name.bug.stdout, and its question must not quote one:"
+          sed -n '1,20p' "$out/stderr.txt" | sed 's/^/        /'
+        elif ! cmp -s "$stdout_file" "$out/actual.stdout"; then
+          fail "$base: stdout differs from $name.bug.stdout:"
+          { diff "$stdout_file" "$out/actual.stdout" || true; } | sed -n '1,20p' | sed 's/^/        /'
+        else
+          pass "$base (compiles; wrong output matches $name.bug.stdout)"
         fi
         ;;
     esac
