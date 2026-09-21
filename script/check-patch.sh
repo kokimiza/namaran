@@ -43,7 +43,7 @@ import re
 import sys
 from html.parser import HTMLParser
 
-SITE = "https://namara.jocarium.productions"
+SITE = "https://namaran.jocarium.productions"
 LANGS = ("c", "cpp", "rust", "haskell")
 TYPES = ("read", "write", "debug")
 

@@ -375,7 +375,7 @@ env.ASSETS.fetch("/c/read/2026-08-21") を取得し、そのままレスポン�
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Namaran — C / READ — 2026-08-21</title>
-<link rel="canonical" href="https://namara.jocarium.productions/c/read/2026-08-21">
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-08-21">
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -474,15 +474,15 @@ env.ASSETS.fetch("/c/read/2026-08-21") を取得し、そのままレスポン�
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="Every past Namaran C READ drill, archived by date.">
 <title>Namaran — C / READ — Archive</title>
-<link rel="canonical" href="https://namara.jocarium.productions/c/read/archive">
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/archive">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "BreadcrumbList",
   "itemListElement": [
-    { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namara.jocarium.productions/" },
-    { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namara.jocarium.productions/c/read" },
+    { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+    { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
     { "@type": "ListItem", "position": 3, "name": "Archive" }
   ]
 }
@@ -662,7 +662,7 @@ script/highlight.sh [--check] FILE ...
 * **公開の条件にする。** `script/verify.sh` は `--check` で、ページのハイライトがこのスクリプトの出力どおりかを確認する。ハイライトし忘れたページや、spanを手で書き換えたページは公開されない。`check-patch.sh` の許可リストは元から `<span class>` を含むので変更していない
 * **字句解析は小さく、隅では間違える。** 言語ごとに正規表現数十行で、ネストしたブロックコメントやC++の文脈依存キーワードは扱わない。間違えたときに起きるのは「色が違う」ことだけで、文字列は変わらない
 
-**公開後は編集しない（§7.1）の例外。** ハイライトは2026-09-16に導入し、その時点で公開済みだった全ページに一度だけ適用した。変わったのは `<pre class="code">` の中のマークアップだけで、各ページから span を除いたものは3ページを除き元のファイルとバイト単位で一致した。残る3ページは、元のHTMLが `&&` や `->` をエスケープせずに書いていた箇所がエスケープされただけで、表示される文字列は同じである。今後、字句解析を改善したときも同じ手順（全ページに再適用し、表示される文字列が変わらないことをスクリプトに確かめさせる）で付け直してよい。もう1つの例外は、2026-09-21のサービス名変更（旧名から「Namaran」へ）である。表示名はタイトル・マストヘッド・JSON-LDとして全ページに入っているため、公開済みページも含めて一括で置換した。置換したのは大文字始まりの表示名だけで、コード（`<pre class="code">` の中）には触れていない。ドメイン・GitHubリポジトリ名・Skill名・環境変数などの小文字の識別子は、DNSやリポジトリの変更を伴うため変えていない。これ以外の理由で公開済みページを編集しないという方針は変わらない。
+**公開後は編集しない（§7.1）の例外。** ハイライトは2026-09-16に導入し、その時点で公開済みだった全ページに一度だけ適用した。変わったのは `<pre class="code">` の中のマークアップだけで、各ページから span を除いたものは3ページを除き元のファイルとバイト単位で一致した。残る3ページは、元のHTMLが `&&` や `->` をエスケープせずに書いていた箇所がエスケープされただけで、表示される文字列は同じである。今後、字句解析を改善したときも同じ手順（全ページに再適用し、表示される文字列が変わらないことをスクリプトに確かめさせる）で付け直してよい。もう1つの例外は、2026-09-21のサービス名変更（旧名から「Namaran」へ）である。表示名はタイトル・マストヘッド・JSON-LDとして全ページに入っているため、公開済みページも含めて一括で置換した。置換したのは大文字始まりの表示名だけで、コード（`<pre class="code">` の中）には触れていない。サイトのドメインも同日に `namaran.jocarium.productions` へ移し、canonical・JSON-LD・`sitemap.xml`・`robots.txt`・`check-patch.sh` と `sitemap.sh` の SITE を書き換えた。GitHubリポジトリ名・Skill名・環境変数などの小文字の識別子は変えていない。これ以外の理由で公開済みページを編集しないという方針は変わらない。
 
 ---
 

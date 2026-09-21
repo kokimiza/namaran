@@ -37,7 +37,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 OUT="$ROOT_DIR/sitemap.xml"
 
-SITE_ORIGIN="https://namara.jocarium.productions"
+SITE_ORIGIN="https://namaran.jocarium.productions"
 ALL_LANGS=(c cpp rust haskell)
 ALL_TYPES=(read write debug)
 
