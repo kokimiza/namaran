@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="A Namara C READ drill from 2026-09-19: a qsort comparator built from (x &gt; y) - (x &lt; y) instead of subtraction, tracing how it sorts an array with duplicates.">
+<title>Namara — C / READ — 2026-09-19</title>
+<link rel="canonical" href="https://namara.jocarium.productions/c/read/2026-09-19">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namara", "item": "https://namara.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namara.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-19" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-09-19",
+      "url": "https://namara.jocarium.productions/c/read/2026-09-19",
+      "datePublished": "2026-09-19",
+      "dateModified": "2026-09-19",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "C — writing a total-order comparator without overflow" },
+      "author": { "@type": "Organization", "name": "Namara" },
+      "publisher": { "@type": "Organization", "name": "Namara" },
+      "isPartOf": { "@type": "WebSite", "name": "Namara", "url": "https://namara.jocarium.productions/" },
+      "description": "A Namara C READ drill from 2026-09-19: a qsort comparator built from (x > y) - (x < y) instead of subtraction, tracing how it sorts an array with duplicates."
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namara</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-19" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-09-19">C++26</a>
+  <a href="/rust/read/2026-09-19">Rust 2024</a>
+  <a href="/haskell/read/2026-09-19">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-09-19" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-09-19">WRITE</a>
+  <a href="/c/debug/2026-09-19">DEBUG</a>
+</nav>
+
+<main>
+  <h2>2026-09-19</h2>
+  <div class="code-frame">
+    <p class="code-filename">three_way_cmp.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;stdlib.h&gt;</span>
+
+<span class="ty">int</span> <span class="fn">cmp_int</span>(<span class="kw">const</span> <span class="ty">void</span> *a, <span class="kw">const</span> <span class="ty">void</span> *b) {
+    <span class="ty">int</span> x = *(<span class="kw">const</span> <span class="ty">int</span> *)a;
+    <span class="ty">int</span> y = *(<span class="kw">const</span> <span class="ty">int</span> *)b;
+    <span class="kw">return</span> (x &gt; y) - (x &lt; y);
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="ty">int</span> values[] = {<span class="nu">5</span>, -<span class="nu">3</span>, <span class="nu">5</span>, <span class="nu">0</span>, <span class="nu">2</span>, -<span class="nu">3</span>};
+    <span class="fn">qsort</span>(values, <span class="nu">6</span>, <span class="kw">sizeof</span>(<span class="ty">int</span>), cmp_int);
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; <span class="nu">6</span>; i++)
+        <span class="fn">printf</span>(<span class="st">"%s%d"</span>, i ? <span class="st">" "</span> : <span class="st">""</span>, values[i]);
+    <span class="fn">printf</span>(<span class="st">"\n"</span>);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>cmp_int</code>は<code>x - y</code>ではなく<code>(x &gt; y) - (x &lt; y)</code>を使っています。<code>qsort</code>したあとの出力は何でしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>-3 -3 0 2 5 5</code>(その後に改行)。<code>(x &gt; y) - (x &lt; y)</code>は、<code>x</code>と<code>y</code>の大小関係だけから<code>-1</code>・<code>0</code>・<code>1</code>を作る式で、<code>x - y</code>のように途中でオーバーフローする心配がありません。この式は「<code>x</code>が大きいなら正、小さいなら負、等しいなら0」という一貫した規則を常に守るので、<code>qsort</code>が要求する全順序(同値を許すので正確には弱順序)としてそのまま使えます。<code>values</code>には<code>5</code>と<code>-3</code>がそれぞれ2つずつありますが、同じ値同士はどちらが先に並んでも出力される文字列は変わらないので、qsortの実装がタイをどう並べるかを気にする必要はありません。結果は昇順の<code>-3 -3 0 2 5 5</code>に確定します。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

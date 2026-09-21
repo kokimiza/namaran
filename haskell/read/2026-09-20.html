@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="A Namara Haskell READ drill from 2026-09-20: tracing map and zipWith applied to lambdas and an operator section, three basic forms of anonymous functions.">
+<title>Namara — Haskell / READ — 2026-09-20</title>
+<link rel="canonical" href="https://namara.jocarium.productions/haskell/read/2026-09-20">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namara", "item": "https://namara.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namara.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-20" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-09-20",
+      "url": "https://namara.jocarium.productions/haskell/read/2026-09-20",
+      "datePublished": "2026-09-20",
+      "dateModified": "2026-09-20",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "Haskell — lambdas and sections passed to higher-order functions" },
+      "author": { "@type": "Organization", "name": "Namara" },
+      "publisher": { "@type": "Organization", "name": "Namara" },
+      "isPartOf": { "@type": "WebSite", "name": "Namara", "url": "https://namara.jocarium.productions/" },
+      "description": "A Namara Haskell READ drill from 2026-09-20: tracing map and zipWith applied to lambdas and an operator section, three basic forms of anonymous functions."
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namara</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-20">C23</a>
+  <a href="/cpp/read/2026-09-20">C++26</a>
+  <a href="/rust/read/2026-09-20">Rust 2024</a>
+  <a href="/haskell/read/2026-09-20" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-09-20" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-09-20">WRITE</a>
+  <a href="/haskell/debug/2026-09-20">DEBUG</a>
+</nav>
+
+<main>
+  <h2>2026-09-20</h2>
+  <div class="code-frame">
+    <p class="code-filename">LambdaMap.hs</p>
+    <pre class="code"><code><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = <span class="kw">do</span>
+  print (map (\x <span class="op">-&gt;</span> x * x) [<span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">3</span> <span class="op">::</span> <span class="ty">Int</span>])
+  print (map (+ <span class="nu">3</span>) [<span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">3</span> <span class="op">::</span> <span class="ty">Int</span>])
+  print (zipWith (\a b <span class="op">-&gt;</span> a * b + <span class="nu">1</span>) [<span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">3</span>] [<span class="nu">4</span>, <span class="nu">5</span>, <span class="nu">6</span> <span class="op">::</span> <span class="ty">Int</span>])
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>\x -&gt; x * x</code>は無名関数(ラムダ式)、<code>(+ 3)</code>は演算子セクションという、どちらも「名前を付けずに関数を作る」書き方です。<code>main</code>は何を出力するでしょうか?(3行)
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>[1,4,9]</code>、<code>[4,5,6]</code>、<code>[5,11,19]</code> &mdash; 1行ずつ。<code>map</code>や<code>zipWith</code>は「関数を引数に取る関数」、つまり高階関数で、その関数を毎回<code>let</code>で名前を付けてから渡す必要はありません。1行目の<code>\x -&gt; x * x</code>は無名関数そのもので、リストの各要素を2乗します。2行目の<code>(+ 3)</code>は演算子セクションと呼ばれる書き方で、<code>\x -&gt; x + 3</code>と全く同じ意味の無名関数を、演算子の片側だけを埋めることで簡潔に表しています。3行目の<code>zipWith</code>は2つのリストを同じ位置同士で無名関数に渡す高階関数で、<code>\a b -&gt; a * b + 1</code>という2引数のラムダ式を使うと、<code>1*4+1=5</code>、<code>2*5+1=11</code>、<code>3*6+1=19</code>という要素ごとの計算になります。無名関数・セクションのどちらも、その場限りでしか使わない小さな関数にわざわざ名前を付ける手間を省くための書き方です。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

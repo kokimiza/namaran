@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="An archived Namara Rust DEBUG drill from 2026-08-23: struct update syntax silently fills a forgotten field from Default::default(), so incrementing by a zero step has no effect.">
+<title>Namara — Rust / DEBUG — 2026-08-23</title>
+<link rel="canonical" href="https://namara.jocarium.productions/rust/debug/2026-08-23">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namara", "item": "https://namara.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namara.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-23" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-08-23",
+      "url": "https://namara.jocarium.productions/rust/debug/2026-08-23",
+      "datePublished": "2026-08-23",
+      "dateModified": "2026-08-23",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "Rust — a forgotten field silently comes from Default::default()" },
+      "author": { "@type": "Organization", "name": "Namara" },
+      "publisher": { "@type": "Organization", "name": "Namara" },
+      "isPartOf": { "@type": "WebSite", "name": "Namara", "url": "https://namara.jocarium.productions/" },
+      "description": "An archived Namara Rust DEBUG drill from 2026-08-23: struct update syntax silently fills a forgotten field from Default::default(), so incrementing by a zero step has no effect."
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namara</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-08-23">C23</a>
+  <a href="/cpp/debug/2026-08-23">C++26</a>
+  <a href="/rust/debug/2026-08-23" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-08-23">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-08-23">READ</a>
+  <a href="/rust/write/2026-08-23">WRITE</a>
+  <a href="/rust/debug/2026-08-23" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main>
+  <h2>2026-08-23</h2>
+  <div class="code-frame">
+    <p class="code-filename">counter_step.rs</p>
+    <pre class="code"><code><span class="pp">#[derive(Default)]</span>
+<span class="kw">struct</span> <span class="ty">Counter</span> {
+    value: <span class="ty">i32</span>,
+    step: <span class="ty">i32</span>,
+}
+
+<span class="kw">impl</span> <span class="ty">Counter</span> {
+    <span class="kw">fn</span> <span class="fn">inc</span>(&amp;<span class="kw">mut</span> <span class="kw">self</span>) {
+        <span class="kw">self</span>.value += <span class="kw">self</span>.step;
+    }
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> <span class="kw">mut</span> c = <span class="ty">Counter</span> { value: <span class="nu">10</span>, ..<span class="ty">Default</span>::<span class="fn">default</span>() };
+    c.<span class="fn">inc</span>();
+    c.<span class="fn">inc</span>();
+    <span class="mc">println!</span>(<span class="st">"{}"</span>, c.value);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>c.inc()</code>を2回呼べば<code>value</code>が増えるはずですが、<code>10</code>のまま変わりません。何が問題で、どう直せばよいでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>Counter { value: 10, ..Default::default() }</code>は<code>value</code>だけを指定していて、<code>step</code>を書き忘れています。<code>..Default::default()</code>は指定しなかった残り全てのフィールドを<code>Default::default()</code>由来の値で埋めるので、<code>step</code>は静かに<code>0</code>になります。<code>inc</code>は<code>self.value += self.step</code>で正しく動いていますが、<code>step</code>が<code>0</code>なので何を足しても<code>value</code>は変わりません。構造体更新記法は「書かなかったフィールドは呼び出し側の意図した値ではなく、常に<code>Default</code>の値になる」という点に注意が必要です。増分として使うつもりだった<code>step</code>も明示的に指定します:
+      </p>
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> <span class="kw">mut</span> c = <span class="ty">Counter</span> { value: <span class="nu">10</span>, step: <span class="nu">5</span> };
+    c.<span class="fn">inc</span>();
+    c.<span class="fn">inc</span>();
+    <span class="mc">println!</span>(<span class="st">"{}"</span>, c.value);
+}
+</code></pre>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

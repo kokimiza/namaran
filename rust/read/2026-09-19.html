@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="A Namara Rust READ drill from 2026-09-19: -1i32.pow(2), where a method call binds tighter than the unary minus in front of it.">
+<title>Namara — Rust / READ — 2026-09-19</title>
+<link rel="canonical" href="https://namara.jocarium.productions/rust/read/2026-09-19">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namara", "item": "https://namara.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / READ", "item": "https://namara.jocarium.productions/rust/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-19" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / READ — 2026-09-19",
+      "url": "https://namara.jocarium.productions/rust/read/2026-09-19",
+      "datePublished": "2026-09-19",
+      "dateModified": "2026-09-19",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "Rust — method calls binding tighter than unary minus" },
+      "author": { "@type": "Organization", "name": "Namara" },
+      "publisher": { "@type": "Organization", "name": "Namara" },
+      "isPartOf": { "@type": "WebSite", "name": "Namara", "url": "https://namara.jocarium.productions/" },
+      "description": "A Namara Rust READ drill from 2026-09-19: -1i32.pow(2), where a method call binds tighter than the unary minus in front of it."
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namara</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-19">C23</a>
+  <a href="/cpp/read/2026-09-19">C++26</a>
+  <a href="/rust/read/2026-09-19" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/read/2026-09-19">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-09-19" class="active" aria-current="page">READ</a>
+  <a href="/rust/write/2026-09-19">WRITE</a>
+  <a href="/rust/debug/2026-09-19">DEBUG</a>
+</nav>
+
+<main>
+  <h2>2026-09-19</h2>
+  <div class="code-frame">
+    <p class="code-filename">neg_pow.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> x = -<span class="nu">1i32</span>.<span class="fn">pow</span>(<span class="nu">2</span>);
+    <span class="mc">println!</span>(<span class="st">"{x}"</span>);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>-1i32.pow(2)</code>は<code>(-1i32).pow(2)</code>、つまり<code>1</code>になるでしょうか?実際に何が出力されるか答えてください。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>-1</code>(その後に改行)。単項の<code>-</code>は前置演算子ですが、メソッド呼び出し(<code>.pow(2)</code>のようなドット記法)は後置演算子で、Rustの演算子優先順位では後置の方が前置より強く結合します。そのため<code>-1i32.pow(2)</code>は<code>-(1i32.pow(2))</code>、つまり「<code>1i32</code>の2乗を求めてから符号を反転する」という意味になり、<code>1</code>の2乗である<code>1</code>を反転した<code>-1</code>が答えです。<code>(-1i32).pow(2)</code>のように<code>-1</code>を先に確定させたいなら、括弧で明示的に区切る必要があります。数式の見た目につられて「マイナスが先に付いているものは全部まとめて2乗される」と読んでしまうと間違えやすい例です。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/read">Today</a></li>
+    <li><a href="/rust/read/archive">Archive</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

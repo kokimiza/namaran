@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="A Namara C WRITE drill from 2026-09-19: write a qsort comparator for a two-key total order — descending by score, ties broken by name.">
+<title>Namara — C / WRITE — 2026-09-19</title>
+<link rel="canonical" href="https://namara.jocarium.productions/c/write/2026-09-19">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namara", "item": "https://namara.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namara.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-19" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-09-19",
+      "url": "https://namara.jocarium.productions/c/write/2026-09-19",
+      "datePublished": "2026-09-19",
+      "dateModified": "2026-09-19",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "C — a comparator with a primary and tie-breaking key" },
+      "author": { "@type": "Organization", "name": "Namara" },
+      "publisher": { "@type": "Organization", "name": "Namara" },
+      "isPartOf": { "@type": "WebSite", "name": "Namara", "url": "https://namara.jocarium.productions/" },
+      "description": "A Namara C WRITE drill from 2026-09-19: write a qsort comparator for a two-key total order — descending by score, ties broken by name."
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namara</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-19" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-09-19">C++26</a>
+  <a href="/rust/write/2026-09-19">Rust 2024</a>
+  <a href="/haskell/write/2026-09-19">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-09-19">READ</a>
+  <a href="/c/write/2026-09-19" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-09-19">DEBUG</a>
+</nav>
+
+<main>
+  <h2>2026-09-19</h2>
+  <div class="code-frame">
+    <p class="code-filename">rank_players.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;string.h&gt;</span>
+
+<span class="kw">typedef</span> <span class="kw">struct</span> {
+    <span class="ty">int</span> score;
+    <span class="kw">const</span> <span class="ty">char</span> *name;
+} <span class="ty">Player</span>;
+
+<span class="ty">int</span> <span class="fn">cmp_player</span>(<span class="kw">const</span> <span class="ty">void</span> *a, <span class="kw">const</span> <span class="ty">void</span> *b) {
+    <span class="cm">// write this: qsort comparator for Player. Sort descending by score;</span>
+    <span class="cm">// when scores are equal, break the tie ascending by name (strcmp).</span>
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>cmp_player</code>を実装してください。スコアで降順に並べ、スコアが同じ場合は名前(<code>strcmp</code>)で昇順にすること。
+  </p>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="ty">int</span> <span class="fn">cmp_player</span>(<span class="kw">const</span> <span class="ty">void</span> *a, <span class="kw">const</span> <span class="ty">void</span> *b) {
+    <span class="kw">const</span> <span class="ty">Player</span> *pa = a;
+    <span class="kw">const</span> <span class="ty">Player</span> *pb = b;
+    <span class="kw">if</span> (pa-&gt;score != pb-&gt;score)
+        <span class="kw">return</span> (pa-&gt;score &lt; pb-&gt;score) - (pa-&gt;score &gt; pb-&gt;score);
+    <span class="kw">return</span> <span class="fn">strcmp</span>(pa-&gt;name, pb-&gt;name);
+}
+</code></pre>
+      <p>
+        比較関数で全順序を作るときは、まず主キー(<code>score</code>)で決着がつくかどうかを確かめ、決着がつかない(同点の)場合にだけ副キー(<code>name</code>)へ進むという順序を守る必要があります。先に副キーだけで比較してしまうと、主キーが違う要素同士でも副キーの大小で結果が決まってしまい、意図した順序になりません。降順にしたいときは、単に昇順の式の左右を入れ替える(<code>(pa-&gt;score &lt; pb-&gt;score) - (pa-&gt;score &gt; pb-&gt;score)</code>)だけでよく、<code>strcmp</code>のように既に総順序を返してくれる関数はそのまま副キーとして使えます。これは参考実装であり、唯一の正解ではありません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

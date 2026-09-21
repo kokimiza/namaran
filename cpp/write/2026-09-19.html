@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="A Namara C++ WRITE drill from 2026-09-19: write a seconds-to-h:mm:ss formatter, chaining integer division and remainder to peel off each unit.">
+<title>Namara — C++ / WRITE — 2026-09-19</title>
+<link rel="canonical" href="https://namara.jocarium.productions/cpp/write/2026-09-19">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namara", "item": "https://namara.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namara.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-19" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-09-19",
+      "url": "https://namara.jocarium.productions/cpp/write/2026-09-19",
+      "datePublished": "2026-09-19",
+      "dateModified": "2026-09-19",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "C++ — chaining division and remainder to split units" },
+      "author": { "@type": "Organization", "name": "Namara" },
+      "publisher": { "@type": "Organization", "name": "Namara" },
+      "isPartOf": { "@type": "WebSite", "name": "Namara", "url": "https://namara.jocarium.productions/" },
+      "description": "A Namara C++ WRITE drill from 2026-09-19: write a seconds-to-h:mm:ss formatter, chaining integer division and remainder to peel off each unit."
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namara</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-19">C23</a>
+  <a href="/cpp/write/2026-09-19" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-09-19">Rust 2024</a>
+  <a href="/haskell/write/2026-09-19">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-19">READ</a>
+  <a href="/cpp/write/2026-09-19" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-09-19">DEBUG</a>
+</nav>
+
+<main>
+  <h2>2026-09-19</h2>
+  <div class="code-frame">
+    <p class="code-filename">format_hms.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+
+std::<span class="ty">string</span> <span class="fn">format_hms</span>(<span class="ty">int</span> total_seconds) {
+    <span class="cm">// write this: format total_seconds as "H:MM:SS" (hours unpadded,</span>
+    <span class="cm">// minutes and seconds zero-padded to 2 digits), using / and % only</span>
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>format_hms</code>を実装してください。<code>/</code>と<code>%</code>を鎖のように使い、まず時間を取り出し、残りから分、その残りから秒を取り出すこと。
+  </p>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code>std::<span class="ty">string</span> <span class="fn">format_hms</span>(<span class="ty">int</span> total_seconds) {
+    <span class="ty">int</span> hours = total_seconds / <span class="nu">3600</span>;
+    <span class="ty">int</span> rem = total_seconds % <span class="nu">3600</span>;
+    <span class="ty">int</span> minutes = rem / <span class="nu">60</span>;
+    <span class="ty">int</span> seconds = rem % <span class="nu">60</span>;
+    std::<span class="ty">string</span> result = std::<span class="fn">to_string</span>(hours) + <span class="st">":"</span>;
+    <span class="kw">if</span> (minutes &lt; <span class="nu">10</span>) result += <span class="st">"0"</span>;
+    result += std::<span class="fn">to_string</span>(minutes) + <span class="st">":"</span>;
+    <span class="kw">if</span> (seconds &lt; <span class="nu">10</span>) result += <span class="st">"0"</span>;
+    result += std::<span class="fn">to_string</span>(seconds);
+    <span class="kw">return</span> result;
+}
+</code></pre>
+      <p>
+        「合計を単位ごとに分解する」処理は、<code>/</code>で1つ上の単位の個数を取り出し、<code>%</code>でその単位に収まりきらなかった残りを次の計算に渡す、という鎖でできています。<code>total_seconds / 3600</code>で時間数を取り出したら、その時間ぶんを引いた残りは<code>total_seconds % 3600</code>そのものであり、改めて引き算する必要はありません。この残りに対して同じ手順(<code>/ 60</code>で分、<code>% 60</code>で秒)を繰り返すだけで、単位変換の連鎖が書けます。これは参考実装であり、唯一の正解ではありません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

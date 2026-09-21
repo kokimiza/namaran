@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="A Namara C++ READ drill from 2026-09-21: a constructor that throws to enforce an invariant, and what happens to the rest of a try block when it does.">
+<title>Namara — C++ / READ — 2026-09-21</title>
+<link rel="canonical" href="https://namara.jocarium.productions/cpp/read/2026-09-21">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namara", "item": "https://namara.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namara.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-21" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-09-21",
+      "url": "https://namara.jocarium.productions/cpp/read/2026-09-21",
+      "datePublished": "2026-09-21",
+      "dateModified": "2026-09-21",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "C++ — a constructor throwing to keep an invariant, and how far the throw unwinds" },
+      "author": { "@type": "Organization", "name": "Namara" },
+      "publisher": { "@type": "Organization", "name": "Namara" },
+      "isPartOf": { "@type": "WebSite", "name": "Namara", "url": "https://namara.jocarium.productions/" },
+      "description": "A Namara C++ READ drill from 2026-09-21: a constructor that throws to enforce an invariant, and what happens to the rest of a try block when it does."
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namara</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-21">C23</a>
+  <a href="/cpp/read/2026-09-21" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-09-21">Rust 2024</a>
+  <a href="/haskell/read/2026-09-21">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-21" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-09-21">WRITE</a>
+  <a href="/cpp/debug/2026-09-21">DEBUG</a>
+</nav>
+
+<main>
+  <h2>2026-09-21</h2>
+  <div class="code-frame">
+    <p class="code-filename">percentage.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;stdexcept&gt;</span>
+
+<span class="kw">class</span> <span class="ty">Percentage</span> {
+<span class="kw">public</span>:
+    <span class="kw">explicit</span> <span class="fn">Percentage</span>(<span class="ty">int</span> value) : <span class="fn">value_</span>(value) {
+        <span class="kw">if</span> (value &lt; <span class="nu">0</span> || value &gt; <span class="nu">100</span>) {
+            <span class="kw">throw</span> std::<span class="fn">invalid_argument</span>(<span class="st">"out of range"</span>);
+        }
+    }
+    <span class="ty">int</span> <span class="fn">value</span>() <span class="kw">const</span> { <span class="kw">return</span> value_; }
+<span class="kw">private</span>:
+    <span class="ty">int</span> value_;
+};
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="kw">try</span> {
+        <span class="ty">Percentage</span> <span class="fn">p1</span>(<span class="nu">50</span>);
+        <span class="ty">Percentage</span> <span class="fn">p2</span>(<span class="nu">150</span>);
+        std::cout &lt;&lt; p1.<span class="fn">value</span>() &lt;&lt; <span class="st">" "</span> &lt;&lt; p2.<span class="fn">value</span>() &lt;&lt; <span class="st">"\n"</span>;
+    } <span class="kw">catch</span> (<span class="kw">const</span> std::invalid_argument &amp;e) {
+        std::cout &lt;&lt; <span class="st">"caught: "</span> &lt;&lt; e.<span class="fn">what</span>() &lt;&lt; <span class="st">"\n"</span>;
+    }
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    このコードは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>caught: out of range</code>(その後に改行)。<code>Percentage</code>は<code>0</code>以上<code>100</code>以下という不変条件をコンストラクタの中で検査しており、外れていれば例外を投げます。<code>p1</code>の構築は成功しますが、続く<code>p2(150)</code>の構築中に例外が投げられます。コンストラクタが例外を投げると、そのオブジェクトは(部分的にも)存在しなかったことになり、<code>try</code>ブロックの残り(<code>p1.value()</code>や<code>p2.value()</code>を含む<code>std::cout</code>の行)は実行されずに<code>catch</code>節へ制御が移ります。すでに構築済みの<code>p1</code>は、この巻き戻しの過程で通常どおりデストラクタが呼ばれて破棄されます。「不変条件を型で守る」とは、この例のように、不変条件を満たさないオブジェクトをそもそも存在させない(構築自体を失敗させる)ことで、以降そのクラスの値を使うコードが常に不変条件を前提にできるようにする設計です。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

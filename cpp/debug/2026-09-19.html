@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="A Namara C++ DEBUG drill from 2026-09-19: a ring buffer's prev_index wraps with % alone, so index 0 underflows into a negative array index instead of the last slot.">
+<title>Namara — C++ / DEBUG — 2026-09-19</title>
+<link rel="canonical" href="https://namara.jocarium.productions/cpp/debug/2026-09-19">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namara", "item": "https://namara.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namara.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-19" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-09-19",
+      "url": "https://namara.jocarium.productions/cpp/debug/2026-09-19",
+      "datePublished": "2026-09-19",
+      "dateModified": "2026-09-19",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "C++ — negative remainder breaking a wraparound index" },
+      "author": { "@type": "Organization", "name": "Namara" },
+      "publisher": { "@type": "Organization", "name": "Namara" },
+      "isPartOf": { "@type": "WebSite", "name": "Namara", "url": "https://namara.jocarium.productions/" },
+      "description": "A Namara C++ DEBUG drill from 2026-09-19: a ring buffer's prev_index wraps with % alone, so index 0 underflows into a negative array index instead of the last slot."
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namara</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-19">C23</a>
+  <a href="/cpp/debug/2026-09-19" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-09-19">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-19">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-19">READ</a>
+  <a href="/cpp/write/2026-09-19">WRITE</a>
+  <a href="/cpp/debug/2026-09-19" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main>
+  <h2>2026-09-19</h2>
+  <div class="code-frame">
+    <p class="code-filename">ring_buffer.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;array&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;cstdio&gt;</span>
+
+<span class="ty">int</span> <span class="fn">prev_index</span>(<span class="ty">int</span> index, <span class="ty">int</span> size) {
+    <span class="kw">return</span> (index - <span class="nu">1</span>) % size;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    std::<span class="ty">array</span>&lt;<span class="ty">int</span>, <span class="nu">4</span>&gt; buffer = {<span class="nu">10</span>, <span class="nu">20</span>, <span class="nu">30</span>, <span class="nu">40</span>};
+    <span class="ty">int</span> idx = <span class="fn">prev_index</span>(<span class="nu">0</span>, <span class="kw">static_cast</span>&lt;<span class="ty">int</span>&gt;(buffer.<span class="fn">size</span>()));
+    std::<span class="fn">printf</span>(<span class="st">"%d\n"</span>, buffer[idx]);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>prev_index(0, 4)</code>は末尾の要素(<code>buffer[3]</code>、値<code>40</code>)を指すつもりですが、実際にはそうなりません。何が問題で、どう直せばよいでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>%</code>は被除数の符号を引き継ぐので、<code>index</code>が<code>0</code>のとき<code>(index - 1) % size</code>は<code>-1 % 4</code>、つまり<code>-1</code>になります(<code>4</code>や<code>3</code>ではありません)。これを<code>buffer[idx]</code>の添字に使うと、負のインデックスで配列の外を読む未定義動作になります。「一周させたいなら<code>%</code>を書けばよい」という発想は、Pythonのように剰余が常に非負になる言語では通用しますが、C++の<code>%</code>は0方向への切り捨てに合わせた符号を返すので、そのままでは負の値が出てきてしまいます。一周分の<code>size</code>を先に足してから<code>%</code>を取れば、引き算の結果がどんな値でも非負の範囲に収まります:
+      </p>
+      <pre class="code"><code><span class="ty">int</span> <span class="fn">prev_index</span>(<span class="ty">int</span> index, <span class="ty">int</span> size) {
+    <span class="kw">return</span> (index - <span class="nu">1</span> + size) % size;
+}
+</code></pre>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

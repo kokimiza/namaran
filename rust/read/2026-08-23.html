@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="An archived Namara Rust READ drill from 2026-08-23: struct update syntax fills an unspecified field from Default::default(), and the increment/decrement methods use += and -= instead of ++/--.">
+<title>Namara — Rust / READ — 2026-08-23</title>
+<link rel="canonical" href="https://namara.jocarium.productions/rust/read/2026-08-23">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namara", "item": "https://namara.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / READ", "item": "https://namara.jocarium.productions/rust/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-23" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / READ — 2026-08-23",
+      "url": "https://namara.jocarium.productions/rust/read/2026-08-23",
+      "datePublished": "2026-08-23",
+      "dateModified": "2026-08-23",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "Rust — Default and struct update syntax with manual increment" },
+      "author": { "@type": "Organization", "name": "Namara" },
+      "publisher": { "@type": "Organization", "name": "Namara" },
+      "isPartOf": { "@type": "WebSite", "name": "Namara", "url": "https://namara.jocarium.productions/" },
+      "description": "An archived Namara Rust READ drill from 2026-08-23: struct update syntax fills an unspecified field from Default::default(), and the increment/decrement methods use += and -= instead of ++/--."
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namara</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-08-23">C23</a>
+  <a href="/cpp/read/2026-08-23">C++26</a>
+  <a href="/rust/read/2026-08-23" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/read/2026-08-23">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-08-23" class="active" aria-current="page">READ</a>
+  <a href="/rust/write/2026-08-23">WRITE</a>
+  <a href="/rust/debug/2026-08-23">DEBUG</a>
+</nav>
+
+<main>
+  <h2>2026-08-23</h2>
+  <div class="code-frame">
+    <p class="code-filename">counter_default.rs</p>
+    <pre class="code"><code><span class="pp">#[derive(Default, Debug)]</span>
+<span class="kw">struct</span> <span class="ty">Counter</span> {
+    value: <span class="ty">i32</span>,
+    step: <span class="ty">i32</span>,
+}
+
+<span class="kw">impl</span> <span class="ty">Counter</span> {
+    <span class="kw">fn</span> <span class="fn">inc</span>(&amp;<span class="kw">mut</span> <span class="kw">self</span>) {
+        <span class="kw">self</span>.value += <span class="kw">self</span>.step;
+    }
+    <span class="kw">fn</span> <span class="fn">dec</span>(&amp;<span class="kw">mut</span> <span class="kw">self</span>) {
+        <span class="kw">self</span>.value -= <span class="kw">self</span>.step;
+    }
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> <span class="kw">mut</span> c = <span class="ty">Counter</span> { step: <span class="nu">3</span>, ..<span class="ty">Default</span>::<span class="fn">default</span>() };
+    c.<span class="fn">inc</span>();
+    c.<span class="fn">inc</span>();
+    c.<span class="fn">dec</span>();
+    <span class="mc">println!</span>(<span class="st">"{} {}"</span>, c.value, c.step);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>Counter { step: 3, ..Default::default() }</code>という構造体更新記法に注目してください。これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>3 3</code>(その後に改行)。<code>#[derive(Default)]</code>は各フィールドをその型のデフォルト値(<code>i32</code>なら<code>0</code>)で埋めた<code>Counter</code>を作れるようにします。<code>Counter { step: 3, ..Default::default() }</code>は<code>step</code>だけ明示的に<code>3</code>を指定し、残りのフィールド(<code>value</code>)は<code>..Default::default()</code>によって<code>Default::default()</code>が作った値からコピーします。つまり<code>value</code>は<code>0</code>から始まります。Rustには<code>++</code>や<code>--</code>という演算子が無いため(前置と後置で意味が変わる紛らわしさを避けるための意図的な設計です)、増減は<code>inc</code>/<code>dec</code>メソッドの中で<code>self.value += self.step</code>・<code>self.value -= self.step</code>と明示的に書きます。<code>inc</code>を2回、<code>dec</code>を1回呼ぶと<code>value</code>は<code>0+3+3-3=3</code>になり、<code>step</code>は変わらず<code>3</code>のままです。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/read">Today</a></li>
+    <li><a href="/rust/read/archive">Archive</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

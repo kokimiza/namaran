@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="A Namara C++ READ drill from 2026-09-20: contrasting a temporary passed to a const-reference parameter with one bound directly to a local const reference.">
+<title>Namara — C++ / READ — 2026-09-20</title>
+<link rel="canonical" href="https://namara.jocarium.productions/cpp/read/2026-09-20">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namara", "item": "https://namara.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namara.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-20" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-09-20",
+      "url": "https://namara.jocarium.productions/cpp/read/2026-09-20",
+      "datePublished": "2026-09-20",
+      "dateModified": "2026-09-20",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "C++ — how long a temporary bound to a const reference lives" },
+      "author": { "@type": "Organization", "name": "Namara" },
+      "publisher": { "@type": "Organization", "name": "Namara" },
+      "isPartOf": { "@type": "WebSite", "name": "Namara", "url": "https://namara.jocarium.productions/" },
+      "description": "A Namara C++ READ drill from 2026-09-20: contrasting a temporary passed to a const-reference parameter with one bound directly to a local const reference."
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namara</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-20">C23</a>
+  <a href="/cpp/read/2026-09-20" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-09-20">Rust 2024</a>
+  <a href="/haskell/read/2026-09-20">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-20" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-09-20">WRITE</a>
+  <a href="/cpp/debug/2026-09-20">DEBUG</a>
+</nav>
+
+<main>
+  <h2>2026-09-20</h2>
+  <div class="code-frame">
+    <p class="code-filename">tracer_lifetime.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+
+<span class="kw">struct</span> <span class="ty">Tracer</span> {
+    <span class="ty">int</span> id;
+    <span class="kw">explicit</span> <span class="fn">Tracer</span>(<span class="ty">int</span> id) : <span class="fn">id</span>(id) { std::cout &lt;&lt; <span class="st">"ctor "</span> &lt;&lt; id &lt;&lt; <span class="st">"\n"</span>; }
+    ~<span class="fn">Tracer</span>() { std::cout &lt;&lt; <span class="st">"dtor "</span> &lt;&lt; id &lt;&lt; <span class="st">"\n"</span>; }
+};
+
+<span class="ty">void</span> <span class="fn">use</span>(<span class="kw">const</span> <span class="ty">Tracer</span>&amp; t) {
+    std::cout &lt;&lt; <span class="st">"use "</span> &lt;&lt; t.id &lt;&lt; <span class="st">"\n"</span>;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    std::cout &lt;&lt; <span class="st">"start\n"</span>;
+    <span class="fn">use</span>(<span class="fn">Tracer</span>(<span class="nu">1</span>));
+    std::cout &lt;&lt; <span class="st">"after call\n"</span>;
+    <span class="kw">const</span> <span class="ty">Tracer</span>&amp; r = <span class="fn">Tracer</span>(<span class="nu">2</span>);
+    std::cout &lt;&lt; <span class="st">"after bind\n"</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>Tracer(1)</code>は関数<code>use</code>の引数として、<code>Tracer(2)</code>はローカルの<code>const</code>参照<code>r</code>に直接束縛されています。これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>start</code> / <code>ctor 1</code> / <code>use 1</code> / <code>dtor 1</code> / <code>after call</code> / <code>ctor 2</code> / <code>after bind</code> / <code>dtor 2</code> &mdash; 1行ずつ。<code>use(Tracer(1))</code>の<code>Tracer(1)</code>は「関数呼び出しの引数」という一時オブジェクトで、それを含む式(<code>use(...)</code>の呼び出し全体)が終わった時点、つまり<code>use</code>から戻った直後に破棄されます。だから<code>dtor 1</code>は<code>use 1</code>のすぐあと、<code>after call</code>が出力されるより前に出ます。一方<code>const Tracer&amp; r = Tracer(2);</code>は、一時オブジェクトを<code>const</code>参照へ直接束縛する形で、この場合はC++の規則により一時オブジェクトの寿命がその参照(<code>r</code>)の寿命まで延長されます。<code>r</code>は<code>main</code>のブロックスコープが終わるまで生きているローカル変数なので、<code>Tracer(2)</code>の破棄は<code>after bind</code>が出力されたあと、<code>main</code>を抜ける直前まで先延ばしになります。同じ「引数として一時オブジェクトを使う」ように見えても、関数の引数として渡すのか、参照に直接束縛するのかで寿命の終わり方がまったく違う、という点がこの例の要点です。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

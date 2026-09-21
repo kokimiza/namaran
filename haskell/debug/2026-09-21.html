@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="A Namara Haskell DEBUG drill from 2026-09-21: a unit test that compares a function's output to itself, so it reports pass no matter what the function actually does.">
+<title>Namara — Haskell / DEBUG — 2026-09-21</title>
+<link rel="canonical" href="https://namara.jocarium.productions/haskell/debug/2026-09-21">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namara", "item": "https://namara.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namara.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-21" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-09-21",
+      "url": "https://namara.jocarium.productions/haskell/debug/2026-09-21",
+      "datePublished": "2026-09-21",
+      "dateModified": "2026-09-21",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "Haskell — a tautological test that compares a function's output to itself" },
+      "author": { "@type": "Organization", "name": "Namara" },
+      "publisher": { "@type": "Organization", "name": "Namara" },
+      "isPartOf": { "@type": "WebSite", "name": "Namara", "url": "https://namara.jocarium.productions/" },
+      "description": "A Namara Haskell DEBUG drill from 2026-09-21: a unit test that compares a function's output to itself, so it reports pass no matter what the function actually does."
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namara</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-21">C23</a>
+  <a href="/cpp/debug/2026-09-21">C++26</a>
+  <a href="/rust/debug/2026-09-21">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-21" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-09-21">READ</a>
+  <a href="/haskell/write/2026-09-21">WRITE</a>
+  <a href="/haskell/debug/2026-09-21" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main>
+  <h2>2026-09-21</h2>
+  <div class="code-frame">
+    <p class="code-filename">TautologyTest.hs</p>
+    <pre class="code"><code><span class="kw">module</span> <span class="ty">Main</span> <span class="kw">where</span>
+
+<span class="fn">double</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Int</span>
+<span class="fn">double</span> x = x + <span class="nu">1</span>
+
+<span class="fn">testDouble</span> <span class="op">::</span> <span class="ty">Bool</span>
+<span class="fn">testDouble</span> = double <span class="nu">5</span> == double <span class="nu">5</span>
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = putStrLn (<span class="kw">if</span> testDouble <span class="kw">then</span> <span class="st">"pass"</span> <span class="kw">else</span> <span class="st">"fail"</span>)
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>double</code>は明らかに2倍になっていませんが、<code>testDouble</code>は<code>pass</code>を報告します。何が問題で、どう直せばよいでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>testDouble</code>は<code>double 5</code>を<code>double 5</code>自身と比較しています。これは<code>double</code>の実装が何であっても(正しくても、間違っていても)常に<code>True</code>になる、何も検証していない比較です。単体テストが検証すべきなのは、テスト対象の出力を、テスト対象とは独立に分かっている期待値と比較することです。期待値をテスト対象の呼び出し結果自身から作ってしまうと、テストはどんな実装に対しても素通りしてしまいます。ここでは期待値を独立した具体的な数値(<code>10</code>)に変えるだけで直ります:
+      </p>
+      <pre class="code"><code><span class="fn">testDouble</span> <span class="op">::</span> <span class="ty">Bool</span>
+<span class="fn">testDouble</span> = double <span class="nu">5</span> == <span class="nu">10</span>
+</code></pre>
+      <p>
+        この最小限の修正だけで<code>double</code>自体は直っていませんが、<code>testDouble</code>は正しく<code>fail</code>を報告するようになり、初めて<code>double</code>が壊れていることが明らかになります。テストの役目は不具合を隠さず検知することであり、この修正によってようやくそれが果たされます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

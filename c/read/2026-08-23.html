@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="An archived Namara C READ drill from 2026-08-23: a memoization cache keyed only by argument dispatches its compute step through a function pointer at run time.">
+<title>Namara — C / READ — 2026-08-23</title>
+<link rel="canonical" href="https://namara.jocarium.productions/c/read/2026-08-23">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namara", "item": "https://namara.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namara.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-23" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-08-23",
+      "url": "https://namara.jocarium.productions/c/read/2026-08-23",
+      "datePublished": "2026-08-23",
+      "dateModified": "2026-08-23",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "C — dynamic dispatch through a function pointer inside a memo cache" },
+      "author": { "@type": "Organization", "name": "Namara" },
+      "publisher": { "@type": "Organization", "name": "Namara" },
+      "isPartOf": { "@type": "WebSite", "name": "Namara", "url": "https://namara.jocarium.productions/" },
+      "description": "An archived Namara C READ drill from 2026-08-23: a memoization cache keyed only by argument dispatches its compute step through a function pointer at run time."
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namara</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-08-23" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-08-23">C++26</a>
+  <a href="/rust/read/2026-08-23">Rust 2024</a>
+  <a href="/haskell/read/2026-08-23">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-08-23" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-08-23">WRITE</a>
+  <a href="/c/debug/2026-08-23">DEBUG</a>
+</nav>
+
+<main>
+  <h2>2026-08-23</h2>
+  <div class="code-frame">
+    <p class="code-filename">memo_square.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">typedef</span> <span class="ty">int</span> (*compute_fn)(<span class="ty">int</span>);
+
+<span class="kw">static</span> <span class="ty">int</span> calls = <span class="nu">0</span>;
+
+<span class="ty">int</span> <span class="fn">square</span>(<span class="ty">int</span> n) {
+    calls++;
+    <span class="kw">return</span> n * n;
+}
+
+<span class="kw">typedef</span> <span class="kw">struct</span> {
+    compute_fn compute;
+    <span class="ty">int</span> cache[<span class="nu">16</span>];
+    <span class="ty">unsigned</span> <span class="ty">char</span> cached[<span class="nu">16</span>];
+} <span class="ty">memo_t</span>;
+
+<span class="ty">int</span> <span class="fn">memo_get</span>(<span class="ty">memo_t</span> *m, <span class="ty">int</span> n) {
+    <span class="kw">if</span> (!m-&gt;cached[n]) {
+        m-&gt;cache[n] = m-&gt;<span class="fn">compute</span>(n);
+        m-&gt;cached[n] = <span class="nu">1</span>;
+    }
+    <span class="kw">return</span> m-&gt;cache[n];
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="ty">memo_t</span> m = { .compute = square };
+    <span class="fn">printf</span>(<span class="st">"%d\n"</span>, <span class="fn">memo_get</span>(&amp;m, <span class="nu">4</span>));
+    <span class="fn">printf</span>(<span class="st">"%d\n"</span>, <span class="fn">memo_get</span>(&amp;m, <span class="nu">4</span>));
+    <span class="fn">printf</span>(<span class="st">"%d\n"</span>, <span class="fn">memo_get</span>(&amp;m, <span class="nu">5</span>));
+    <span class="fn">printf</span>(<span class="st">"calls=%d\n"</span>, calls);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>m-&gt;compute</code>は関数ポインタで、実際にどの関数を呼ぶかは実行時にしか決まりません(動的ディスパッチ)。これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>16</code>、<code>16</code>、<code>25</code>、<code>calls=2</code>を1行ずつ。<code>memo_get</code>は<code>n</code>ごとに<code>cached[n]</code>を見て、まだ計算していなければ<code>m-&gt;compute(n)</code>で計算し結果をキャッシュします。<code>m-&gt;compute</code>は<code>square</code>という具体的な関数を直接名指しで呼んでいるのではなく、構造体に保持された関数ポインタ経由で呼んでいます。どの関数が実行されるかはコンパイル時の呼び出し箇所では決まらず、<code>m.compute = square</code>という実行時の代入によって決まる、というのが動的ディスパッチです(対して、コードのどこかに<code>square(n)</code>と直接書けば、呼ぶ関数はコンパイル時に確定する静的ディスパッチになります)。<code>memo_get(&amp;m, 4)</code>は2回呼ばれますが、1回目で<code>cached[4]</code>が立つので2回目は<code>compute</code>を呼ばずキャッシュの<code>16</code>を返します。<code>memo_get(&amp;m, 5)</code>は初めての<code>n</code>なので<code>compute</code>を呼び<code>25</code>を得ます。結果として<code>square</code>が実際に呼ばれる(<code>calls</code>が増える)のは<code>n=4</code>と<code>n=5</code>のときの2回だけです。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

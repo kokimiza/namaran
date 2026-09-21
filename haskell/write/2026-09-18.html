@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="A Namara Haskell WRITE drill from 2026-09-18: write a guard-only function using a let qualifier to bind a local value inside a single guard, without a where clause.">
+<title>Namara — Haskell / WRITE — 2026-09-18</title>
+<link rel="canonical" href="https://namara.jocarium.productions/haskell/write/2026-09-18">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namara", "item": "https://namara.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namara.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-18" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-09-18",
+      "url": "https://namara.jocarium.productions/haskell/write/2026-09-18",
+      "datePublished": "2026-09-18",
+      "dateModified": "2026-09-18",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "Haskell — a let qualifier inside a guard" },
+      "author": { "@type": "Organization", "name": "Namara" },
+      "publisher": { "@type": "Organization", "name": "Namara" },
+      "isPartOf": { "@type": "WebSite", "name": "Namara", "url": "https://namara.jocarium.productions/" },
+      "description": "A Namara Haskell WRITE drill from 2026-09-18: write a guard-only function using a let qualifier to bind a local value inside a single guard, without a where clause."
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namara</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-18">C23</a>
+  <a href="/cpp/write/2026-09-18">C++26</a>
+  <a href="/rust/write/2026-09-18">Rust 2024</a>
+  <a href="/haskell/write/2026-09-18" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-09-18">READ</a>
+  <a href="/haskell/write/2026-09-18" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-09-18">DEBUG</a>
+</nav>
+
+<main>
+  <h2>2026-09-18</h2>
+  <div class="code-frame">
+    <p class="code-filename">DescribeFraction.hs</p>
+    <pre class="code"><code><span class="fn">describeFraction</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">String</span>
+<span class="cm">-- write this: "already in lowest terms" if gcd num den == 1,</span>
+<span class="cm">-- otherwise "can be reduced"</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>describeFraction</code>を、<code>case</code>や<code>if</code>、<code>where</code>を使わずガードだけで書いてください。<code>gcd num den</code>は1回だけ書くこと(ガードの中の<code>let</code>を使う)。
+  </p>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="fn">describeFraction</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">String</span>
+<span class="fn">describeFraction</span> num den
+  | <span class="kw">let</span> g = gcd num den, g == <span class="nu">1</span> = <span class="st">"already in lowest terms"</span>
+  | otherwise                   = <span class="st">"can be reduced"</span>
+</code></pre>
+      <p>
+        ガードにはブール式だけでなく、<code>where</code>の他に<code>let</code>という限定子(qualifier)も書けます(Haskell 2010で標準入り)。<code>,</code>で区切った1つ目の<code>let g = gcd num den</code>がその場で<code>g</code>を束縛し、続く<code>g == 1</code>がそれを使います。この<code>g</code>は同じガードの中だけで有効なので、他の枝と値を共有したい<code>where</code>とは違い、1つの枝だけで使う一時的な計算に向いています。これは参考実装であり、唯一の正解ではありません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

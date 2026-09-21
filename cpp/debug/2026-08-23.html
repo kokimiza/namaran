@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="An archived Namara C++ DEBUG drill from 2026-08-23: a switch on a std::variant's index silently omits a newly added alternative, since switch gives no exhaustiveness check the way std::visit does.">
+<title>Namara — C++ / DEBUG — 2026-08-23</title>
+<link rel="canonical" href="https://namara.jocarium.productions/cpp/debug/2026-08-23">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namara", "item": "https://namara.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namara.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-23" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-08-23",
+      "url": "https://namara.jocarium.productions/cpp/debug/2026-08-23",
+      "datePublished": "2026-08-23",
+      "dateModified": "2026-08-23",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "C++ — a switch over variant.index() has no exhaustiveness check" },
+      "author": { "@type": "Organization", "name": "Namara" },
+      "publisher": { "@type": "Organization", "name": "Namara" },
+      "isPartOf": { "@type": "WebSite", "name": "Namara", "url": "https://namara.jocarium.productions/" },
+      "description": "An archived Namara C++ DEBUG drill from 2026-08-23: a switch on a std::variant's index silently omits a newly added alternative, since switch gives no exhaustiveness check the way std::visit does."
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namara</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-08-23">C23</a>
+  <a href="/cpp/debug/2026-08-23" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-08-23">Rust 2024</a>
+  <a href="/haskell/debug/2026-08-23">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-08-23">READ</a>
+  <a href="/cpp/write/2026-08-23">WRITE</a>
+  <a href="/cpp/debug/2026-08-23" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main>
+  <h2>2026-08-23</h2>
+  <div class="code-frame">
+    <p class="code-filename">shape_switch.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;print&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;variant&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+
+<span class="kw">struct</span> <span class="ty">Circle</span> { <span class="ty">double</span> radius; };
+<span class="kw">struct</span> <span class="ty">Square</span> { <span class="ty">double</span> side; };
+<span class="kw">struct</span> <span class="ty">Triangle</span> { <span class="ty">double</span> base; <span class="ty">double</span> height; };
+
+<span class="kw">using</span> <span class="ty">Shape</span> = std::<span class="ty">variant</span>&lt;<span class="ty">Circle</span>, <span class="ty">Square</span>, <span class="ty">Triangle</span>&gt;;
+
+std::<span class="ty">string</span> <span class="fn">describe</span>(<span class="kw">const</span> <span class="ty">Shape</span>&amp; shape) {
+    <span class="kw">switch</span> (shape.<span class="fn">index</span>()) {
+        <span class="kw">case</span> <span class="nu">0</span>: <span class="kw">return</span> std::<span class="fn">format</span>(<span class="st">"circle r={}"</span>, std::get&lt;<span class="ty">Circle</span>&gt;(shape).radius);
+        <span class="kw">case</span> <span class="nu">1</span>: <span class="kw">return</span> std::<span class="fn">format</span>(<span class="st">"square s={}"</span>, std::get&lt;<span class="ty">Square</span>&gt;(shape).side);
+    }
+    <span class="kw">return</span> <span class="st">"unknown"</span>;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="ty">Shape</span> shapes[] = { <span class="ty">Circle</span>{<span class="nu">2.0</span>}, <span class="ty">Square</span>{<span class="nu">3.0</span>}, <span class="ty">Triangle</span>{<span class="nu">4.0</span>, <span class="nu">5.0</span>} };
+    <span class="kw">for</span> (<span class="kw">const</span> <span class="kw">auto</span>&amp; shape : shapes) {
+        std::<span class="fn">println</span>(<span class="st">"{}"</span>, <span class="fn">describe</span>(shape));
+    }
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>Triangle</code>を表示するはずの3行目が<code>"unknown"</code>になってしまいます。何が問題で、どう直せばよいでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>Shape</code>に<code>Triangle</code>を追加したときに、<code>describe</code>の<code>switch</code>へ<code>case 2</code>を足し忘れています。<code>switch</code>は単なる整数値である<code>shape.index()</code>で分岐しているだけなので、<code>Shape</code>の定義を変えても<code>switch</code>側は何も強制されず、コンパイラは警告すら出しません。これがC++の<code>switch</code>とパターンマッチングの違いです。<code>std::visit</code>と<code>overloaded</code>を使えば、渡した呼び出し可能オブジェクトが<code>Shape</code>の全ての型を網羅しているかコンパイル時に検査されるので、<code>Triangle</code>を追加した時点で対応するラムダを書くまでコンパイルが通らなくなります:
+      </p>
+      <pre class="code"><code><span class="kw">template</span> &lt;<span class="kw">class</span>... <span class="ty">Fs</span>&gt;
+<span class="kw">struct</span> <span class="ty">overloaded</span> : <span class="ty">Fs</span>... { <span class="kw">using</span> <span class="ty">Fs</span>::<span class="kw">operator</span>()...; };
+<span class="kw">template</span> &lt;<span class="kw">class</span>... <span class="ty">Fs</span>&gt;
+<span class="fn">overloaded</span>(<span class="ty">Fs</span>...) -&gt; overloaded&lt;<span class="ty">Fs</span>...&gt;;
+
+std::<span class="ty">string</span> <span class="fn">describe</span>(<span class="kw">const</span> <span class="ty">Shape</span>&amp; shape) {
+    <span class="kw">return</span> std::<span class="fn">visit</span>(overloaded{
+        [](<span class="kw">const</span> <span class="ty">Circle</span>&amp; c) { <span class="kw">return</span> std::<span class="fn">format</span>(<span class="st">"circle r={}"</span>, c.radius); },
+        [](<span class="kw">const</span> <span class="ty">Square</span>&amp; s) { <span class="kw">return</span> std::<span class="fn">format</span>(<span class="st">"square s={}"</span>, s.side); },
+        [](<span class="kw">const</span> <span class="ty">Triangle</span>&amp; t) { <span class="kw">return</span> std::<span class="fn">format</span>(<span class="st">"triangle b={} h={}"</span>, t.base, t.height); },
+    }, shape);
+}
+</code></pre>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

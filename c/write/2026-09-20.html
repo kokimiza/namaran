@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="A Namara C WRITE drill from 2026-09-20: write set_masked, which sets or clears exactly the bits named by a mask depending on a boolean, leaving the rest untouched.">
+<title>Namara — C / WRITE — 2026-09-20</title>
+<link rel="canonical" href="https://namara.jocarium.productions/c/write/2026-09-20">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namara", "item": "https://namara.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namara.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-20" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-09-20",
+      "url": "https://namara.jocarium.productions/c/write/2026-09-20",
+      "datePublished": "2026-09-20",
+      "dateModified": "2026-09-20",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "C — conditionally setting or clearing a bitmask" },
+      "author": { "@type": "Organization", "name": "Namara" },
+      "publisher": { "@type": "Organization", "name": "Namara" },
+      "isPartOf": { "@type": "WebSite", "name": "Namara", "url": "https://namara.jocarium.productions/" },
+      "description": "A Namara C WRITE drill from 2026-09-20: write set_masked, which sets or clears exactly the bits named by a mask depending on a boolean, leaving the rest untouched."
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namara</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-20" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-09-20">C++26</a>
+  <a href="/rust/write/2026-09-20">Rust 2024</a>
+  <a href="/haskell/write/2026-09-20">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-09-20">READ</a>
+  <a href="/c/write/2026-09-20" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-09-20">DEBUG</a>
+</nav>
+
+<main>
+  <h2>2026-09-20</h2>
+  <div class="code-frame">
+    <p class="code-filename">set_masked.c</p>
+    <pre class="code"><code><span class="ty">unsigned</span> <span class="fn">set_masked</span>(<span class="ty">unsigned</span> flags, <span class="ty">unsigned</span> mask, <span class="ty">int</span> enable) {
+    <span class="cm">// write this: set the bits in mask when enable is nonzero, clear them</span>
+    <span class="cm">// when enable is zero; every bit of flags outside mask stays unchanged</span>
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>set_masked</code>を実装してください。<code>mask</code>で指定したビットだけを、<code>enable</code>が真なら立て、偽なら降ろすこと。<code>mask</code>の外のビットは変化させないこと。
+  </p>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="ty">unsigned</span> <span class="fn">set_masked</span>(<span class="ty">unsigned</span> flags, <span class="ty">unsigned</span> mask, <span class="ty">int</span> enable) {
+    <span class="kw">return</span> enable ? (flags | mask) : (flags &amp; ~mask);
+}
+</code></pre>
+      <p>
+        立てる操作と降ろす操作は、どちらも<code>mask</code>を経由して書けます。立てるときは<code>flags | mask</code>で該当ビットを1にし、降ろすときは<code>flags &amp; ~mask</code>で該当ビットだけを0にします。<code>mask</code>以外のビットは、ORでは0を重ねても値が変わらず、ANDでは1を重ねても値が変わらないので、どちらの式でも自然に保たれます。<code>enable</code>で分岐してこの2つの式のどちらかを選ぶだけで、1つの関数に「立てる」と「降ろす」を両方持たせられます。これは参考実装であり、唯一の正解ではありません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

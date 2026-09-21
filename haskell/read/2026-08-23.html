@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="An archived Namara Haskell READ drill from 2026-08-23: an as-pattern reuses an already-matched tail without rebuilding it, in a pure function that removes consecutive duplicates.">
+<title>Namara — Haskell / READ — 2026-08-23</title>
+<link rel="canonical" href="https://namara.jocarium.productions/haskell/read/2026-08-23">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namara", "item": "https://namara.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namara.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-23" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-08-23",
+      "url": "https://namara.jocarium.productions/haskell/read/2026-08-23",
+      "datePublished": "2026-08-23",
+      "dateModified": "2026-08-23",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "Haskell — an as-pattern reusing a matched tail in a pure function" },
+      "author": { "@type": "Organization", "name": "Namara" },
+      "publisher": { "@type": "Organization", "name": "Namara" },
+      "isPartOf": { "@type": "WebSite", "name": "Namara", "url": "https://namara.jocarium.productions/" },
+      "description": "An archived Namara Haskell READ drill from 2026-08-23: an as-pattern reuses an already-matched tail without rebuilding it, in a pure function that removes consecutive duplicates."
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namara</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-08-23">C23</a>
+  <a href="/cpp/read/2026-08-23">C++26</a>
+  <a href="/rust/read/2026-08-23">Rust 2024</a>
+  <a href="/haskell/read/2026-08-23" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-08-23" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-08-23">WRITE</a>
+  <a href="/haskell/debug/2026-08-23">DEBUG</a>
+</nav>
+
+<main>
+  <h2>2026-08-23</h2>
+  <div class="code-frame">
+    <p class="code-filename">Compress.hs</p>
+    <pre class="code"><code><span class="fn">compress</span> <span class="op">::</span> <span class="ty">Eq</span> a <span class="op">=&gt;</span> [a] <span class="op">-&gt;</span> [a]
+<span class="fn">compress</span> (x:rest@(y:_))
+  | x == y    = compress rest
+  | otherwise = x : compress rest
+<span class="fn">compress</span> xs = xs
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (compress [<span class="nu">1</span>, <span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">2</span>, <span class="nu">2</span>, <span class="nu">3</span>, <span class="nu">1</span>, <span class="nu">1</span>] <span class="op">::</span> [<span class="ty">Int</span>])
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>rest@(y:_)</code>というas-patternに注目してください。これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>[1,2,3,1]</code>(その後に改行)。<code>compress</code>は連続する重複要素を1つに畳む純粋関数です。<code>rest@(y:_)</code>は、リストの2番目以降を<code>y:_</code>というパターンで調べつつ、同時にその全体を<code>rest</code>という名前でも束縛します(as-pattern)。もし<code>y</code>を取り出すためだけに<code>(y:ys)</code>と書いてしまうと、次に必要な「2番目以降のリストそのもの」は<code>y:ys</code>として自分で組み直すことになりますが、<code>rest</code>という名前で既に持っているのでその必要がありません。評価は<code>x=1,y=1</code>で等しいので<code>1</code>を捨てて<code>compress [1,2,2,2,3,1,1]</code>へ進み、以下同様に隣り合う重複をすべて畳んでいくと、最終的に<code>[1,2,3,1]</code>に落ち着きます。<code>compress</code>自身は同じ入力に対して常に同じ結果を返す純粋関数ですが、それを画面に出す<code>print</code>・<code>main</code>は副作用のある<code>IO ()</code>です。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
