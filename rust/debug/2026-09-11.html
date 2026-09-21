@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="A Namaran Rust DEBUG drill from 2026-09-11: an unguarded / panics on a zero divisor; checked_div with a fallback fixes it.">
+<title>Namaran — Rust / DEBUG — 2026-09-11</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-09-11">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-11" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-09-11",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-09-11",
+      "datePublished": "2026-09-11",
+      "dateModified": "2026-09-11",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "Rust — a runtime-value zero divisor panicking uncaught" },
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "A Namaran Rust DEBUG drill from 2026-09-11: an unguarded / panics on a zero divisor; checked_div with a fallback fixes it."
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-11">C23</a>
+  <a href="/cpp/debug/2026-09-11">C++26</a>
+  <a href="/rust/debug/2026-09-11" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-11">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-09-11">READ</a>
+  <a href="/rust/write/2026-09-11">WRITE</a>
+  <a href="/rust/debug/2026-09-11" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main>
+  <h2>2026-09-11</h2>
+  <div class="code-frame">
+    <p class="code-filename">divide_evenly.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">divide_evenly</span>(total: <span class="ty">u32</span>, groups: <span class="ty">u32</span>) -&gt; <span class="ty">u32</span> {
+    total / groups
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> items = <span class="nu">10</span>;
+    <span class="kw">let</span> bins = <span class="nu">0</span>;
+    <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="fn">divide_evenly</span>(items, bins));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>divide_evenly</code>は<code>total</code>個を<code>groups</code>個のグループに均等に分けたときの1グループあたりの個数を求めるつもりです。<code>groups</code>が<code>0</code>(分ける先が無い)のとき、いまの出力は何も表示されないまま、実行時にパニックしてクラッシュします(終了コード<code>101</code>)。本来は<code>0</code>を出力するべきです(分ける先が無いなら、1グループあたりの個数は<code>0</code>とみなします)。何が問題で、どう直せばよいでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>total / groups</code>は、整数の<code>/</code>演算子をガードなしで使っています。Rustの整数除算は<code>groups</code>が<code>0</code>だとパニックします(これはC/C++の未定義動作とは違い、言語仕様で定められた挙動です)。<code>groups</code>はリテラルの<code>0</code>ではなく呼び出し元から渡された値なので、コンパイル時には検出されず、実行時に初めてパニックします。<code>total / groups</code>を呼び出す前に<code>println!</code>の引数として評価されるため、パニックした時点では何も出力されていません。<code>checked_div</code>を使えば<code>0</code>除算を<code>None</code>として受け取れるので、<code>unwrap_or</code>で「分ける先が無ければ<code>0</code>」というフォールバックを与えられます:
+      </p>
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">divide_evenly</span>(total: <span class="ty">u32</span>, groups: <span class="ty">u32</span>) -&gt; <span class="ty">u32</span> {
+    total.<span class="fn">checked_div</span>(groups).<span class="fn">unwrap_or</span>(<span class="nu">0</span>)
+}
+</code></pre>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

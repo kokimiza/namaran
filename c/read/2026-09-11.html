@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="A Namaran C READ drill from 2026-09-11: tracing a counting semaphore's sem_trywait calls to see how it limits how many jobs may hold a permit at once.">
+<title>Namaran — C / READ — 2026-09-11</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-09-11">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-11" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-09-11",
+      "url": "https://namaran.jocarium.productions/c/read/2026-09-11",
+      "datePublished": "2026-09-11",
+      "dateModified": "2026-09-11",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "C — limiting concurrent jobs with a counting semaphore" },
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "A Namaran C READ drill from 2026-09-11: tracing a counting semaphore's sem_trywait calls to see how it limits how many jobs may hold a permit at once."
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-11" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-09-11">C++26</a>
+  <a href="/rust/read/2026-09-11">Rust 2024</a>
+  <a href="/haskell/read/2026-09-11">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-09-11" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-09-11">WRITE</a>
+  <a href="/c/debug/2026-09-11">DEBUG</a>
+</nav>
+
+<main>
+  <h2>2026-09-11</h2>
+  <div class="code-frame">
+    <p class="code-filename">job_limiter.c</p>
+    <pre class="code"><code><span class="pp">#define</span> _POSIX_C_SOURCE <span class="nu">200809L</span>
+<span class="pp">#include</span> <span class="st">&lt;semaphore.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="ty">sem_t</span> sem;
+    <span class="fn">sem_init</span>(&amp;sem, <span class="nu">0</span>, <span class="nu">2</span>);
+
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; <span class="nu">3</span>; i++) {
+        <span class="kw">if</span> (<span class="fn">sem_trywait</span>(&amp;sem) == <span class="nu">0</span>) {
+            <span class="fn">printf</span>(<span class="st">"job %d: acquired\n"</span>, i);
+        } <span class="kw">else</span> {
+            <span class="fn">printf</span>(<span class="st">"job %d: blocked\n"</span>, i);
+        }
+    }
+
+    <span class="fn">sem_post</span>(&amp;sem);
+    <span class="fn">printf</span>(<span class="st">"job 3: %s\n"</span>, <span class="fn">sem_trywait</span>(&amp;sem) == <span class="nu">0</span> ? <span class="st">"acquired"</span> : <span class="st">"blocked"</span>);
+
+    <span class="fn">sem_destroy</span>(&amp;sem);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>sem</code>は同時に2つまで許可を出す(<code>sem_init</code>の第3引数)カウンティングセマフォです。<code>sem_trywait</code>はブロックせずに許可を1つ取ろうとし、取れれば<code>0</code>、取れなければ<code>-1</code>を返します。このコードは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>job 0: acquired</code>、<code>job 1: acquired</code>、<code>job 2: blocked</code>、<code>job 3: acquired</code>(各行の後に改行)。<code>sem</code>は初期値2で作られているので、最初の2回の<code>sem_trywait</code>(job 0とjob 1)はどちらも許可を取れて値を0まで減らします。3回目(job 2)の時点で残りの許可は0なので、<code>sem_trywait</code>はブロックする代わりに即座に失敗を返し、job 2は<code>blocked</code>になります。ループの後の<code>sem_post</code>が許可を1つ返すことでセマフォの値が1に戻り、続くjob 3の<code>sem_trywait</code>はその1つを取れるので<code>acquired</code>になります。これが「同時に実行できる仕事の数をNに制限する」というセマフォの基本的な使い方で、Nを超えて許可を要求した側は、誰かが許可を返すまで先に進めません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
