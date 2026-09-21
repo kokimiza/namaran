@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Namara topic picker.
+# Namaran topic picker.
 #
 # A local and CI authoring aid (never deployed). Picks, for each of the four
 # languages, one random topic from the namara-daily skill's odai.txt: either

@@ -1,4 +1,4 @@
-# Publishes one day's Namara drills (4 languages x READ/WRITE/DEBUG) without
+# Publishes one day's Namaran drills (4 languages x READ/WRITE/DEBUG) without
 # a human in the loop. See doc/basic-design.md §9.2 for why it is shaped
 # like this.
 #
@@ -21,7 +21,7 @@
 # Third-party actions are pinned to commit SHAs; .github/dependabot.yml
 # proposes updates.
 
-name: Namara daily
+name: Namaran daily
 
 on:
   schedule:
@@ -115,7 +115,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
           {
-            echo "### Namara $date"
+            echo "### Namaran $date"
             echo
             if [ -z "$combos" ]; then
               echo "All 12 pages for $date already exist; nothing to write."

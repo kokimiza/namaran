@@ -1,10 +1,10 @@
-# Namara
+# Namaran
 
 > **Code daily. Without assist.**
 
-Namaraは、プログラマーがコードを扱う感覚を鈍らせないための、1日数分のコーディングドリルです。
+Namaranは、プログラマーがコードを扱う感覚を鈍らせないための、1日数分のコーディングドリルです。
 
-AIコーディングツールで仕事の生産性は上がった一方、自分の頭と手でコードを読み・書き・直す機会は減りつつあります。Namaraはその数分だけ補助を外して、コードに触れる場所です。上達や競争ではなく、**維持**を目的にしています。
+AIコーディングツールで仕事の生産性は上がった一方、自分の頭と手でコードを読み・書き・直す機会は減りつつあります。Namaranはその数分だけ補助を外して、コードに触れる場所です。上達や競争ではなく、**維持**を目的にしています。
 
 ```text
 開く → 考える → 答えを見る → 閉じる
@@ -103,13 +103,13 @@ Skillを使わずに手で書く場合は、次の順です。
 
 1. Claude Pro/Max/Team/Enterprise のアカウントで、手元で `claude setup-token` を実行する
 2. 表示されたトークンを、リポジトリの Settings → Secrets and variables → Actions に `CLAUDE_CODE_OAUTH_TOKEN` として登録する
-3. Actions → **Namara daily** → Run workflow で試す(日付を指定して過去日の分を作ることもできる)
+3. Actions → **Namaran daily** → Run workflow で試す(日付を指定して過去日の分を作ることもできる)
 
 実行はサブスクリプションの利用枠を使います。使うモデルはワークフロー冒頭の `CLAUDE_MODEL` で変えられます。検証を通らなかった日は何も公開されず、サイトは前回の問題を表示し続けます。
 
 ## ドキュメント
 
-- [doc/requirements.md](doc/requirements.md) — 要件定義。Namaraが何をして、何をしないか。良い問題・面白い問題の基準
+- [doc/requirements.md](doc/requirements.md) — 要件定義。Namaranが何をして、何をしないか。良い問題・面白い問題の基準
 - [doc/basic-design.md](doc/basic-design.md) — 基本設計。URL設計、HTML規約、運用フロー、自動公開の設計判断
 - [.claude/skills/namara-daily/SKILL.md](.claude/skills/namara-daily/SKILL.md) — 問題作成の手順
 - [CLAUDE.md](CLAUDE.md) — 対象言語のバージョンと言語仕様リファレンス

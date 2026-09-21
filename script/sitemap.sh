@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Namara sitemap generator.
+# Namaran sitemap generator.
 #
 # An authoring aid like script/content.sh: it runs locally or in GitHub
 # Actions and never on Cloudflare Pages. It writes sitemap.xml at the

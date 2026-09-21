@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Namara syntax highlighter.
+# Namaran syntax highlighter.
 #
 # An *authoring aid*, like script/content.sh: it rewrites the code listings of
 # drill pages in place, so the site keeps shipping plain static HTML with no

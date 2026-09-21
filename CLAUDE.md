@@ -1,8 +1,8 @@
 # CLAUDE.md
 
-Namaraは1日1問のコーディングドリル静的サイト。作業前に必ず読むこと:
+Namaranは1日1問のコーディングドリル静的サイト。作業前に必ず読むこと:
 
-- [doc/requirements.md](doc/requirements.md) — 要件定義(Namaraが何をする/しないか)
+- [doc/requirements.md](doc/requirements.md) — 要件定義(Namaranが何をする/しないか)
 - [doc/basic-design.md](doc/basic-design.md) — 基本設計(ディレクトリ構成・HTML規約・運用フロー)
 - [.claude/skills/namara-daily/SKILL.md](.claude/skills/namara-daily/SKILL.md) — 日々のドリル作成手順
 

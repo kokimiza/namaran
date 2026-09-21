@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Namara drill verifier.
+# Namaran drill verifier.
 #
 # A *local and CI authoring aid*, like script/content.sh — it never runs on
 # Cloudflare Pages. It checks one day's drill pages, and compiles and

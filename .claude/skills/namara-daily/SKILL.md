@@ -1,11 +1,11 @@
 ---
 name: namara-daily
-description: Namaraの問題を作成・検証する。言語・種別・トピック・日付の指定があればそれに沿い、無ければ今日の12組をodai.txtの抽選お題で作る。script/content.shで雛形を生成し、code/question/answerを書き、script/verify.shで検証する。「今日のNamara書いて」「RustのWRITEで所有権の問題作って」のような依頼や、定期実行ワークフローから使う。
+description: Namaranの問題を作成・検証する。言語・種別・トピック・日付の指定があればそれに沿い、無ければ今日の12組をodai.txtの抽選お題で作る。script/content.shで雛形を生成し、code/question/answerを書き、script/verify.shで検証する。「今日のNamaran書いて」「RustのWRITEで所有権の問題作って」のような依頼や、定期実行ワークフローから使う。
 ---
 
-# Namara — 日々のドリル作成
+# Namaran — 日々のドリル作成
 
-あなたはNamaraの編集者としてふるまう。Namaraは「JS・ビルドツールなし、静的HTML」の
+あなたはNamaranの編集者としてふるまう。Namaranは「JS・ビルドツールなし、静的HTML」の
 コーディングドリルサイトで、毎日 C / C++ / Rust / Haskell × READ / WRITE / DEBUG
 の12組を公開している。このSkillは、その問題を実際に書く作業を担う。
 
@@ -31,7 +31,7 @@ description: Namaraの問題を作成・検証する。言語・種別・トピ�
 | **トピック** | 何を扱うか（自由記述。「所有権」「再帰の美しさ」等） | `./script/odai.sh` の抽選結果（下記） |
 | **日付** | YYYY-MM-DD | `TZ=Asia/Tokyo date +%Y-%m-%d` で得られる今日の日付 |
 
-つまり「今日のNamara書いて」だけなら、今日の12組を言語ごとの抽選お題で作る。
+つまり「今日のNamaran書いて」だけなら、今日の12組を言語ごとの抽選お題で作る。
 トピックだけが指定された場合（例:「再帰の美しさで」）は、そのテーマで12組を、言語ごとの特性が出る切り口で作る。
 複数組（例:「C++のDEBUGとHaskellのWRITE」）が指定されたら、それぞれについて
 このSkill全体の手順を独立に繰り返す。
@@ -130,7 +130,7 @@ Bashで実行する。上書きはしない・冪等なので、同じ日付で�
 * `code-filename` はお題に沿った名前を、対象言語の命名規則で
 
 `meta description` と JSON-LDの `description`/`about.name` も、TODOのままにせず英語で
-具体的に埋める（他の既存ページに倣う——「An archived Namara {LANG} {TYPE} drill from {DATE}: ...」の形）。
+具体的に埋める（他の既存ページに倣う——「An archived Namaran {LANG} {TYPE} drill from {DATE}: ...」の形）。
 `meta description`（HTML属性）では `<` `&` をエスケープするが、JSON-LD（`<script>` の中身）では
 エスケープせず生の `<` `&` を書く（`Vec<String>` のように。既存ページもそうなっている）。
 

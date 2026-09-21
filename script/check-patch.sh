@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Namara drill patch guard.
+# Namaran drill patch guard.
 #
 # The namara-daily workflow lets Claude Code run arbitrary commands in its
 # `write` job, so everything that job hands on — the patch with the day's

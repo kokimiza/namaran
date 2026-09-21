@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Namara content-management script.
+# Namaran content-management script.
 #
 # This is an *authoring aid* (run locally or by the namara-daily workflow),
 # not part of the deployed site. It never runs on Cloudflare Pages and the

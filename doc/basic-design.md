@@ -1,10 +1,10 @@
-# Namara 基本設計書
+# Namaran 基本設計書
 
 > 対応する要件定義: [`requirements.md`](./requirements.md)
 
 ## 0. 本書の方針
 
-Namaraは静的サイトであり、思想的にも技術的にも「小さいこと」が正しさである。
+Namaranは静的サイトであり、思想的にも技術的にも「小さいこと」が正しさである。
 
 この設計書は、**とにかく早く動くサイトを作ること**を最優先する。
 
@@ -16,13 +16,13 @@ Namaraは静的サイトであり、思想的にも技術的にも「小さい�
 * 将来の拡張を見越した抽象化
 * ロケール別（`/ja/` `/en/` 等）ディレクトリツリーによる多言語化（§1.5、否定的決定として記録済み）
 
-要件定義 §21 の通り、Namara本体は「問題がどう追加されたか」を知らない。**存在する静的ファイルを表示するだけ**でよい。「今日の問題」の解決だけは例外的に、Cloudflare Pages Functions（`functions/_middleware.js`、§5.2）が日付を見て機械的にファイルを選ぶ。これは編集判断を含まない決定的なルーティングであり、CMSではない。公開作業（通常は定期実行ワークフロー、§9.2）がやることは「日付つきファイルを1つ追加する」だけで、既存ファイルの上書きは発生しない（§9）。これにより、ブラウザ向けJS・ビルド・CMSを一切使わずにv1が完成する。
+要件定義 §21 の通り、Namaran本体は「問題がどう追加されたか」を知らない。**存在する静的ファイルを表示するだけ**でよい。「今日の問題」の解決だけは例外的に、Cloudflare Pages Functions（`functions/_middleware.js`、§5.2）が日付を見て機械的にファイルを選ぶ。これは編集判断を含まない決定的なルーティングであり、CMSではない。公開作業（通常は定期実行ワークフロー、§9.2）がやることは「日付つきファイルを1つ追加する」だけで、既存ファイルの上書きは発生しない（§9）。これにより、ブラウザ向けJS・ビルド・CMSを一切使わずにv1が完成する。
 
 ---
 
 ## 1. 「今日の問題」は12種類同時に存在する
 
-構造上、Namaraには「言語 × 種別」の組み合わせ（4言語 × 3種別 = 12ページ）が常にすべて公開されている。つまり**サイト全体で1日1問**ではなく、
+構造上、Namaranには「言語 × 種別」の組み合わせ（4言語 × 3種別 = 12ページ）が常にすべて公開されている。つまり**サイト全体で1日1問**ではなく、
 
 > **12種類の『今日のドリル』が並行して存在し、ユーザーは自分が維持したい言語・種別を1つ選んで触れる**
 
@@ -54,7 +54,7 @@ Namaraは静的サイトであり、思想的にも技術的にも「小さい�
 
 なぜやめたか：
 
-* Namaraは元々「UI文言・問題文は英語で統一する」（§7.1）という単一言語設計だった。ロケール分割は、この前提を崩す複雑さを後から持ち込んだものであり、要件定義 §21 が明確に拒否している「将来の拡張を見越した抽象化」そのものだった
+* Namaranは元々「UI文言・問題文は英語で統一する」（§7.1）という単一言語設計だった。ロケール分割は、この前提を崩す複雑さを後から持ち込んだものであり、要件定義 §21 が明確に拒否している「将来の拡張を見越した抽象化」そのものだった
 * 到達可能なページ・URLの数が増えることは、レビューすべき対象が増えることと同義である。誰にもリンクされないツリーは、更新もされず、誰の目にも入らないまま存在し続ける
 * `/` のロケール判定リダイレクトは、エッジ（信頼境界）で動く `functions/_middleware.js` に、UI利便性のためだけの分岐を持ち込んでいた。ミドルウェアに残すべきなのは静的ファイルでは表現できない分岐（§5.1の未来日404、§5.2の「今日」エイリアス）だけであり、ロケール判定はそれに当たらない
 
@@ -85,7 +85,7 @@ Cloudflare Pages（静的ホスティング、ビルドコマンドなし）
 
 ### 3.1 前提：攻撃対象領域が構造的に小さい
 
-Namaraには、一般的なWebアプリで問題になりやすい要素が最初から存在しない。
+Namaranには、一般的なWebアプリで問題になりやすい要素が最初から存在しない。
 
 ```text
 JavaScript        なし
@@ -106,7 +106,7 @@ DB                なし
 
 ### 3.2 それでも残るリスク
 
-一番現実的なのは、GitHubアカウントやCloudflareアカウントが乗っ取られ、HTMLそのものを書き換えられることである。これはJSの有無とは無関係で、静的サイトであっても常に残るリスクである（GitHub/Cloudflareアカウントの2段階認証などアカウント保護側で対処する話であり、Namaraのサイト設計そのものでは解決しない）。
+一番現実的なのは、GitHubアカウントやCloudflareアカウントが乗っ取られ、HTMLそのものを書き換えられることである。これはJSの有無とは無関係で、静的サイトであっても常に残るリスクである（GitHub/Cloudflareアカウントの2段階認証などアカウント保護側で対処する話であり、Namaranのサイト設計そのものでは解決しない）。
 
 また、将来HTMLに外部スクリプトや外部iframeを迂闊に追加すれば、その瞬間に外部依存・攻撃面が増える。そのため、次の原則を明文化する。
 
@@ -123,7 +123,7 @@ analytics    なし
 
 ### 3.3 `_headers` によるセキュリティヘッダ
 
-Cloudflare Pagesはリポジトリ直下に `_headers` ファイルを置くだけで、ビルド不要のままレスポンスヘッダを追加できる（[Headers · Cloudflare Pages docs](https://developers.cloudflare.com/pages/configuration/headers/)）。Namaraでは以下を設定する。
+Cloudflare Pagesはリポジトリ直下に `_headers` ファイルを置くだけで、ビルド不要のままレスポンスヘッダを追加できる（[Headers · Cloudflare Pages docs](https://developers.cloudflare.com/pages/configuration/headers/)）。Namaranでは以下を設定する。
 
 ```text
 /*
@@ -134,7 +134,7 @@ Cloudflare Pagesはリポジトリ直下に `_headers` ファイルを置くだ�
   Permissions-Policy: camera=(), microphone=(), geolocation=()
 ```
 
-`default-src 'self'` ではなく `default-src 'none'` を起点にし、実際に使うリソース種別だけを個別に許可する、ホワイトリスト方式を採る。Namaraは画像・favicon・外部/自前を問わずWebフォントを一切使わず(§8、システムフォントのみ)、`style.css` 1枚だけを自ホストから読み込む(§3.2)。そのため明示的に許可が要るのは `style-src 'self'` だけであり、`img-src` / `font-src` / `connect-src` / `media-src` などは指定せず `default-src 'none'` へのフォールバックに任せて閉じたままにする——使っていないリソース種別をあらかじめ `'self'` で開けておくことは、要件定義 §21・本書 §0 が拒否する「将来の拡張を見越した抽象化」に当たる。将来favicon・画像・自前フォント等を追加する時点で、そのときはじめて対応する `-src` を1つ足せばよい。
+`default-src 'self'` ではなく `default-src 'none'` を起点にし、実際に使うリソース種別だけを個別に許可する、ホワイトリスト方式を採る。Namaranは画像・favicon・外部/自前を問わずWebフォントを一切使わず(§8、システムフォントのみ)、`style.css` 1枚だけを自ホストから読み込む(§3.2)。そのため明示的に許可が要るのは `style-src 'self'` だけであり、`img-src` / `font-src` / `connect-src` / `media-src` などは指定せず `default-src 'none'` へのフォールバックに任せて閉じたままにする——使っていないリソース種別をあらかじめ `'self'` で開けておくことは、要件定義 §21・本書 §0 が拒否する「将来の拡張を見越した抽象化」に当たる。将来favicon・画像・自前フォント等を追加する時点で、そのときはじめて対応する `-src` を1つ足せばよい。
 
 特に `script-src 'none'` が重要である。これはブラウザに対して「このサイトではJavaScriptの実行自体を許さない」と宣言するものであり、将来だれかが誤って（あるいは意図的に）HTMLに `<script>` を混入させても、ブラウザ側でブロックされる。設計判断を文書に書くだけでなく、ブラウザに強制させるところまでやる。
 
@@ -263,14 +263,14 @@ env.ASSETS.fetch("/c/read/2026-08-21") を取得し、そのままレスポン�
 
 理由：
 
-* リダイレクトだけのページは検索エンジンにとって実質空白であり、「Namara」という名前や考え方そのもので見つけてもらう機会を捨てることになる
+* リダイレクトだけのページは検索エンジンにとって実質空白であり、「Namaran」という名前や考え方そのもので見つけてもらう機会を捨てることになる
 * 「今日の問題」はもともと12種類同時に存在する（§1）。`/c/read` を特別扱いしてデフォルトにする必然性は薄かった
 * トップページに実コンテンツを置いたほうが、初めて来た人に「これは何のサイトか」を説明できる
 
 `index.html` は、次の要素を持つ独立したページとする。
 
 1. header（サイト名・タグライン）— 他ページと共通
-2. 短い説明文（Namaraが何か、何をしないか。要件定義 §1〜§3 の要約）
+2. 短い説明文（Namaranが何か、何をしないか。要件定義 §1〜§3 の要約）
 3. 言語 × 種別への案内（4言語 × 3種別、12リンク）
 4. footer
 
@@ -283,20 +283,20 @@ env.ASSETS.fetch("/c/read/2026-08-21") を取得し、そのままレスポン�
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="Namara is a one-question-a-day coding drill in C, C++, Rust, and Haskell — for programmers who want to keep reading, writing, and fixing code by hand.">
-<title>Namara — Code daily. Without assist.</title>
+<meta name="description" content="Namaran is a one-question-a-day coding drill in C, C++, Rust, and Haskell — for programmers who want to keep reading, writing, and fixing code by hand.">
+<title>Namaran — Code daily. Without assist.</title>
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 <div class="wrap">
 
 <header class="masthead">
-  <h1>Namara</h1>
+  <h1>Namaran</h1>
   <p class="tagline">Code daily. Without assist.</p>
 </header>
 
 <p class="lede">
-  Namara is a one-question-a-day coding drill for programmers who already know how to code, and want to make sure they still can.
+  Namaran is a one-question-a-day coding drill for programmers who already know how to code, and want to make sure they still can.
 </p>
 
 <p>
@@ -341,7 +341,7 @@ env.ASSETS.fetch("/c/read/2026-08-21") を取得し、そのままレスポン�
     That page doesn't exist. It may have moved, or never did.
   </p>
 
-  <p><a href="/">&larr; Back to Namara</a></p>
+  <p><a href="/">&larr; Back to Namaran</a></p>
 </main>
 ```
 
@@ -374,7 +374,7 @@ env.ASSETS.fetch("/c/read/2026-08-21") を取得し、そのままレスポン�
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Namara — C / READ — 2026-08-21</title>
+<title>Namaran — C / READ — 2026-08-21</title>
 <link rel="canonical" href="https://namara.jocarium.productions/c/read/2026-08-21">
 <link rel="stylesheet" href="/style.css">
 </head>
@@ -382,7 +382,7 @@ env.ASSETS.fetch("/c/read/2026-08-21") を取得し、そのままレスポン�
 <div class="page">
 
 <header class="masthead">
-  <h1><a href="/">Namara</a></h1>
+  <h1><a href="/">Namaran</a></h1>
   <p class="tagline">Code daily. Without assist.</p>
 </header>
 
@@ -439,7 +439,7 @@ env.ASSETS.fetch("/c/read/2026-08-21") を取得し、そのままレスポン�
 
 ルール：
 
-* `<title>` は `Namara — {言語} / {種別} — {日付}` に統一
+* `<title>` は `Namaran — {言語} / {種別} — {日付}` に統一
 * `<h2>` はその日付そのもの（例: `2026-08-21`）にする。何の問題かは nav・title・code-filename で分かるので、見出しは「いつのものか」を示せば十分
 * `<html lang="en">` を使う（UI文言・問題文は英語で統一しているため）
 * masthead の `<h1>` は `/`（ルートページ）へリンクする
@@ -461,7 +461,7 @@ env.ASSETS.fetch("/c/read/2026-08-21") を取得し、そのままレスポン�
 * この `<ul>` が全日付の一覧そのものなので、ページ自身は `<aside class="past">` を持たない（`.page:not(:has(.past))` により自動で1カラムへ戻る。§8）
 * `lang-nav` / `type-nav` は日付を保持できないので、兄弟の archive ページ（例: `/rust/read/archive`）へリンクする
 * JSON-LDは `BreadcrumbList` のみとし、`TechArticle` / `LearningResource` は付けない（ドリル本体ではなく索引のため）
-* `<title>` は `Namara — {言語} / {種別} — Archive`、`<h2>` は `Archive`
+* `<title>` は `Namaran — {言語} / {種別} — Archive`、`<h2>` は `Archive`
 
 具体例：
 
@@ -472,8 +472,8 @@ env.ASSETS.fetch("/c/read/2026-08-21") を取得し、そのままレスポン�
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="Every past Namara C READ drill, archived by date.">
-<title>Namara — C / READ — Archive</title>
+<meta name="description" content="Every past Namaran C READ drill, archived by date.">
+<title>Namaran — C / READ — Archive</title>
 <link rel="canonical" href="https://namara.jocarium.productions/c/read/archive">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -481,7 +481,7 @@ env.ASSETS.fetch("/c/read/2026-08-21") を取得し、そのままレスポン�
   "@context": "https://schema.org",
   "@type": "BreadcrumbList",
   "itemListElement": [
-    { "@type": "ListItem", "position": 1, "name": "Namara", "item": "https://namara.jocarium.productions/" },
+    { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namara.jocarium.productions/" },
     { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namara.jocarium.productions/c/read" },
     { "@type": "ListItem", "position": 3, "name": "Archive" }
   ]
@@ -492,7 +492,7 @@ env.ASSETS.fetch("/c/read/2026-08-21") を取得し、そのままレスポン�
 <div class="page">
 
 <header class="masthead">
-  <h1><a href="/">Namara</a></h1>
+  <h1><a href="/">Namaran</a></h1>
   <p class="tagline">Code daily. Without assist.</p>
 </header>
 
@@ -555,7 +555,7 @@ env.ASSETS.fetch("/c/read/2026-08-21") を取得し、そのままレスポン�
 * ページ本体の色数は絞る（背景・文字・アクセント1色程度）。コード内のトークン色だけは例外
 * `nav a.active` はインク色とアクセント色の下線で示す
 
-ファイル冒頭には最小限のリセットを置く（`box-sizing: border-box`と、実際に使っている要素——`html` / `body` / `h1` / `h2` / `p`——の余白ゼロのみ）。Namaraのページに存在しない要素（画像・table・フォーム・リスト等）のリセットは書かない。将来使うかもしれない要素への予防的なリセットはしない。リセットは汎用部分として先頭にまとめ、Namara固有のトークン適用（背景色・文字色・フォント）はその直後の「Base」セクションに分離する。
+ファイル冒頭には最小限のリセットを置く（`box-sizing: border-box`と、実際に使っている要素——`html` / `body` / `h1` / `h2` / `p`——の余白ゼロのみ）。Namaranのページに存在しない要素（画像・table・フォーム・リスト等）のリセットは書かない。将来使うかもしれない要素への予防的なリセットはしない。リセットは汎用部分として先頭にまとめ、Namaran固有のトークン適用（背景色・文字色・フォント）はその直後の「Base」セクションに分離する。
 
 `past`（問題ページ）や `guide`（ルートページ）のセクションは、`h2` / `p` / `a` / `strong` の範囲に収まる。新しい要素（画像・リスト・テーブル等）を増やさずに書けるため、追加のリセットは不要。
 
@@ -662,7 +662,7 @@ script/highlight.sh [--check] FILE ...
 * **公開の条件にする。** `script/verify.sh` は `--check` で、ページのハイライトがこのスクリプトの出力どおりかを確認する。ハイライトし忘れたページや、spanを手で書き換えたページは公開されない。`check-patch.sh` の許可リストは元から `<span class>` を含むので変更していない
 * **字句解析は小さく、隅では間違える。** 言語ごとに正規表現数十行で、ネストしたブロックコメントやC++の文脈依存キーワードは扱わない。間違えたときに起きるのは「色が違う」ことだけで、文字列は変わらない
 
-**公開後は編集しない（§7.1）の例外。** ハイライトは2026-09-16に導入し、その時点で公開済みだった全ページに一度だけ適用した。変わったのは `<pre class="code">` の中のマークアップだけで、各ページから span を除いたものは3ページを除き元のファイルとバイト単位で一致した。残る3ページは、元のHTMLが `&&` や `->` をエスケープせずに書いていた箇所がエスケープされただけで、表示される文字列は同じである。今後、字句解析を改善したときも同じ手順（全ページに再適用し、表示される文字列が変わらないことをスクリプトに確かめさせる）で付け直してよい。これ以外の理由で公開済みページを編集しないという方針は変わらない。
+**公開後は編集しない（§7.1）の例外。** ハイライトは2026-09-16に導入し、その時点で公開済みだった全ページに一度だけ適用した。変わったのは `<pre class="code">` の中のマークアップだけで、各ページから span を除いたものは3ページを除き元のファイルとバイト単位で一致した。残る3ページは、元のHTMLが `&&` や `->` をエスケープせずに書いていた箇所がエスケープされただけで、表示される文字列は同じである。今後、字句解析を改善したときも同じ手順（全ページに再適用し、表示される文字列が変わらないことをスクリプトに確かめさせる）で付け直してよい。もう1つの例外は、2026-09-21のサービス名変更（旧名から「Namaran」へ）である。表示名はタイトル・マストヘッド・JSON-LDとして全ページに入っているため、公開済みページも含めて一括で置換した。置換したのは大文字始まりの表示名だけで、コード（`<pre class="code">` の中）には触れていない。ドメイン・GitHubリポジトリ名・Skill名・環境変数などの小文字の識別子は、DNSやリポジトリの変更を伴うため変えていない。これ以外の理由で公開済みページを編集しないという方針は変わらない。
 
 ---
 
@@ -703,7 +703,7 @@ CMS
 
 ## 12. 最短で動かすための手順（Definition of Done）
 
-以下が揃えば「動くNamara」として成立する。中身の問題文はプレースホルダーでよく、後から差し替えれば良い。
+以下が揃えば「動くNamaran」として成立する。中身の問題文はプレースホルダーでよく、後から差し替えれば良い。
 
 1. `style.css` を1枚作る（§8の方針で最小限）
 2. `index.html` を実コンテンツで作る（§6）
@@ -713,9 +713,9 @@ CMS
 6. §7.1の規約を元に、12組（4言語 × 3種別）それぞれの初日のアーカイブページ（例: `c/read/2026-08-21.html`）をプレースホルダー内容で作成する。Past ペインは「Today」リンク＋現在地だけになる
 7. GitHubリポジトリを作成し、上記一式をpush
 8. Cloudflare PagesとGitHubリポジトリを接続し、§10の設定でデプロイ
-9. `/` を開いて、Namaraの説明文と12個の案内リンクが表示されることを確認する
+9. `/` を開いて、Namaranの説明文と12個の案内リンクが表示されることを確認する
 10. `/c/read`（ミドルウェアが最新の日付ページへ差し替えるエイリアス）と `/c/read/2026-08-21`（そのページ自体の固定URL）の両方に、`.html` なしで直接アクセスでき、同じ内容が表示されることを確認する
 11. 画面幅が40rem以上のとき、問題ページの右側にPastペインが表示され、日付をクリックするとその日のページに切り替わることを確認する（JS不使用、ページ遷移のみ）
 12. レスポンスヘッダに `Content-Security-Policy` 等が付与されていることを確認する（ブラウザの開発者ツール／`curl -I`）。手順10の `/c/read` エイリアス側でもヘッダが同様に付与されることを確認する
 
-ここまでで公開可能。以降の作業は「問題の中身を良くしていくこと」だけになり、それは要件定義 §24 の言う通りNamaraの本質的な資産である。
+ここまでで公開可能。以降の作業は「問題の中身を良くしていくこと」だけになり、それは要件定義 §24 の言う通りNamaranの本質的な資産である。

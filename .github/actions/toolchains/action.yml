@@ -1,4 +1,4 @@
-name: Namara toolchains
+name: Namaran toolchains
 description: >-
   Installs the compilers and linters script/verify.sh uses: GCC 14 (C23 and
   C++26), stable Rust with clippy, the runner's preinstalled GHC, and HLint.
