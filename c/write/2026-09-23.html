@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="A Namaran C WRITE drill from 2026-09-23: write the two-write diff-array update at the heart of the imos method for range-add queries.">
+<title>Namaran — C / WRITE — 2026-09-23</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-09-23">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-23" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-09-23",
+      "url": "https://namaran.jocarium.productions/c/write/2026-09-23",
+      "datePublished": "2026-09-23",
+      "dateModified": "2026-09-23",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "C — writing the two-write diff-array range-add step of the imos method" },
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "A Namaran C WRITE drill from 2026-09-23: write the two-write diff-array update at the heart of the imos method for range-add queries."
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-23" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-09-23">C++26</a>
+  <a href="/rust/write/2026-09-23">Rust 2024</a>
+  <a href="/haskell/write/2026-09-23">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-09-23">READ</a>
+  <a href="/c/write/2026-09-23" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-09-23">DEBUG</a>
+</nav>
+
+<main>
+  <h2>2026-09-23</h2>
+  <div class="code-frame">
+    <p class="code-filename">imos_add.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stddef.h&gt;</span>
+
+<span class="ty">void</span> <span class="fn">imos_add</span>(<span class="ty">int</span> *diff, <span class="ty">size_t</span> l, <span class="ty">size_t</span> r, <span class="ty">int</span> v) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    いもす法で使う差分配列<code>diff</code>(長さ<code>n + 1</code>)に対し、半開区間<code>[l, r)</code>(<code>0 &lt;= l &lt;= r &lt;= n</code>)の各要素へ<code>v</code>を加算する効果を持たせる関数<code>imos_add</code>を書いてください。実際にその区間を1つずつ加算するのではなく、<code>diff</code>のうち2箇所だけを更新します。<code>l == r</code>(空区間)のときも、正味の効果はゼロのままであるべきです。<code>diff = {0,0,0,0,0,0}</code>に<code>imos_add(diff, 1, 4, 3)</code> → <code>diff = {0,3,0,0,-3,0}</code>、続けて同じ<code>diff</code>に<code>imos_add(diff, 0, 2, 2)</code> → <code>diff = {2,3,-2,0,-3,0}</code>、<code>diff = {0,0,0,0,0,0}</code>に<code>imos_add(diff, 3, 3, 5)</code> → <code>diff = {0,0,0,0,0,0}</code>(境界: 空区間)
+  </p>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="ty">void</span> <span class="fn">imos_add</span>(<span class="ty">int</span> *diff, <span class="ty">size_t</span> l, <span class="ty">size_t</span> r, <span class="ty">int</span> v) {
+    diff[l] += v;
+    diff[r] -= v;
+}
+</code></pre>
+      <p>
+        区間<code>[l, r)</code>の全要素へ<code>+v</code>する効果は、<code>diff[l]</code>に<code>+v</code>、<code>diff[r]</code>に<code>-v</code>を置くだけで表現できます。あとで先頭から累積和を取ると、<code>diff[l]</code>以降でその<code>+v</code>が効き始め、<code>diff[r]</code>のところでちょうど打ち消されて区間の外には影響が及びません。<code>l == r</code>のときは、<code>diff[l] += v;</code>のすぐあとに同じ位置へ<code>diff[l] -= v;</code>することになるので、正味の効果はゼロのままです——特別な分岐を書かなくても、境界条件(空区間)を自然に満たします。これは参考実装であり、唯一の正解ではありません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

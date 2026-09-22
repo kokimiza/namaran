@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="A Namaran C++ DEBUG drill from 2026-09-23: a vector of base-class values slices every derived animal pushed into it, silencing their distinct sounds.">
+<title>Namaran — C++ / DEBUG — 2026-09-23</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-09-23">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-23" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-09-23",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-09-23",
+      "datePublished": "2026-09-23",
+      "dateModified": "2026-09-23",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "C++ — a std::vector<Base> that slices every element pushed into it" },
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "A Namaran C++ DEBUG drill from 2026-09-23: a vector of base-class values slices every derived animal pushed into it, silencing their distinct sounds."
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-23">C23</a>
+  <a href="/cpp/debug/2026-09-23" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-09-23">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-23">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-23">READ</a>
+  <a href="/cpp/write/2026-09-23">WRITE</a>
+  <a href="/cpp/debug/2026-09-23" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main>
+  <h2>2026-09-23</h2>
+  <div class="code-frame">
+    <p class="code-filename">zoo_slicing.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+
+<span class="kw">struct</span> <span class="ty">Animal</span> {
+    <span class="kw">virtual</span> std::<span class="ty">string</span> <span class="fn">speak</span>() <span class="kw">const</span> { <span class="kw">return</span> <span class="st">"..."</span>; }
+    <span class="kw">virtual</span> ~<span class="fn">Animal</span>() = <span class="kw">default</span>;
+};
+
+<span class="kw">struct</span> <span class="ty">Dog</span> : <span class="ty">Animal</span> {
+    std::<span class="ty">string</span> <span class="fn">speak</span>() <span class="kw">const</span> <span class="kw">override</span> { <span class="kw">return</span> <span class="st">"Woof"</span>; }
+};
+
+<span class="kw">struct</span> <span class="ty">Cat</span> : <span class="ty">Animal</span> {
+    std::<span class="ty">string</span> <span class="fn">speak</span>() <span class="kw">const</span> <span class="kw">override</span> { <span class="kw">return</span> <span class="st">"Meow"</span>; }
+};
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    std::<span class="ty">vector</span>&lt;<span class="ty">Animal</span>&gt; zoo;
+    zoo.<span class="fn">push_back</span>(<span class="ty">Dog</span>{});
+    zoo.<span class="fn">push_back</span>(<span class="ty">Cat</span>{});
+    <span class="kw">for</span> (<span class="kw">const</span> <span class="kw">auto</span>&amp; a : zoo) std::cout &lt;&lt; a.<span class="fn">speak</span>() &lt;&lt; <span class="st">'\n'</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    動物園の動物たちに、それぞれの鳴き声を言わせるつもりのコードです。いまの出力は<code>...</code>が2行ですが、本来の出力は<code>Woof</code>・<code>Meow</code>(それぞれの動物の鳴き声)です。何が問題で、どう直せばよいでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>std::vector&lt;Animal&gt;</code>は<code>Animal</code>型の値だけを保持できるコンテナです。<code>zoo.push_back(Dog{})</code>は、一時的に作った<code>Dog</code>オブジェクトから<code>Animal</code>部分だけをコピーして<code>vector</code>に積みます——つまり<code>push_back</code>のたびにオブジェクトのスライシングが起きており、<code>Cat</code>についても同様です。結果として<code>zoo</code>の中身はどちらも素の<code>Animal</code>であり、動的型の情報はとうに失われているため、<code>a.speak()</code>はどちらの要素についても<code>Animal::speak</code>が呼ばれ、<code>"..."</code>が2回出力されます。ポリモーフィックな振る舞いを保ったまま複数の動物をコンテナに集めるには、値ではなくポインタ(所有権を持たせるなら<code>std::unique_ptr&lt;Animal&gt;</code>)で保持する必要があります:
+      </p>
+      <pre class="code"><code>std::<span class="ty">vector</span>&lt;std::<span class="ty">unique_ptr</span>&lt;<span class="ty">Animal</span>&gt;&gt; zoo;
+zoo.<span class="fn">push_back</span>(std::make_unique&lt;<span class="ty">Dog</span>&gt;());
+zoo.<span class="fn">push_back</span>(std::make_unique&lt;<span class="ty">Cat</span>&gt;());
+<span class="kw">for</span> (<span class="kw">const</span> <span class="kw">auto</span>&amp; a : zoo) std::cout &lt;&lt; a-&gt;<span class="fn">speak</span>() &lt;&lt; <span class="st">'\n'</span>;
+</code></pre>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

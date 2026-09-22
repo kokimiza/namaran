@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="A Namaran C++ READ drill from 2026-09-23: tracing object slicing when a derived object is passed to a by-value base-class parameter.">
+<title>Namaran — C++ / READ — 2026-09-23</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-09-23">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-23" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-09-23",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-09-23",
+      "datePublished": "2026-09-23",
+      "dateModified": "2026-09-23",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "C++ — object slicing through a by-value base-class parameter" },
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "A Namaran C++ READ drill from 2026-09-23: tracing object slicing when a derived object is passed to a by-value base-class parameter."
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-23">C23</a>
+  <a href="/cpp/read/2026-09-23" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-09-23">Rust 2024</a>
+  <a href="/haskell/read/2026-09-23">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-23" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-09-23">WRITE</a>
+  <a href="/cpp/debug/2026-09-23">DEBUG</a>
+</nav>
+
+<main>
+  <h2>2026-09-23</h2>
+  <div class="code-frame">
+    <p class="code-filename">slice_speak.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+
+<span class="kw">struct</span> <span class="ty">Animal</span> {
+    <span class="kw">virtual</span> std::<span class="ty">string</span> <span class="fn">speak</span>() <span class="kw">const</span> { <span class="kw">return</span> <span class="st">"..."</span>; }
+    <span class="kw">virtual</span> ~<span class="fn">Animal</span>() = <span class="kw">default</span>;
+};
+
+<span class="kw">struct</span> <span class="ty">Dog</span> : <span class="ty">Animal</span> {
+    std::<span class="ty">string</span> <span class="fn">speak</span>() <span class="kw">const</span> <span class="kw">override</span> { <span class="kw">return</span> <span class="st">"Woof"</span>; }
+};
+
+<span class="ty">void</span> <span class="fn">announce</span>(<span class="ty">Animal</span> a) {
+    std::cout &lt;&lt; a.<span class="fn">speak</span>() &lt;&lt; <span class="st">'\n'</span>;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="ty">Dog</span> d;
+    <span class="fn">announce</span>(d);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    このプログラムを実行すると、標準出力はどうなるでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>...</code>(その後に改行)です。<code>announce</code>は引数<code>a</code>を<code>Animal</code>型の<strong>値</strong>として受け取ります。<code>Dog</code>のオブジェクト<code>d</code>を渡すと、<code>d</code>の<code>Animal</code>部分だけがコピーされて新しい<code>Animal</code>オブジェクトが作られ、<code>Dog</code>としての動的型の情報は失われます。これが「オブジェクトのスライシング」です。コピーされた<code>a</code>の動的型は最初から<code>Animal</code>そのものなので、<code>a.speak()</code>は仮想関数呼び出しであっても<code>Dog::speak</code>ではなく<code>Animal::speak</code>を呼び、<code>"..."</code>を返します。スライシングを避けて<code>Dog</code>としての振る舞いを保ちたい場合は、値渡しではなく<code>const Animal&amp;</code>や<code>const Animal*</code>のように参照・ポインタで受け取る必要があります(その場合は動的型が保たれ、<code>Woof</code>が出力されます)。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
