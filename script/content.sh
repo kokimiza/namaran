@@ -292,7 +292,9 @@ cmd_undo() {
     fi
 
     if [ -f "$archive" ] && grep -qF "/$lang/$type/$date\"" "$archive"; then
-      grep -vF "/$lang/$type/$date\">$date</a></li>" "$archive" > "$archive.tmp" && mv "$archive.tmp" "$archive"
+      # Matches the link, not the whole line: script/topics.sh (§9.5) appends
+      # the drill's topic to it afterwards, so the tail of the line varies.
+      grep -vF "/$lang/$type/$date\">$date</a>" "$archive" > "$archive.tmp" && mv "$archive.tmp" "$archive"
       echo "unarchived: $lang/$type/archive.html -= $date"
       archive_removed=$((archive_removed + 1))
     fi

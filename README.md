@@ -40,7 +40,7 @@ GitHub Actions(毎日 00:10 JST)
   write   お題を抽選(script/odai.sh)し、Claude Code が namara-daily Skill で12問を書く
   verify  Claudeが触っていない別のランナーで、パッチを検査(script/check-patch.sh)し、
           コンパイル・実行・静的解析で答えを裏付ける(script/verify.sh)
-  publish 検査を通ったパッチだけを main に当て、sitemap.xml を作り直して push
+  publish 検査を通ったパッチだけを main に当て、索引と sitemap.xml を作り直して push
         →  Cloudflare Pages が自動デプロイ
 ```
 
@@ -65,17 +65,19 @@ READの答えの出力は実際の実行結果と照合し、「コンパイル�
 index.html, style.css, 404.html, _headers   サイト本体
 {c,cpp,rust,haskell}/{read,write,debug}/
   YYYY-MM-DD.html                            日付ごとの問題ページ(公開後は編集しない。ハイライトの付け直しだけは例外)
-  archive.html                               その言語・種別の過去問一覧
+  archive.html                               その言語・種別の過去問一覧(日付とお題)
+topics.html, tag/                            生成物。お題(タグ)から過去問を辿る索引
 functions/_middleware.js                     日付なしURLの解決・未来日の404
 script/content.sh                            問題ページの雛形生成とアーカイブへの追記
 script/verify.sh                             問題ページと検証用ソースの検証
 script/highlight.sh                          コードのシンタックスハイライト
 script/odai.sh                               お題の抽選
 script/check-patch.sh                        公開前のパッチ検査
+script/topics.sh                             アーカイブの見出しと topics.html / tag/ の生成
 script/sitemap.sh                            sitemap.xml の生成
 sitemap.xml, robots.txt                      生成物と、その場所を示す1行
 .claude/skills/namara-daily/                 問題作成の手順(SKILL.md)とお題の候補集(odai.txt)
-.github/workflows/                           定期実行ワークフローと sitemap 追随
+.github/workflows/                           定期実行ワークフローと生成物の追随
 doc/                                         要件定義・基本設計
 ```
 
@@ -97,7 +99,7 @@ Skillを使わずに手で書く場合は、次の順です。
 
 検証用ソースの置き方(`NAME.ok.rs` / `NAME.ng.rs` / `NAME.bug.rs` / `NAME.stdout`)は [script/verify.sh](script/verify.sh) の冒頭にあります。検証には上の表のツールが必要です。
 
-`sitemap.xml` は公開と同じ手順の中で作られます。手元で作り直すときは `./script/sitemap.sh`、最新かどうかだけ見るときは `./script/sitemap.sh --check` です。
+`sitemap.xml` と索引(`topics.html`・`tag/`・各 `archive.html` の見出し)は公開と同じ手順の中で作られます。手元で作り直すときは `./script/topics.sh` と `./script/sitemap.sh`、最新かどうかだけ見るときは `--check` を付けます。いま使われているタグの一覧は `./script/topics.sh --tags` で出ます。
 
 ## 定期実行のセットアップ
 
