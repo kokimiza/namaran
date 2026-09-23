@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="360を試し割りで素因数分解し(素数, 指数)のペアを順に出力するコードを、探索範囲がnの縮小とともに狭まる点に注目しながら追う。2026-09-24のRust READ。">
+<title>試し割り法で素因数分解し(素数, 指数)の列を作る関数の出力 — Namaran Rust / READ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-09-24">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / READ", "item": "https://namaran.jocarium.productions/rust/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-24" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / READ — 2026-09-24",
+      "url": "https://namaran.jocarium.productions/rust/read/2026-09-24",
+      "datePublished": "2026-09-24",
+      "dateModified": "2026-09-24",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "試し割り法で素因数分解し(素数, 指数)の列を作る関数の出力" },
+      "keywords": "prime-factorization, trial-division, exponent",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "360を試し割りで素因数分解し(素数, 指数)のペアを順に出力するコードを、探索範囲がnの縮小とともに狭まる点に注目しながら追う。2026-09-24のRust READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-24">C23</a>
+  <a href="/cpp/read/2026-09-24">C++26</a>
+  <a href="/rust/read/2026-09-24" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/read/2026-09-24">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-09-24" class="active" aria-current="page">READ</a>
+  <a href="/rust/write/2026-09-24">WRITE</a>
+  <a href="/rust/debug/2026-09-24">DEBUG</a>
+</nav>
+
+<main
+  data-topic="試し割り法で素因数分解し(素数, 指数)の列を作る関数の出力"
+  data-tags="prime-factorization trial-division exponent"
+  data-concepts="素因数分解, 試し割り法, prime factorization, trial division, exponent"
+>
+  <h2>2026-09-24</h2>
+  <div class="code-frame">
+    <p class="code-filename">factorize_trace.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">factorize</span>(<span class="kw">mut</span> n: <span class="ty">u64</span>) -&gt; <span class="ty">Vec</span>&lt;(<span class="ty">u64</span>, <span class="ty">u32</span>)&gt; {
+    <span class="kw">let</span> <span class="kw">mut</span> factors = <span class="ty">Vec</span>::<span class="fn">new</span>();
+    <span class="kw">let</span> <span class="kw">mut</span> p = <span class="nu">2u64</span>;
+    <span class="kw">while</span> p * p &lt;= n {
+        <span class="kw">if</span> n.<span class="fn">is_multiple_of</span>(p) {
+            <span class="kw">let</span> <span class="kw">mut</span> exp = <span class="nu">0u32</span>;
+            <span class="kw">while</span> n.<span class="fn">is_multiple_of</span>(p) {
+                n /= p;
+                exp += <span class="nu">1</span>;
+            }
+            factors.<span class="fn">push</span>((p, exp));
+        }
+        p += <span class="nu">1</span>;
+    }
+    <span class="kw">if</span> n &gt; <span class="nu">1</span> {
+        factors.<span class="fn">push</span>((n, <span class="nu">1</span>));
+    }
+    factors
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">for</span> (p, e) <span class="kw">in</span> <span class="fn">factorize</span>(<span class="nu">360</span>) {
+        <span class="mc">print!</span>(<span class="st">"{p}^{e} "</span>);
+    }
+    <span class="mc">println!</span>();
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    このプログラムを実行すると、何が出力されるでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        出力は<code>2^3 3^2 5^1 </code>(末尾に半角スペースが1つ入り、そのあとに改行)です。<code>factorize</code>は<code>p</code>を2から順に試し、<code>n</code>がその<code>p</code>で割り切れる間だけ割り続けて指数を数える、試し割り法です。<code>360</code>をトレースすると: <code>p = 2</code>のとき<code>360</code>は<code>2</code>で3回割り切れて<code>45</code>になり、<code>(2, 3)</code>を記録します。<code>p = 3</code>のとき<code>45</code>は<code>3</code>で2回割り切れて<code>5</code>になり、<code>(3, 2)</code>を記録します。<code>p = 4</code>では<code>4 * 4 = 16</code>がそのときの<code>n</code>(すでに<code>5</code>まで縮んでいる)より大きいのでループを抜け、残った<code>n = 5</code>が<code>1</code>より大きいので最後に<code>(5, 1)</code>を追加します。ここで注目したいのは、<code>while p * p &lt;= n</code>の<code>n</code>が入力の<code>360</code>ではなく、それまでに割り出した分だけ縮んだ「いまのn」だという点です。大きな素因数を取り除くたびに<code>p</code>の探索上限も一緒に狭まるので、本来なら<code>sqrt(360)</code>(約19)まで律儀に試す必要がありそうに見えて、実際には<code>p = 4</code>で止まります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/read">Today</a></li>
+    <li><a href="/rust/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="整数nの素因数分解に現れる異なる素数の種類数を、試し割り法で数えるcount_distinct_prime_factorsをRustで書く。n = 1の境界も扱う。2026-09-24のRust WRITE。">
+<title>整数が持つ異なる素因数の種類数を数える — Namaran Rust / WRITE</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-09-24">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-24" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-09-24",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-09-24",
+      "datePublished": "2026-09-24",
+      "dateModified": "2026-09-24",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "整数が持つ異なる素因数の種類数を数える" },
+      "keywords": "prime-factorization, trial-division, distinct-elements",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "整数nの素因数分解に現れる異なる素数の種類数を、試し割り法で数えるcount_distinct_prime_factorsをRustで書く。n = 1の境界も扱う。2026-09-24のRust WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-24">C23</a>
+  <a href="/cpp/write/2026-09-24">C++26</a>
+  <a href="/rust/write/2026-09-24" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-09-24">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-09-24">READ</a>
+  <a href="/rust/write/2026-09-24" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-09-24">DEBUG</a>
+</nav>
+
+<main
+  data-topic="整数が持つ異なる素因数の種類数を数える"
+  data-tags="prime-factorization trial-division distinct-elements"
+  data-concepts="異なる素因数の個数, 素因数の種類, distinct prime factors, prime factorization, trial division"
+>
+  <h2>2026-09-24</h2>
+  <div class="code-frame">
+    <p class="code-filename">count_distinct_prime_factors.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">count_distinct_prime_factors</span>(<span class="kw">mut</span> n: <span class="ty">u64</span>) -&gt; <span class="ty">u32</span> {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    整数<code>n</code>を素因数分解したとき、指数を無視して異なる素数が何種類現れるかを返す<code>count_distinct_prime_factors</code>を書いてください。<code>n = 1</code>のときは素因数を持たないので<code>0</code>です(境界)。<code>count_distinct_prime_factors(1)</code> → <code>0</code>。<code>count_distinct_prime_factors(360)</code> → <code>3</code>(<code>360 = 2^3 * 3^2 * 5</code>で、種類は<code>2, 3, 5</code>の3つ)。<code>count_distinct_prime_factors(17)</code> → <code>1</code>(<code>17</code>自身が素数)。
+  </p>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">count_distinct_prime_factors</span>(<span class="kw">mut</span> n: <span class="ty">u64</span>) -&gt; <span class="ty">u32</span> {
+    <span class="kw">let</span> <span class="kw">mut</span> count = <span class="nu">0u32</span>;
+    <span class="kw">let</span> <span class="kw">mut</span> p = <span class="nu">2u64</span>;
+    <span class="kw">while</span> p * p &lt;= n {
+        <span class="kw">if</span> n.<span class="fn">is_multiple_of</span>(p) {
+            <span class="kw">while</span> n.<span class="fn">is_multiple_of</span>(p) {
+                n /= p;
+            }
+            count += <span class="nu">1</span>;
+        }
+        p += <span class="nu">1</span>;
+    }
+    <span class="kw">if</span> n &gt; <span class="nu">1</span> {
+        count += <span class="nu">1</span>;
+    }
+    count
+}
+</code></pre>
+      <p>
+        試し割り法そのものは<code>factorize</code>と同じですが、指数を記録する代わりに、その<code>p</code>で少なくとも1回割り切れたかどうかだけを見て<code>count</code>を1つ増やします。内側の<code>while n.is_multiple_of(p)</code>ループは指数の数だけ<code>n</code>を割り続けますが、<code>count</code>への加算は外側の<code>if</code>が真になった1回だけ行われるので、<code>360 = 2^3 * 3^2 * 5</code>のように指数が2以上あっても、その素数は1種類としてしか数えられません。ループを抜けたあとに残っている<code>n</code>が<code>1</code>より大きければ、それ自身が(それより小さい素因数では割り切れなかった)最後の素因数なので、忘れずに1つ加えます。これは参考実装であり、唯一の正解ではありません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

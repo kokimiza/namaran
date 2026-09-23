@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="escapeが&quot;と\を2文字に展開した文字列を読み、元に戻すunescape関数をCで書く。書き込む文字数と空文字列の境界条件も扱う。2026-09-24のC WRITE。">
+<title>エスケープされた文字列を復号するunescape関数を書く — Namaran C / WRITE</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-09-24">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-24" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-09-24",
+      "url": "https://namaran.jocarium.productions/c/write/2026-09-24",
+      "datePublished": "2026-09-24",
+      "dateModified": "2026-09-24",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "エスケープされた文字列を復号するunescape関数を書く" },
+      "keywords": "string-escaping, string-decoding",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "escapeが\"と\\を2文字に展開した文字列を読み、元に戻すunescape関数をCで書く。書き込む文字数と空文字列の境界条件も扱う。2026-09-24のC WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-24" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-09-24">C++26</a>
+  <a href="/rust/write/2026-09-24">Rust 2024</a>
+  <a href="/haskell/write/2026-09-24">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-09-24">READ</a>
+  <a href="/c/write/2026-09-24" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-09-24">DEBUG</a>
+</nav>
+
+<main
+  data-topic="エスケープされた文字列を復号するunescape関数を書く"
+  data-tags="string-escaping string-decoding"
+  data-concepts="文字列のアンエスケープ, エスケープの復号, string unescaping, decoding escaped characters"
+>
+  <h2>2026-09-24</h2>
+  <div class="code-frame">
+    <p class="code-filename">unescape.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stddef.h&gt;</span>
+
+<span class="ty">size_t</span> <span class="fn">unescape</span>(<span class="kw">const</span> <span class="ty">char</span> *src, <span class="ty">char</span> *dst) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    次の規則でエスケープされた文字列を読み、元の文字列に戻す<code>unescape</code>を書いてください: エスケープされた文字列では<code>"</code>(ダブルクォート)は<code>\"</code>に、<code>\</code>(バックスラッシュ)自身は<code>\\</code>に、それぞれ2文字へ展開されています。それ以外の文字はそのまま1文字です。復号した文字列を<code>dst</code>に書き込み、書き込んだ文字数を返してください。入力が空文字列のときは<code>dst</code>も空文字列、戻り値は<code>0</code>です(境界: 空文字列)。入力に対応しない孤立した<code>\</code>は来ない前提です。入力<code>a\"\\b</code> → <code>dst</code>は<code>a"\b</code>、戻り値<code>4</code>。入力(空文字列) → <code>dst</code>は(空文字列)、戻り値<code>0</code>。入力<code>xyz</code> → <code>dst</code>は<code>xyz</code>、戻り値<code>3</code>。
+  </p>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="ty">size_t</span> <span class="fn">unescape</span>(<span class="kw">const</span> <span class="ty">char</span> *src, <span class="ty">char</span> *dst) {
+    <span class="ty">size_t</span> j = <span class="nu">0</span>;
+    <span class="kw">for</span> (<span class="ty">size_t</span> i = <span class="nu">0</span>; src[i] != <span class="st">'\0'</span>; i++) {
+        <span class="kw">if</span> (src[i] == <span class="st">'\\'</span>) {
+            i++;
+        }
+        dst[j++] = src[i];
+    }
+    dst[j] = <span class="st">'\0'</span>;
+    <span class="kw">return</span> j;
+}
+</code></pre>
+      <p>
+        <code>unescape</code>は<code>escape</code>より単純です。バックスラッシュを見つけたら1文字読み飛ばし、次の1文字を(それが<code>"</code>だったか<code>\</code>だったかを区別せず)そのまま<code>dst</code>へコピーするだけで、<code>\"</code> → <code>"</code>と<code>\\</code> → <code>\</code>の両方を同じコードで復号できます。<code>escape</code>側は「この文字はエスケープが必要か」を判定する必要がありましたが、<code>unescape</code>側はバックスラッシュの直後を無条件に1文字コピーすればよいだけです。対になる処理でありながら、復号のほうが対称的で単純になっています。これは参考実装であり、唯一の正解ではありません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

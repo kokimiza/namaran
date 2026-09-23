@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="ビットDPで使うビットマスクmaskを、実際に訪問済みの都市番号のリストへ変換するvisited関数をData.Bitsで書く。2026-09-24のHaskell WRITE。">
+<title>ビットマスクを訪問済み集合のリストへ変換するvisited関数を書く — Namaran Haskell / WRITE</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-09-24">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-24" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-09-24",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-09-24",
+      "datePublished": "2026-09-24",
+      "dateModified": "2026-09-24",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "ビットマスクを訪問済み集合のリストへ変換するvisited関数を書く" },
+      "keywords": "bitmask-dp, bit-manipulation",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "ビットDPで使うビットマスクmaskを、実際に訪問済みの都市番号のリストへ変換するvisited関数をData.Bitsで書く。2026-09-24のHaskell WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-24">C23</a>
+  <a href="/cpp/write/2026-09-24">C++26</a>
+  <a href="/rust/write/2026-09-24">Rust 2024</a>
+  <a href="/haskell/write/2026-09-24" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-09-24">READ</a>
+  <a href="/haskell/write/2026-09-24" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-09-24">DEBUG</a>
+</nav>
+
+<main
+  data-topic="ビットマスクを訪問済み集合のリストへ変換するvisited関数を書く"
+  data-tags="bitmask-dp bit-manipulation"
+  data-concepts="ビットマスクから訪問済み集合を復元, ビット演算, decoding a bitmask, bit manipulation, testBit"
+>
+  <h2>2026-09-24</h2>
+  <div class="code-frame">
+    <p class="code-filename">Visited.hs</p>
+    <pre class="code"><code><span class="fn">visited</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> [<span class="ty">Int</span>]
+</code></pre>
+  </div>
+
+  <p class="question">
+    ビットDPの状態でよく使うビットマスク<code>mask</code>を、実際に訪問済みの都市番号のリストへ変換する<code>visited</code>を書いてください。ビット<code>i</code>が立っていれば都市<code>i</code>は訪問済みで、リストは昇順です。ビットが1つも立っていなければ空リストです(境界: 訪問済みが1つもない)。<code>visited 5</code> → <code>[0, 2]</code>(<code>5 = 0b101</code>)、<code>visited 0</code> → <code>[]</code>(境界)、<code>visited 7</code> → <code>[0, 1, 2]</code>(<code>7 = 0b111</code>)。
+  </p>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="fn">visited</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> [<span class="ty">Int</span>]
+<span class="fn">visited</span> mask = [i | i <span class="op">&lt;-</span> [<span class="nu">0</span> .. finiteBitSize mask - <span class="nu">1</span>], testBit mask i]
+</code></pre>
+      <p>
+        <code>Data.Bits</code>の<code>testBit mask i</code>は、<code>mask</code>のビット<code>i</code>が立っているかを<code>Bool</code>で返します。<code>finiteBitSize mask</code>は<code>Int</code>が持つビット数(実行環境で決まる定数、多くは64)で、これを使って調べる範囲<code>[0 .. finiteBitSize mask - 1]</code>を決めています。リスト内包表記は<code>0</code>から順に<code>i</code>を試すので、結果のリストは自然に昇順になります。ビットDPでは訪問済みの集合を1つの整数(ビットマスク)として持ち運びますが、その中身を人間が読める形に戻したいとき——たとえばデバッグ出力や、このドリルの解説のように——には、こうして立っているビットの位置を素直に集めるだけで復元できます。これは参考実装であり、唯一の正解ではありません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
