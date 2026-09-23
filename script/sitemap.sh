@@ -13,6 +13,8 @@
 #
 # Listed URLs are the canonical ones only:
 #   /                          the root page
+#   /topics                    the topic index (script/topics.sh)
+#   /tag/{tag}                 one page per tag, same generator
 #   /{lang}/{type}/archive     each archive page; lastmod = its newest date
 #   /{lang}/{type}/{date}      each dated page listed in that archive.html
 #                              whose file exists; lastmod = the date, since a
@@ -42,7 +44,7 @@ ALL_LANGS=(c cpp rust haskell)
 ALL_TYPES=(read write debug)
 
 usage() {
-  sed -n '2,33p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+  sed -n '2,35p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
 }
 
 # Published dates for one combo, newest first.
@@ -63,12 +65,25 @@ published_dates() {
 }
 
 render() {
-  local today lang type dates newest date
+  local today lang type dates newest date tag_file tag
   today="$(TZ=Asia/Tokyo date +%Y-%m-%d)"
 
   echo '<?xml version="1.0" encoding="UTF-8"?>'
   echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
   printf '  <url><loc>%s/</loc></url>\n' "$SITE_ORIGIN"
+  # No lastmod, same as the root page: both change whenever anything is
+  # published, and a date that is right by accident is worth less than none.
+  printf '  <url><loc>%s/topics</loc></url>\n' "$SITE_ORIGIN"
+
+  # One page per tag, written by script/topics.sh. The file name is the tag,
+  # and a tag is kebab-case ASCII by construction (§7.4); anything else is
+  # skipped rather than copied into the XML.
+  for tag_file in "$ROOT_DIR"/tag/*.html; do
+    [ -e "$tag_file" ] || continue
+    tag="$(basename "$tag_file" .html)"
+    [[ "$tag" =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]] || continue
+    printf '  <url><loc>%s/tag/%s</loc></url>\n' "$SITE_ORIGIN" "$tag"
+  done
 
   for lang in "${ALL_LANGS[@]}"; do
     for type in "${ALL_TYPES[@]}"; do

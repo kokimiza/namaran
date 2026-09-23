@@ -41,7 +41,11 @@
 # one ok file plus one ng or bug file.
 #
 # Page checks, for {lang}/{type}/DATE.html: JSON-LD parses, no TODO left,
-# lang-nav/type-nav point at the same date, the archive.html line exists,
+# the topic metadata is there and agrees with itself (<main>'s data-topic /
+# data-tags / data-concepts, the <title>, the meta description and the
+# JSON-LD about.name / keywords / description — see doc/basic-design.md §7.1
+# and §7.4), lang-nav/type-nav point at the same date, the archive.html line
+# exists,
 # <code> contents are HTML-escaped (the highlighter's <span>s aside), every
 # non-comment line of every <pre class="code"> block appears (ignoring
 # indentation) in one of that combo's ok/ng/bug files — so the code readers
@@ -72,7 +76,7 @@ GHC="${NAMARA_GHC:-ghc}"
 HLINT="${NAMARA_HLINT:-hlint}"
 
 usage() {
-  sed -n '2,57p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+  sed -n '2,61p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
 }
 
 code_ext() {
@@ -282,14 +286,62 @@ problems = []
 
 s = page.read_text(encoding="utf-8")
 
-m = re.search(r'<script type="application/ld\+json">\s*(\{.*?\})\s*</script>', s, re.S)
+m_ld = re.search(r'<script type="application/ld\+json">\s*(\{.*?\})\s*</script>', s, re.S)
 try:
-    json.loads(m.group(1))
+    json.loads(m_ld.group(1))
 except Exception as e:
     problems.append(f"JSON-LD does not parse: {e}")
 
 if "TODO" in s:
     problems.append("TODO markers remain")
+
+# --- the topic metadata (doc/basic-design.md §7.1, §7.4) -------------------
+# The page shows only a date, a filename and code; what it is *about* lives
+# here, and script/topics.sh turns it into the archive lines and topics.html.
+labels = {"c": "C", "cpp": "C++", "rust": "Rust", "haskell": "Haskell"}
+m = re.search(r"<main\b[^>]*>", s)
+attrs = dict(re.findall(r'([a-z-]+)="([^"]*)"', m.group(0))) if m else {}
+topic = html.unescape(attrs.get("data-topic", "")).strip()
+tags = attrs.get("data-tags", "").split()
+concepts = [c.strip() for c in html.unescape(attrs.get("data-concepts", "")).split(",") if c.strip()]
+
+if not topic:
+    problems.append("<main> has no data-topic")
+elif len(topic) > 120:
+    problems.append(f"data-topic is longer than 120 characters: {topic[:40]!r}…")
+if not 2 <= len(tags) <= 8:
+    problems.append(f"data-tags must hold 2-8 tags, got {len(tags)}")
+for tag in tags:
+    if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", tag):
+        problems.append(f"tag {tag!r} is not lowercase kebab-case ASCII (§7.4)")
+if len(set(tags)) != len(tags):
+    problems.append("data-tags repeats a tag")
+if len(concepts) < 2:
+    problems.append("data-concepts needs at least two wordings (Japanese and English)")
+
+want_title = f"{topic} — Namaran {labels[lang]} / {typ.upper()}"
+m = re.search(r"<title>(.*?)</title>", s, re.S)
+title = html.unescape(m.group(1)).strip() if m else ""
+if title != want_title:
+    problems.append(f"<title> must be {want_title!r}, got {title!r}")
+
+m = re.search(r'<meta name="description" content="([^"]*)"', s)
+desc = html.unescape(m.group(1)).strip() if m else ""
+if not 30 <= len(desc) <= 160:
+    problems.append(f"meta description must be 30-160 characters, got {len(desc)}")
+
+# JSON-LD repeats these three for search engines; drift would publish two
+# different claims about the same drill, so they have to match exactly.
+try:
+    ld = json.loads(m_ld.group(1))["@graph"][1]
+except Exception:
+    ld = {}
+if ld.get("about", {}).get("name", "") != topic:
+    problems.append("JSON-LD about.name does not match data-topic")
+if ld.get("keywords", "") != ", ".join(tags):
+    problems.append("JSON-LD keywords must be data-tags, comma separated")
+if ld.get("description", "") != desc:
+    problems.append("JSON-LD description does not match the meta description")
 
 def nav(cls):
     n = re.search(rf'<nav class="{cls}".*?</nav>', s, re.S)

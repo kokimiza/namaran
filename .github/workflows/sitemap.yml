@@ -1,6 +1,8 @@
-# Keeps sitemap.xml in step with what is published.
+# Keeps the generated files in step with what is published: sitemap.xml, the
+# topic line on every archive entry, and the topic index — topics.html and
+# one page per tag under tag/ (script/topics.sh).
 #
-# The daily workflow regenerates it in its own publish job, so this one is
+# The daily workflow regenerates them in its own publish job, so this one is
 # for the other cases: a drill pushed by hand, and a page whose date was in
 # the future when it was published (script/sitemap.sh leaves those out until
 # the day arrives, because the middleware 404s them).
@@ -9,7 +11,7 @@
 # no artifacts from other jobs, no untrusted input. That is why this one may
 # commit directly.
 
-name: Sitemap
+name: Generated files
 
 on:
   push:
@@ -39,7 +41,7 @@ jobs:
         with:
           ref: main
 
-      - name: Regenerate sitemap.xml and push if it changed
+      - name: Regenerate the topic index and sitemap.xml, and push if they changed
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
@@ -48,13 +50,16 @@ jobs:
           for attempt in 1 2 3; do
             git fetch --quiet origin main
             git reset --quiet --hard origin/main
+            ./script/topics.sh
             ./script/sitemap.sh
-            if git diff --quiet -- sitemap.xml; then
-              echo "sitemap.xml is already up to date"
+            # Staged, not `git diff`: topics.html may not be tracked yet on
+            # an older main, and an untracked file is invisible to git diff.
+            git add -A -- sitemap.xml topics.html tag "*/*/archive.html"
+            if git diff --cached --quiet; then
+              echo "the generated files are already up to date"
               exit 0
             fi
-            git add -- sitemap.xml
-            git commit --quiet -m "sitemap: $(grep -c '<url>' sitemap.xml) URLs"
+            git commit --quiet -m "index: $(grep -c '<url>' sitemap.xml) URLs"
             git push origin HEAD:main && exit 0
             echo "push rejected (attempt $attempt); retrying on the new origin/main"
           done

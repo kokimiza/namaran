@@ -19,6 +19,9 @@
 #       {lang}/{type}/DATE.html   created as a new regular file (100644), or
 #       {lang}/{type}/archive.html   modified, only by adding lines of the
 #                                    exact form content.sh writes for DATE
+#   * each new page carries its topic metadata on <main> (data-topic,
+#     data-tags, data-concepts — doc/basic-design.md §7.1, §7.4) in the
+#     shape script/topics.sh will copy into the archives and topics.html
 #   * each new page, as the patch creates it, contains no active or external
 #     content: no <script> other than the one JSON-LD block, no inline event
 #     handlers, no javascript: URLs, no <iframe>/<object>/<embed>/<form>/
@@ -30,7 +33,7 @@
 set -euo pipefail
 
 usage() {
-  sed -n '2,27p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+  sed -n '2,30p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
 }
 
 case "${1:-}" in
@@ -169,6 +172,33 @@ for sec in sections:
         "table", "thead", "tbody", "tr", "th", "td", "blockquote", "hr",
     }
     allowed_attrs = {"lang", "charset", "name", "content", "rel", "href", "class", "aria-label", "aria-current"}
+    # The drill's subject, carried as metadata so the page itself can stay
+    # quiet (doc/basic-design.md §7.1). script/topics.sh copies these into
+    # the archive lists and topics.html, so they are checked here, at the
+    # boundary, before anything written by the write job reaches a page.
+    main_attrs = {"data-topic", "data-tags", "data-concepts"}
+    tag_re = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\Z")
+
+    def check_main(attrs):
+        d = dict(attrs)
+        missing = sorted(main_attrs - set(d))
+        if missing:
+            fail(f"{path}: <main> is missing {', '.join(missing)}")
+        topic = (d.get("data-topic") or "").strip()
+        if not topic or len(topic) > 120:
+            fail(f"{path}: data-topic must be 1-120 characters, got {len(topic)}")
+        tags = (d.get("data-tags") or "").split()
+        if not 2 <= len(tags) <= 8:
+            fail(f"{path}: data-tags must hold 2-8 tags, got {len(tags)}")
+        for tag in tags:
+            if not tag_re.match(tag):
+                fail(f"{path}: tag {tag!r} is not lowercase kebab-case ASCII")
+        concepts = [c.strip() for c in (d.get("data-concepts") or "").split(",") if c.strip()]
+        if not 2 <= len(concepts) <= 12 or any(len(c) > 60 for c in concepts):
+            fail(f"{path}: data-concepts must hold 2-12 wordings of at most 60 characters")
+        for value in d.values():
+            if re.search(r"[\x00-\x1f\x7f]", value or ""):
+                fail(f"{path}: control character in a <main> attribute")
     expected_links = {
         ("canonical", f"{SITE}/{lang}/{typ}/{date}"),
         ("stylesheet", "/style.css"),
@@ -189,10 +219,15 @@ for sec in sections:
                 fail(f"{path}: disallowed element <{tag}>")
                 return
             for attr, value in attrs:
-                if attr not in allowed_attrs:
+                if attr in main_attrs:
+                    if tag != "main":
+                        fail(f"{path}: {attr!r} belongs on <main>, not <{tag}>")
+                elif attr not in allowed_attrs:
                     fail(f"{path}: disallowed attribute {attr!r} on <{tag}>")
                 elif attr == "href" and not href_ok(value or ""):
                     fail(f"{path}: unexpected link target {value!r}")
+            if tag == "main":
+                check_main(attrs)
             if tag == "link":
                 d = dict(attrs)
                 self.links.append((d.get("rel"), d.get("href")))

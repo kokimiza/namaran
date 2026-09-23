@@ -614,6 +614,50 @@ main > .past-list {
   line-height: 2;
 }
 
+/* ---------- the topic index ----------
+   An archive line, and every line on topics.html, carries what the drill was
+   about (script/topics.sh writes them). A date is 10 characters and tiles into
+   columns; a topic is a sentence and does not, so a list that has topics in it
+   becomes one line per drill: mono date, then prose. The drill page itself
+   never shows this — naming the concept there would answer half the question
+   (doc/basic-design.md §7.3). */
+
+main > .past-list:has(.past-topic) {
+  grid-template-columns: 1fr;
+  gap: 0.6rem 1.5rem;
+  line-height: 1.6;
+}
+
+main > .past-list:has(.past-topic) > li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.9rem;
+}
+
+.past-topic {
+  flex: 1 1 20rem;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--ink);
+}
+
+/* Other wordings of the same subject — the words someone would actually type
+   into a search box. They sit behind the topic, not beside it. */
+.past-concepts {
+  flex: 1 1 100%;
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: var(--ink-muted);
+}
+
+/* The tag list on /topics is the date grid again, with wider cells: a tag is a
+   phrase, not ten fixed characters. */
+.tag-list {
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+}
+
 /* ---------- footer ----------
    A band, not a card: it bleeds out to the container edge and pins to the
    bottom. The transparent top border is the 6rem gap above it — an outer

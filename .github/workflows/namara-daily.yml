@@ -9,9 +9,12 @@
 #            script/check-patch.sh (from main, not from the patch), applies
 #            it, and runs script/verify.sh. Read-only, no secrets.
 #   publish  Checks the patch again, applies it on the latest main, re-adds
-#            the archive.html lines, regenerates sitemap.xml, commits and
-#            pushes. The only job with a write token; runs no Claude and no
-#            drill code.
+#            the archive.html lines, regenerates the topic index and
+#            sitemap.xml, commits and pushes. The only job with a write
+#            token; runs no Claude and no drill code. The generated index
+#            files never come from the patch: script/topics.sh rebuilds them
+#            here, from main's own copy of the script, out of the metadata
+#            the new pages carry (doc/basic-design.md §9.5).
 #
 # Setup: run `claude setup-token` locally (needs a Claude Pro/Max/Team/
 # Enterprise subscription) and add the printed token as the
@@ -344,8 +347,11 @@ jobs:
             git apply --index --exclude='*/archive.html' "$patch_file"
             # shellcheck disable=SC2086
             ./script/content.sh new "$DATE" $COMBOS
+            ./script/topics.sh
             ./script/sitemap.sh
-            git add -- */*/archive.html sitemap.xml
+            # -A so a tag page that lost its last drill is staged as a
+            # deletion, not left behind.
+            git add -A -- */*/archive.html topics.html tag sitemap.xml
             git commit --quiet -F - <<MSG
           ${DATE//-/}
 
