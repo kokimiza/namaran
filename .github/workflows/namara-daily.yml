@@ -45,10 +45,10 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  # Sonnet is the Claude Code default on Pro. Opus also works on Pro, but
-  # writing and verifying 12 drills spends the subscription's usage limit
-  # much faster, and a run cut off by the limit publishes nothing.
-  CLAUDE_MODEL: claude-sonnet-5
+  # Opus writes the drills. It spends the subscription's usage limit much
+  # faster than Sonnet (claude-sonnet-5), and a run cut off by the limit
+  # publishes nothing — switch back here if that starts to happen.
+  CLAUDE_MODEL: claude-opus-5-5
 
 jobs:
   write:
