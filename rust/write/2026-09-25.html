@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="昇順に値を返す2つのIntoIteratorを受け取り、全体を昇順に返すイテレータを遅延のまま返すmergeを書くドリル。トレイト境界とimpl Iterator、Peekableとiter::from_fnを組み合わせ、無限列にも使えるようにする。2026-09-25のRust WRITE。">
+<title>併合するイテレータ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-09-25">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-25" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-09-25",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-09-25",
+      "datePublished": "2026-09-25",
+      "dateModified": "2026-09-25",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "併合するイテレータ" },
+      "keywords": "merge, iterator, trait-bound, laziness, stability",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "昇順に値を返す2つのIntoIteratorを受け取り、全体を昇順に返すイテレータを遅延のまま返すmergeを書くドリル。トレイト境界とimpl Iterator、Peekableとiter::from_fnを組み合わせ、無限列にも使えるようにする。2026-09-25のRust WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-25">C23</a>
+  <a href="/cpp/write/2026-09-25">C++26</a>
+  <a href="/rust/write/2026-09-25" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-09-25">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-09-25">READ</a>
+  <a href="/rust/write/2026-09-25" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-09-25">DEBUG</a>
+</nav>
+
+<main
+  data-topic="併合するイテレータ"
+  data-tags="merge iterator trait-bound laziness stability"
+  data-concepts="整列済み列の併合, マージ, Peekable, impl Trait, トレイト境界, sorted merge, lazy iterator, iter::from_fn"
+  data-level="bison"
+>
+  <h2>2026-09-25</h2>
+  <div class="code-frame">
+    <p class="code-filename">merge_iter.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">merge</span>&lt;<span class="ty">T</span>, <span class="ty">A</span>, <span class="ty">B</span>&gt;(a: <span class="ty">A</span>, b: <span class="ty">B</span>) -&gt; <span class="kw">impl</span> <span class="ty">Iterator</span>&lt;<span class="ty">Item</span> = <span class="ty">T</span>&gt;
+<span class="kw">where</span>
+    <span class="ty">T</span>: <span class="ty">Ord</span>,
+    <span class="ty">A</span>: <span class="ty">IntoIterator</span>&lt;<span class="ty">Item</span> = <span class="ty">T</span>&gt;,
+    <span class="ty">B</span>: <span class="ty">IntoIterator</span>&lt;<span class="ty">Item</span> = <span class="ty">T</span>&gt;,
+{
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    それぞれ昇順に値を返す<code>a</code>と<code>b</code>(どちらも<code>IntoIterator</code>)から、全ての値を昇順に返すイテレータを返す<code>merge</code>を書いてください。値は必要になるまで取り出さず(無限のイテレータにも使えるように)、同じ値どうしは<code>a</code>の方を先に返します。片方が空なら、もう片方をそのまま返します。<code>merge([1, 4, 9], [2, 4, 10]).collect::&lt;Vec&lt;_&gt;&gt;()</code> → <code>[1, 2, 4, 4, 9, 10]</code>、<code>merge(Vec::&lt;i32&gt;::new(), [3]).collect::&lt;Vec&lt;_&gt;&gt;()</code> → <code>[3]</code>、<code>merge((0..).step_by(2), (1..).step_by(2)).take(5).collect::&lt;Vec&lt;_&gt;&gt;()</code> → <code>[0, 1, 2, 3, 4]</code>
+  </p>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">merge</span>&lt;<span class="ty">T</span>, <span class="ty">A</span>, <span class="ty">B</span>&gt;(a: <span class="ty">A</span>, b: <span class="ty">B</span>) -&gt; <span class="kw">impl</span> <span class="ty">Iterator</span>&lt;<span class="ty">Item</span> = <span class="ty">T</span>&gt;
+<span class="kw">where</span>
+    <span class="ty">T</span>: <span class="ty">Ord</span>,
+    <span class="ty">A</span>: <span class="ty">IntoIterator</span>&lt;<span class="ty">Item</span> = <span class="ty">T</span>&gt;,
+    <span class="ty">B</span>: <span class="ty">IntoIterator</span>&lt;<span class="ty">Item</span> = <span class="ty">T</span>&gt;,
+{
+    <span class="kw">let</span> <span class="kw">mut</span> a = a.<span class="fn">into_iter</span>().<span class="fn">peekable</span>();
+    <span class="kw">let</span> <span class="kw">mut</span> b = b.<span class="fn">into_iter</span>().<span class="fn">peekable</span>();
+    std::iter::<span class="fn">from_fn</span>(<span class="kw">move</span> || <span class="kw">match</span> (a.<span class="fn">peek</span>(), b.<span class="fn">peek</span>()) {
+        (<span class="fn">Some</span>(x), <span class="fn">Some</span>(y)) <span class="kw">if</span> y &lt; x =&gt; b.<span class="fn">next</span>(),
+        (<span class="fn">Some</span>(_), _) =&gt; a.<span class="fn">next</span>(),
+        (<span class="ty">None</span>, _) =&gt; b.<span class="fn">next</span>(),
+    })
+}
+</code></pre>
+      <p>
+        併合では、両方の先頭を見比べてから小さい方だけを取り出したいので、取り出さずに先頭を覗ける<code>Peekable</code>にします。2つの<code>Peekable</code>は<code>move</code>クロージャが所有し、<code>std::iter::from_fn</code>がそのクロージャを「呼ばれるたびに次の値を返すイテレータ」にします。<code>collect</code>や<code>take</code>が値を求めたときに初めて1つずつ比較するので、無限の列でも止まりません。<code>match</code>の腕は3つで足ります。両方に値があり<code>b</code>の方が<strong>真に</strong>小さいときだけ<code>b</code>から取り、それ以外で<code>a</code>に値があれば<code>a</code>から取ります(等しい値は<code>a</code>が先になり、併合が安定になります)。<code>a</code>が尽きていれば<code>b.next()</code>で、両方尽きていればそれが<code>None</code>を返して終わります。<code>peek</code>が返す参照は腕のガードで使い終わるので、腕の中で<code>next</code>を呼んでも借用は衝突しません。境界は<code>T: Ord</code>と、2つの入力が同じ<code>Item = T</code>を返すことだけです。Rust 2024では戻り値の<code>impl Iterator</code>が型引数をすべて自動で捕捉するので、<code>+ use&lt;...&gt;</code>などの注釈は要りません。これは参考実装であり、唯一の正解ではありません。2つの<code>Peekable</code>をフィールドに持つ構造体に<code>Iterator</code>を実装しても同じものが書けます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

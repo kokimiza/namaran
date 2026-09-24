@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="uint16_t同士の掛け算がintに昇格して符号つきオーバーフロー(未定義動作)を起こし、uint64_tで合計しているのに巨大な値が出るバグを直すドリル。整数昇格と通常の算術変換が絡む。2026-09-25のC++ DEBUG。">
+<title>uint16_tの掛け算</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-09-25">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-25" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-09-25",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-09-25",
+      "datePublished": "2026-09-25",
+      "dateModified": "2026-09-25",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "uint16_tの掛け算" },
+      "keywords": "integer-promotion, integer-overflow, undefined-behavior, implicit-conversion",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "uint16_t同士の掛け算がintに昇格して符号つきオーバーフロー(未定義動作)を起こし、uint64_tで合計しているのに巨大な値が出るバグを直すドリル。整数昇格と通常の算術変換が絡む。2026-09-25のC++ DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-25">C23</a>
+  <a href="/cpp/debug/2026-09-25" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-09-25">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-25">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-25">READ</a>
+  <a href="/cpp/write/2026-09-25">WRITE</a>
+  <a href="/cpp/debug/2026-09-25" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="uint16_tの掛け算"
+  data-tags="integer-promotion integer-overflow undefined-behavior implicit-conversion"
+  data-concepts="整数昇格, 符号つきオーバーフロー, 未定義動作, 符号なし同士の掛け算, integer promotion, signed integer overflow, usual arithmetic conversions"
+  data-level="whale"
+>
+  <h2>2026-09-25</h2>
+  <div class="code-frame">
+    <p class="code-filename">pixel_energy.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;cstdint&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+
+std::<span class="ty">uint64_t</span> <span class="fn">energy</span>(<span class="kw">const</span> std::<span class="ty">vector</span>&lt;std::<span class="ty">uint16_t</span>&gt;&amp; pixels) {
+    std::<span class="ty">uint64_t</span> sum = <span class="nu">0</span>;
+    <span class="kw">for</span> (std::<span class="ty">uint16_t</span> p : pixels) {
+        sum += p * p;
+    }
+    <span class="kw">return</span> sum;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    std::cout &lt;&lt; <span class="fn">energy</span>({<span class="nu">40000</span>, <span class="nu">50000</span>}) &lt;&lt; <span class="st">'\n'</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>energy</code>は、16ビットの画素値の2乗和を<code>std::uint64_t</code>で求める関数です。入力は<code>energy({40000, 50000})</code>。本来の出力は<code>4100000000</code>ですが、いまの出力は保証されません。手元でビルドして動かすと<code>18446744073514584320</code>のような巨大な値が出ることがあり、<code>-fsanitize=undefined</code>を付けると<code>p * p</code>の行で符号つき整数のオーバーフローが報告されます。どの型も符号なしなのに、なぜでしょうか。どう直せばよいでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>p * p</code>は<code>std::uint16_t</code>同士の掛け算に見えますが、算術の前に整数昇格が起きます。<code>int</code>(32ビット)は<code>std::uint16_t</code>の全ての値を表せるので、両辺は<code>unsigned int</code>ではなく<strong>符号つきの</strong><code>int</code>に昇格し、掛け算は<code>int</code>で行われます。<code>40000 * 40000 = 1600000000</code>は<code>INT_MAX</code>(<code>2147483647</code>)に収まるので正しく計算できますが、<code>50000 * 50000 = 2500000000</code>は収まらず、符号つきオーバーフロー、つまり未定義動作です。実際の機械ではたいてい<code>-1794967296</code>に折り返され、それを<code>std::uint64_t</code>の<code>sum</code>に足すときに2<sup>64</sup>を法とした変換で巨大な正の数になります。左辺が<code>std::uint64_t</code>でも、右辺の型は右辺だけで決まるので守ってくれません。明るい画素が来たときだけ壊れるので、小さい値のテストでは通ってしまいます。直し方は、掛ける前に片方を広い符号なし型にすることです:</p>
+      <pre class="code"><code>sum += std::<span class="ty">uint64_t</span>{p} * p;
+</code></pre>
+      <p>
+        片方が<code>std::uint64_t</code>なら、通常の算術変換でもう片方も<code>std::uint64_t</code>になり、掛け算は64ビットの符号なしで行われます。<code>static_cast&lt;std::uint64_t&gt;(p * p)</code>のように結果を変換しても遅すぎます(あふれるのは変換の前です)。<code>std::uint8_t</code>同士なら<code>255 * 255</code>は<code>int</code>に収まるので同じことは起きず、16ビットで初めて踏む罠です。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

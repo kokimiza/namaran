@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="符号・整数部・小数点・小数部を状態として持ち、文字列が10進数の形かをswitchの状態機械で判定する関数を書くドリル。受理状態で終わったかどうかで答えが決まる。2026-09-25のC WRITE。">
+<title>10進数を状態で判定</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-09-25">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-25" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-09-25",
+      "url": "https://namaran.jocarium.productions/c/write/2026-09-25",
+      "datePublished": "2026-09-25",
+      "dateModified": "2026-09-25",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "10進数を状態で判定" },
+      "keywords": "state-machine, switch, string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "符号・整数部・小数点・小数部を状態として持ち、文字列が10進数の形かをswitchの状態機械で判定する関数を書くドリル。受理状態で終わったかどうかで答えが決まる。2026-09-25のC WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-25" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-09-25">C++26</a>
+  <a href="/rust/write/2026-09-25">Rust 2024</a>
+  <a href="/haskell/write/2026-09-25">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-09-25">READ</a>
+  <a href="/c/write/2026-09-25" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-09-25">DEBUG</a>
+</nav>
+
+<main
+  data-topic="10進数を状態で判定"
+  data-tags="state-machine switch string"
+  data-concepts="状態機械, 字句解析, 数値の形式チェック, state machine, DFA, lexer"
+  data-level="peacock"
+>
+  <h2>2026-09-25</h2>
+  <div class="code-frame">
+    <p class="code-filename">decimal.c</p>
+    <pre class="code"><code><span class="ty">bool</span> <span class="fn">is_decimal</span>(<span class="kw">const</span> <span class="ty">char</span> *s) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    文字列<code>s</code>の全体が10進数の形になっているときだけ<code>true</code>を返す<code>is_decimal</code>を書いてください。形は「省略できる符号(<code>+</code>か<code>-</code>)、1桁以上の数字、そして省略できる『<code>.</code>と1桁以上の数字』」です。空文字列は<code>false</code>です。<code>is_decimal("-12.5")</code> → <code>true</code>、<code>is_decimal("3.")</code> → <code>false</code>、<code>is_decimal("")</code> → <code>false</code>
+  </p>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="ty">bool</span> <span class="fn">is_decimal</span>(<span class="kw">const</span> <span class="ty">char</span> *s) {
+    <span class="kw">enum</span> { <span class="nu">START</span>, <span class="nu">SIGN</span>, <span class="nu">INT</span>, <span class="nu">DOT</span>, <span class="nu">FRAC</span> } st = <span class="nu">START</span>;
+    <span class="kw">for</span> (<span class="kw">const</span> <span class="ty">char</span> *p = s; *p != <span class="st">'\0'</span>; p++) {
+        <span class="ty">bool</span> digit = *p &gt;= <span class="st">'0'</span> &amp;&amp; *p &lt;= <span class="st">'9'</span>;
+        <span class="kw">switch</span> (st) {
+        <span class="kw">case</span> <span class="nu">START</span>:
+            <span class="kw">if</span> (*p == <span class="st">'+'</span> || *p == <span class="st">'-'</span>) {
+                st = <span class="nu">SIGN</span>;
+            } <span class="kw">else</span> <span class="kw">if</span> (digit) {
+                st = <span class="nu">INT</span>;
+            } <span class="kw">else</span> {
+                <span class="kw">return</span> <span class="nu">false</span>;
+            }
+            <span class="kw">break</span>;
+        <span class="kw">case</span> <span class="nu">SIGN</span>:
+            <span class="kw">if</span> (!digit) {
+                <span class="kw">return</span> <span class="nu">false</span>;
+            }
+            st = <span class="nu">INT</span>;
+            <span class="kw">break</span>;
+        <span class="kw">case</span> <span class="nu">INT</span>:
+            <span class="kw">if</span> (*p == <span class="st">'.'</span>) {
+                st = <span class="nu">DOT</span>;
+            } <span class="kw">else</span> <span class="kw">if</span> (!digit) {
+                <span class="kw">return</span> <span class="nu">false</span>;
+            }
+            <span class="kw">break</span>;
+        <span class="kw">case</span> <span class="nu">DOT</span>:
+        <span class="kw">case</span> <span class="nu">FRAC</span>:
+            <span class="kw">if</span> (!digit) {
+                <span class="kw">return</span> <span class="nu">false</span>;
+            }
+            st = <span class="nu">FRAC</span>;
+            <span class="kw">break</span>;
+        }
+    }
+    <span class="kw">return</span> st == <span class="nu">INT</span> || st == <span class="nu">FRAC</span>;
+}
+</code></pre>
+      <p>
+        「いまどこまで読んだか」を<code>START</code>(何も読んでいない)・<code>SIGN</code>(符号だけ)・<code>INT</code>(整数部の途中)・<code>DOT</code>(小数点の直後)・<code>FRAC</code>(小数部の途中)の5つの状態で持ち、1文字ごとに遷移させます。遷移先がない文字が来たらその場で<code>false</code>です。ループを抜けたあとの判定が要で、文字列が数字で終わる状態(<code>INT</code>か<code>FRAC</code>)だけを受理状態にします。これで<code>"3."</code>(<code>DOT</code>で終わる)、<code>"+"</code>(<code>SIGN</code>で終わる)、<code>""</code>(<code>START</code>のまま)が自然に弾かれ、境界ごとに特別扱いの<code>if</code>を足さずに済みます。<code>DOT</code>と<code>FRAC</code>は「数字しか受け付けず、次は<code>FRAC</code>」という同じ遷移なので、<code>case</code>を並べて共有しています。C23では<code>bool</code>がキーワードなので<code>&lt;stdbool.h&gt;</code>は要りません。これは参考実装であり、唯一の正解ではありません(<code>strtod</code>は指数表記や前後の空白も受け付けるので、この形の判定には使えません)。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

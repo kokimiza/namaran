@@ -29,6 +29,7 @@ dynamic-programming	動的計画法
 enum	列挙型
 error-handling	エラー処理
 evaluation-order	評価順序
+event-sourcing	イベントソーシング
 exception	例外
 exhaustiveness	網羅性
 expression	式と値
@@ -50,6 +51,7 @@ inheritance	継承
 initialization-order	初期化順序
 integer-arithmetic	整数の演算
 integer-overflow	整数オーバーフロー
+integer-promotion	整数昇格
 invariant	不変条件
 io	IOアクション
 ioref	IORef
@@ -63,6 +65,7 @@ loop	ループ
 maybe	Maybe型
 memoization	メモ化
 memory-management	メモリ管理
+merge	マージ
 move-semantics	ムーブ
 mutability	可変性
 object-slicing	スライシング
@@ -70,6 +73,7 @@ off-by-one	オフバイワン
 operator-overload	演算子の多重定義
 operator-precedence	演算子の優先順位
 optional	optional型
+ordered-map	順序付きマップ
 ownership	所有権
 pattern-matching	パターンマッチ
 performance	計算量と速度
@@ -85,12 +89,14 @@ section	セクション記法
 segment-tree	セグメント木
 semaphore	セマフォ
 sentinel	番兵値
+set	集合
 shadowing	シャドーイング
 short-circuit	短絡評価
 signed-unsigned	符号あり・なし
 slice	スライス
 sorting	ソート
 stability	安定性
+state-machine	状態機械
 static-storage	静的記憶域
 stdio	標準入出力
 string	文字列
@@ -101,6 +107,7 @@ switch	switch文
 temporary	一時オブジェクト
 testing	テスト
 thunk	サンク
+trait-bound	トレイト境界
 trait-object	トレイトオブジェクト
 tree	木構造
 type-conversion	型変換

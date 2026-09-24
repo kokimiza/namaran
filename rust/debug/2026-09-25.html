@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="2つの整列済みスライスを併合するmergeで、ループを抜けた時点でnextで取り出し済みの要素を残りに含め忘れ、最後の1個が消えるバグを直すドリル。2026-09-25のRust DEBUG。">
+<title>取り出し済みの1個</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-09-25">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-25" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-09-25",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-09-25",
+      "datePublished": "2026-09-25",
+      "dateModified": "2026-09-25",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "取り出し済みの1個" },
+      "keywords": "merge, iterator, loop",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "2つの整列済みスライスを併合するmergeで、ループを抜けた時点でnextで取り出し済みの要素を残りに含め忘れ、最後の1個が消えるバグを直すドリル。2026-09-25のRust DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-25">C23</a>
+  <a href="/cpp/debug/2026-09-25">C++26</a>
+  <a href="/rust/debug/2026-09-25" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-25">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-09-25">READ</a>
+  <a href="/rust/write/2026-09-25">WRITE</a>
+  <a href="/rust/debug/2026-09-25" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="取り出し済みの1個"
+  data-tags="merge iterator loop"
+  data-concepts="整列済み配列の併合, マージ, イテレータのnext, 要素の取りこぼし, sorted merge, Iterator::next, Option into_iter"
+  data-level="peacock"
+>
+  <h2>2026-09-25</h2>
+  <div class="code-frame">
+    <p class="code-filename">merge_pending.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">merge</span>(a: &amp;[<span class="ty">i32</span>], b: &amp;[<span class="ty">i32</span>]) -&gt; <span class="ty">Vec</span>&lt;<span class="ty">i32</span>&gt; {
+    <span class="kw">let</span> <span class="kw">mut</span> out = <span class="ty">Vec</span>::<span class="fn">with_capacity</span>(a.<span class="fn">len</span>() + b.<span class="fn">len</span>());
+    <span class="kw">let</span> <span class="kw">mut</span> xs = a.<span class="fn">iter</span>();
+    <span class="kw">let</span> <span class="kw">mut</span> ys = b.<span class="fn">iter</span>();
+    <span class="kw">let</span> <span class="kw">mut</span> x = xs.<span class="fn">next</span>();
+    <span class="kw">let</span> <span class="kw">mut</span> y = ys.<span class="fn">next</span>();
+    <span class="kw">while</span> <span class="kw">let</span> (<span class="fn">Some</span>(&amp;p), <span class="fn">Some</span>(&amp;q)) = (x, y) {
+        <span class="kw">if</span> p &lt;= q {
+            out.<span class="fn">push</span>(p);
+            x = xs.<span class="fn">next</span>();
+        } <span class="kw">else</span> {
+            out.<span class="fn">push</span>(q);
+            y = ys.<span class="fn">next</span>();
+        }
+    }
+    out.<span class="fn">extend</span>(xs);
+    out.<span class="fn">extend</span>(ys);
+    out
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="mc">println!</span>(<span class="st">"{:?}"</span>, <span class="fn">merge</span>(&amp;[<span class="nu">1</span>, <span class="nu">5</span>], &amp;[<span class="nu">2</span>, <span class="nu">3</span>]));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>merge</code>は、昇順の2つのスライスを1つの昇順の<code>Vec</code>にまとめるつもりの関数です。入力は<code>merge(&amp;[1, 5], &amp;[2, 3])</code>。いまの出力は<code>[1, 2, 3]</code>ですが、本来の出力は<code>[1, 2, 3, 5]</code>です。どこを直せばよいでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>5</code>は、<code>1</code>を押し込んだ直後の<code>x = xs.next()</code>で、すでに<code>xs</code>から取り出されて<code>x</code>に入っています。<code>y</code>が<code>None</code>になってループを抜けたとき、<code>5</code>は<code>x</code>の中にだけあり、<code>xs</code>にはもう何も残っていません。<code>out.extend(xs)</code>が足すのは「まだ取り出していない残り」だけなので、手に持っている1個が落ちます。<code>next</code>は覗くのではなく取り出す、という1つの規則です。直し方は、残りを足す前に手元の1個を足すことです:</p>
+      <pre class="code"><code>out.<span class="fn">extend</span>(x);
+out.<span class="fn">extend</span>(xs);
+out.<span class="fn">extend</span>(y);
+out.<span class="fn">extend</span>(ys);
+</code></pre>
+      <p>
+        <code>Option</code>は0個か1個の要素を持つ<code>IntoIterator</code>なので、そのまま<code>extend</code>に渡せます(ループを抜けた時点で<code>Some</code>なのは多くとも片方だけです)。要素が<code>&amp;i32</code>でも、<code>i32</code>が<code>Copy</code>なので<code>Vec&lt;i32&gt;</code>に<code>extend</code>できます。そもそも取り出さずに先頭を見たいなら、<code>peekable()</code>と<code>peek</code>を使えばこの状態を持たずに済みます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

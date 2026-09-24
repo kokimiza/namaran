@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「畳み込み」を扱ったNamaranのコーディングドリル4問。WAL、ログ再生、畳み込み、replay、左畳み込み、foldl。">
+<meta name="description" content="「畳み込み」を扱ったNamaranのコーディングドリル6問。イベントソーシング、foldM、Eitherモナド、早期終了、状態の再構築、event sourcing。">
 <title>畳み込み</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/fold">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,12 @@
   <h2>畳み込み</h2>
 
   <p class="lede">
-    「畳み込み」を扱った4問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「畳み込み」を扱った6問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/haskell/write/2026-09-25">Haskell / WRITE · 2026-09-25</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">失敗で止まる再生</span> <span class="past-concepts">イベントソーシング, foldM, Eitherモナド, 早期終了, 状態の再構築, event sourcing, monadic fold</span></li>
+    <li><a href="/haskell/debug/2026-09-25">Haskell / DEBUG · 2026-09-25</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">型が合う方の畳み込み</span> <span class="past-concepts">イベントソーシング, foldrとfoldlの違い, 適用順序, flip, event sourcing, fold direction, replay order</span></li>
     <li><a href="/haskell/write/2026-09-23">Haskell / WRITE · 2026-09-23</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">WALを再生する</span> <span class="past-concepts">WAL, ログ再生, 畳み込み, replay</span></li>
     <li><a href="/haskell/read/2026-09-23">Haskell / READ · 2026-09-23</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">WALを畳み込む</span> <span class="past-concepts">左畳み込み, foldl, WAL, ログ再生</span></li>
     <li><a href="/haskell/debug/2026-09-23">Haskell / DEBUG · 2026-09-23</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">未コミットまで再生</span> <span class="past-concepts">WAL, コミット, クラッシュ復旧, replay</span></li>

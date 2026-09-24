@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="入出金のイベント列を順に適用して残高を再構築し、残高を超える出金が来たらその位置とイベントを添えてLeftで止まるreplayを書くドリル。Eitherモナドの中でfoldMを使う。2026-09-25のHaskell WRITE。">
+<title>失敗で止まる再生</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-09-25">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-25" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-09-25",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-09-25",
+      "datePublished": "2026-09-25",
+      "dateModified": "2026-09-25",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "失敗で止まる再生" },
+      "keywords": "event-sourcing, fold, error-handling",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "入出金のイベント列を順に適用して残高を再構築し、残高を超える出金が来たらその位置とイベントを添えてLeftで止まるreplayを書くドリル。Eitherモナドの中でfoldMを使う。2026-09-25のHaskell WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-25">C23</a>
+  <a href="/cpp/write/2026-09-25">C++26</a>
+  <a href="/rust/write/2026-09-25">Rust 2024</a>
+  <a href="/haskell/write/2026-09-25" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-09-25">READ</a>
+  <a href="/haskell/write/2026-09-25" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-09-25">DEBUG</a>
+</nav>
+
+<main
+  data-topic="失敗で止まる再生"
+  data-tags="event-sourcing fold error-handling"
+  data-concepts="イベントソーシング, foldM, Eitherモナド, 早期終了, 状態の再構築, event sourcing, monadic fold"
+  data-level="bison"
+>
+  <h2>2026-09-25</h2>
+  <div class="code-frame">
+    <p class="code-filename">Replay.hs</p>
+    <pre class="code"><code><span class="kw">data</span> <span class="ty">Event</span> = <span class="ty">Deposit</span> <span class="ty">Int</span> | <span class="ty">Withdraw</span> <span class="ty">Int</span>
+  <span class="kw">deriving</span> <span class="ty">Show</span>
+
+<span class="fn">replay</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> [<span class="ty">Event</span>] <span class="op">-&gt;</span> <span class="ty">Either</span> <span class="ty">String</span> <span class="ty">Int</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    残高<code>start</code>から始めてイベント列を古い順に適用し、最後の残高を<code>Right</code>で返す<code>replay</code>を書いてください。<code>Deposit n</code>は<code>n</code>を足し、<code>Withdraw n</code>は<code>n</code>を引きます。ただし<code>n</code>がその時点の残高を超える出金が来たら、そこで止めて<code>Left "event i: … exceeds balance b"</code>を返します(<code>i</code>は1から数えた位置、<code>…</code>は<code>show</code>したイベント、<code>b</code>はその時点の残高)。イベントが空なら<code>Right start</code>です。<code>replay 0 [Deposit 50, Withdraw 20]</code> → <code>Right 30</code>、<code>replay 0 [Deposit 10, Withdraw 20, Deposit 100]</code> → <code>Left "event 2: Withdraw 20 exceeds balance 10"</code>、<code>replay 5 []</code> → <code>Right 5</code>
+  </p>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">import</span> <span class="ty">Control.Monad</span> (foldM)
+
+<span class="kw">import</span> <span class="ty">Control.Monad</span> (foldM)
+
+<span class="fn">replay</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> [<span class="ty">Event</span>] <span class="op">-&gt;</span> <span class="ty">Either</span> <span class="ty">String</span> <span class="ty">Int</span>
+<span class="fn">replay</span> start events = foldM step start (zip [<span class="nu">1</span> <span class="op">::</span> <span class="ty">Int</span> ..] events)
+  <span class="kw">where</span>
+    step bal (_, <span class="ty">Deposit</span> n) = <span class="ty">Right</span> (bal + n)
+    step bal (i, e@(<span class="ty">Withdraw</span> n))
+      | n &gt; bal = <span class="ty">Left</span> (<span class="st">"event "</span> ++ show i ++ <span class="st">": "</span> ++ show e ++ <span class="st">" exceeds balance "</span> ++ show bal)
+      | otherwise = <span class="ty">Right</span> (bal - n)
+</code></pre>
+      <p>
+        状態を1つずつ更新していく再生は畳み込みですが、途中で失敗したら止まりたいので、<code>foldl</code>ではなく<code>Control.Monad</code>の<code>foldM</code>を<code>Either String</code>モナドの中で使います。<code>step</code>が<code>Left</code>を返した時点で<code>&gt;&gt;=</code>がそれ以降を捨てるので、残りのイベントは見られもしません(<code>replay 0 [Withdraw 1, undefined]</code>も<code>Left</code>を返して止まります)。<code>step</code>が成功すれば<code>Right</code>の中身が次の残高として渡るので、畳み込みの形は<code>foldl</code>と変わりません。位置は<code>zip [1 :: Int ..] events</code>で各イベントに添えます。<code>:: Int</code>が無いと、<code>[1 ..]</code>の型が<code>show</code>と<code>Enum</code>だけからは決まらず、<code>-Wall</code>で既定の型への defaulting が警告されます。<code>e@(Withdraw n)</code>のasパターンで、分解した<code>n</code>と、メッセージに出すイベント全体の両方を手元に置いています。これは参考実装であり、唯一の正解ではありません。明示的な再帰で書いても、<code>either</code>で分岐しながら<code>foldl</code>で書いても同じ結果になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

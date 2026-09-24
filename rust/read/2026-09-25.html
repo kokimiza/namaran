@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="2つの整列済み配列をBTreeSetに集めてunionで併合したとき、何個の要素がどの順に残るかを読むドリル。集合は重複を持たないので、同じ値は配列の中でも配列どうしでも1つになる。2026-09-25のRust READ。">
+<title>集合で併合すると</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-09-25">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / READ", "item": "https://namaran.jocarium.productions/rust/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-25" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / READ — 2026-09-25",
+      "url": "https://namaran.jocarium.productions/rust/read/2026-09-25",
+      "datePublished": "2026-09-25",
+      "dateModified": "2026-09-25",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "集合で併合すると" },
+      "keywords": "merge, set, iterator",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "2つの整列済み配列をBTreeSetに集めてunionで併合したとき、何個の要素がどの順に残るかを読むドリル。集合は重複を持たないので、同じ値は配列の中でも配列どうしでも1つになる。2026-09-25のRust READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-25">C23</a>
+  <a href="/cpp/read/2026-09-25">C++26</a>
+  <a href="/rust/read/2026-09-25" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/read/2026-09-25">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-09-25" class="active" aria-current="page">READ</a>
+  <a href="/rust/write/2026-09-25">WRITE</a>
+  <a href="/rust/debug/2026-09-25">DEBUG</a>
+</nav>
+
+<main
+  data-topic="集合で併合すると"
+  data-tags="merge set iterator"
+  data-concepts="BTreeSet, 和集合, 重複の除去, 整列済み配列の併合, set union, deduplication, sorted merge"
+  data-level="peacock"
+>
+  <h2>2026-09-25</h2>
+  <div class="code-frame">
+    <p class="code-filename">set_union.rs</p>
+    <pre class="code"><code><span class="kw">use</span> std::collections::<span class="ty">BTreeSet</span>;
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> a = [<span class="nu">1</span>, <span class="nu">4</span>, <span class="nu">4</span>, <span class="nu">9</span>];
+    <span class="kw">let</span> b = [<span class="nu">2</span>, <span class="nu">4</span>, <span class="nu">10</span>];
+    <span class="kw">let</span> sa: <span class="ty">BTreeSet</span>&lt;<span class="ty">i32</span>&gt; = a.<span class="fn">into_iter</span>().<span class="fn">collect</span>();
+    <span class="kw">let</span> sb: <span class="ty">BTreeSet</span>&lt;<span class="ty">i32</span>&gt; = b.<span class="fn">into_iter</span>().<span class="fn">collect</span>();
+    <span class="kw">let</span> merged: <span class="ty">Vec</span>&lt;<span class="ty">i32</span>&gt; = sa.<span class="fn">union</span>(&amp;sb).<span class="fn">copied</span>().<span class="fn">collect</span>();
+    <span class="mc">println!</span>(<span class="st">"{} {:?}"</span>, merged.<span class="fn">len</span>(), merged);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>5 [1, 2, 4, 9, 10]</code>です。<code>BTreeSet</code>は集合なので、<code>collect</code>した時点で<code>a</code>の中の2つの<code>4</code>は1つになり、<code>sa</code>は<code>{1, 4, 9}</code>、<code>sb</code>は<code>{2, 4, 10}</code>です。<code>union</code>は両方の木を小さい順に同時にたどる併合(merge)そのもので、昇順に値を返しますが、両方にある<code>4</code>は1回しか返しません。こうして7個の要素が5個になります。「整列済みの2つを併合する」のに集合を使うと、順序は手に入る代わりに重複が落ちます。重複も残したいなら、スライスを連結して<code>sort</code>するか(安定ソートなので同じ値の順も保たれます)、2本の添字やイテレータで自分で併合します。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/read">Today</a></li>
+    <li><a href="/rust/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

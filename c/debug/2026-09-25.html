@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="行の数値を合計し#以降を無視するはずの状態機械で、switchの中に書いたbreakがforループではなくswitchだけを抜けてしまうバグを直すドリル。2026-09-25のC DEBUG。">
+<title>switchの中のbreak</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-09-25">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-25" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-09-25",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-09-25",
+      "datePublished": "2026-09-25",
+      "dateModified": "2026-09-25",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "switchの中のbreak" },
+      "keywords": "state-machine, switch, continue-break, loop",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "行の数値を合計し#以降を無視するはずの状態機械で、switchの中に書いたbreakがforループではなくswitchだけを抜けてしまうバグを直すドリル。2026-09-25のC DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-25" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-09-25">C++26</a>
+  <a href="/rust/debug/2026-09-25">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-25">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-09-25">READ</a>
+  <a href="/c/write/2026-09-25">WRITE</a>
+  <a href="/c/debug/2026-09-25" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="switchの中のbreak"
+  data-tags="state-machine switch continue-break loop"
+  data-concepts="switch内のbreak, ループを抜けられない, 状態機械, break inside switch, state machine"
+  data-level="peacock"
+>
+  <h2>2026-09-25</h2>
+  <div class="code-frame">
+    <p class="code-filename">sum_line.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;ctype.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">enum</span> <span class="ty">state</span> { <span class="nu">BETWEEN</span>, <span class="nu">NUMBER</span> };
+
+<span class="ty">int</span> <span class="fn">sum_line</span>(<span class="kw">const</span> <span class="ty">char</span> *s) {
+    <span class="kw">enum</span> <span class="ty">state</span> st = <span class="nu">BETWEEN</span>;
+    <span class="ty">int</span> sum = <span class="nu">0</span>, cur = <span class="nu">0</span>;
+    <span class="kw">for</span> (<span class="kw">const</span> <span class="ty">char</span> *p = s; *p != <span class="st">'\0'</span>; p++) {
+        <span class="kw">switch</span> (st) {
+        <span class="kw">case</span> <span class="nu">BETWEEN</span>:
+            <span class="kw">if</span> (*p == <span class="st">'#'</span>) {
+                <span class="kw">break</span>;
+            }
+            <span class="kw">if</span> (<span class="fn">isdigit</span>((<span class="ty">unsigned</span> <span class="ty">char</span>)*p)) {
+                cur = *p - <span class="st">'0'</span>;
+                st = <span class="nu">NUMBER</span>;
+            }
+            <span class="kw">break</span>;
+        <span class="kw">case</span> <span class="nu">NUMBER</span>:
+            <span class="kw">if</span> (<span class="fn">isdigit</span>((<span class="ty">unsigned</span> <span class="ty">char</span>)*p)) {
+                cur = cur * <span class="nu">10</span> + (*p - <span class="st">'0'</span>);
+            } <span class="kw">else</span> {
+                sum += cur;
+                st = <span class="nu">BETWEEN</span>;
+            }
+            <span class="kw">break</span>;
+        }
+    }
+    <span class="kw">if</span> (st == <span class="nu">NUMBER</span>) {
+        sum += cur;
+    }
+    <span class="kw">return</span> sum;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="fn">printf</span>(<span class="st">"%d\n"</span>, <span class="fn">sum_line</span>(<span class="st">"10 20 # 30"</span>));
+    <span class="kw">return</span> <span class="nu">0</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>sum_line</code>は、1行に並んだ数値を合計し、<code>#</code>から後ろはコメントとして無視するつもりの関数です。入力は<code>sum_line("10 20 # 30")</code>。いまの出力は<code>60</code>ですが、本来の出力は<code>30</code>です。どこを直せばよいでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>case BETWEEN:</code>の中の<code>if (*p == '#') { break; }</code>が抜けるのは、いちばん内側の<code>switch</code>だけです。<code>for</code>ループはそのまま次の文字へ進むので、<code>#</code>は「数字でない文字」として読み飛ばされ、後ろの<code>30</code>も合計に入ります。<code>break</code>は、それを囲む最も内側の<code>switch</code>か繰り返し文に結びつく、という1つの規則です。状態機械を<code>for</code>+<code>switch</code>で書くと、「ループを終えたい」<code>break</code>と「この<code>case</code>を終えたい」<code>break</code>が同じ場所に並ぶので、取り違えが起きやすくなります(1990年のAT&amp;T長距離電話網の大規模障害も、<code>switch</code>の中の<code>break</code>の取り違えが原因だったとされます)。<code>BETWEEN</code>の状態では読みかけの数値はすでに<code>sum</code>に足されているので、最小の修正はその<code>break;</code>を<code>return sum;</code>にすることです。状態を増やしたい場合は、<code>DONE</code>状態を足してループ条件で見る方法もあります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

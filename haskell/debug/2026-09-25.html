@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="プロフィールの変更イベントを古い順に適用するつもりのcurrentが、foldrを使っているために新しいイベントから先に適用し、古い名前が残るバグを直すドリル。2026-09-25のHaskell DEBUG。">
+<title>型が合う方の畳み込み</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-09-25">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-25" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-09-25",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-09-25",
+      "datePublished": "2026-09-25",
+      "dateModified": "2026-09-25",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "型が合う方の畳み込み" },
+      "keywords": "event-sourcing, fold",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "プロフィールの変更イベントを古い順に適用するつもりのcurrentが、foldrを使っているために新しいイベントから先に適用し、古い名前が残るバグを直すドリル。2026-09-25のHaskell DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-25">C23</a>
+  <a href="/cpp/debug/2026-09-25">C++26</a>
+  <a href="/rust/debug/2026-09-25">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-25" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-09-25">READ</a>
+  <a href="/haskell/write/2026-09-25">WRITE</a>
+  <a href="/haskell/debug/2026-09-25" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="型が合う方の畳み込み"
+  data-tags="event-sourcing fold"
+  data-concepts="イベントソーシング, foldrとfoldlの違い, 適用順序, flip, event sourcing, fold direction, replay order"
+  data-level="peacock"
+>
+  <h2>2026-09-25</h2>
+  <div class="code-frame">
+    <p class="code-filename">Profile.hs</p>
+    <pre class="code"><code><span class="kw">data</span> <span class="ty">Profile</span> = <span class="ty">Profile</span> { name <span class="op">::</span> <span class="ty">String</span>, city <span class="op">::</span> <span class="ty">String</span> }
+  <span class="kw">deriving</span> <span class="ty">Show</span>
+
+<span class="kw">data</span> <span class="ty">Event</span> = <span class="ty">Rename</span> <span class="ty">String</span> | <span class="ty">Move</span> <span class="ty">String</span>
+
+<span class="fn">apply</span> <span class="op">::</span> <span class="ty">Event</span> <span class="op">-&gt;</span> <span class="ty">Profile</span> <span class="op">-&gt;</span> <span class="ty">Profile</span>
+<span class="fn">apply</span> (<span class="ty">Rename</span> n) p = p { name = n }
+<span class="fn">apply</span> (<span class="ty">Move</span> c) p = p { city = c }
+
+<span class="fn">current</span> <span class="op">::</span> <span class="ty">Profile</span> <span class="op">-&gt;</span> [<span class="ty">Event</span>] <span class="op">-&gt;</span> <span class="ty">Profile</span>
+<span class="fn">current</span> = foldr apply
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (current (<span class="ty">Profile</span> <span class="st">""</span> <span class="st">""</span>) [<span class="ty">Rename</span> <span class="st">"Ann"</span>, <span class="ty">Move</span> <span class="st">"Oslo"</span>, <span class="ty">Rename</span> <span class="st">"Anna"</span>])
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>current</code>は、初期のプロフィールにイベント列を古い順に適用して、いまのプロフィールを再構築するつもりの関数です。入力は<code>current (Profile "" "") [Rename "Ann", Move "Oslo", Rename "Anna"]</code>。いまの出力は<code>Profile {name = "Ann", city = "Oslo"}</code>ですが、本来の出力は<code>Profile {name = "Anna", city = "Oslo"}</code>です。どこを直せばよいでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>foldr apply z [e1, e2, e3]</code>は<code>apply e1 (apply e2 (apply e3 z))</code>で、いちばん内側、つまり<strong>最後の</strong>イベント<code>Rename "Anna"</code>が最初に適用され、最初のイベント<code>Rename "Ann"</code>が最後に上書きします。<code>apply</code>を「イベントを状態に適用する」自然な引数順<code>Event -&gt; Profile -&gt; Profile</code>で書くと、<code>foldl</code>が要求する<code>b -&gt; a -&gt; b</code>には合わず、<code>foldr</code>の<code>a -&gt; b -&gt; b</code>にはぴったり合います。型が通る方を選ぶと、順序が逆になるわけです。古い順に適用するには<code>foldl</code>を使い、引数の順を<code>flip</code>で合わせます:</p>
+      <pre class="code"><code><span class="fn">current</span> = foldl (flip apply)
+</code></pre>
+      <p>
+        <code>Move</code>と<code>Rename</code>のように別のフィールドを触るイベントどうしは順序に関係ないので、同じフィールドを2回変えるイベントがあって初めてこのバグは見えます。長い履歴を再生するなら、サンクをためない<code>Data.List</code>の<code>foldl'</code>がより安全です。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
