@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="呼ぶたびに1ずつ増える値を返すクロージャを、mutableなラムダとstartの値キャプチャで作るC++のWRITEドリル。2026-09-24のC++ WRITE。">
+<title>mutableなラムダ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-09-24">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-24" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-09-24",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-09-24",
+      "datePublished": "2026-09-24",
+      "dateModified": "2026-09-24",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "mutableなラムダ" },
+      "keywords": "lambda, capture, mutability",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "呼ぶたびに1ずつ増える値を返すクロージャを、mutableなラムダとstartの値キャプチャで作るC++のWRITEドリル。2026-09-24のC++ WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-24">C23</a>
+  <a href="/cpp/write/2026-09-24" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-09-24">Rust 2024</a>
+  <a href="/haskell/write/2026-09-24">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-24">READ</a>
+  <a href="/cpp/write/2026-09-24" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-09-24">DEBUG</a>
+</nav>
+
+<main
+  data-topic="mutableなラムダ"
+  data-tags="lambda capture mutability"
+  data-concepts="mutableラムダ, 値キャプチャの書き換え, mutable lambda, stateful closure, capture by value"
+>
+  <h2>2026-09-24</h2>
+  <div class="code-frame">
+    <p class="code-filename">make_counter.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;functional&gt;</span>
+
+std::<span class="ty">function</span>&lt;<span class="ty">int</span>()&gt; <span class="fn">make_counter</span>(<span class="ty">int</span> start) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    呼び出すたびに1ずつ増える値を返すクロージャを、<code>start</code>から作る<code>make_counter</code>を書いてください。1回目の呼び出しは<code>start</code>そのものを返し、以降は呼ぶたびに1ずつ増えます。一度も呼ばなければ何も観測されません(境界)。<code>auto c = make_counter(5);</code>として<code>c(), c(), c()</code>の順に呼ぶと<code>5, 6, 7</code>。<code>auto c2 = make_counter(0);</code>で<code>c2(), c2()</code>は<code>0, 1</code>。<code>auto c3 = make_counter(-1);</code>で<code>c3()</code>は<code>-1</code>。
+  </p>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code>std::<span class="ty">function</span>&lt;<span class="ty">int</span>()&gt; <span class="fn">make_counter</span>(<span class="ty">int</span> start) {
+    <span class="kw">return</span> [start]() <span class="kw">mutable</span> {
+        <span class="kw">return</span> start++;
+    };
+}
+</code></pre>
+      <p>
+        <code>[start]</code>は<code>start</code>を値でキャプチャします。ラムダの呼び出し演算子はデフォルトで<code>const</code>なので、キャプチャした変数を書き換えるには<code>mutable</code>を付ける必要があります。<code>mutable</code>を付けると、そのラムダは自分だけが持つキャプチャのコピー(ここでは<code>start</code>のコピー)を自由に書き換えられるようになります。<code>start++</code>は後置インクリメントなので、まず現在の値を返してから内部の<code>start</code>を1増やします。呼び出すたびにこの内部状態が更新され、次の呼び出しに引き継がれます。呼び出し元(関数の引数<code>start</code>)には影響しません——書き換わるのはクロージャの中にコピーされた、独立した<code>start</code>だけです。これは参考実装であり、唯一の正解ではありません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

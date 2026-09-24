@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="訪問済みの都市集合をビットマスクにした最短ハミルトン路DPが、自己参照する配列dpを遅延評価でどう埋めていくかを追う。2026-09-24のHaskell READ。">
+<title>ビットDPの最短路</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-09-24">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-24" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-09-24",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-09-24",
+      "datePublished": "2026-09-24",
+      "dateModified": "2026-09-24",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "ビットDPの最短路" },
+      "keywords": "bitmask-dp, dynamic-programming, memoization",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "訪問済みの都市集合をビットマスクにした最短ハミルトン路DPが、自己参照する配列dpを遅延評価でどう埋めていくかを追う。2026-09-24のHaskell READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-24">C23</a>
+  <a href="/cpp/read/2026-09-24">C++26</a>
+  <a href="/rust/read/2026-09-24">Rust 2024</a>
+  <a href="/haskell/read/2026-09-24" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-09-24" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-09-24">WRITE</a>
+  <a href="/haskell/debug/2026-09-24">DEBUG</a>
+</nav>
+
+<main
+  data-topic="ビットDPの最短路"
+  data-tags="bitmask-dp dynamic-programming memoization"
+  data-concepts="ビットDP, 訪問済み集合を状態に持つDP, bitmask dynamic programming, Hamiltonian path, tie the knot"
+>
+  <h2>2026-09-24</h2>
+  <div class="code-frame">
+    <p class="code-filename">TspTrace.hs</p>
+    <pre class="code"><code><span class="kw">module</span> <span class="ty">Main</span> (main) <span class="kw">where</span>
+
+<span class="kw">import</span> <span class="ty">Data.Array</span> (<span class="ty">Array</span>, array, listArray, (!))
+<span class="kw">import</span> <span class="ty">Data.Bits</span> (bit, clearBit, testBit)
+
+<span class="fn">n</span> <span class="op">::</span> <span class="ty">Int</span>
+<span class="fn">n</span> = <span class="nu">3</span>
+
+<span class="fn">dist</span> <span class="op">::</span> <span class="ty">Array</span> (<span class="ty">Int</span>, <span class="ty">Int</span>) <span class="ty">Int</span>
+<span class="fn">dist</span> =
+  listArray
+    ((<span class="nu">0</span>, <span class="nu">0</span>), (n - <span class="nu">1</span>, n - <span class="nu">1</span>))
+    [ <span class="nu">0</span>, <span class="nu">4</span>, <span class="nu">1</span>
+    , <span class="nu">4</span>, <span class="nu">0</span>, <span class="nu">6</span>
+    , <span class="nu">1</span>, <span class="nu">6</span>, <span class="nu">0</span>
+    ]
+
+<span class="fn">dp</span> <span class="op">::</span> <span class="ty">Array</span> (<span class="ty">Int</span>, <span class="ty">Int</span>) <span class="ty">Int</span>
+<span class="fn">dp</span> =
+  array
+    ((<span class="nu">1</span>, <span class="nu">0</span>), (<span class="nu">2</span> ^ n - <span class="nu">1</span>, n - <span class="nu">1</span>))
+    [((mask, city), cost mask city) | mask <span class="op">&lt;-</span> [<span class="nu">1</span> .. <span class="nu">2</span> ^ n - <span class="nu">1</span>], city <span class="op">&lt;-</span> [<span class="nu">0</span> .. n - <span class="nu">1</span>]]
+  <span class="kw">where</span>
+    cost mask city
+      | mask == bit <span class="nu">0</span> &amp;&amp; city == <span class="nu">0</span> = <span class="nu">0</span>
+      | not (testBit mask city) || not (testBit mask <span class="nu">0</span>) = maxBound `div` <span class="nu">2</span>
+      | otherwise =
+          minimum
+            [ dp ! (clearBit mask city, prev) + dist ! (prev, city)
+            | prev <span class="op">&lt;-</span> [<span class="nu">0</span> .. n - <span class="nu">1</span>]
+            , prev /= city
+            , testBit mask prev
+            ]
+
+<span class="fn">answer</span> <span class="op">::</span> <span class="ty">Int</span>
+<span class="fn">answer</span> = minimum [dp ! (<span class="nu">2</span> ^ n - <span class="nu">1</span>, city) | city <span class="op">&lt;-</span> [<span class="nu">1</span> .. n - <span class="nu">1</span>]]
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print answer
+</code></pre>
+  </div>
+
+  <p class="question">
+    このプログラムを実行すると、何が出力されるでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        出力は<code>7</code>です。<code>dist</code>は3都市間の距離を並べた3x3の行列(<code>dist ! (i, j)</code>が都市<code>i</code>から<code>j</code>への距離)で、<code>dp ! (mask, city)</code>は「訪問済み集合が<code>mask</code>(都市0を起点として必ず含む)、直前にいる都市が<code>city</code>のときの、そこまでの最小移動コスト」を表します。ベースケースは<code>mask</code>が起点の都市0だけを含み<code>city</code>も0のときで、コストは0です。それ以外は、<code>mask</code>から<code>city</code>を除いた1つ前の訪問済み集合(<code>clearBit mask city</code>)のもとで、直前にいた都市<code>prev</code>ごとに「そこまでの最小コスト + <code>dist(prev, city)</code>」を計算し、最小のものを選びます。3都市(0, 1, 2)をすべて訪れる経路は<code>0→1→2</code>か<code>0→2→1</code>の2通りしかなく、それぞれのコストは<code>dist(0,1) + dist(1,2) = 4 + 6 = 10</code>と<code>dist(0,2) + dist(2,1) = 1 + 6 = 7</code>なので、最小は<code>7</code>(<code>0→2→1</code>の経路)です。<code>answer</code>はこの2通りに対応する<code>dp ! (7, 1)</code>と<code>dp ! (7, 2)</code>(<code>mask = 7</code>は全都市訪問済みを表すビット集合<code>0b111</code>)のうち小さいほうを返します。Haskellらしい点は<code>dp</code>の定義そのものです——<code>dp</code>は自分自身を参照する配列として1回の<code>array</code>呼び出しで定義されていますが、遅延評価のおかげで各セルは実際に<code>dp !</code>で参照されたときに初めて計算されます。命令型言語なら「小さい<code>mask</code>から順に埋める」という計算順序を自分で管理する必要がありますが、Haskellではその順序を考える必要がなく、必要なセルが必要になったときに再帰的に評価されるだけです。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

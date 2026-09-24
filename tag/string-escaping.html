@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「バッファ溢れ」を扱ったNamaranのコーディングドリル2問。ヒープバッファオーバーフロー、mallocのサイズ不足、heap buffer overflow、buffer overflow、バッファオーバーラン、オフバイワン。">
-<title>バッファ溢れ</title>
-<link rel="canonical" href="https://namaran.jocarium.productions/tag/buffer-overflow">
+<meta name="description" content="「文字列のエスケープ」を扱ったNamaranのコーディングドリル3問。文字列のアンエスケープ、エスケープの復号、string unescaping、decoding escaped characters、文字列のエスケープ、エスケープ処理。">
+<title>文字列のエスケープ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/tag/string-escaping">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
 {
@@ -15,7 +15,7 @@
   "itemListElement": [
     { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
     { "@type": "ListItem", "position": 2, "name": "お題から探す", "item": "https://namaran.jocarium.productions/topics" },
-    { "@type": "ListItem", "position": 3, "name": "バッファ溢れ" }
+    { "@type": "ListItem", "position": 3, "name": "文字列のエスケープ" }
   ]
 }
 </script>
@@ -29,15 +29,16 @@
 </header>
 
 <main>
-  <h2>バッファ溢れ</h2>
+  <h2>文字列のエスケープ</h2>
 
   <p class="lede">
-    「バッファ溢れ」を扱った2問。日付を開くと、その日のドリルがそのまま読めます。
+    「文字列のエスケープ」を扱った3問。日付を開くと、その日のドリルがそのまま読めます。
   </p>
 
   <ul class="past-list">
+    <li><a href="/c/write/2026-09-24">C / WRITE · 2026-09-24</a> <span class="past-topic">エスケープを戻す</span> <span class="past-concepts">文字列のアンエスケープ, エスケープの復号, string unescaping, decoding escaped characters</span></li>
+    <li><a href="/c/read/2026-09-24">C / READ · 2026-09-24</a> <span class="past-topic">エスケープの出力</span> <span class="past-concepts">文字列のエスケープ, エスケープ処理, string escaping, escaping quotes and backslashes</span></li>
     <li><a href="/c/debug/2026-09-24">C / DEBUG · 2026-09-24</a> <span class="past-topic">増える分の確保漏れ</span> <span class="past-concepts">ヒープバッファオーバーフロー, mallocのサイズ不足, heap buffer overflow, buffer overflow</span></li>
-    <li><a href="/c/debug/2026-08-21">C / DEBUG · 2026-08-21</a> <span class="past-topic">1つ多い書き込み</span> <span class="past-concepts">バッファオーバーラン, オフバイワン, 境界, buffer overflow</span></li>
   </ul>
 
   <p><a href="/topics">ほかのお題を見る</a></p>

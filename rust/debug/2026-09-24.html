@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Vecをインデックスで回しながらremoveで削除するdrop_squarefree_factorsが要素を取りこぼしたうえ範囲外アクセスでpanicする。2026-09-24のRust DEBUG。">
+<title>削除で飛ばす要素</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-09-24">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-24" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-09-24",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-09-24",
+      "datePublished": "2026-09-24",
+      "dateModified": "2026-09-24",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "削除で飛ばす要素" },
+      "keywords": "prime-factorization, array, off-by-one",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "Vecをインデックスで回しながらremoveで削除するdrop_squarefree_factorsが要素を取りこぼしたうえ範囲外アクセスでpanicする。2026-09-24のRust DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-24">C23</a>
+  <a href="/cpp/debug/2026-09-24">C++26</a>
+  <a href="/rust/debug/2026-09-24" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-24">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-09-24">READ</a>
+  <a href="/rust/write/2026-09-24">WRITE</a>
+  <a href="/rust/debug/2026-09-24" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="削除で飛ばす要素"
+  data-tags="prime-factorization array off-by-one"
+  data-concepts="Vecからのインデックス削除, 範囲外アクセスでpanic, removing from a Vec by index, index out of bounds"
+>
+  <h2>2026-09-24</h2>
+  <div class="code-frame">
+    <p class="code-filename">drop_squarefree.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">factorize</span>(<span class="kw">mut</span> n: <span class="ty">u64</span>) -&gt; <span class="ty">Vec</span>&lt;(<span class="ty">u64</span>, <span class="ty">u32</span>)&gt; {
+    <span class="kw">let</span> <span class="kw">mut</span> factors = <span class="ty">Vec</span>::<span class="fn">new</span>();
+    <span class="kw">let</span> <span class="kw">mut</span> p = <span class="nu">2u64</span>;
+    <span class="kw">while</span> p * p &lt;= n {
+        <span class="kw">if</span> n.<span class="fn">is_multiple_of</span>(p) {
+            <span class="kw">let</span> <span class="kw">mut</span> exp = <span class="nu">0u32</span>;
+            <span class="kw">while</span> n.<span class="fn">is_multiple_of</span>(p) {
+                n /= p;
+                exp += <span class="nu">1</span>;
+            }
+            factors.<span class="fn">push</span>((p, exp));
+        }
+        p += <span class="nu">1</span>;
+    }
+    <span class="kw">if</span> n &gt; <span class="nu">1</span> {
+        factors.<span class="fn">push</span>((n, <span class="nu">1</span>));
+    }
+    factors
+}
+
+<span class="kw">fn</span> <span class="fn">drop_squarefree_factors</span>(factors: &amp;<span class="kw">mut</span> <span class="ty">Vec</span>&lt;(<span class="ty">u64</span>, <span class="ty">u32</span>)&gt;) {
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="nu">0</span>..factors.<span class="fn">len</span>() {
+        <span class="kw">if</span> factors[i].<span class="nu">1</span> == <span class="nu">1</span> {
+            factors.<span class="fn">remove</span>(i);
+        }
+    }
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> <span class="kw">mut</span> factors = <span class="fn">factorize</span>(<span class="nu">420</span>);
+    <span class="fn">drop_squarefree_factors</span>(&amp;<span class="kw">mut</span> factors);
+    <span class="kw">for</span> (p, e) <span class="kw">in</span> &amp;factors {
+        <span class="mc">print!</span>(<span class="st">"{p}^{e} "</span>);
+    }
+    <span class="mc">println!</span>();
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    素因数分解の結果<code>(素数, 指数)</code>の<code>Vec</code>から、指数が1の素因数(平方因子でない素数)だけを取り除くつもりの関数です。入力は<code>factorize(420)</code>の結果、つまり<code>(2,2), (3,1), (5,1), (7,1)</code>。いまの出力は保証されません(このコードは実行すると、範囲外アクセスで必ずpanicして異常終了するため、想定していた出力は一切表示されません)。本来の出力は<code>2^2 </code>(末尾に半角スペース、そのあとに改行)です。何が問題で、どう直せばよいでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>factors.remove(i)</code>は指定した位置の要素を取り除き、それより後ろの要素を1つずつ前へ詰めます。ところが<code>for i in 0..factors.len()</code>の範囲は、ループが始まる前の長さ(ここでは4)でいったん固定されてしまい、要素を削除して<code>Vec</code>が縮んでも<code>i</code>の刻み方は変わりません。トレースすると: <code>i = 0</code>で<code>(2,2)</code>は指数2なのでそのまま。<code>i = 1</code>で<code>(3,1)</code>を削除すると、後ろにあった<code>(5,1)</code>が位置1に、<code>(7,1)</code>が位置2に詰まります。次は<code>i = 2</code>に進むので、詰まったことで位置1に来た<code>(5,1)</code>は一度も調べられないまま素通りされ、代わりに位置2の<code>(7,1)</code>が削除されます。この時点で<code>Vec</code>の長さは2しかないのに、ループはまだ<code>i = 3</code>を回そうとするため、<code>factors[3]</code>で範囲外アクセスとなりpanicします。削除のたびに縮んでいく<code>Vec</code>を、縮む前の長さぶんインデックスで回し続けたことが原因です。直し方は、条件を満たす要素だけを残す<code>retain</code>を使い、インデックスの管理そのものをなくすことです:
+      </p>
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">drop_squarefree_factors</span>(factors: &amp;<span class="kw">mut</span> <span class="ty">Vec</span>&lt;(<span class="ty">u64</span>, <span class="ty">u32</span>)&gt;) {
+    factors.<span class="fn">retain</span>(|&amp;(_, e)| e != <span class="nu">1</span>);
+}
+</code></pre>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

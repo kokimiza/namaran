@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="同じ変数xを値でキャプチャしたラムダと参照でキャプチャしたラムダが、キャプチャ後のxの変更をそれぞれどう見るかを追う。2026-09-24のC++ READ。">
+<title>値と参照のキャプチャ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-09-24">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-24" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-09-24",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-09-24",
+      "datePublished": "2026-09-24",
+      "dateModified": "2026-09-24",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "値と参照のキャプチャ" },
+      "keywords": "lambda, capture, reference",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "同じ変数xを値でキャプチャしたラムダと参照でキャプチャしたラムダが、キャプチャ後のxの変更をそれぞれどう見るかを追う。2026-09-24のC++ READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-24">C23</a>
+  <a href="/cpp/read/2026-09-24" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-09-24">Rust 2024</a>
+  <a href="/haskell/read/2026-09-24">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-24" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-09-24">WRITE</a>
+  <a href="/cpp/debug/2026-09-24">DEBUG</a>
+</nav>
+
+<main
+  data-topic="値と参照のキャプチャ"
+  data-tags="lambda capture reference"
+  data-concepts="ラムダ式のキャプチャ, 値キャプチャと参照キャプチャ, lambda capture, capture by value, capture by reference"
+>
+  <h2>2026-09-24</h2>
+  <div class="code-frame">
+    <p class="code-filename">capture_kinds.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="ty">int</span> x = <span class="nu">10</span>;
+    <span class="kw">auto</span> byValue = [x]() { <span class="kw">return</span> x; };
+    <span class="kw">auto</span> byRef = [&amp;x]() { <span class="kw">return</span> x; };
+
+    x = <span class="nu">20</span>;
+
+    std::cout &lt;&lt; <span class="fn">byValue</span>() &lt;&lt; <span class="st">" "</span> &lt;&lt; <span class="fn">byRef</span>() &lt;&lt; <span class="st">"\n"</span>;
+    <span class="kw">return</span> <span class="nu">0</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    このプログラムを実行すると、何が出力されるでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        出力は<code>10 20</code>です。<code>[x]</code>は<code>x</code>を値でキャプチャするので、ラムダが作られた時点の<code>x</code>(まだ<code>10</code>)のコピーがクロージャの中に保存されます。以降<code>x</code>を<code>20</code>に変更しても、<code>byValue</code>が持っているのは独立したコピーなので影響を受けず、呼び出すと<code>10</code>を返し続けます。一方<code>[&amp;x]</code>は<code>x</code>への参照をキャプチャするので、クロージャの中には<code>x</code>そのものへの参照だけが保存されます。呼び出し時に参照先の現在の値を読むため、<code>x = 20;</code>のあとに<code>byRef()</code>を呼ぶと最新の<code>20</code>を返します。同じ変数を同じ場所でキャプチャしていても、値キャプチャは「その瞬間のスナップショット」、参照キャプチャは「変数そのものへの窓」という別物になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

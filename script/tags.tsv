@@ -4,10 +4,12 @@ base-case	基底ケース
 binding	束縛
 bit-operation	ビット演算
 bitmask	ビットマスク
+bitmask-dp	ビットDP
 borrow	借用
 boundary	境界条件
 buffer-overflow	バッファ溢れ
 call-stack	コールスタック
+capture	キャプチャ
 comparison	比較
 concurrency	並行処理
 conditional-operator	三項演算子
@@ -23,6 +25,7 @@ deriving	自動導出
 destructor	デストラクタ
 division	除算と剰余
 dyn-compatibility	dyn互換性
+dynamic-programming	動的計画法
 enum	列挙型
 error-handling	エラー処理
 evaluation-order	評価順序
@@ -73,6 +76,7 @@ performance	計算量と速度
 pointer	ポインタ
 pointer-decay	配列のポインタ化
 prefix-sum	累積和
+prime-factorization	素因数分解
 range-for	範囲for
 recursion	再帰
 reference	参照
@@ -90,6 +94,7 @@ stability	安定性
 static-storage	静的記憶域
 stdio	標準入出力
 string	文字列
+string-escaping	文字列のエスケープ
 struct	構造体
 swap	値の交換
 switch	switch文
