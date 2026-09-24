@@ -869,6 +869,101 @@ main > .lede + .past-list {
   margin-top: var(--s-block);
 }
 
+/* ---------- a level page: one compact row per drill ----------
+   A difficulty gathers drills from every language, type and day, so its page
+   is for scanning, not reading: a table per month, jump links to the months
+   at the top, the date once per day, and the topic as the only link. */
+
+.month-nav {
+  margin-top: var(--s-block);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+}
+
+main > h3 {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin: var(--s-section) 0 var(--s-unit);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+}
+
+/* The month links are the page's own contents, so the first month follows
+   them at the block step, not a full section away. */
+.month-nav + h3 {
+  margin-top: var(--s-block);
+}
+
+/* Fixed columns, so every month's table lines up with the one above it. */
+.drill-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
+
+.drill-table th {
+  padding: 0 1.25rem var(--s-unit) 0;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--font-ui);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-align: left;
+  color: var(--ink-muted);
+}
+
+.drill-table td {
+  padding: 0.2rem 1.25rem 0.2rem 0;
+  vertical-align: baseline;
+}
+
+/* A hairline opens each day; the drills of one day sit together under it. */
+.drill-table tr.day-start td {
+  border-top: 1px solid var(--rule);
+  padding-top: var(--s-unit);
+}
+
+.drill-table tr:last-child td {
+  padding-bottom: var(--s-unit);
+}
+
+.drill-date,
+.drill-lang,
+.drill-type {
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  color: var(--ink-muted);
+}
+
+.drill-date {
+  vertical-align: top;
+}
+
+.drill-table th:nth-child(1) { width: 4.5rem; }
+.drill-table th:nth-child(2) { width: 6.5rem; }
+.drill-table th:nth-child(3) { width: 5rem; }
+
+.drill-topic {
+  padding-right: 0;
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+}
+
+.drill-topic a:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.22em;
+  text-decoration-color: var(--accent);
+}
+
+main > .drill-table + p {
+  margin-top: var(--s-block);
+}
+
 /* /levels: the tag grid, with the animal in front of its name. */
 .level-list .level {
   margin-right: 0.6rem;
@@ -937,6 +1032,47 @@ footer a:hover {
 
   .masthead {
     gap: 0.35rem;
+  }
+
+  /* A level table folds each row into two lines: language and type, then the
+     topic under them. The day's date heads its group; the column heads stay
+     for screen readers only. */
+  .drill-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .drill-table,
+  .drill-table tbody {
+    display: block;
+  }
+
+  .drill-table tr {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 0.75rem;
+    padding: 0.35rem 0;
+  }
+
+  .drill-table tr.day-start {
+    margin-top: var(--s-unit);
+    border-top: 1px solid var(--rule);
+    padding-top: var(--s-unit);
+  }
+
+  .drill-table td,
+  .drill-table tr.day-start td,
+  .drill-table tr:last-child td {
+    padding: 0;
+    border: 0;
+  }
+
+  .drill-date,
+  .drill-topic {
+    flex-basis: 100%;
   }
 
   /* The version column only needs its longest label ("Haskell 2010"), or

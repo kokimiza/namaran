@@ -385,20 +385,56 @@ def render_levels_index():
 def render_level_page(level):
     """/level/{level} — every drill drawn at one difficulty, newest first.
 
-    A line is an archive line with the language and type in front: the
-    animal is the same on every line, so it is said once, in the heading.
+    A level collects drills from every language, type and day, so it grows
+    far faster than any tag: the hedgehog page gains a handful of rows a
+    day. It is laid out for scanning rather than reading: one table per
+    month, newest first, with jump links to each month at the top, and one
+    compact row per drill — the date once per day, then language, type and
+    topic. The animal is the same on every row, so it is said once, in the
+    heading. There is no numbered paging: the month is the page, and it
+    needs no extra URL.
     """
     animal, grade = LEVELS[level]
     note = LEVEL_NOTES[level]
-    entries = sorted(by_level[level], key=lambda d: (d["date"], d["lang"], d["type"]), reverse=True)
+    lang_order, type_order = list(LANGS), list(TYPES)
+    entries = sorted(by_level[level],
+                     key=lambda d: (d["date"], -lang_order.index(d["lang"]), -type_order.index(d["type"])),
+                     reverse=True)
+
+    months = {}
+    for d in entries:
+        months.setdefault(d["date"][:7], []).append(d)
+
+    def rows(ds):
+        out = []
+        for i, d in enumerate(ds):
+            day = sum(1 for x in ds if x["date"] == d["date"])
+            first = i == 0 or ds[i - 1]["date"] != d["date"]
+            date_cell = (f'<td class="drill-date" rowspan="{day}">{d["date"][5:]}</td>'
+                         if first else "")
+            out.append(
+                f'      <tr{" class=\"day-start\"" if first else ""}>{date_cell}'
+                f'<td class="drill-lang">{LANGS[d["lang"]]}</td>'
+                f'<td class="drill-type">{TYPES[d["type"]]}</td>'
+                f'<td class="drill-topic"><a href="/{d["lang"]}/{d["type"]}/{d["date"]}">{e(d["topic"])}</a></td></tr>'
+            )
+        return "\n".join(out)
+
     if entries:
-        lines = "\n".join(
-            f'    <li><a href="/{d["lang"]}/{d["type"]}/{d["date"]}">'
-            f'{LANGS[d["lang"]]} / {TYPES[d["type"]]} · {d["date"]}</a>'
-            f' <span class="past-topic">{e(d["topic"])}</span></li>'
-            for d in entries
+        jump = " ".join(f'<a href="#m-{m}">{m}</a>' for m in months)
+        sections = "\n\n".join(
+            f"""  <h3 id="m-{m}">{m} <span class="tag-count">{len(ds)}</span></h3>
+  <table class="drill-table">
+    <thead>
+      <tr><th scope="col">日付</th><th scope="col">言語</th><th scope="col">種別</th><th scope="col">お題</th></tr>
+    </thead>
+    <tbody>
+{rows(ds)}
+    </tbody>
+  </table>"""
+            for m, ds in months.items()
         )
-        listing = f'  <ul class="past-list">\n{lines}\n  </ul>'
+        listing = f'  <nav class="month-nav" aria-label="月">{jump}</nav>\n\n{sections}'
     else:
         listing = "  <p>まだこの難易度のドリルはありません。</p>"
     body = f"""  <h2><span class="level" data-level="{level}" aria-hidden="true"></span>{animal}（{grade}）</h2>
