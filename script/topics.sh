@@ -97,13 +97,13 @@ LEVELS = {
     "bison": ("バイソン", "中級"),
     "whale": ("クジラ", "上級"),
 }
-# What each level asks of the reader, and how often the daily draw
-# (script/level.sh) lands on it — doc/requirements.md §7.1.
+# What each level asks of the reader (doc/requirements.md §7.1). How often
+# the daily draw lands on each level is not published anywhere on the site.
 LEVEL_NOTES = {
-    "hedgehog": ("読んだそばから答えが出る。関わる規則は1つ", "44.7%"),
-    "peacock": ("規則を1つ正確に思い出すか、数ステップ追う", "27.6%"),
-    "bison": ("2つ以上の規則が絡む。実務で一度踏んで覚える罠", "17.1%"),
-    "whale": ("言語の深い部分を複数組み合わせて初めて解ける", "10.6%"),
+    "hedgehog": "読んだそばから答えが出る。関わる規則は1つ",
+    "peacock": "規則を1つ正確に思い出すか、数ステップ追う",
+    "bison": "2つ以上の規則が絡む。実務で一度踏んで覚える罠",
+    "whale": "言語の深い部分を複数組み合わせて初めて解ける",
 }
 
 TAG_RE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\Z")
@@ -372,11 +372,7 @@ def render_levels_index():
     過去に出したドリルを、難易度から辿るための索引です。難易度は星ではなく4匹の動物で表していて、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。数字はその難易度の問題数です。
   </p>
 
-{level_listing()}
-
-  <p>
-    毎日の12問の難易度は、1問ずつ独立に抽選で決まります。出る確率はハリネズミ44.7%・孔雀27.6%・バイソン17.1%・クジラ10.6%で、1段ごとに黄金比で割った値です。過去の傾向は見ないので、12問すべてがクジラの日もあります。
-  </p>"""
+{level_listing()}"""
     return root / "levels.html", shell(
         title="難易度から探す",
         description="Namaranの過去のドリルを難易度から探す索引。ハリネズミ(基礎)・孔雀(初級)・バイソン(中級)・クジラ(上級)の4段階で、C・C++・Rust・Haskellのドリルをまとめています。",
@@ -393,7 +389,7 @@ def render_level_page(level):
     animal is the same on every line, so it is said once, in the heading.
     """
     animal, grade = LEVELS[level]
-    note, odds = LEVEL_NOTES[level]
+    note = LEVEL_NOTES[level]
     entries = sorted(by_level[level], key=lambda d: (d["date"], d["lang"], d["type"]), reverse=True)
     if entries:
         lines = "\n".join(
@@ -408,7 +404,7 @@ def render_level_page(level):
     body = f"""  <h2><span class="level" data-level="{level}" aria-hidden="true"></span>{animal}（{grade}）</h2>
 
   <p class="lede">
-    {animal}（{grade}）のドリル{len(entries)}問。{note}。毎日の抽選で出る確率は{odds}です。
+    {animal}（{grade}）のドリル{len(entries)}問。{note}。
   </p>
 
 {listing}

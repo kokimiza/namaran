@@ -578,11 +578,8 @@ pre.code .mc { color: var(--syn-pp); }
 
 /* ---------- answer ---------- */
 
-details.answer {
-  border-top: 1px solid var(--rule);
-  padding-top: var(--s-block);
-}
-
+/* One rule, not two: the summary draws its own hairline, so the details box
+   adds none. The question's section step is the whole gap above it. */
 details.answer summary {
   display: flex;
   align-items: center;
@@ -635,6 +632,11 @@ details.answer summary::after {
   margin-top: var(--s-sibling);
 }
 
+/* The rule on the left ends with the answer, not a margin after it. */
+.answer-body > :last-child {
+  margin-bottom: 0;
+}
+
 /* Only inline code, in the question as well as the answer: a WRITE question
    carries its examples as `input -> output` pairs. A listing's <code> sits
    inside <pre> and must stay on the slab, where the chip is unreadable. */
@@ -673,6 +675,16 @@ details.answer summary::after {
   color: var(--ink);
   text-decoration: underline;
   text-underline-offset: 0.22em;
+}
+
+/* Stacked under the drill on a narrow screen, the pane is a footnote: its
+   links run in one row, like the navs at the top, not four lines each. */
+@media (max-width: 51.99rem) {
+  .past .past-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1.25rem;
+  }
 }
 
 /* The same list is the whole body of an archive page, where one thin column of
@@ -798,14 +810,62 @@ main[data-level="peacock"] > h2::before { content: "" / "孔雀（初級）"; }
 main[data-level="bison"] > h2::before { content: "" / "バイソン（中級）"; }
 main[data-level="whale"] > h2::before { content: "" / "クジラ（上級）"; }
 
-/* The key on the home page: the drill index again, one animal per row. */
-.guide .level {
-  margin-right: 0.75rem;
+/* The key on the home page. It must not read as more links: the drill index
+   right above it is a column of rows you click, so this is set as a small
+   centred table on a panel, the way a legend sits under a figure. Nothing in
+   it is a link and nothing reacts to the pointer. */
+.level-key {
+  margin: var(--s-section) auto 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  padding: var(--s-sibling) var(--s-unit);
+  background: var(--panel);
+  border-radius: 8px;
+  font-family: var(--font-ui);
+  text-align: center;
+}
+
+.level-key caption {
+  padding-bottom: var(--s-unit);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.level-key th,
+.level-key td {
+  padding: 0 0.9rem;
+}
+
+.level-key th {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.level-key th .level {
+  display: block;
+  width: 2.25rem;
+  height: 1.5rem;
+  margin: 0 auto var(--s-unit);
+}
+
+.level-key td {
+  font-size: 0.75rem;
+  color: var(--ink-muted);
 }
 
 /* The way onward after an index list ("ほかの難易度を見る", "Browse by
    topic") is a new block, not the list's last line. */
 main > .past-list + p {
+  margin-top: var(--s-block);
+}
+
+/* On an index page the lede explains the list; the list itself is the next
+   block, not the next paragraph. */
+main > .lede + .past-list {
   margin-top: var(--s-block);
 }
 
@@ -877,6 +937,24 @@ footer a:hover {
 
   .masthead {
     gap: 0.35rem;
+  }
+
+  /* The version column only needs its longest label ("Haskell 2010"), or
+     the last row's DEBUG wraps onto a line of its own. */
+  .guide strong {
+    min-width: 6.75rem;
+  }
+
+  /* Four equal columns across the measure; the cells give up their padding
+     before the table would push the page sideways. */
+  .level-key {
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  .level-key th,
+  .level-key td {
+    padding: 0 0.2rem;
   }
 }
 
