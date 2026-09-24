@@ -228,7 +228,7 @@ main > :last-child {
   }
 
   .page > .lang-nav { justify-self: start; }
-  .page > .type-nav { justify-self: end; margin-right: -0.14em; } /* see .tagline */
+  .page > .type-nav { justify-self: end; }
 
   .page > .past {
     position: sticky;
@@ -430,7 +430,9 @@ h2::after {
 /* ---------- navigation ----------
    Two rows of identical links read as one undifferentiated list, so the two
    navs are told apart by face, not by position alone: language versions are
-   data (mono), exercise types are labels (tracked sans). */
+   data (mono), exercise types are labels (tracked sans). Face alone still left
+   the type links looking like plain text, so they are also drawn as badges —
+   the one control on the page that looks pressable. */
 
 nav {
   display: flex;
@@ -470,6 +472,32 @@ nav a:hover,
 nav a.active {
   color: var(--ink);
   border-bottom-color: var(--accent);
+}
+
+/* Exercise types: pill badges. The border replaces the underline, so every
+   state sets all four sides. Tracked capitals carry a trailing space after the
+   last letter (see .tagline); the extra left padding re-centres the word. */
+.type-nav {
+  gap: var(--s-unit);
+}
+
+.type-nav a {
+  padding: 0.4em 0.9em 0.4em calc(0.9em + 0.14em);
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: var(--panel);
+  line-height: 1;
+}
+
+.type-nav a:hover {
+  color: var(--ink);
+  border-color: var(--ink-muted);
+}
+
+.type-nav a.active {
+  color: var(--bg);
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
 }
 
 /* ---------- code: windows ----------
