@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Namaranの難易度「ハリネズミ（基礎）」のコーディングドリル151問。読んだそばから答えが出る。関わる規則は1つ。">
+<title>ハリネズミ（基礎）</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/level/hedgehog">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+    { "@type": "ListItem", "position": 2, "name": "難易度から探す", "item": "https://namaran.jocarium.productions/levels" },
+    { "@type": "ListItem", "position": 3, "name": "ハリネズミ（基礎）" }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<main>
+  <h2><span class="level" data-level="hedgehog" aria-hidden="true"></span>ハリネズミ（基礎）</h2>
+
+  <p class="lede">
+    ハリネズミ（基礎）のドリル151問。読んだそばから答えが出る。関わる規則は1つ。毎日の抽選で出る確率は44.7%です。
+  </p>
+
+  <ul class="past-list">
+    <li><a href="/rust/write/2026-09-24">Rust / WRITE · 2026-09-24</a> <span class="past-topic">素因数の種類数</span></li>
+    <li><a href="/rust/read/2026-09-24">Rust / READ · 2026-09-24</a> <span class="past-topic">試し割りの素因数分解</span></li>
+    <li><a href="/haskell/write/2026-09-24">Haskell / WRITE · 2026-09-24</a> <span class="past-topic">ビットから集合へ</span></li>
+    <li><a href="/cpp/read/2026-09-24">C++ / READ · 2026-09-24</a> <span class="past-topic">値と参照のキャプチャ</span></li>
+    <li><a href="/cpp/debug/2026-09-24">C++ / DEBUG · 2026-09-24</a> <span class="past-topic">参照キャプチャの罠</span></li>
+    <li><a href="/c/debug/2026-09-24">C / DEBUG · 2026-09-24</a> <span class="past-topic">増える分の確保漏れ</span></li>
+    <li><a href="/haskell/write/2026-09-23">Haskell / WRITE · 2026-09-23</a> <span class="past-topic">WALを再生する</span></li>
+    <li><a href="/haskell/read/2026-09-23">Haskell / READ · 2026-09-23</a> <span class="past-topic">WALを畳み込む</span></li>
+    <li><a href="/cpp/write/2026-09-23">C++ / WRITE · 2026-09-23</a> <span class="past-topic">cloneで複製する</span></li>
+    <li><a href="/c/write/2026-09-23">C / WRITE · 2026-09-23</a> <span class="past-topic">いもす法の区間加算</span></li>
+    <li><a href="/c/debug/2026-09-23">C / DEBUG · 2026-09-23</a> <span class="past-topic">差分配列の右端</span></li>
+    <li><a href="/cpp/write/2026-09-22">C++ / WRITE · 2026-09-22</a> <span class="past-topic">初回使用時に構築</span></li>
+    <li><a href="/c/debug/2026-09-22">C / DEBUG · 2026-09-22</a> <span class="past-topic">バケット数が1つ足りない</span></li>
+    <li><a href="/rust/write/2026-09-21">Rust / WRITE · 2026-09-21</a> <span class="past-topic">自分で終了条件を書く</span></li>
+    <li><a href="/rust/read/2026-09-21">Rust / READ · 2026-09-21</a> <span class="past-topic">breakで値を返す</span></li>
+    <li><a href="/rust/debug/2026-09-21">Rust / DEBUG · 2026-09-21</a> <span class="past-topic">符号なしの&gt;=0</span></li>
+    <li><a href="/haskell/write/2026-09-21">Haskell / WRITE · 2026-09-21</a> <span class="past-topic">範囲外までテスト</span></li>
+    <li><a href="/haskell/read/2026-09-21">Haskell / READ · 2026-09-21</a> <span class="past-topic">境界値のテスト</span></li>
+    <li><a href="/haskell/debug/2026-09-21">Haskell / DEBUG · 2026-09-21</a> <span class="past-topic">自分と比べるテスト</span></li>
+    <li><a href="/cpp/write/2026-09-21">C++ / WRITE · 2026-09-21</a> <span class="past-topic">ファクトリとoptional</span></li>
+    <li><a href="/cpp/read/2026-09-21">C++ / READ · 2026-09-21</a> <span class="past-topic">例外を投げる構築</span></li>
+    <li><a href="/cpp/debug/2026-09-21">C++ / DEBUG · 2026-09-21</a> <span class="past-topic">検査を通らないsetter</span></li>
+    <li><a href="/c/write/2026-09-21">C / WRITE · 2026-09-21</a> <span class="past-topic">sscanfの結果を確認</span></li>
+    <li><a href="/c/debug/2026-09-21">C / DEBUG · 2026-09-21</a> <span class="past-topic">scanfの結果を信じる</span></li>
+    <li><a href="/rust/write/2026-09-20">Rust / WRITE · 2026-09-20</a> <span class="past-topic">型を変えて束縛し直す</span></li>
+    <li><a href="/rust/read/2026-09-20">Rust / READ · 2026-09-20</a> <span class="past-topic">再代入ではない</span></li>
+    <li><a href="/rust/debug/2026-09-20">Rust / DEBUG · 2026-09-20</a> <span class="past-topic">mutのない再代入</span></li>
+    <li><a href="/haskell/write/2026-09-20">Haskell / WRITE · 2026-09-20</a> <span class="past-topic">mapとラムダ</span></li>
+    <li><a href="/haskell/read/2026-09-20">Haskell / READ · 2026-09-20</a> <span class="past-topic">ラムダとセクション</span></li>
+    <li><a href="/cpp/write/2026-09-20">C++ / WRITE · 2026-09-20</a> <span class="past-topic">一時値をconst参照に</span></li>
+    <li><a href="/c/write/2026-09-20">C / WRITE · 2026-09-20</a> <span class="past-topic">条件つきのビット操作</span></li>
+    <li><a href="/c/read/2026-09-20">C / READ · 2026-09-20</a> <span class="past-topic">ビットの立て方と消し方</span></li>
+    <li><a href="/rust/debug/2026-09-19">Rust / DEBUG · 2026-09-19</a> <span class="past-topic">比較は連鎖しない</span></li>
+    <li><a href="/haskell/write/2026-09-19">Haskell / WRITE · 2026-09-19</a> <span class="past-topic">番兵よりMaybe</span></li>
+    <li><a href="/haskell/read/2026-09-19">Haskell / READ · 2026-09-19</a> <span class="past-topic">Maybeをつなぐ</span></li>
+    <li><a href="/haskell/debug/2026-09-19">Haskell / DEBUG · 2026-09-19</a> <span class="past-topic">番兵と実データの衝突</span></li>
+    <li><a href="/cpp/write/2026-09-19">C++ / WRITE · 2026-09-19</a> <span class="past-topic">商と余りで分解</span></li>
+    <li><a href="/c/read/2026-09-19">C / READ · 2026-09-19</a> <span class="past-topic">安全な比較関数</span></li>
+    <li><a href="/rust/write/2026-09-18">Rust / WRITE · 2026-09-18</a> <span class="past-topic">先に容量を確保</span></li>
+    <li><a href="/c/write/2026-09-18">C / WRITE · 2026-09-18</a> <span class="past-topic">2つの基底条件</span></li>
+    <li><a href="/c/read/2026-09-18">C / READ · 2026-09-18</a> <span class="past-topic">基底が2つある再帰</span></li>
+    <li><a href="/c/debug/2026-09-18">C / DEBUG · 2026-09-18</a> <span class="past-topic">またいだ基底条件</span></li>
+    <li><a href="/rust/write/2026-09-16">Rust / WRITE · 2026-09-16</a> <span class="past-topic">引数でパターン分解</span></li>
+    <li><a href="/rust/read/2026-09-16">Rust / READ · 2026-09-16</a> <span class="past-topic">引数の評価順序</span></li>
+    <li><a href="/rust/debug/2026-09-16">Rust / DEBUG · 2026-09-16</a> <span class="past-topic">引数で所有権を奪う</span></li>
+    <li><a href="/haskell/write/2026-09-16">Haskell / WRITE · 2026-09-16</a> <span class="past-topic">自分の尾とzip</span></li>
+    <li><a href="/haskell/debug/2026-09-16">Haskell / DEBUG · 2026-09-16</a> <span class="past-topic">自己参照のzip</span></li>
+    <li><a href="/cpp/write/2026-09-16">C++ / WRITE · 2026-09-16</a> <span class="past-topic">explicitで防ぐ</span></li>
+    <li><a href="/cpp/read/2026-09-16">C++ / READ · 2026-09-16</a> <span class="past-topic">暗黙の変換が起きる</span></li>
+    <li><a href="/cpp/debug/2026-09-16">C++ / DEBUG · 2026-09-16</a> <span class="past-topic">暗黙変換が隠すバグ</span></li>
+    <li><a href="/c/read/2026-09-16">C / READ · 2026-09-16</a> <span class="past-topic">配列引数はポインタ</span></li>
+    <li><a href="/c/debug/2026-09-16">C / DEBUG · 2026-09-16</a> <span class="past-topic">配列引数のsizeof</span></li>
+    <li><a href="/haskell/read/2026-09-15">Haskell / READ · 2026-09-15</a> <span class="past-topic">ifは式である</span></li>
+    <li><a href="/haskell/debug/2026-09-15">Haskell / DEBUG · 2026-09-15</a> <span class="past-topic">elseのないif</span></li>
+    <li><a href="/c/debug/2026-09-15">C / DEBUG · 2026-09-15</a> <span class="past-topic">比較演算子の連鎖</span></li>
+    <li><a href="/rust/write/2026-09-13">Rust / WRITE · 2026-09-13</a> <span class="past-topic">再帰enumをたどる</span></li>
+    <li><a href="/rust/debug/2026-09-13">Rust / DEBUG · 2026-09-13</a> <span class="past-topic">再帰型にはBox</span></li>
+    <li><a href="/haskell/write/2026-09-13">Haskell / WRITE · 2026-09-13</a> <span class="past-topic">木に永続的に挿入</span></li>
+    <li><a href="/c/write/2026-09-13">C / WRITE · 2026-09-13</a> <span class="past-topic">木を後行順で解放</span></li>
+    <li><a href="/rust/debug/2026-09-12">Rust / DEBUG · 2026-09-12</a> <span class="past-topic">derive忘れの比較</span></li>
+    <li><a href="/haskell/write/2026-09-12">Haskell / WRITE · 2026-09-12</a> <span class="past-topic">値を持ち回る</span></li>
+    <li><a href="/haskell/read/2026-09-12">Haskell / READ · 2026-09-12</a> <span class="past-topic">IORefで書き換える</span></li>
+    <li><a href="/haskell/debug/2026-09-12">Haskell / DEBUG · 2026-09-12</a> <span class="past-topic">letは書き換えない</span></li>
+    <li><a href="/cpp/write/2026-09-12">C++ / WRITE · 2026-09-12</a> <span class="past-topic">forとwhileの選択</span></li>
+    <li><a href="/cpp/read/2026-09-12">C++ / READ · 2026-09-12</a> <span class="past-topic">forの外の変数</span></li>
+    <li><a href="/cpp/debug/2026-09-12">C++ / DEBUG · 2026-09-12</a> <span class="past-topic">更新を忘れたwhile</span></li>
+    <li><a href="/c/write/2026-09-12">C / WRITE · 2026-09-12</a> <span class="past-topic">閉区間の総和</span></li>
+    <li><a href="/c/read/2026-09-12">C / READ · 2026-09-12</a> <span class="past-topic">&lt;=のループ境界</span></li>
+    <li><a href="/c/debug/2026-09-12">C / DEBUG · 2026-09-12</a> <span class="past-topic">配列をはみ出すループ</span></li>
+    <li><a href="/rust/write/2026-09-11">Rust / WRITE · 2026-09-11</a> <span class="past-topic">0除算をOptionで</span></li>
+    <li><a href="/rust/debug/2026-09-11">Rust / DEBUG · 2026-09-11</a> <span class="past-topic">実行時の0除算</span></li>
+    <li><a href="/haskell/write/2026-09-11">Haskell / WRITE · 2026-09-11</a> <span class="past-topic">finallyで後始末</span></li>
+    <li><a href="/haskell/read/2026-09-11">Haskell / READ · 2026-09-11</a> <span class="past-topic">bracketで確実に後始末</span></li>
+    <li><a href="/haskell/debug/2026-09-11">Haskell / DEBUG · 2026-09-11</a> <span class="past-topic">飛ばされる後始末</span></li>
+    <li><a href="/cpp/write/2026-09-11">C++ / WRITE · 2026-09-11</a> <span class="past-topic">終了条件が動くループ</span></li>
+    <li><a href="/cpp/read/2026-09-11">C++ / READ · 2026-09-11</a> <span class="past-topic">2つのカウンタのfor</span></li>
+    <li><a href="/cpp/debug/2026-09-11">C++ / DEBUG · 2026-09-11</a> <span class="past-topic">リトライ回数が1回多い</span></li>
+    <li><a href="/c/write/2026-09-11">C / WRITE · 2026-09-11</a> <span class="past-topic">ノンブロッキング取得</span></li>
+    <li><a href="/c/read/2026-09-11">C / READ · 2026-09-11</a> <span class="past-topic">セマフォで同時実行制限</span></li>
+    <li><a href="/c/debug/2026-09-11">C / DEBUG · 2026-09-11</a> <span class="past-topic">解放漏れのセマフォ</span></li>
+    <li><a href="/rust/write/2026-09-07">Rust / WRITE · 2026-09-07</a> <span class="past-topic">可変参照で交換</span></li>
+    <li><a href="/rust/debug/2026-09-07">Rust / DEBUG · 2026-09-07</a> <span class="past-topic">局所変数を返す</span></li>
+    <li><a href="/haskell/write/2026-09-07">Haskell / WRITE · 2026-09-07</a> <span class="past-topic">IORefを入れ替える</span></li>
+    <li><a href="/haskell/read/2026-09-07">Haskell / READ · 2026-09-07</a> <span class="past-topic">IORefは別名</span></li>
+    <li><a href="/cpp/write/2026-09-07">C++ / WRITE · 2026-09-07</a> <span class="past-topic">参照で値を交換</span></li>
+    <li><a href="/cpp/read/2026-09-07">C++ / READ · 2026-09-07</a> <span class="past-topic">参照は付け替えない</span></li>
+    <li><a href="/c/write/2026-09-07">C / WRITE · 2026-09-07</a> <span class="past-topic">配列内を指すポインタ</span></li>
+    <li><a href="/c/read/2026-09-07">C / READ · 2026-09-07</a> <span class="past-topic">ポインタの引き算</span></li>
+    <li><a href="/c/debug/2026-09-07">C / DEBUG · 2026-09-07</a> <span class="past-topic">解放後に使う</span></li>
+    <li><a href="/rust/write/2026-08-27">Rust / WRITE · 2026-08-27</a> <span class="past-topic">checked_addで防ぐ</span></li>
+    <li><a href="/rust/read/2026-08-27">Rust / READ · 2026-08-27</a> <span class="past-topic">++がない言語</span></li>
+    <li><a href="/rust/debug/2026-08-27">Rust / DEBUG · 2026-08-27</a> <span class="past-topic">更新のないループ</span></li>
+    <li><a href="/haskell/write/2026-08-27">Haskell / WRITE · 2026-08-27</a> <span class="past-topic">IORefを増やす</span></li>
+    <li><a href="/haskell/read/2026-08-27">Haskell / READ · 2026-08-27</a> <span class="past-topic">succで1つ進める</span></li>
+    <li><a href="/cpp/write/2026-08-27">C++ / WRITE · 2026-08-27</a> <span class="past-topic">++の正しい定義</span></li>
+    <li><a href="/cpp/read/2026-08-27">C++ / READ · 2026-08-27</a> <span class="past-topic">前置と後置の++</span></li>
+    <li><a href="/cpp/debug/2026-08-27">C++ / DEBUG · 2026-08-27</a> <span class="past-topic">後置++の戻り値</span></li>
+    <li><a href="/c/write/2026-08-27">C / WRITE · 2026-08-27</a> <span class="past-topic">*dst++ = *src++</span></li>
+    <li><a href="/haskell/write/2026-08-25">Haskell / WRITE · 2026-08-25</a> <span class="past-topic">フィールドの順で比較</span></li>
+    <li><a href="/haskell/debug/2026-08-25">Haskell / DEBUG · 2026-08-25</a> <span class="past-topic">derive できない型</span></li>
+    <li><a href="/c/write/2026-08-25">C / WRITE · 2026-08-25</a> <span class="past-topic">計算済みフラグ</span></li>
+    <li><a href="/rust/write/2026-08-24">Rust / WRITE · 2026-08-24</a> <span class="past-topic">スライスを回す</span></li>
+    <li><a href="/rust/read/2026-08-24">Rust / READ · 2026-08-24</a> <span class="past-topic">シャドーイング</span></li>
+    <li><a href="/rust/debug/2026-08-24">Rust / DEBUG · 2026-08-24</a> <span class="past-topic">空スライスでパニック</span></li>
+    <li><a href="/haskell/write/2026-08-24">Haskell / WRITE · 2026-08-24</a> <span class="past-topic">末尾をたどる再帰</span></li>
+    <li><a href="/haskell/read/2026-08-24">Haskell / READ · 2026-08-24</a> <span class="past-topic">ガードの並び順</span></li>
+    <li><a href="/haskell/debug/2026-08-24">Haskell / DEBUG · 2026-08-24</a> <span class="past-topic">リスト添字の1つずれ</span></li>
+    <li><a href="/cpp/write/2026-08-24">C++ / WRITE · 2026-08-24</a> <span class="past-topic">範囲forで回す</span></li>
+    <li><a href="/cpp/debug/2026-08-24">C++ / DEBUG · 2026-08-24</a> <span class="past-topic">範囲forの値コピー</span></li>
+    <li><a href="/c/write/2026-08-24">C / WRITE · 2026-08-24</a> <span class="past-topic">文字列をたどる</span></li>
+    <li><a href="/c/read/2026-08-24">C / READ · 2026-08-24</a> <span class="past-topic">短絡評価</span></li>
+    <li><a href="/c/debug/2026-08-24">C / DEBUG · 2026-08-24</a> <span class="past-topic">breakの書き忘れ</span></li>
+    <li><a href="/rust/write/2026-08-23">Rust / WRITE · 2026-08-23</a> <span class="past-topic">Defaultで埋める</span></li>
+    <li><a href="/rust/read/2026-08-23">Rust / READ · 2026-08-23</a> <span class="past-topic">構造体更新記法</span></li>
+    <li><a href="/rust/debug/2026-08-23">Rust / DEBUG · 2026-08-23</a> <span class="past-topic">書き忘れた初期化</span></li>
+    <li><a href="/haskell/write/2026-08-23">Haskell / WRITE · 2026-08-23</a> <span class="past-topic">@で全体を束縛</span></li>
+    <li><a href="/haskell/read/2026-08-23">Haskell / READ · 2026-08-23</a> <span class="past-topic">asパターンの再利用</span></li>
+    <li><a href="/haskell/debug/2026-08-23">Haskell / DEBUG · 2026-08-23</a> <span class="past-topic">@で全体に再帰</span></li>
+    <li><a href="/cpp/debug/2026-08-23">C++ / DEBUG · 2026-08-23</a> <span class="past-topic">variantのswitch</span></li>
+    <li><a href="/c/write/2026-08-23">C / WRITE · 2026-08-23</a> <span class="past-topic">関数ポインタとメモ化</span></li>
+    <li><a href="/c/read/2026-08-23">C / READ · 2026-08-23</a> <span class="past-topic">関数ポインタで動的分岐</span></li>
+    <li><a href="/c/debug/2026-08-23">C / DEBUG · 2026-08-23</a> <span class="past-topic">関数を無視したキャッシュ</span></li>
+    <li><a href="/rust/write/2026-08-22">Rust / WRITE · 2026-08-22</a> <span class="past-topic">ユークリッドの互除法</span></li>
+    <li><a href="/rust/read/2026-08-22">Rust / READ · 2026-08-22</a> <span class="past-topic">asで切り捨てる</span></li>
+    <li><a href="/rust/debug/2026-08-22">Rust / DEBUG · 2026-08-22</a> <span class="past-topic">forで持っていかれる</span></li>
+    <li><a href="/haskell/write/2026-08-22">Haskell / WRITE · 2026-08-22</a> <span class="past-topic">再帰で要素を探す</span></li>
+    <li><a href="/haskell/read/2026-08-22">Haskell / READ · 2026-08-22</a> <span class="past-topic">$演算子</span></li>
+    <li><a href="/haskell/debug/2026-08-22">Haskell / DEBUG · 2026-08-22</a> <span class="past-topic">外れるパターン束縛</span></li>
+    <li><a href="/cpp/write/2026-08-22">C++ / WRITE · 2026-08-22</a> <span class="past-topic">文字列の先頭一致</span></li>
+    <li><a href="/cpp/debug/2026-08-22">C++ / DEBUG · 2026-08-22</a> <span class="past-topic">返してはいけない参照</span></li>
+    <li><a href="/c/write/2026-08-22">C / WRITE · 2026-08-22</a> <span class="past-topic">ポインタで値を交換</span></li>
+    <li><a href="/c/debug/2026-08-22">C / DEBUG · 2026-08-22</a> <span class="past-topic">文字列をポインタ比較</span></li>
+    <li><a href="/rust/write/2026-08-21">Rust / WRITE · 2026-08-21</a> <span class="past-topic">文字列スライス</span></li>
+    <li><a href="/rust/read/2026-08-21">Rust / READ · 2026-08-21</a> <span class="past-topic">所有権の移動</span></li>
+    <li><a href="/rust/debug/2026-08-21">Rust / DEBUG · 2026-08-21</a> <span class="past-topic">可変と不変の同居</span></li>
+    <li><a href="/haskell/write/2026-08-21">Haskell / WRITE · 2026-08-21</a> <span class="past-topic">リストの構造的再帰</span></li>
+    <li><a href="/haskell/read/2026-08-21">Haskell / READ · 2026-08-21</a> <span class="past-topic">評価されないサンク</span></li>
+    <li><a href="/haskell/debug/2026-08-21">Haskell / DEBUG · 2026-08-21</a> <span class="past-topic">基底ケースがない</span></li>
+    <li><a href="/cpp/debug/2026-08-21">C++ / DEBUG · 2026-08-21</a> <span class="past-topic">自己代入で壊れる</span></li>
+    <li><a href="/c/write/2026-08-21">C / WRITE · 2026-08-21</a> <span class="past-topic">文字列の反転</span></li>
+    <li><a href="/c/debug/2026-08-21">C / DEBUG · 2026-08-21</a> <span class="past-topic">1つ多い書き込み</span></li>
+    <li><a href="/rust/write/2026-08-20">Rust / WRITE · 2026-08-20</a> <span class="past-topic">Optionで受ける最大値</span></li>
+    <li><a href="/rust/read/2026-08-20">Rust / READ · 2026-08-20</a> <span class="past-topic">イテレータは遅延</span></li>
+    <li><a href="/rust/debug/2026-08-20">Rust / DEBUG · 2026-08-20</a> <span class="past-topic">二重の可変借用</span></li>
+    <li><a href="/haskell/write/2026-08-20">Haskell / WRITE · 2026-08-20</a> <span class="past-topic">foldlで逆順</span></li>
+    <li><a href="/haskell/read/2026-08-20">Haskell / READ · 2026-08-20</a> <span class="past-topic">無限リストと遅延</span></li>
+    <li><a href="/haskell/debug/2026-08-20">Haskell / DEBUG · 2026-08-20</a> <span class="past-topic">ガードの抜け</span></li>
+    <li><a href="/cpp/write/2026-08-20">C++ / WRITE · 2026-08-20</a> <span class="past-topic">==を定義する</span></li>
+    <li><a href="/c/write/2026-08-20">C / WRITE · 2026-08-20</a> <span class="past-topic">文字の出現回数</span></li>
+    <li><a href="/c/read/2026-08-20">C / READ · 2026-08-20</a> <span class="past-topic">配列のポインタ化</span></li>
+    <li><a href="/c/debug/2026-08-20">C / DEBUG · 2026-08-20</a> <span class="past-topic">局所変数への参照</span></li>
+  </ul>
+
+  <p><a href="/levels">ほかの難易度を見る</a></p>
+</main>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

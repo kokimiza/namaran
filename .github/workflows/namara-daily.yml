@@ -2,11 +2,14 @@
 # a human in the loop. See doc/basic-design.md §9.2 for why it is shaped
 # like this.
 #
-#   write    Claude Code writes the pages with the namara-daily skill. It can
+#   write    Draws each language's topic (script/odai.sh) and each drill's
+#            difficulty (script/level.sh) before Claude starts, then Claude
+#            Code writes the pages with the namara-daily skill. Claude can
 #            run any command here, so nothing this job produces is trusted:
 #            it only hands on a patch and the verification sources.
 #   verify   A fresh runner that Claude never touched. Checks the patch with
-#            script/check-patch.sh (from main, not from the patch), applies
+#            script/check-patch.sh (from main, not from the patch) — which
+#            also holds every page to the difficulty drawn for it — applies
 #            it, and runs script/verify.sh. Read-only, no secrets.
 #   publish  Checks the patch again, applies it on the latest main, re-adds
 #            the archive.html lines, regenerates the topic index and
@@ -59,6 +62,7 @@ jobs:
     outputs:
       date: ${{ steps.plan.outputs.date }}
       combos: ${{ steps.plan.outputs.combos }}
+      levels: ${{ steps.plan.outputs.levels }}
       topics: ${{ steps.plan.outputs.topics }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -66,7 +70,7 @@ jobs:
           persist-credentials: false
 
       # Runs before Claude, so these outputs can't be influenced by it.
-      - name: Decide date, combos and topics
+      - name: Decide date, combos, topics and levels
         id: plan
         env:
           INPUT_DATE: ${{ inputs.date }}
@@ -88,12 +92,21 @@ jobs:
 
           topics="$(./script/odai.sh)"
           topic_of() { printf '%s\n' "$topics" | awk -F'\t' -v l="$1" '$1 == l { print $2 }'; }
+
+          # One independent draw per combo, blind to every earlier day
+          # (script/level.sh). `levels` is the "c/read=whale ..." form that
+          # check-patch.sh holds each page to.
+          level_lines=""
+          # shellcheck disable=SC2086 # combos is a space-separated list
+          [ -z "$combos" ] || level_lines="$(./script/level.sh $combos)"
+          levels="$(printf '%s\n' "$level_lines" | awk -F'\t' 'NF == 2 { printf "%s%s=%s", sep, $1, $2; sep = " " }')"
           verify_dir="$RUNNER_TEMP/namara-verify"
           mkdir -p "$verify_dir"
 
           {
             echo "date=$date"
             echo "combos=$combos"
+            echo "levels=$levels"
             echo "verify_dir=$verify_dir"
             echo "topics<<NAMARA_EOF"
             printf '%s\n' "$topics"
@@ -107,6 +120,9 @@ jobs:
           - C++: $(topic_of cpp)
           - Rust: $(topic_of rust)
           - Haskell: $(topic_of haskell)
+
+          難易度は script/level.sh が組ごとに抽選済み(SKILL.md「難易度」)。各ページはこの難易度で書き、<main> の data-level にこの値を入れる。偏っていても、過去の傾向に合わせて変えない:
+          $(printf '%s\n' "$level_lines" | awk -F'\t' 'NF == 2 { printf "- %s: %s\n", $1, $2 }')
 
           これは GitHub Actions 上の非対話実行である(SKILL.md「非対話実行」を参照)。
           - 検証用ソースは $verify_dir/{lang}/{type}/ に置き、次のコマンドが全件通るまで直す:
@@ -126,6 +142,8 @@ jobs:
               echo "Combos: \`$combos\`"
               echo
               printf '%s\n' "$topics" | awk -F'\t' '{ printf "- **%s**: %s\n", $1, $2 }'
+              echo
+              echo "Levels: \`$levels\`"
             fi
           } >> "$GITHUB_STEP_SUMMARY"
 
@@ -282,10 +300,10 @@ jobs:
       - name: Check the patch
         env:
           DATE: ${{ needs.write.outputs.date }}
-          COMBOS: ${{ needs.write.outputs.combos }}
+          LEVELS: ${{ needs.write.outputs.levels }}
         run: |
-          # shellcheck disable=SC2086 # COMBOS is a space-separated list
-          ./script/check-patch.sh "$DATE" "$RUNNER_TEMP/namara-drop/drills.patch" $COMBOS
+          # shellcheck disable=SC2086 # LEVELS is a space-separated list
+          ./script/check-patch.sh "$DATE" "$RUNNER_TEMP/namara-drop/drills.patch" $LEVELS
 
       - name: Apply the patch
         run: git apply --index "$RUNNER_TEMP/namara-drop/drills.patch"
@@ -333,6 +351,7 @@ jobs:
         env:
           DATE: ${{ needs.write.outputs.date }}
           COMBOS: ${{ needs.write.outputs.combos }}
+          LEVELS: ${{ needs.write.outputs.levels }}
           TOPICS: ${{ needs.write.outputs.topics }}
         run: |
           set -euo pipefail
@@ -344,8 +363,8 @@ jobs:
           for attempt in 1 2 3; do
             git fetch --quiet origin main
             git reset --quiet --hard origin/main
-            # shellcheck disable=SC2086 # COMBOS is a space-separated list
-            ./script/check-patch.sh "$DATE" "$patch_file" $COMBOS
+            # shellcheck disable=SC2086 # LEVELS is a space-separated list
+            ./script/check-patch.sh "$DATE" "$patch_file" $LEVELS
             git apply --index --exclude='*/archive.html' "$patch_file"
             # shellcheck disable=SC2086
             ./script/content.sh new "$DATE" $COMBOS
@@ -353,13 +372,15 @@ jobs:
             ./script/sitemap.sh
             # -A so a tag page that lost its last drill is staged as a
             # deletion, not left behind.
-            git add -A -- */*/archive.html topics.html tag script/tags.tsv sitemap.xml
+            git add -A -- */*/archive.html topics.html tag levels.html level script/tags.tsv sitemap.xml
             git commit --quiet -F - <<MSG
           ${DATE//-/}
 
           Written by the namara-daily workflow (Claude Code, namara-daily skill)
           and checked by script/check-patch.sh and script/verify.sh. Topics:
           $(printf '%s\n' "$TOPICS" | sed 's/^/  /')
+          Levels:
+          $(printf '%s\n' $LEVELS | sed 's/^/  /')
           MSG
             git push origin HEAD:main && exit 0
             echo "push rejected (attempt $attempt); retrying on the new origin/main"

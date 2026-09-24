@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Namaranの難易度「孔雀（初級）」のコーディングドリル82問。規則を1つ正確に思い出すか、数ステップ追う。">
+<title>孔雀（初級）</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/level/peacock">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+    { "@type": "ListItem", "position": 2, "name": "難易度から探す", "item": "https://namaran.jocarium.productions/levels" },
+    { "@type": "ListItem", "position": 3, "name": "孔雀（初級）" }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<main>
+  <h2><span class="level" data-level="peacock" aria-hidden="true"></span>孔雀（初級）</h2>
+
+  <p class="lede">
+    孔雀（初級）のドリル82問。規則を1つ正確に思い出すか、数ステップ追う。毎日の抽選で出る確率は27.6%です。
+  </p>
+
+  <ul class="past-list">
+    <li><a href="/rust/debug/2026-09-24">Rust / DEBUG · 2026-09-24</a> <span class="past-topic">削除で飛ばす要素</span></li>
+    <li><a href="/cpp/write/2026-09-24">C++ / WRITE · 2026-09-24</a> <span class="past-topic">mutableなラムダ</span></li>
+    <li><a href="/c/write/2026-09-24">C / WRITE · 2026-09-24</a> <span class="past-topic">エスケープを戻す</span></li>
+    <li><a href="/c/read/2026-09-24">C / READ · 2026-09-24</a> <span class="past-topic">エスケープの出力</span></li>
+    <li><a href="/rust/write/2026-09-23">Rust / WRITE · 2026-09-23</a> <span class="past-topic">再帰でセグメント木</span></li>
+    <li><a href="/rust/read/2026-09-23">Rust / READ · 2026-09-23</a> <span class="past-topic">Boxで作る木</span></li>
+    <li><a href="/rust/debug/2026-09-23">Rust / DEBUG · 2026-09-23</a> <span class="past-topic">半開区間の取り違え</span></li>
+    <li><a href="/haskell/debug/2026-09-23">Haskell / DEBUG · 2026-09-23</a> <span class="past-topic">未コミットまで再生</span></li>
+    <li><a href="/cpp/read/2026-09-23">C++ / READ · 2026-09-23</a> <span class="past-topic">値渡しで起きる切断</span></li>
+    <li><a href="/cpp/debug/2026-09-23">C++ / DEBUG · 2026-09-23</a> <span class="past-topic">vectorで起きる切断</span></li>
+    <li><a href="/c/read/2026-09-23">C / READ · 2026-09-23</a> <span class="past-topic">いもす法と累積和</span></li>
+    <li><a href="/haskell/write/2026-09-22">Haskell / WRITE · 2026-09-22</a> <span class="past-topic">整数で小数を表す</span></li>
+    <li><a href="/haskell/read/2026-09-22">Haskell / READ · 2026-09-22</a> <span class="past-topic">divは負の無限方向</span></li>
+    <li><a href="/haskell/debug/2026-09-22">Haskell / DEBUG · 2026-09-22</a> <span class="past-topic">truncateとround</span></li>
+    <li><a href="/cpp/read/2026-09-22">C++ / READ · 2026-09-22</a> <span class="past-topic">staticの構築と破棄</span></li>
+    <li><a href="/c/write/2026-09-22">C / WRITE · 2026-09-22</a> <span class="past-topic">計数ソートを書く</span></li>
+    <li><a href="/c/read/2026-09-21">C / READ · 2026-09-21</a> <span class="past-topic">sscanfの戻り値</span></li>
+    <li><a href="/haskell/debug/2026-09-20">Haskell / DEBUG · 2026-09-20</a> <span class="past-topic">(- 1)は負の数</span></li>
+    <li><a href="/cpp/read/2026-09-20">C++ / READ · 2026-09-20</a> <span class="past-topic">一時オブジェクトの寿命</span></li>
+    <li><a href="/cpp/debug/2026-09-20">C++ / DEBUG · 2026-09-20</a> <span class="past-topic">一時値への参照を返す</span></li>
+    <li><a href="/c/debug/2026-09-20">C / DEBUG · 2026-09-20</a> <span class="past-topic">符号ビットへのシフト</span></li>
+    <li><a href="/rust/write/2026-09-19">Rust / WRITE · 2026-09-19</a> <span class="past-topic">asとシフトの括弧</span></li>
+    <li><a href="/rust/read/2026-09-19">Rust / READ · 2026-09-19</a> <span class="past-topic">-x.abs()の優先順位</span></li>
+    <li><a href="/cpp/read/2026-09-19">C++ / READ · 2026-09-19</a> <span class="past-topic">負の数の除算と剰余</span></li>
+    <li><a href="/cpp/debug/2026-09-19">C++ / DEBUG · 2026-09-19</a> <span class="past-topic">負の剰余で添字が壊れる</span></li>
+    <li><a href="/c/write/2026-09-19">C / WRITE · 2026-09-19</a> <span class="past-topic">第2キーで同点処理</span></li>
+    <li><a href="/c/debug/2026-09-19">C / DEBUG · 2026-09-19</a> <span class="past-topic">引き算の比較関数</span></li>
+    <li><a href="/rust/read/2026-09-18">Rust / READ · 2026-09-18</a> <span class="past-topic">+は左辺をムーブ</span></li>
+    <li><a href="/rust/debug/2026-09-18">Rust / DEBUG · 2026-09-18</a> <span class="past-topic">毎回作り直す文字列</span></li>
+    <li><a href="/haskell/write/2026-09-18">Haskell / WRITE · 2026-09-18</a> <span class="past-topic">ガードの中のlet</span></li>
+    <li><a href="/haskell/read/2026-09-18">Haskell / READ · 2026-09-18</a> <span class="past-topic">caseのガード落ち</span></li>
+    <li><a href="/haskell/debug/2026-09-18">Haskell / DEBUG · 2026-09-18</a> <span class="past-topic">otherwiseの正体</span></li>
+    <li><a href="/cpp/write/2026-09-18">C++ / WRITE · 2026-09-18</a> <span class="past-topic">if constexprで分岐</span></li>
+    <li><a href="/cpp/read/2026-09-18">C++ / READ · 2026-09-18</a> <span class="past-topic">2つのvariantを訪問</span></li>
+    <li><a href="/cpp/debug/2026-09-18">C++ / DEBUG · 2026-09-18</a> <span class="past-topic">取りこぼしたvisit</span></li>
+    <li><a href="/haskell/read/2026-09-16">Haskell / READ · 2026-09-16</a> <span class="past-topic">zipWithで数列</span></li>
+    <li><a href="/c/write/2026-09-16">C / WRITE · 2026-09-16</a> <span class="past-topic">配列へのポインタ引数</span></li>
+    <li><a href="/rust/write/2026-09-15">Rust / WRITE · 2026-09-15</a> <span class="past-topic">let chains</span></li>
+    <li><a href="/rust/read/2026-09-15">Rust / READ · 2026-09-15</a> <span class="past-topic">orパターンとガード</span></li>
+    <li><a href="/rust/debug/2026-09-15">Rust / DEBUG · 2026-09-15</a> <span class="past-topic">matchが全部拾う</span></li>
+    <li><a href="/haskell/write/2026-09-15">Haskell / WRITE · 2026-09-15</a> <span class="past-topic">パターンガード</span></li>
+    <li><a href="/cpp/write/2026-09-15">C++ / WRITE · 2026-09-15</a> <span class="past-topic">if文の初期化子</span></li>
+    <li><a href="/cpp/read/2026-09-15">C++ / READ · 2026-09-15</a> <span class="past-topic">三項演算子が左辺</span></li>
+    <li><a href="/cpp/debug/2026-09-15">C++ / DEBUG · 2026-09-15</a> <span class="past-topic">switchで初期化を飛ぶ</span></li>
+    <li><a href="/c/write/2026-09-15">C / WRITE · 2026-09-15</a> <span class="past-topic">意図したフォールスルー</span></li>
+    <li><a href="/rust/write/2026-09-14">Rust / WRITE · 2026-09-14</a> <span class="past-topic">ラベル付きbreak</span></li>
+    <li><a href="/haskell/write/2026-09-14">Haskell / WRITE · 2026-09-14</a> <span class="past-topic">whileを関数で書く</span></li>
+    <li><a href="/haskell/read/2026-09-14">Haskell / READ · 2026-09-14</a> <span class="past-topic">returnは戻らない</span></li>
+    <li><a href="/haskell/debug/2026-09-14">Haskell / DEBUG · 2026-09-14</a> <span class="past-topic">letは再帰する</span></li>
+    <li><a href="/c/write/2026-09-14">C / WRITE · 2026-09-14</a> <span class="past-topic">符号なしcharの全域</span></li>
+    <li><a href="/c/read/2026-09-14">C / READ · 2026-09-14</a> <span class="past-topic">do-whileの継続</span></li>
+    <li><a href="/rust/read/2026-09-13">Rust / READ · 2026-09-13</a> <span class="past-topic">スライスパターン再帰</span></li>
+    <li><a href="/haskell/read/2026-09-13">Haskell / READ · 2026-09-13</a> <span class="past-topic">自分を参照するリスト</span></li>
+    <li><a href="/cpp/write/2026-09-13">C++ / WRITE · 2026-09-13</a> <span class="past-topic">コンパイル時の再帰</span></li>
+    <li><a href="/cpp/read/2026-09-13">C++ / READ · 2026-09-13</a> <span class="past-topic">パラメータパック再帰</span></li>
+    <li><a href="/c/read/2026-09-13">C / READ · 2026-09-13</a> <span class="past-topic">再帰とコールスタック</span></li>
+    <li><a href="/c/debug/2026-09-13">C / DEBUG · 2026-09-13</a> <span class="past-topic">returnの書き忘れ</span></li>
+    <li><a href="/rust/write/2026-09-12">Rust / WRITE · 2026-09-12</a> <span class="past-topic">等値判定の行き過ぎ</span></li>
+    <li><a href="/rust/read/2026-09-12">Rust / READ · 2026-09-12</a> <span class="past-topic">代入式の型は()</span></li>
+    <li><a href="/rust/read/2026-09-11">Rust / READ · 2026-09-11</a> <span class="past-topic">0除算とinf</span></li>
+    <li><a href="/rust/read/2026-09-07">Rust / READ · 2026-09-07</a> <span class="past-topic">参照同士の比較</span></li>
+    <li><a href="/haskell/debug/2026-09-07">Haskell / DEBUG · 2026-09-07</a> <span class="past-topic">共有された IORef</span></li>
+    <li><a href="/haskell/debug/2026-08-27">Haskell / DEBUG · 2026-08-27</a> <span class="past-topic">たまるサンクの鎖</span></li>
+    <li><a href="/c/read/2026-08-27">C / READ · 2026-08-27</a> <span class="past-topic">n --&gt; 0 の正体</span></li>
+    <li><a href="/c/debug/2026-08-27">C / DEBUG · 2026-08-27</a> <span class="past-topic">a[i] = i++ の順序</span></li>
+    <li><a href="/rust/write/2026-08-25">Rust / WRITE · 2026-08-25</a> <span class="past-topic">トレイトの複製</span></li>
+    <li><a href="/rust/read/2026-08-25">Rust / READ · 2026-08-25</a> <span class="past-topic">dyn互換なトレイト</span></li>
+    <li><a href="/rust/debug/2026-08-25">Rust / DEBUG · 2026-08-25</a> <span class="past-topic">dyn互換が壊れる</span></li>
+    <li><a href="/haskell/read/2026-08-25">Haskell / READ · 2026-08-25</a> <span class="past-topic">Ordは宣言順</span></li>
+    <li><a href="/cpp/read/2026-08-25">C++ / READ · 2026-08-25</a> <span class="past-topic">畳み込みの向き</span></li>
+    <li><a href="/cpp/debug/2026-08-25">C++ / DEBUG · 2026-08-25</a> <span class="past-topic">空パックの基底</span></li>
+    <li><a href="/c/read/2026-08-25">C / READ · 2026-08-25</a> <span class="past-topic">メモ化した再帰</span></li>
+    <li><a href="/c/debug/2026-08-25">C / DEBUG · 2026-08-25</a> <span class="past-topic">番兵値の衝突</span></li>
+    <li><a href="/cpp/read/2026-08-24">C++ / READ · 2026-08-24</a> <span class="past-topic">const参照と寿命延長</span></li>
+    <li><a href="/cpp/write/2026-08-23">C++ / WRITE · 2026-08-23</a> <span class="past-topic">variantを整形する</span></li>
+    <li><a href="/cpp/read/2026-08-23">C++ / READ · 2026-08-23</a> <span class="past-topic">visitで型ごとに分岐</span></li>
+    <li><a href="/cpp/read/2026-08-22">C++ / READ · 2026-08-22</a> <span class="past-topic">関数内staticの初期化</span></li>
+    <li><a href="/c/read/2026-08-22">C / READ · 2026-08-22</a> <span class="past-topic">&amp;と==の優先順位</span></li>
+    <li><a href="/cpp/write/2026-08-21">C++ / WRITE · 2026-08-21</a> <span class="past-topic">ムーブコンストラクタ</span></li>
+    <li><a href="/cpp/read/2026-08-21">C++ / READ · 2026-08-21</a> <span class="past-topic">メンバの初期化順序</span></li>
+    <li><a href="/c/read/2026-08-21">C / READ · 2026-08-21</a> <span class="past-topic">符号つきと符号なしの比較</span></li>
+    <li><a href="/cpp/debug/2026-08-20">C++ / DEBUG · 2026-08-20</a> <span class="past-topic">eraseで壊れる反復子</span></li>
+  </ul>
+
+  <p><a href="/levels">ほかの難易度を見る</a></p>
+</main>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

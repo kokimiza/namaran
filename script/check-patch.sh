@@ -9,7 +9,12 @@
 # rejected; it never tries to repair a patch.
 #
 # Usage:
-#   script/check-patch.sh DATE PATCH_FILE LANG/TYPE ...
+#   script/check-patch.sh DATE PATCH_FILE LANG/TYPE[=LEVEL] ...
+#
+#   LEVEL is the difficulty script/level.sh drew for that combo before
+#   Claude ran (hedgehog, peacock, bison or whale). When it is given, the
+#   page must carry exactly that level: a drill does not get to be easier
+#   than the day's draw said.
 #
 # A patch passes only if all of the following hold:
 #   * DATE is YYYY-MM-DD and every LANG/TYPE is one of the 12 combos
@@ -23,7 +28,9 @@
 #     tags the day's own pages use (doc/basic-design.md §7.4)
 #   * each new page carries its topic metadata on <main> (data-topic,
 #     data-tags, data-concepts — doc/basic-design.md §7.1, §7.4) in the
-#     shape script/topics.sh will copy into the archives and topics.html
+#     shape script/topics.sh will copy into the archives and topics.html,
+#     and its difficulty (data-level), matching the drawn LEVEL if one was
+#     given
 #   * each new page, as the patch creates it, contains no active or external
 #     content: no <script> other than the one JSON-LD block, no inline event
 #     handlers, no javascript: URLs, no <iframe>/<object>/<embed>/<form>/
@@ -35,7 +42,7 @@
 set -euo pipefail
 
 usage() {
-  sed -n '2,32p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+  sed -n '2,40p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
 }
 
 case "${1:-}" in
@@ -51,6 +58,7 @@ from html.parser import HTMLParser
 SITE = "https://namaran.jocarium.productions"
 LANGS = ("c", "cpp", "rust", "haskell")
 TYPES = ("read", "write", "debug")
+LEVELS = ("hedgehog", "peacock", "bison", "whale")
 
 SITE_TAGS = "script/tags.tsv"
 TAGS_FILE = SITE_TAGS
@@ -65,12 +73,16 @@ def fail(msg):
 
 if not re.fullmatch(r"\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])", date):
     sys.exit(f"error: not a YYYY-MM-DD date: {date!r}")
-allowed_pages, allowed_archives = {}, {}
+allowed_pages, allowed_archives, drawn_levels = {}, {}, {}
 for combo in combos:
+    combo, _, level = combo.partition("=")
     lang, _, typ = combo.partition("/")
     if lang not in LANGS or typ not in TYPES:
         sys.exit(f"error: not a LANG/TYPE combo: {combo!r}")
+    if level and level not in LEVELS:
+        sys.exit(f"error: not a level ({', '.join(LEVELS)}): {level!r}")
     allowed_pages[f"{lang}/{typ}/{date}.html"] = (lang, typ)
+    drawn_levels[f"{lang}/{typ}/{date}.html"] = level
     allowed_archives[f"{lang}/{typ}/archive.html"] = (lang, typ)
 
 with open(patch_file, "rb") as f:
@@ -190,7 +202,7 @@ for sec in sections:
     # quiet (doc/basic-design.md §7.1). script/topics.sh copies these into
     # the archive lists and topics.html, so they are checked here, at the
     # boundary, before anything written by the write job reaches a page.
-    main_attrs = {"data-topic", "data-tags", "data-concepts"}
+    main_attrs = {"data-topic", "data-tags", "data-concepts", "data-level"}
     tag_re = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\Z")
 
     def check_main(attrs):
@@ -211,6 +223,11 @@ for sec in sections:
         concepts = [c.strip() for c in (d.get("data-concepts") or "").split(",") if c.strip()]
         if not 2 <= len(concepts) <= 12 or any(len(c) > 60 for c in concepts):
             fail(f"{path}: data-concepts must hold 2-12 wordings of at most 60 characters")
+        level = d.get("data-level")
+        if level not in LEVELS:
+            fail(f"{path}: data-level must be one of {', '.join(LEVELS)}, got {level!r}")
+        elif drawn_levels[path] and level != drawn_levels[path]:
+            fail(f"{path}: data-level is {level!r}, but the draw for this drill was {drawn_levels[path]!r}")
         for value in d.values():
             if re.search(r"[\x00-\x1f\x7f]", value or ""):
                 fail(f"{path}: control character in a <main> attribute")

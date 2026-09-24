@@ -65,7 +65,7 @@ published_dates() {
 }
 
 render() {
-  local today lang type dates newest date tag_file tag
+  local today lang type dates newest date tag_file tag level
   today="$(TZ=Asia/Tokyo date +%Y-%m-%d)"
 
   echo '<?xml version="1.0" encoding="UTF-8"?>'
@@ -74,6 +74,14 @@ render() {
   # No lastmod, same as the root page: both change whenever anything is
   # published, and a date that is right by accident is worth less than none.
   printf '  <url><loc>%s/topics</loc></url>\n' "$SITE_ORIGIN"
+  printf '  <url><loc>%s/levels</loc></url>\n' "$SITE_ORIGIN"
+
+  # One page per difficulty, also written by script/topics.sh. The four
+  # levels are a fixed list, like the languages and types below.
+  for level in hedgehog peacock bison whale; do
+    [ -f "$ROOT_DIR/level/$level.html" ] || continue
+    printf '  <url><loc>%s/level/%s</loc></url>\n' "$SITE_ORIGIN" "$level"
+  done
 
   # One page per tag, written by script/topics.sh. The file name is the tag,
   # and a tag is kebab-case ASCII by construction (§7.4); anything else is

@@ -1,6 +1,7 @@
 # Keeps the generated files in step with what is published: sitemap.xml, the
-# topic line on every archive entry, and the topic index — topics.html and
-# one page per tag under tag/ (script/topics.sh).
+# topic line on every archive entry, and the indexes — topics.html with one
+# page per tag under tag/, and levels.html with one page per difficulty under
+# level/ (script/topics.sh).
 #
 # The daily workflow regenerates them in its own publish job, so this one is
 # for the other cases: a drill pushed by hand, and a page whose date was in
@@ -54,7 +55,7 @@ jobs:
             ./script/sitemap.sh
             # Staged, not `git diff`: topics.html may not be tracked yet on
             # an older main, and an untracked file is invisible to git diff.
-            git add -A -- sitemap.xml topics.html tag script/tags.tsv "*/*/archive.html"
+            git add -A -- sitemap.xml topics.html tag levels.html level script/tags.tsv "*/*/archive.html"
             if git diff --cached --quiet; then
               echo "the generated files are already up to date"
               exit 0

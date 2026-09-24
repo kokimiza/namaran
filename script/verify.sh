@@ -45,8 +45,9 @@
 # at most 15 characters and the page's whole <title> — plus data-tags, which
 # must all be named in script/tags.tsv, data-concepts, the meta description
 # and the JSON-LD about.name / keywords / description — see
-# doc/basic-design.md §7.1 and §7.4), lang-nav/type-nav point at the same
-# date, the archive.html line exists,
+# doc/basic-design.md §7.1 and §7.4), data-level is one of the four
+# difficulty animals (hedgehog, peacock, bison, whale — §7.1),
+# lang-nav/type-nav point at the same date, the archive.html line exists,
 # <code> contents are HTML-escaped (the highlighter's <span>s aside), every
 # non-comment line of every <pre class="code"> block appears (ignoring
 # indentation) in one of that combo's ok/ng/bug files — so the code readers
@@ -77,7 +78,7 @@ GHC="${NAMARA_GHC:-ghc}"
 HLINT="${NAMARA_HLINT:-hlint}"
 
 usage() {
-  sed -n '2,62p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+  sed -n '2,64p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
 }
 
 code_ext() {
@@ -327,6 +328,12 @@ if len(set(tags)) != len(tags):
     problems.append("data-tags repeats a tag")
 if len(concepts) < 2:
     problems.append("data-concepts needs at least two wordings (Japanese and English)")
+
+# The difficulty the day's draw gave this drill (script/level.sh). style.css
+# turns it into the animal next to the date, and script/topics.sh puts the
+# same animal on the archive and tag lines.
+if attrs.get("data-level") not in ("hedgehog", "peacock", "bison", "whale"):
+    problems.append(f"data-level must be hedgehog, peacock, bison or whale, got {attrs.get('data-level')!r}")
 
 # The whole <title> is the topic: 15 characters is what a browser tab and a
 # search result show without truncating (doc/basic-design.md §7.1).

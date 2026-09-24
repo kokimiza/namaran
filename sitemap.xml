@@ -2,6 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://namaran.jocarium.productions/</loc></url>
   <url><loc>https://namaran.jocarium.productions/topics</loc></url>
+  <url><loc>https://namaran.jocarium.productions/levels</loc></url>
+  <url><loc>https://namaran.jocarium.productions/level/hedgehog</loc></url>
+  <url><loc>https://namaran.jocarium.productions/level/peacock</loc></url>
+  <url><loc>https://namaran.jocarium.productions/level/bison</loc></url>
+  <url><loc>https://namaran.jocarium.productions/level/whale</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/array</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/as-pattern</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/base-case</loc></url>

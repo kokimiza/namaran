@@ -11,6 +11,10 @@
 #   topics.html                  every tag, named in Japanese
 #   tag/{slug}.html              one page per tag, listing every drill that
 #                                touches that concept
+#   levels.html                  the four difficulty animals, with counts
+#   level/{level}.html           one page per difficulty, listing every drill
+#                                drawn at that level (the animal's .svg sits
+#                                beside it; that one is drawn by hand)
 #
 # A drill page itself stays quiet: it shows a date, a filename and code, and
 # carries its subject as metadata only (doc/basic-design.md §7.1). Naming
@@ -19,7 +23,8 @@
 # naming it is exactly what is wanted (§7.3).
 #
 # Usage:
-#   script/topics.sh           rewrite the archive lists, topics.html, tag/
+#   script/topics.sh           rewrite the archive lists, topics.html, tag/,
+#                              levels.html and level/*.html
 #   script/topics.sh --check   exit 1 if any of them is not up to date
 #   script/topics.sh --tags    print the tag vocabulary, most used first
 #
@@ -35,6 +40,11 @@
 #   concepts  <main data-concepts="…">, comma separated. The natural-language
 #             wording of the same subject, printed on the tag pages so that a
 #             reader searching "値渡し" or "pass by value" lands somewhere.
+#   level     <main data-level="…">: hedgehog, peacock, bison or whale, the
+#             difficulty script/level.sh drew for the drill. Every archive and
+#             tag line carries the same animal the drill page shows next to
+#             its date (style.css draws both from /level/{level}.svg), with
+#             its Japanese name as the accessible label.
 #
 # script/tags.tsv is the tag vocabulary: "slug<TAB>日本語の名前", one per
 # line. This script rewrites it sorted and deduplicated, so a new tag can be
@@ -58,7 +68,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 usage() {
-  sed -n '2,52p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+  sed -n '2,63p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
 }
 
 case "${1:-}" in
@@ -79,6 +89,22 @@ mode = sys.argv[2]
 SITE = "https://namaran.jocarium.productions"
 LANGS = {"c": "C", "cpp": "C++", "rust": "Rust", "haskell": "Haskell"}
 TYPES = {"read": "READ", "write": "WRITE", "debug": "DEBUG"}
+# Difficulty, easiest first: the animal and the level it stands for
+# (doc/requirements.md §7).
+LEVELS = {
+    "hedgehog": ("ハリネズミ", "基礎"),
+    "peacock": ("孔雀", "初級"),
+    "bison": ("バイソン", "中級"),
+    "whale": ("クジラ", "上級"),
+}
+# What each level asks of the reader, and how often the daily draw
+# (script/level.sh) lands on it — doc/requirements.md §7.1.
+LEVEL_NOTES = {
+    "hedgehog": ("読んだそばから答えが出る。関わる規則は1つ", "44.7%"),
+    "peacock": ("規則を1つ正確に思い出すか、数ステップ追う", "27.6%"),
+    "bison": ("2つ以上の規則が絡む。実務で一度踏んで覚える罠", "17.1%"),
+    "whale": ("言語の深い部分を複数組み合わせて初めて解ける", "10.6%"),
+}
 
 TAG_RE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\Z")
 MAX_TOPIC = 15
@@ -147,8 +173,12 @@ def read_drill(lang, typ, date):
         for c in attrs.get("data-concepts", "").split(",")
         if c.strip()
     ]
+
+    level = attrs.get("data-level")
+    if level not in LEVELS:
+        die(f"{where}: data-level must be one of {', '.join(LEVELS)}, got {level!r}")
     return {"lang": lang, "type": typ, "date": date, "topic": topic,
-            "tags": tags, "concepts": concepts}
+            "tags": tags, "concepts": concepts, "level": level}
 
 
 def published_dates(lang, typ):
@@ -163,6 +193,15 @@ def published_dates(lang, typ):
 
 def e(text):
     return html.escape(text, quote=False)
+
+
+def level_mark(level):
+    """The difficulty animal. style.css paints it; the label is for whoever
+    can't see it, and the tooltip for whoever doesn't know the animals yet."""
+    animal, grade = LEVELS[level]
+    label = f"{animal}（{grade}）"
+    return (f'<span class="level" data-level="{level}" role="img"'
+            f' aria-label="{label}" title="{label}"></span>')
 
 
 labels = read_labels()
@@ -201,7 +240,7 @@ def render_archive(lang, typ):
         d = next(x for x in drills
                  if (x["lang"], x["type"], x["date"]) == (lang, typ, date))
         lines.append(
-            f'    <li><a href="/{lang}/{typ}/{date}">{date}</a>'
+            f'    <li><a href="/{lang}/{typ}/{date}">{date}</a> {level_mark(d["level"])}'
             f' <span class="past-topic">{e(d["topic"])}</span></li>'
         )
     block = '  <ul class="past-list">\n' + "\n".join(lines) + "\n  </ul>"
@@ -267,7 +306,7 @@ def drill_line(d):
     concepts = ""
     if d["concepts"]:
         concepts = f' <span class="past-concepts">{e(", ".join(d["concepts"]))}</span>'
-    return (f'    <li><a href="/{d["lang"]}/{d["type"]}/{d["date"]}">{where}</a>'
+    return (f'    <li><a href="/{d["lang"]}/{d["type"]}/{d["date"]}">{where}</a> {level_mark(d["level"])}'
             f' <span class="past-topic">{e(d["topic"])}</span>{concepts}</li>')
 
 
@@ -292,7 +331,7 @@ def render_tag_page(tag, entries):
     body = f"""  <h2>{e(name)}</h2>
 
   <p class="lede">
-    「{e(name)}」を扱った{len(entries)}問。日付を開くと、その日のドリルがそのまま読めます。
+    「{e(name)}」を扱った{len(entries)}問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
@@ -310,6 +349,81 @@ def render_tag_page(tag, entries):
     )
 
 
+by_level = {level: [] for level in LEVELS}
+for d in drills:
+    by_level[d["level"]].append(d)
+
+
+def level_listing():
+    """The four animals on /levels, easiest first, each linking to its own page."""
+    items = "\n".join(
+        f'    <li><a href="/level/{level}"><span class="level" data-level="{level}" aria-hidden="true"></span>'
+        f'{animal}</a> <span class="tag-count">{grade} · {len(by_level[level])}</span></li>'
+        for level, (animal, grade) in LEVELS.items()
+    )
+    return f'  <ul class="past-list tag-list level-list">\n{items}\n  </ul>'
+
+
+def render_levels_index():
+    """/levels — the difficulty counterpart of /topics."""
+    body = f"""  <h2>難易度から探す</h2>
+
+  <p class="lede">
+    過去に出したドリルを、難易度から辿るための索引です。難易度は星ではなく4匹の動物で表していて、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。数字はその難易度の問題数です。
+  </p>
+
+{level_listing()}
+
+  <p>
+    毎日の12問の難易度は、1問ずつ独立に抽選で決まります。出る確率はハリネズミ44.7%・孔雀27.6%・バイソン17.1%・クジラ10.6%で、1段ごとに黄金比で割った値です。過去の傾向は見ないので、12問すべてがクジラの日もあります。
+  </p>"""
+    return root / "levels.html", shell(
+        title="難易度から探す",
+        description="Namaranの過去のドリルを難易度から探す索引。ハリネズミ(基礎)・孔雀(初級)・バイソン(中級)・クジラ(上級)の4段階で、C・C++・Rust・Haskellのドリルをまとめています。",
+        canonical=f"{SITE}/levels",
+        breadcrumb=[("Namaran", f"{SITE}/"), ("難易度から探す", None)],
+        body=body,
+    )
+
+
+def render_level_page(level):
+    """/level/{level} — every drill drawn at one difficulty, newest first.
+
+    A line is an archive line with the language and type in front: the
+    animal is the same on every line, so it is said once, in the heading.
+    """
+    animal, grade = LEVELS[level]
+    note, odds = LEVEL_NOTES[level]
+    entries = sorted(by_level[level], key=lambda d: (d["date"], d["lang"], d["type"]), reverse=True)
+    if entries:
+        lines = "\n".join(
+            f'    <li><a href="/{d["lang"]}/{d["type"]}/{d["date"]}">'
+            f'{LANGS[d["lang"]]} / {TYPES[d["type"]]} · {d["date"]}</a>'
+            f' <span class="past-topic">{e(d["topic"])}</span></li>'
+            for d in entries
+        )
+        listing = f'  <ul class="past-list">\n{lines}\n  </ul>'
+    else:
+        listing = "  <p>まだこの難易度のドリルはありません。</p>"
+    body = f"""  <h2><span class="level" data-level="{level}" aria-hidden="true"></span>{animal}（{grade}）</h2>
+
+  <p class="lede">
+    {animal}（{grade}）のドリル{len(entries)}問。{note}。毎日の抽選で出る確率は{odds}です。
+  </p>
+
+{listing}
+
+  <p><a href="/levels">ほかの難易度を見る</a></p>"""
+    return root / "level" / f"{level}.html", shell(
+        title=f"{animal}（{grade}）",
+        description=f"Namaranの難易度「{animal}（{grade}）」のコーディングドリル{len(entries)}問。{note}。",
+        canonical=f"{SITE}/level/{level}",
+        breadcrumb=[("Namaran", f"{SITE}/"), ("難易度から探す", f"{SITE}/levels"),
+                    (f"{animal}（{grade}）", None)],
+        body=body,
+    )
+
+
 def render_topics_index():
     if tag_order:
         items = "\n".join(
@@ -321,25 +435,13 @@ def render_topics_index():
     else:
         listing = "  <p>まだタグの付いたドリルがありません。</p>"
 
-    archives = "\n".join(
-        f'    <li><a href="/{lang}/{typ}/archive">{LANGS[lang]} / {TYPES[typ]}</a></li>'
-        for lang in LANGS for typ in TYPES
-    )
     body = f"""  <h2>お題から探す</h2>
 
   <p class="lede">
-    過去に出したドリルを、扱っているお題から辿るための索引です。解く画面にはお題の名前を出していないので、探すのはここから。数字はその題の問題数です。
+    過去に出したドリルを、扱っているお題から辿るための索引です。解く画面にはお題の名前を出していないので、探すのはここから。
   </p>
 
-{listing}
-
-  <h2>日付から探す</h2>
-  <p>
-    日付から辿るなら、言語と種別ごとのアーカイブへ。
-  </p>
-  <ul class="past-list">
-{archives}
-  </ul>"""
+{listing}"""
     return root / "topics.html", shell(
         title="お題から探す",
         description="Namaranの過去のドリルを、扱っているお題から探す索引。C・C++・Rust・Haskellの読む・書く・直すドリルを、お題ごとにまとめています。",
@@ -352,6 +454,10 @@ def render_topics_index():
 outputs = [render_archive(lang, typ) for lang in LANGS for typ in TYPES]
 outputs.append(render_topics_index())
 outputs.extend(render_tag_page(tag, entries) for tag, entries in sorted(by_tag.items()))
+outputs.append(render_levels_index())
+# Always all four, even a level nothing has been drawn at yet: the set of
+# levels is fixed, so level/ never has a page to remove.
+outputs.extend(render_level_page(level) for level in LEVELS)
 # The vocabulary file is normalized here, so a new tag can be appended to the
 # end of it by hand and still land in the right place.
 outputs.append((TAGS_FILE, "".join(f"{s}\t{labels[s]}\n" for s in sorted(labels))))

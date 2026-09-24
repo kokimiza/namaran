@@ -751,6 +751,69 @@ main > .past-list:has(.past-topic):not(:has(.past-concepts)) {
   color: var(--ink-muted);
 }
 
+/* ---------- difficulty: four animals ----------
+   Hedgehog, peacock, bison, whale — easiest to hardest (doc/requirements.md
+   §7). Each is a silhouette in /level/ used as a mask, so the animal is inked
+   in the colour of the text around it, like a glyph, and stays one colour on
+   a page that allows one accent.
+
+   A drill page says nothing but <main data-level="…">: the animal is drawn
+   here, at the far end of the date's hairline, so no published page carries
+   markup for it. The index pages spell it out as <span class="level"> with
+   an accessible name, because they list many drills at once
+   (script/topics.sh). The feet sit on the baseline: an empty inline box's
+   baseline is its bottom edge. */
+
+[data-level="hedgehog"] { --level-mark: url(/level/hedgehog.svg); }
+[data-level="peacock"] { --level-mark: url(/level/peacock.svg); }
+[data-level="bison"] { --level-mark: url(/level/bison.svg); }
+[data-level="whale"] { --level-mark: url(/level/whale.svg); }
+
+.level,
+main[data-level] > h2::before {
+  flex: none;
+  background-color: currentColor;
+  -webkit-mask: var(--level-mark) center bottom / contain no-repeat;
+  mask: var(--level-mark) center bottom / contain no-repeat;
+}
+
+.level {
+  display: inline-block;
+  width: 1.5rem;
+  height: 1rem;
+  color: var(--ink-muted);
+}
+
+/* Last in the row, after the hairline. The second `content` carries the
+   name for screen readers; a browser that can't parse it keeps the first. */
+main[data-level] > h2::before {
+  content: "";
+  order: 1;
+  width: 2.25rem;
+  height: 1.5rem;
+}
+
+main[data-level="hedgehog"] > h2::before { content: "" / "ハリネズミ（基礎）"; }
+main[data-level="peacock"] > h2::before { content: "" / "孔雀（初級）"; }
+main[data-level="bison"] > h2::before { content: "" / "バイソン（中級）"; }
+main[data-level="whale"] > h2::before { content: "" / "クジラ（上級）"; }
+
+/* The key on the home page: the drill index again, one animal per row. */
+.guide .level {
+  margin-right: 0.75rem;
+}
+
+/* The way onward after an index list ("ほかの難易度を見る", "Browse by
+   topic") is a new block, not the list's last line. */
+main > .past-list + p {
+  margin-top: var(--s-block);
+}
+
+/* /levels: the tag grid, with the animal in front of its name. */
+.level-list .level {
+  margin-right: 0.6rem;
+}
+
 /* ---------- footer ----------
    A band, not a card: it runs to both edges of the viewport and pins to the
    bottom. The transparent top border is the 6rem gap above it — an outer
