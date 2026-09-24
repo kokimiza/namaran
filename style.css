@@ -151,12 +151,15 @@ body {
   flex-direction: column;
 }
 
-/* One direction, one owner: nothing at page level carries a bottom margin. */
-.wrap > p {
+/* One direction, one owner: nothing at page level carries a bottom margin.
+   On the home page the prose sits one level down, in a .copy per language. */
+.wrap > p,
+.copy > p {
   margin-bottom: 0;
 }
 
-.wrap > p + p {
+.wrap > p + p,
+.copy > p + p {
   margin-top: var(--s-sibling);
 }
 
@@ -353,6 +356,75 @@ h2::after {
   font-weight: 400;
   letter-spacing: 0.02em;
   color: var(--ink);
+}
+
+/* ---------- language switch (home only) ----------
+   English and Japanese are both in the page; two radio buttons decide which
+   one shows. The buttons sit ahead of everything they steer, as siblings, so
+   `:checked ~` reaches the switch, the copy and the footer without any
+   script. English is `checked` in the markup, so it is what loads. The
+   buttons themselves are hidden but still take focus and arrow keys; the
+   labels are what the reader sees and clicks. */
+
+.lang-toggle {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+#lang-en:checked ~ .copy[lang="ja"],
+#lang-en:checked ~ footer > [lang="ja"],
+#lang-ja:checked ~ .copy[lang="en"],
+#lang-ja:checked ~ footer > [lang="en"] {
+  display: none;
+}
+
+/* It belongs to the masthead, so it hangs just under the rule — the label
+   step, not the block step. */
+.masthead:has(+ .lang-switch) {
+  margin-bottom: var(--s-unit);
+}
+
+.lang-switch {
+  display: flex;
+  align-self: flex-end;
+  gap: 1.25rem;
+  margin-right: -0.14em; /* see .tagline */
+  margin-bottom: var(--s-block);
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.lang-switch label {
+  display: inline-block;
+  padding-bottom: 0.25rem;
+  color: var(--ink-muted);
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+}
+
+.lang-switch label:hover {
+  color: var(--ink);
+  border-bottom-color: var(--rule);
+}
+
+#lang-en:checked ~ .lang-switch label[for="lang-en"],
+#lang-ja:checked ~ .lang-switch label[for="lang-ja"] {
+  color: var(--ink);
+  border-bottom-color: var(--accent);
+}
+
+#lang-en:focus-visible ~ .lang-switch label[for="lang-en"],
+#lang-ja:focus-visible ~ .lang-switch label[for="lang-ja"] {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
 }
 
 /* ---------- navigation ----------
@@ -680,9 +752,14 @@ main > .past-list:has(.past-topic):not(:has(.past-concepts)) {
 }
 
 /* ---------- footer ----------
-   A band, not a card: it bleeds out to the container edge and pins to the
+   A band, not a card: it runs to both edges of the viewport and pins to the
    bottom. The transparent top border is the 6rem gap above it — an outer
-   margin would be eaten by `margin-top: auto` on short pages. */
+   margin would be eaten by `margin-top: auto` on short pages.
+
+   The box itself stays inside the container so its text lines up with the
+   column; the slab past the container edge is a spread shadow, which paints
+   but never adds scroll width (100vw would, by the scrollbar's width). The
+   clip cuts the shadow off above the padding box, where the gap is. */
 
 footer {
   display: flex;
@@ -695,6 +772,8 @@ footer {
   border-top: var(--s-major) solid transparent;
   background: var(--slab);
   background-clip: padding-box;
+  box-shadow: 0 0 0 100vmax var(--slab);
+  clip-path: inset(var(--s-major) -100vmax 0);
   color: var(--slab-muted);
   color-scheme: dark;
   font-family: var(--font-ui);

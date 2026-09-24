@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ja">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -18,7 +18,7 @@
       "alternateName": "Code daily. Without assist.",
       "url": "https://namaran.jocarium.productions/",
       "description": "Namaran is a one-question-a-day coding drill in C, C++, Rust, and Haskell — for programmers who want to keep reading, writing, and fixing code by hand.",
-      "inLanguage": "en"
+      "inLanguage": ["en", "ja"]
     },
     {
       "@type": "CollectionPage",
@@ -50,10 +50,20 @@
 <body>
 <div class="wrap">
 
+<input type="radio" name="lang" id="lang-en" class="lang-toggle" checked>
+<input type="radio" name="lang" id="lang-ja" class="lang-toggle">
+
 <header class="masthead">
   <h1>Namaran</h1>
   <p class="tagline">Code daily. Without assist.</p>
 </header>
+
+<div class="lang-switch">
+  <label for="lang-en">English</label>
+  <label for="lang-ja" lang="ja">日本語</label>
+</div>
+
+<div class="copy" lang="en">
 
 <p class="lede">
   Namaran is a one-question-a-day coding drill for programmers who already know how to code, and want to make sure they still can.
@@ -83,9 +93,45 @@
   Every drill stays up at its own dated address. To find one again, browse <a href="/topics">by topic</a> or by date in each archive.
 </p>
 
+</div>
+
+<div class="copy" lang="ja">
+
+<p class="lede">
+  Namaranは、1日1問のコーディングドリルです。コーダーが、いまも自分の手で書けるかを確かめるための場所です。
+</p>
+
+<p>
+  AIのコーディング支援は便利で、Namaranはそれに異を唱えるつもりはありません。ただ、手で打つ部分を任せるほど、自分の地力がまだ残っているかに気づく機会は減っていきます。Namaranは、手短にそれを確かめる場所です。
+</p>
+
+<p>
+  コンパイラも、ログインも、スコアもありません。下から言語と種別を選び、短いコードを読んで、自分の力で答えにたどり着けるか試してください。3秒で終わってもかまいません。間違えてもかまいません。何かを証明するためではなく、今日いちどコードに触れるためのものです。
+</p>
+
+<section class="guide">
+  <h2>ドリルを選ぶ</h2>
+  <p><strong>C23</strong> &mdash; <a href="/c/read">READ</a> &middot; <a href="/c/write">WRITE</a> &middot; <a href="/c/debug">DEBUG</a></p>
+  <p><strong>C++26</strong> &mdash; <a href="/cpp/read">READ</a> &middot; <a href="/cpp/write">WRITE</a> &middot; <a href="/cpp/debug">DEBUG</a></p>
+  <p><strong>Rust 2024</strong> &mdash; <a href="/rust/read">READ</a> &middot; <a href="/rust/write">WRITE</a> &middot; <a href="/rust/debug">DEBUG</a></p>
+  <p><strong>Haskell 2010</strong> &mdash; <a href="/haskell/read">READ</a> &middot; <a href="/haskell/write">WRITE</a> &middot; <a href="/haskell/debug">DEBUG</a></p>
+</section>
+
+<p>
+  READはコードの動きを予想する問題、WRITEは小さな関数を手で書き上げる問題、DEBUGはバグを見つけて直す問題です。どれも採点も時間制限もなく、誰かと比べられることもありません。
+</p>
+
+<p>
+  どのドリルも、日付ごとのアドレスにずっと残ります。もう一度探すときは、<a href="/topics">トピック</a>から、または各アーカイブの日付からたどれます。
+</p>
+
+</div>
+
 <footer>
-  <p>A daily maintenance routine for programmers.</p>
-  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+  <p lang="en">A daily maintenance routine for programmers.</p>
+  <p lang="en"><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+  <p lang="ja">プログラマーのための、毎日のメンテナンス。</p>
+  <p lang="ja"><a href="https://github.com/kokimiza/namara/issues">間違いを見つけたら、GitHubで直してください。</a></p>
 </footer>
 
 </div>
