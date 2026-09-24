@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="A Namaran Haskell READ drill from 2026-09-18: when every guard on a case alternative fails, the whole alternative is skipped in favor of the next pattern, not just the next guard.">
-<title>Namaran — Haskell / READ — 2026-09-18</title>
+<title>caseのガード落ち</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-09-18">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-18",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "Haskell — guards inside a case falling through to the next pattern" },
+      "about": { "@type": "Thing", "name": "caseのガード落ち" },
+      "keywords": "guard, pattern-matching",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/haskell/debug/2026-09-18">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="caseのガード落ち"
+  data-tags="guard pattern-matching"
+  data-concepts="ガード, case, 次のパターン, fallthrough"
+>
   <h2>2026-09-18</h2>
   <div class="code-frame">
     <p class="code-filename">Compare2.hs</p>

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="A Namaran C WRITE drill from 2026-09-11: write try_run_job, which uses sem_trywait to admit a job only when the concurrency limit hasn't been reached.">
-<title>Namaran — C / WRITE — 2026-09-11</title>
+<title>ノンブロッキング取得</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-09-11">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-11",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "C — a non-blocking admission check backed by a semaphore" },
+      "about": { "@type": "Thing", "name": "ノンブロッキング取得" },
+      "keywords": "semaphore, concurrency",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/c/debug/2026-09-11">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="ノンブロッキング取得"
+  data-tags="semaphore concurrency"
+  data-concepts="セマフォ, ノンブロッキング, 同時実行制限, try acquire"
+>
   <h2>2026-09-11</h2>
   <div class="code-frame">
     <p class="code-filename">try_run_job.c</p>

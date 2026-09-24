@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="Every past Namaran Haskell DEBUG drill, archived by date.">
-<title>Namaran — Haskell / DEBUG — Archive</title>
+<meta name="description" content="NamaranのHaskell DEBUGドリルの過去問を、日付とお題の一覧で。">
+<title>Haskell DEBUGの過去問</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/archive">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -44,26 +44,26 @@
 <main>
   <h2>Archive</h2>
   <ul class="past-list">
-    <li><a href="/haskell/debug/2026-09-23">2026-09-23</a> <span class="past-topic">replaying a WAL past its last commit during crash recovery</span></li>
-    <li><a href="/haskell/debug/2026-09-22">2026-09-22</a> <span class="past-topic">truncate vs round when converting a Double to fixed-point cents</span></li>
-    <li><a href="/haskell/debug/2026-09-21">2026-09-21</a> <span class="past-topic">a tautological test that compares a function's output to itself</span></li>
-    <li><a href="/haskell/debug/2026-09-20">2026-09-20</a> <span class="past-topic">(- 1) is never a subtraction section</span></li>
-    <li><a href="/haskell/debug/2026-09-19">2026-09-19</a> <span class="past-topic">a sentinel value colliding with real data</span></li>
-    <li><a href="/haskell/debug/2026-09-18">2026-09-18</a> <span class="past-topic">otherwise is just a Bool binding, not a keyword</span></li>
-    <li><a href="/haskell/debug/2026-09-16">2026-09-16</a> <span class="past-topic">zipping a self-referential list with itself</span></li>
-    <li><a href="/haskell/debug/2026-09-15">2026-09-15</a> <span class="past-topic">if without else in a do block</span></li>
-    <li><a href="/haskell/debug/2026-09-14">2026-09-14</a> <span class="past-topic">let bindings are recursive</span></li>
-    <li><a href="/haskell/debug/2026-09-13">2026-09-13</a> <span class="past-topic">guarded recursion versus accumulators</span></li>
-    <li><a href="/haskell/debug/2026-09-12">2026-09-12</a> <span class="past-topic">reassigning a let binding instead of using an IORef</span></li>
-    <li><a href="/haskell/debug/2026-09-11">2026-09-11</a> <span class="past-topic">a cleanup statement skipped by an exception earlier in the do-block</span></li>
-    <li><a href="/haskell/debug/2026-09-07">2026-09-07</a> <span class="past-topic">replicateM (return ref) shares one IORef instead of creating several</span></li>
-    <li><a href="/haskell/debug/2026-08-27">2026-08-27</a> <span class="past-topic">a lazy modifyIORef builds a thunk chain</span></li>
-    <li><a href="/haskell/debug/2026-08-25">2026-08-25</a> <span class="past-topic">deriving Eq/Ord/Show on a field with no such instance</span></li>
-    <li><a href="/haskell/debug/2026-08-24">2026-08-24</a> <span class="past-topic">off-by-one list index</span></li>
-    <li><a href="/haskell/debug/2026-08-23">2026-08-23</a> <span class="past-topic">recursing on the wrong binding from an as-pattern</span></li>
-    <li><a href="/haskell/debug/2026-08-22">2026-08-22</a> <span class="past-topic">irrefutable pattern match failure</span></li>
-    <li><a href="/haskell/debug/2026-08-21">2026-08-21</a> <span class="past-topic">missing base case in recursion</span></li>
-    <li><a href="/haskell/debug/2026-08-20">2026-08-20</a> <span class="past-topic">non-exhaustive guards</span></li>
+    <li><a href="/haskell/debug/2026-09-23">2026-09-23</a> <span class="past-topic">未コミットまで再生</span></li>
+    <li><a href="/haskell/debug/2026-09-22">2026-09-22</a> <span class="past-topic">truncateとround</span></li>
+    <li><a href="/haskell/debug/2026-09-21">2026-09-21</a> <span class="past-topic">自分と比べるテスト</span></li>
+    <li><a href="/haskell/debug/2026-09-20">2026-09-20</a> <span class="past-topic">(- 1)は負の数</span></li>
+    <li><a href="/haskell/debug/2026-09-19">2026-09-19</a> <span class="past-topic">番兵と実データの衝突</span></li>
+    <li><a href="/haskell/debug/2026-09-18">2026-09-18</a> <span class="past-topic">otherwiseの正体</span></li>
+    <li><a href="/haskell/debug/2026-09-16">2026-09-16</a> <span class="past-topic">自己参照のzip</span></li>
+    <li><a href="/haskell/debug/2026-09-15">2026-09-15</a> <span class="past-topic">elseのないif</span></li>
+    <li><a href="/haskell/debug/2026-09-14">2026-09-14</a> <span class="past-topic">letは再帰する</span></li>
+    <li><a href="/haskell/debug/2026-09-13">2026-09-13</a> <span class="past-topic">アキュムレータの罠</span></li>
+    <li><a href="/haskell/debug/2026-09-12">2026-09-12</a> <span class="past-topic">letは書き換えない</span></li>
+    <li><a href="/haskell/debug/2026-09-11">2026-09-11</a> <span class="past-topic">飛ばされる後始末</span></li>
+    <li><a href="/haskell/debug/2026-09-07">2026-09-07</a> <span class="past-topic">共有された IORef</span></li>
+    <li><a href="/haskell/debug/2026-08-27">2026-08-27</a> <span class="past-topic">たまるサンクの鎖</span></li>
+    <li><a href="/haskell/debug/2026-08-25">2026-08-25</a> <span class="past-topic">derive できない型</span></li>
+    <li><a href="/haskell/debug/2026-08-24">2026-08-24</a> <span class="past-topic">リスト添字の1つずれ</span></li>
+    <li><a href="/haskell/debug/2026-08-23">2026-08-23</a> <span class="past-topic">@で全体に再帰</span></li>
+    <li><a href="/haskell/debug/2026-08-22">2026-08-22</a> <span class="past-topic">外れるパターン束縛</span></li>
+    <li><a href="/haskell/debug/2026-08-21">2026-08-21</a> <span class="past-topic">基底ケースがない</span></li>
+    <li><a href="/haskell/debug/2026-08-20">2026-08-20</a> <span class="past-topic">ガードの抜け</span></li>
   </ul>
 
   <p><a href="/topics">Browse by topic</a></p>

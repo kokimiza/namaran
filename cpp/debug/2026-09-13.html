@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran C++ DEBUG drill from 2026-09-13: a lambda declared with auto can't name itself in its own body, so a recursive DFS needs a C++23 explicit object parameter.">
-<title>Namaran — C++ / DEBUG — 2026-09-13</title>
+<title>再帰するラムダ</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-09-13">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-13",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "C++ — recursive lambdas with deducing this" },
+      "about": { "@type": "Thing", "name": "再帰するラムダ" },
+      "keywords": "lambda, recursion",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/cpp/debug/2026-09-13" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="再帰するラムダ"
+  data-tags="lambda recursion"
+  data-concepts="再帰ラムダ, deducing this, ラムダ式, recursive lambda"
+>
   <h2>2026-09-13</h2>
   <div class="code-frame">
     <p class="code-filename">dfs_order.cpp</p>

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="A Namaran Rust WRITE drill from 2026-09-22: write the range-minimum query over a flat-array segment tree, given its already-built tree contents.">
-<title>Namaran — Rust / WRITE — 2026-09-22</title>
+<title>セグメント木の検索</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-09-22">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-22",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "Rust — writing the query half of a flat-array segment tree" },
+      "about": { "@type": "Thing", "name": "セグメント木の検索" },
+      "keywords": "segment-tree, array",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/rust/debug/2026-09-22">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="セグメント木の検索"
+  data-tags="segment-tree array"
+  data-concepts="セグメント木, 区間クエリ, 区間最小, segment tree query"
+>
   <h2>2026-09-22</h2>
   <div class="code-frame">
     <p class="code-filename">range_min.rs</p>

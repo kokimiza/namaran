@@ -112,7 +112,7 @@ jobs:
           - 検証用ソースは $verify_dir/{lang}/{type}/ に置き、次のコマンドが全件通るまで直す:
             ./script/verify.sh $date $verify_dir $combos
           - git 操作はしない。コミットと push は後続のジョブが行う。
-          - 上の組の日付ページと archive.html 以外のファイルは変更しない。
+          - 上の組の日付ページと archive.html、それに script/tags.tsv(新しいタグの日本語名を足すときだけ)以外のファイルは変更しない。
           PROMPT
             echo "NAMARA_EOF"
           } >> "$GITHUB_OUTPUT"
@@ -224,7 +224,9 @@ jobs:
           VERIFY_DIR: ${{ steps.plan.outputs.verify_dir }}
         run: |
           set -euo pipefail
-          allowed=() missing=()
+          # script/tags.tsv may have gained a line for a tag used today
+          # (doc/basic-design.md §7.4); check-patch.sh bounds what it may say.
+          allowed=(script/tags.tsv) missing=()
           for pair in $COMBOS; do
             allowed+=("$pair/$DATE.html" "$pair/archive.html")
             # One page at a time: `git add -N` with any missing path adds
@@ -351,7 +353,7 @@ jobs:
             ./script/sitemap.sh
             # -A so a tag page that lost its last drill is staged as a
             # deletion, not left behind.
-            git add -A -- */*/archive.html topics.html tag sitemap.xml
+            git add -A -- */*/archive.html topics.html tag script/tags.tsv sitemap.xml
             git commit --quiet -F - <<MSG
           ${DATE//-/}
 

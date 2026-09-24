@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran C DEBUG drill from 2026-09-14: a loop that waits for a doubling int to overflow negative relies on undefined behavior, and the optimizer turns it into an infinite loop.">
-<title>Namaran — C / DEBUG — 2026-09-14</title>
+<title>符号つき整数の桁あふれ</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-09-14">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-14",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "C — signed overflow as a loop condition" },
+      "about": { "@type": "Thing", "name": "符号つき整数の桁あふれ" },
+      "keywords": "integer-overflow, undefined-behavior, loop",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/c/debug/2026-09-14" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="符号つき整数の桁あふれ"
+  data-tags="integer-overflow undefined-behavior loop"
+  data-concepts="符号つきオーバーフロー, 未定義動作, ループ条件, signed overflow"
+>
   <h2>2026-09-14</h2>
   <div class="code-frame">
     <p class="code-filename">count_powers.c</p>

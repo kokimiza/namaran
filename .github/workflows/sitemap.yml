@@ -54,7 +54,7 @@ jobs:
             ./script/sitemap.sh
             # Staged, not `git diff`: topics.html may not be tracked yet on
             # an older main, and an untracked file is invisible to git diff.
-            git add -A -- sitemap.xml topics.html tag "*/*/archive.html"
+            git add -A -- sitemap.xml topics.html tag script/tags.tsv "*/*/archive.html"
             if git diff --cached --quiet; then
               echo "the generated files are already up to date"
               exit 0

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran C DEBUG drill from 2026-09-12: fix a classic off-by-one loop bound that reads one element past the end of an array.">
-<title>Namaran — C / DEBUG — 2026-09-12</title>
+<title>配列をはみ出すループ</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-09-12">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-12",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "C — an off-by-one loop bound that reads past an array" },
+      "about": { "@type": "Thing", "name": "配列をはみ出すループ" },
+      "keywords": "off-by-one, loop, array",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/c/debug/2026-09-12" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="配列をはみ出すループ"
+  data-tags="off-by-one loop array"
+  data-concepts="オフバイワン, 範囲外アクセス, ループ境界, out of bounds"
+>
   <h2>2026-09-12</h2>
   <div class="code-frame">
     <p class="code-filename">print_all.c</p>

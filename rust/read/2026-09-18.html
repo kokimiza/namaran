@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="A Namaran Rust READ drill from 2026-09-18: String's + takes its left side by value so it can reuse the buffer, which means that side is moved and can't be used again.">
-<title>Namaran — Rust / READ — 2026-09-18</title>
+<title>+は左辺をムーブ</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-09-18">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-18",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "Rust — String's + operator moves its left operand" },
+      "about": { "@type": "Thing", "name": "+は左辺をムーブ" },
+      "keywords": "move-semantics, string",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/rust/debug/2026-09-18">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="+は左辺をムーブ"
+  data-tags="move-semantics string"
+  data-concepts="String連結, ムーブ, 所有権, string concat"
+>
   <h2>2026-09-18</h2>
   <div class="code-frame">
     <p class="code-filename">concat_move.rs</p>

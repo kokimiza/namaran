@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="A Namaran C DEBUG drill from 2026-09-20: shifting 1 into the sign bit of a plain int flag overflows and is undefined behavior; the fix is an unsigned literal.">
-<title>Namaran — C / DEBUG — 2026-09-20</title>
+<title>符号ビットへのシフト</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-09-20">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-20",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "C — signed overflow from shifting a flag into the sign bit" },
+      "about": { "@type": "Thing", "name": "符号ビットへのシフト" },
+      "keywords": "bit-operation, integer-overflow, undefined-behavior",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/c/debug/2026-09-20" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="符号ビットへのシフト"
+  data-tags="bit-operation integer-overflow undefined-behavior"
+  data-concepts="シフト, 符号ビット, 未定義動作, shift overflow"
+>
   <h2>2026-09-20</h2>
   <div class="code-frame">
     <p class="code-filename">lock_flag.c</p>

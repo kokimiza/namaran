@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="A Namaran C++ READ drill from 2026-09-22: tracing the construction and destruction order of file-scope static objects around main, within a single translation unit.">
-<title>Namaran — C++ / READ — 2026-09-22</title>
+<title>staticの構築と破棄</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-09-22">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-22",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "C++ — construction and destruction order of static-storage objects" },
+      "about": { "@type": "Thing", "name": "staticの構築と破棄" },
+      "keywords": "static-storage, initialization-order, destructor",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/cpp/debug/2026-09-22">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="staticの構築と破棄"
+  data-tags="static-storage initialization-order destructor"
+  data-concepts="静的記憶域, 構築順, 破棄順, static initialization"
+>
   <h2>2026-09-22</h2>
   <div class="code-frame">
     <p class="code-filename">static_order.cpp</p>

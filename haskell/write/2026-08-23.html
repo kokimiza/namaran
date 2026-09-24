@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran Haskell WRITE drill from 2026-08-23: write a pure function that reuses a whole-list as-pattern to repeat the head, instead of writing the list out twice.">
-<title>Namaran — Haskell / WRITE — 2026-08-23</title>
+<title>@で全体を束縛</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-08-23">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-08-23",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "Haskell — writing a pure function with a whole-list as-pattern" },
+      "about": { "@type": "Thing", "name": "@で全体を束縛" },
+      "keywords": "as-pattern, pattern-matching",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/haskell/debug/2026-08-23">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="@で全体を束縛"
+  data-tags="as-pattern pattern-matching"
+  data-concepts="asパターン, 全体の束縛, 再利用, as-pattern"
+>
   <h2>2026-08-23</h2>
   <div class="code-frame">
     <p class="code-filename">EchoHead.hs</p>

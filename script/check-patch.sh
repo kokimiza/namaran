@@ -18,7 +18,9 @@
 #   * every file it touches is, for one of the given combos, either
 #       {lang}/{type}/DATE.html   created as a new regular file (100644), or
 #       {lang}/{type}/archive.html   modified, only by adding lines of the
-#                                    exact form content.sh writes for DATE
+#                                    exact form content.sh writes for DATE,
+#     or script/tags.tsv, modified only by adding "slug<TAB>name" lines for
+#     tags the day's own pages use (doc/basic-design.md §7.4)
 #   * each new page carries its topic metadata on <main> (data-topic,
 #     data-tags, data-concepts — doc/basic-design.md §7.1, §7.4) in the
 #     shape script/topics.sh will copy into the archives and topics.html
@@ -33,7 +35,7 @@
 set -euo pipefail
 
 usage() {
-  sed -n '2,30p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+  sed -n '2,32p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
 }
 
 case "${1:-}" in
@@ -50,8 +52,13 @@ SITE = "https://namaran.jocarium.productions"
 LANGS = ("c", "cpp", "rust", "haskell")
 TYPES = ("read", "write", "debug")
 
+SITE_TAGS = "script/tags.tsv"
+TAGS_FILE = SITE_TAGS
+
 date, patch_file, *combos = sys.argv[1:]
 problems = []
+# Tags the day's pages use, and the vocabulary lines the patch adds for them.
+used_tags, tag_lines = set(), []
 
 def fail(msg):
     problems.append(msg)
@@ -130,6 +137,13 @@ for sec in sections:
             fail(f"{path}: a new page must consist of added lines only")
         page = "\n".join(added)
         check_page = True
+    elif path == TAGS_FILE:
+        if any(h.startswith(("new file", "--- /dev/null")) for h in header):
+            fail(f"{path}: must already exist")
+        if removed:
+            fail(f"{path}: must not remove or change existing lines")
+        tag_lines = added
+        check_page = False
     elif path in allowed_archives:
         lang, typ = allowed_archives[path]
         if any(h.startswith(("new file", "--- /dev/null")) for h in header):
@@ -187,6 +201,7 @@ for sec in sections:
         topic = (d.get("data-topic") or "").strip()
         if not topic or len(topic) > 120:
             fail(f"{path}: data-topic must be 1-120 characters, got {len(topic)}")
+        used_tags.update((d.get("data-tags") or "").split())
         tags = (d.get("data-tags") or "").split()
         if not 2 <= len(tags) <= 8:
             fail(f"{path}: data-tags must hold 2-8 tags, got {len(tags)}")
@@ -252,6 +267,20 @@ for sec in sections:
     guard.close()
     if sorted(map(str, guard.links)) != sorted(map(str, expected_links)):
         fail(f"{path}: <link> elements must be exactly the canonical URL and /style.css, got {guard.links}")
+
+# A new tag needs a Japanese name before it can appear in the index, and the
+# vocabulary is shared, so it lives in one file rather than on the page
+# (doc/basic-design.md §7.4). That makes script/tags.tsv the one file outside
+# {lang}/{type}/ this run may touch — append-only, and only for tags the
+# day's own pages use.
+for line in tag_lines:
+    slug, tab, name = line.partition("\t")
+    if not tab or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", slug):
+        fail(f"{SITE_TAGS}: {line[:60]!r} is not 'slug<TAB>name'")
+    elif slug not in used_tags:
+        fail(f"{SITE_TAGS}: {slug!r} is not a tag any of this run's pages use")
+    elif not name.strip() or len(name.strip()) > 15 or re.search(r"[\x00-\x1f\x7f]", name):
+        fail(f"{SITE_TAGS}: {slug!r} needs a name of 1-15 plain characters")
 
 missing = sorted(set(allowed_pages) - seen)
 if missing:

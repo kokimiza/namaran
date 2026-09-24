@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="A Namaran Haskell DEBUG drill from 2026-09-20: map (- 1) doesn't build a subtraction section, since (- 1) always parses as the literal negative one.">
-<title>Namaran — Haskell / DEBUG — 2026-09-20</title>
+<title>(- 1)は負の数</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-09-20">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-20",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "Haskell — (- 1) is never a subtraction section" },
+      "about": { "@type": "Thing", "name": "(- 1)は負の数" },
+      "keywords": "section, operator-precedence",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/haskell/debug/2026-09-20" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="(- 1)は負の数"
+  data-tags="section operator-precedence"
+  data-concepts="セクション記法, 単項マイナス, subtract, section"
+>
   <h2>2026-09-20</h2>
   <div class="code-frame">
     <p class="code-filename">DecrementAll.hs</p>

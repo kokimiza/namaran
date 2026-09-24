@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran Rust DEBUG drill from 2026-09-15: a variable name used as a match pattern binds a new variable that matches anything, instead of comparing against the existing one.">
-<title>Namaran — Rust / DEBUG — 2026-09-15</title>
+<title>matchが全部拾う</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-09-15">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-15",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "Rust — identifier patterns in match" },
+      "about": { "@type": "Thing", "name": "matchが全部拾う" },
+      "keywords": "pattern-matching, binding",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/rust/debug/2026-09-15" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="matchが全部拾う"
+  data-tags="pattern-matching binding"
+  data-concepts="識別子パターン, 変数束縛, match, identifier pattern"
+>
   <h2>2026-09-15</h2>
   <div class="code-frame">
     <p class="code-filename">status.rs</p>

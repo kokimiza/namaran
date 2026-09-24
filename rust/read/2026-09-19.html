@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="A Namaran Rust READ drill from 2026-09-19: -1i32.pow(2), where a method call binds tighter than the unary minus in front of it.">
-<title>Namaran — Rust / READ — 2026-09-19</title>
+<title>-x.abs()の優先順位</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-09-19">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-19",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "Rust — method calls binding tighter than unary minus" },
+      "about": { "@type": "Thing", "name": "-x.abs()の優先順位" },
+      "keywords": "operator-precedence, expression",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/rust/debug/2026-09-19">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="-x.abs()の優先順位"
+  data-tags="operator-precedence expression"
+  data-concepts="優先順位, 単項マイナス, メソッド呼び出し, precedence"
+>
   <h2>2026-09-19</h2>
   <div class="code-frame">
     <p class="code-filename">neg_pow.rs</p>

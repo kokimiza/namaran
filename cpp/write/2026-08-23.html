@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran C++ WRITE drill from 2026-08-23: write a std::variant formatter with std::visit and an overloaded lambda set instead of a switch, so std::format handles each alternative by type.">
-<title>Namaran — C++ / WRITE — 2026-08-23</title>
+<title>variantを整形する</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-08-23">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-08-23",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "C++ — writing a std::visit-based formatter over a std::variant" },
+      "about": { "@type": "Thing", "name": "variantを整形する" },
+      "keywords": "variant, pattern-matching",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/cpp/debug/2026-08-23">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="variantを整形する"
+  data-tags="variant pattern-matching"
+  data-concepts="std::visit, variant, 整形, formatter"
+>
   <h2>2026-08-23</h2>
   <div class="code-frame">
     <p class="code-filename">describe_length.cpp</p>

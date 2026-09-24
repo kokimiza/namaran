@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran C++ DEBUG drill from 2026-08-24: a range-based for loop copies each element, so mutating it does nothing.">
-<title>Namaran — C++ / DEBUG — 2026-08-24</title>
+<title>範囲forの値コピー</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-08-24">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-08-24",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "C++ — range-based for by value vs by reference" },
+      "about": { "@type": "Thing", "name": "範囲forの値コピー" },
+      "keywords": "range-for, reference",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/cpp/debug/2026-08-24" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="範囲forの値コピー"
+  data-tags="range-for reference"
+  data-concepts="参照で受ける, コピー, 範囲for, by reference"
+>
   <h2>2026-08-24</h2>
   <div class="code-frame">
     <p class="code-filename">double_all.cpp</p>

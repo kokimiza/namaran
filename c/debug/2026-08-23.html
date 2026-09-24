@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran C DEBUG drill from 2026-08-23: a memo cache keyed only by argument returns a stale result from a different function after the dispatch table switches operations.">
-<title>Namaran — C / DEBUG — 2026-08-23</title>
+<title>関数を無視したキャッシュ</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-08-23">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-08-23",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "C — a memo cache that ignores which function was dispatched" },
+      "about": { "@type": "Thing", "name": "関数を無視したキャッシュ" },
+      "keywords": "memoization, function-pointer",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/c/debug/2026-08-23" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="関数を無視したキャッシュ"
+  data-tags="memoization function-pointer"
+  data-concepts="メモ化, キャッシュキー, 関数ポインタ, cache key"
+>
   <h2>2026-08-23</h2>
   <div class="code-frame">
     <p class="code-filename">calc_dispatch.c</p>

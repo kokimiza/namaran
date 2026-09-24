@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="A Namaran C++ DEBUG drill from 2026-09-22: a global object's constructor uses another global that is declared later, so it runs before that global is constructed.">
-<title>Namaran — C++ / DEBUG — 2026-09-22</title>
+<title>グローバルの初期化順</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-09-22">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-22",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "C++ — a global depending on another global that hasn't been constructed yet" },
+      "about": { "@type": "Thing", "name": "グローバルの初期化順" },
+      "keywords": "static-storage, initialization-order",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/cpp/debug/2026-09-22" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="グローバルの初期化順"
+  data-tags="static-storage initialization-order"
+  data-concepts="静的初期化順序, グローバル変数, 未初期化, initialization order fiasco"
+>
   <h2>2026-09-22</h2>
   <div class="code-frame">
     <p class="code-filename">boot_registrar.cpp</p>

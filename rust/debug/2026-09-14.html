@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran Rust DEBUG drill from 2026-09-14: a MutexGuard created in a while let condition lives through the whole loop body, so locking again inside deadlocks.">
-<title>Namaran — Rust / DEBUG — 2026-09-14</title>
+<title>while letの一時値</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-09-14">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-14",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "Rust — temporary lifetime in a while let condition" },
+      "about": { "@type": "Thing", "name": "while letの一時値" },
+      "keywords": "temporary, lifetime, pattern-matching",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/rust/debug/2026-09-14" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="while letの一時値"
+  data-tags="temporary lifetime pattern-matching"
+  data-concepts="一時オブジェクト, while let, 寿命, temporary lifetime"
+>
   <h2>2026-09-14</h2>
   <div class="code-frame">
     <p class="code-filename">drain_queue.rs</p>

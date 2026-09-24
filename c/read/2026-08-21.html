@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran C READ drill from 2026-08-21: comparing a signed int against an unsigned int silently converts the signed value.">
-<title>Namaran — C / READ — 2026-08-21</title>
+<title>符号つきと符号なしの比較</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-08-21">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-08-21",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "C — signed/unsigned comparison" },
+      "about": { "@type": "Thing", "name": "符号つきと符号なしの比較" },
+      "keywords": "signed-unsigned, comparison, type-conversion",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/c/debug/2026-08-21">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="符号つきと符号なしの比較"
+  data-tags="signed-unsigned comparison type-conversion"
+  data-concepts="符号あり, 符号なし, 暗黙の型変換, signed unsigned comparison"
+>
   <h2>2026-08-21</h2>
   <div class="code-frame">
     <p class="code-filename">compare.c</p>

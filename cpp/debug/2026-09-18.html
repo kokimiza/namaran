@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="A Namaran C++ DEBUG drill from 2026-09-18: a std::visit overloaded set missing an int overload still compiles, because int silently converts to the one double overload it has.">
-<title>Namaran — C++ / DEBUG — 2026-09-18</title>
+<title>取りこぼしたvisit</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-09-18">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-18",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "C++ — a missing visitor overload hidden by implicit conversion" },
+      "about": { "@type": "Thing", "name": "取りこぼしたvisit" },
+      "keywords": "variant, exhaustiveness, implicit-conversion",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/cpp/debug/2026-09-18" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="取りこぼしたvisit"
+  data-tags="variant exhaustiveness implicit-conversion"
+  data-concepts="網羅性, オーバーロード解決, 暗黙変換, std::visit"
+>
   <h2>2026-09-18</h2>
   <div class="code-frame">
     <p class="code-filename">number_format.cpp</p>

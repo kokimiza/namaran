@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran Haskell READ drill from 2026-09-12: tracing sequential mutation through an explicit IORef, in a language where bindings are immutable by default.">
-<title>Namaran — Haskell / READ — 2026-09-12</title>
+<title>IORefで書き換える</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-09-12">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-12",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "Haskell — explicit mutation through an IORef" },
+      "about": { "@type": "Thing", "name": "IORefで書き換える" },
+      "keywords": "ioref, mutability, io",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/haskell/debug/2026-09-12">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="IORefで書き換える"
+  data-tags="ioref mutability io"
+  data-concepts="IORef, 可変状態, readIORef, mutation"
+>
   <h2>2026-09-12</h2>
   <div class="code-frame">
     <p class="code-filename">MutableCounter.hs</p>

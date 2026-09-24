@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="A Namaran Haskell READ drill from 2026-09-11: tracing bracket to see that its release action always runs, even when the use action throws.">
-<title>Namaran — Haskell / READ — 2026-09-11</title>
+<title>bracketで確実に後始末</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-09-11">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-11",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "Haskell — bracket guaranteeing cleanup even when the action throws" },
+      "about": { "@type": "Thing", "name": "bracketで確実に後始末" },
+      "keywords": "exception, resource-management, io",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/haskell/debug/2026-09-11">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="bracketで確実に後始末"
+  data-tags="exception resource-management io"
+  data-concepts="bracket, 例外安全, 後始末, cleanup"
+>
   <h2>2026-09-11</h2>
   <div class="code-frame">
     <p class="code-filename">Cleanup.hs</p>

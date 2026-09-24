@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran Haskell DEBUG drill from 2026-08-23: an as-pattern binds both the whole list and its tail, and recursing on the wrong one never makes progress, hanging forever.">
-<title>Namaran — Haskell / DEBUG — 2026-08-23</title>
+<title>@で全体に再帰</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-08-23">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-08-23",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "Haskell — recursing on the wrong binding from an as-pattern" },
+      "about": { "@type": "Thing", "name": "@で全体に再帰" },
+      "keywords": "as-pattern, recursion",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/haskell/debug/2026-08-23" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="@で全体に再帰"
+  data-tags="as-pattern recursion"
+  data-concepts="asパターン, 無限再帰, 束縛の取り違え, as-pattern"
+>
   <h2>2026-08-23</h2>
   <div class="code-frame">
     <p class="code-filename">CompressLoop.hs</p>

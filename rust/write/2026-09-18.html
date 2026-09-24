@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="A Namaran Rust WRITE drill from 2026-09-18: join a slice of string slices with a pre-reserved buffer, so the result needs exactly one allocation instead of several.">
-<title>Namaran — Rust / WRITE — 2026-09-18</title>
+<title>先に容量を確保</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-09-18">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-18",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "Rust — pre-reserving capacity before concatenating" },
+      "about": { "@type": "Thing", "name": "先に容量を確保" },
+      "keywords": "string, performance",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/rust/debug/2026-09-18">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="先に容量を確保"
+  data-tags="string performance"
+  data-concepts="with_capacity, 再確保, 文字列連結, capacity"
+>
   <h2>2026-09-18</h2>
   <div class="code-frame">
     <p class="code-filename">join_lines.rs</p>

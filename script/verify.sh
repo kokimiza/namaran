@@ -41,11 +41,12 @@
 # one ok file plus one ng or bug file.
 #
 # Page checks, for {lang}/{type}/DATE.html: JSON-LD parses, no TODO left,
-# the topic metadata is there and agrees with itself (<main>'s data-topic /
-# data-tags / data-concepts, the <title>, the meta description and the
-# JSON-LD about.name / keywords / description — see doc/basic-design.md §7.1
-# and §7.4), lang-nav/type-nav point at the same date, the archive.html line
-# exists,
+# the topic metadata is there and agrees with itself (<main>'s data-topic —
+# at most 15 characters and the page's whole <title> — plus data-tags, which
+# must all be named in script/tags.tsv, data-concepts, the meta description
+# and the JSON-LD about.name / keywords / description — see
+# doc/basic-design.md §7.1 and §7.4), lang-nav/type-nav point at the same
+# date, the archive.html line exists,
 # <code> contents are HTML-escaped (the highlighter's <span>s aside), every
 # non-comment line of every <pre class="code"> block appears (ignoring
 # indentation) in one of that combo's ok/ng/bug files — so the code readers
@@ -76,7 +77,7 @@ GHC="${NAMARA_GHC:-ghc}"
 HLINT="${NAMARA_HLINT:-hlint}"
 
 usage() {
-  sed -n '2,61p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+  sed -n '2,62p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
 }
 
 code_ext() {
@@ -298,7 +299,6 @@ if "TODO" in s:
 # --- the topic metadata (doc/basic-design.md §7.1, §7.4) -------------------
 # The page shows only a date, a filename and code; what it is *about* lives
 # here, and script/topics.sh turns it into the archive lines and topics.html.
-labels = {"c": "C", "cpp": "C++", "rust": "Rust", "haskell": "Haskell"}
 m = re.search(r"<main\b[^>]*>", s)
 attrs = dict(re.findall(r'([a-z-]+)="([^"]*)"', m.group(0))) if m else {}
 topic = html.unescape(attrs.get("data-topic", "")).strip()
@@ -307,23 +307,33 @@ concepts = [c.strip() for c in html.unescape(attrs.get("data-concepts", "")).spl
 
 if not topic:
     problems.append("<main> has no data-topic")
-elif len(topic) > 120:
-    problems.append(f"data-topic is longer than 120 characters: {topic[:40]!r}…")
+elif len(topic) > 15:
+    problems.append(f"data-topic must be at most 15 characters, got {len(topic)}: {topic!r}")
 if not 2 <= len(tags) <= 8:
     problems.append(f"data-tags must hold 2-8 tags, got {len(tags)}")
+known = {}
+tags_file = pathlib.Path(root, "script", "tags.tsv")
+if tags_file.is_file():
+    for line in tags_file.read_text(encoding="utf-8").splitlines():
+        slug, _, name = line.partition("\t")
+        if slug.strip():
+            known[slug.strip()] = name.strip()
 for tag in tags:
     if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", tag):
         problems.append(f"tag {tag!r} is not lowercase kebab-case ASCII (§7.4)")
+    elif tag not in known:
+        problems.append(f"tag {tag!r} has no Japanese name in script/tags.tsv (§7.4)")
 if len(set(tags)) != len(tags):
     problems.append("data-tags repeats a tag")
 if len(concepts) < 2:
     problems.append("data-concepts needs at least two wordings (Japanese and English)")
 
-want_title = f"{topic} — Namaran {labels[lang]} / {typ.upper()}"
+# The whole <title> is the topic: 15 characters is what a browser tab and a
+# search result show without truncating (doc/basic-design.md §7.1).
 m = re.search(r"<title>(.*?)</title>", s, re.S)
 title = html.unescape(m.group(1)).strip() if m else ""
-if title != want_title:
-    problems.append(f"<title> must be {want_title!r}, got {title!r}")
+if title != topic:
+    problems.append(f"<title> must be exactly the data-topic {topic!r}, got {title!r}")
 
 m = re.search(r'<meta name="description" content="([^"]*)"', s)
 desc = html.unescape(m.group(1)).strip() if m else ""

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran C READ drill from 2026-09-16: an array parameter decays to a pointer, so sizeof(arr) inside the function reports the pointer's size, not the array's.">
-<title>Namaran — C / READ — 2026-09-16</title>
+<title>配列引数はポインタ</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-09-16">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-16",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "C — array-to-pointer decay in function parameters" },
+      "about": { "@type": "Thing", "name": "配列引数はポインタ" },
+      "keywords": "pointer-decay, array, function-parameter",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/c/debug/2026-09-16">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="配列引数はポインタ"
+  data-tags="pointer-decay array function-parameter"
+  data-concepts="配列引数, ポインタ化, sizeof, array parameter"
+>
   <h2>2026-09-16</h2>
   <div class="code-frame">
     <p class="code-filename">array_sizeof.c</p>

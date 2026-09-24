@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="A Namaran Rust WRITE drill from 2026-09-11: write safe_div, which returns None instead of panicking when dividing by zero.">
-<title>Namaran — Rust / WRITE — 2026-09-11</title>
+<title>0除算をOptionで</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-09-11">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-11",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "Rust — Option instead of a panic for integer division by zero" },
+      "about": { "@type": "Thing", "name": "0除算をOptionで" },
+      "keywords": "optional, division, error-handling",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/rust/debug/2026-09-11">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="0除算をOptionで"
+  data-tags="optional division error-handling"
+  data-concepts="ゼロ除算, Option, パニック回避, checked_div"
+>
   <h2>2026-09-11</h2>
   <div class="code-frame">
     <p class="code-filename">safe_div.rs</p>

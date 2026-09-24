@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="A Namaran C++ DEBUG drill from 2026-09-21: a class that validates its invariant in the constructor but exposes a setter that skips the same check.">
-<title>Namaran — C++ / DEBUG — 2026-09-21</title>
+<title>検査を通らないsetter</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-09-21">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-21",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "C++ — a setter that bypasses the invariant check in the constructor" },
+      "about": { "@type": "Thing", "name": "検査を通らないsetter" },
+      "keywords": "invariant, constructor",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/cpp/debug/2026-09-21" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="検査を通らないsetter"
+  data-tags="invariant constructor"
+  data-concepts="不変条件, セッター, カプセル化, invariant"
+>
   <h2>2026-09-21</h2>
   <div class="code-frame">
     <p class="code-filename">percentage_setter.cpp</p>

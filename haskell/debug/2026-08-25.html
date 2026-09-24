@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran Haskell DEBUG drill from 2026-08-25: deriving Eq, Ord, and Show fails when a field's type (a function) has none of those instances; write manual instances comparing only the comparable field.">
-<title>Namaran — Haskell / DEBUG — 2026-08-25</title>
+<title>derive できない型</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-08-25">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-08-25",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "Haskell — deriving Eq/Ord/Show on a field with no such instance" },
+      "about": { "@type": "Thing", "name": "derive できない型" },
+      "keywords": "deriving, typeclass",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/haskell/debug/2026-08-25" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="derive できない型"
+  data-tags="deriving typeclass"
+  data-concepts="deriving, インスタンス不足, 型クラス制約, deriving error"
+>
   <h2>2026-08-25</h2>
   <div class="code-frame">
     <p class="code-filename">Action.hs</p>

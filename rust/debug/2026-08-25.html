@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran Rust DEBUG drill from 2026-08-25: a trait with a generic method can't be made into a trait object; a &amp;dyn Display parameter instead of a generic restores dyn compatibility.">
-<title>Namaran — Rust / DEBUG — 2026-08-25</title>
+<title>dyn互換が壊れる</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-08-25">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-08-25",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "Rust — a generic trait method that breaks dyn compatibility" },
+      "about": { "@type": "Thing", "name": "dyn互換が壊れる" },
+      "keywords": "trait-object, dyn-compatibility",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/rust/debug/2026-08-25" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="dyn互換が壊れる"
+  data-tags="trait-object dyn-compatibility"
+  data-concepts="ジェネリックメソッド, dyn互換, オブジェクト安全, object safety"
+>
   <h2>2026-08-25</h2>
   <div class="code-frame">
     <p class="code-filename">formatter_dyn.rs</p>

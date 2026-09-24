@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran Haskell DEBUG drill from 2026-08-20: a guard expression with no catch-all case, so an unmatched input fails at runtime.">
-<title>Namaran — Haskell / DEBUG — 2026-08-20</title>
+<title>ガードの抜け</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-08-20">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-08-20",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "Haskell — non-exhaustive guards" },
+      "about": { "@type": "Thing", "name": "ガードの抜け" },
+      "keywords": "guard, exhaustiveness",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/haskell/debug/2026-08-20" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="ガードの抜け"
+  data-tags="guard exhaustiveness"
+  data-concepts="網羅性, ガード, otherwise, non-exhaustive"
+>
   <h2>2026-08-20</h2>
   <div class="code-frame">
     <p class="code-filename">Sign.hs</p>

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran C++ READ drill from 2026-09-14: since C++23, a temporary created in a range-based for initializer lives until the loop ends.">
-<title>Namaran — C++ / READ — 2026-09-14</title>
+<title>範囲forと一時オブジェクト</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-09-14">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-14",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "C++ — temporary lifetime in a range-based for loop" },
+      "about": { "@type": "Thing", "name": "範囲forと一時オブジェクト" },
+      "keywords": "range-for, temporary, lifetime",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/cpp/debug/2026-09-14">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="範囲forと一時オブジェクト"
+  data-tags="range-for temporary lifetime"
+  data-concepts="範囲for, 一時オブジェクト, ダングリング, range-based for"
+>
   <h2>2026-09-14</h2>
   <div class="code-frame">
     <p class="code-filename">temp_range.cpp</p>

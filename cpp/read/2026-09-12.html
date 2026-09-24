@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran C++ READ drill from 2026-09-12: why a for loop's counter disappears the moment the loop ends, unlike a while loop's.">
-<title>Namaran — C++ / READ — 2026-09-12</title>
+<title>forの外の変数</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-09-12">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-12",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "C++ — a for loop's counter going out of scope" },
+      "about": { "@type": "Thing", "name": "forの外の変数" },
+      "keywords": "loop, expression",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/cpp/debug/2026-09-12">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="forの外の変数"
+  data-tags="loop expression"
+  data-concepts="スコープ, ループ変数, 変数の寿命, scope"
+>
   <h2>2026-09-12</h2>
   <div class="code-frame">
     <p class="code-filename">loop_scope.cpp</p>

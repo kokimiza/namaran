@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran Haskell READ drill from 2026-09-07: let b = a on an IORef binds the same reference, so writing through b changes what reading through a sees.">
-<title>Namaran — Haskell / READ — 2026-09-07</title>
+<title>IORefは別名</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-09-07">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-07",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "Haskell — an IORef binding is an alias, not a copy" },
+      "about": { "@type": "Thing", "name": "IORefは別名" },
+      "keywords": "ioref, mutability",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/haskell/debug/2026-09-07">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="IORefは別名"
+  data-tags="ioref mutability"
+  data-concepts="IORef, エイリアス, 共有, mutable reference"
+>
   <h2>2026-09-07</h2>
   <div class="code-frame">
     <p class="code-filename">Alias.hs</p>

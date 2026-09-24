@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran Rust WRITE drill from 2026-09-13: evaluate a boxed expression tree with a recursive match whose arms mirror the enum's variants.">
-<title>Namaran — Rust / WRITE — 2026-09-13</title>
+<title>再帰enumをたどる</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-09-13">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-13",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "Rust — structural recursion over a recursive enum" },
+      "about": { "@type": "Thing", "name": "再帰enumをたどる" },
+      "keywords": "recursion, enum, pattern-matching",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/rust/debug/2026-09-13">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="再帰enumをたどる"
+  data-tags="recursion enum pattern-matching"
+  data-concepts="再帰的データ型, enum, 構造的再帰, recursive enum"
+>
   <h2>2026-09-13</h2>
   <div class="code-frame">
     <p class="code-filename">eval_expr.rs</p>

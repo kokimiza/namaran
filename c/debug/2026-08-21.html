@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran C DEBUG drill from 2026-08-21: a loop copies one byte past the end of a fixed-size buffer.">
-<title>Namaran — C / DEBUG — 2026-08-21</title>
+<title>1つ多い書き込み</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-08-21">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-08-21",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "C — buffer overflow (off-by-one)" },
+      "about": { "@type": "Thing", "name": "1つ多い書き込み" },
+      "keywords": "buffer-overflow, off-by-one, array",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/c/debug/2026-08-21" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="1つ多い書き込み"
+  data-tags="buffer-overflow off-by-one array"
+  data-concepts="バッファオーバーラン, オフバイワン, 境界, buffer overflow"
+>
   <h2>2026-08-21</h2>
   <div class="code-frame">
     <p class="code-filename">buffer.c</p>

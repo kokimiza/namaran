@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran Rust DEBUG drill from 2026-09-12: fix a struct comparison that fails to compile because PartialEq isn't derived automatically.">
-<title>Namaran — Rust / DEBUG — 2026-09-12</title>
+<title>derive忘れの比較</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-09-12">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-12",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "Rust — comparing structs needs derived PartialEq" },
+      "about": { "@type": "Thing", "name": "derive忘れの比較" },
+      "keywords": "comparison, struct, deriving",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/rust/debug/2026-09-12" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="derive忘れの比較"
+  data-tags="comparison struct deriving"
+  data-concepts="PartialEq, derive, 構造体の比較, derive"
+>
   <h2>2026-09-12</h2>
   <div class="code-frame">
     <p class="code-filename">point_eq.rs</p>

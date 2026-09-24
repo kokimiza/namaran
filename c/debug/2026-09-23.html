@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="A Namaran C DEBUG drill from 2026-09-23: an imos-method diff array sized one short of the range it needs to record, overflowing when a query's right edge reaches n.">
-<title>Namaran — C / DEBUG — 2026-09-23</title>
+<title>差分配列の右端</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-09-23">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-23",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "C — an imos-method diff array one element too short for a query's right edge" },
+      "about": { "@type": "Thing", "name": "差分配列の右端" },
+      "keywords": "imos, off-by-one, prefix-sum",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/c/debug/2026-09-23" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="差分配列の右端"
+  data-tags="imos off-by-one prefix-sum"
+  data-concepts="いもす法, 差分配列, 右端, 区間の境界"
+>
   <h2>2026-09-23</h2>
   <div class="code-frame">
     <p class="code-filename">imos_bounds.c</p>

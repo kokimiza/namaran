@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="A Namaran Rust WRITE drill from 2026-09-19: write a byte-packing function where an unparenthesized 'as' cast before << is parsed as a generic argument list.">
-<title>Namaran — Rust / WRITE — 2026-09-19</title>
+<title>asとシフトの括弧</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-09-19">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-19",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "Rust — parenthesizing an as cast before a shift" },
+      "about": { "@type": "Thing", "name": "asとシフトの括弧" },
+      "keywords": "operator-precedence, type-conversion, bit-operation",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/rust/debug/2026-09-19">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="asとシフトの括弧"
+  data-tags="operator-precedence type-conversion bit-operation"
+  data-concepts="優先順位, asキャスト, シフト, precedence"
+>
   <h2>2026-09-19</h2>
   <div class="code-frame">
     <p class="code-filename">pack_bytes.rs</p>

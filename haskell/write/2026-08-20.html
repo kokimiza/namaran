@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran Haskell WRITE drill from 2026-08-20: implement myReverse with a left fold.">
-<title>Namaran — Haskell / WRITE — 2026-08-20</title>
+<title>foldlで逆順</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-08-20">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-08-20",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "Haskell — list reversal with foldl" },
+      "about": { "@type": "Thing", "name": "foldlで逆順" },
+      "keywords": "fold, list",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/haskell/debug/2026-08-20">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="foldlで逆順"
+  data-tags="fold list"
+  data-concepts="foldl, リスト反転, 畳み込み, fold"
+>
   <h2>2026-08-20</h2>
   <div class="code-frame">
     <p class="code-filename">MyReverse.hs</p>

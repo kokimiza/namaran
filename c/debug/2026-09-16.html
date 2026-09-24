@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran C DEBUG drill from 2026-09-16: sizeof(arr) / sizeof(arr[0]) inside a function silently measures a decayed pointer, not the caller's array.">
-<title>Namaran — C / DEBUG — 2026-09-16</title>
+<title>配列引数のsizeof</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-09-16">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-16",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "C — sizeof(arr) / sizeof(arr[0]) on a decayed parameter" },
+      "about": { "@type": "Thing", "name": "配列引数のsizeof" },
+      "keywords": "pointer-decay, array, function-parameter",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/c/debug/2026-09-16" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="配列引数のsizeof"
+  data-tags="pointer-decay array function-parameter"
+  data-concepts="sizeof, 配列引数, ポインタ化, array decay"
+>
   <h2>2026-09-16</h2>
   <div class="code-frame">
     <p class="code-filename">print_all.c</p>

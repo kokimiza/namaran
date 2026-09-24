@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="A Namaran C DEBUG drill from 2026-09-18: a countdown's base case checks n == 0, but stepping by 2 from an odd start jumps right over it, recursing forever.">
-<title>Namaran — C / DEBUG — 2026-09-18</title>
+<title>またいだ基底条件</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-09-18">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-18",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "C — a base case that a step size skips over" },
+      "about": { "@type": "Thing", "name": "またいだ基底条件" },
+      "keywords": "recursion, base-case",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/c/debug/2026-09-18" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="またいだ基底条件"
+  data-tags="recursion base-case"
+  data-concepts="基底条件, 無限再帰, ステップ幅, base case"
+>
   <h2>2026-09-18</h2>
   <div class="code-frame">
     <p class="code-filename">countdown.c</p>

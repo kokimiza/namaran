@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran Rust DEBUG drill from 2026-08-21: an immutable borrow is still alive when a mutable borrow is needed.">
-<title>Namaran — Rust / DEBUG — 2026-08-21</title>
+<title>可変と不変の同居</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-08-21">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-08-21",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "Rust — borrow checker (mutable + immutable borrow)" },
+      "about": { "@type": "Thing", "name": "可変と不変の同居" },
+      "keywords": "borrow, ownership",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/rust/debug/2026-08-21" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="可変と不変の同居"
+  data-tags="borrow ownership"
+  data-concepts="借用規則, 可変借用, 不変借用, borrow checker"
+>
   <h2>2026-08-21</h2>
   <div class="code-frame">
     <p class="code-filename">borrow.rs</p>

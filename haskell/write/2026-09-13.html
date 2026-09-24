@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran Haskell WRITE drill from 2026-09-13: insert into an immutable binary search tree by recursion, rebuilding only the path to the new leaf and sharing the rest.">
-<title>Namaran — Haskell / WRITE — 2026-09-13</title>
+<title>木に永続的に挿入</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-09-13">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-13",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "Haskell — recursive insertion into a persistent tree" },
+      "about": { "@type": "Thing", "name": "木に永続的に挿入" },
+      "keywords": "tree, recursion, immutability",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/haskell/debug/2026-09-13">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="木に永続的に挿入"
+  data-tags="tree recursion immutability"
+  data-concepts="永続データ構造, 二分探索木, 挿入, persistent tree"
+>
   <h2>2026-09-13</h2>
   <div class="code-frame">
     <p class="code-filename">TreeInsert.hs</p>

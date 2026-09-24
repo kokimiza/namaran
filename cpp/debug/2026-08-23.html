@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran C++ DEBUG drill from 2026-08-23: a switch on a std::variant's index silently omits a newly added alternative, since switch gives no exhaustiveness check the way std::visit does.">
-<title>Namaran — C++ / DEBUG — 2026-08-23</title>
+<title>variantのswitch</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-08-23">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-08-23",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "C++ — a switch over variant.index() has no exhaustiveness check" },
+      "about": { "@type": "Thing", "name": "variantのswitch" },
+      "keywords": "variant, exhaustiveness, switch",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/cpp/debug/2026-08-23" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="variantのswitch"
+  data-tags="variant exhaustiveness switch"
+  data-concepts="網羅性, variant, switch, exhaustiveness"
+>
   <h2>2026-08-23</h2>
   <div class="code-frame">
     <p class="code-filename">shape_switch.cpp</p>

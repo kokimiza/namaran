@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="Every past Namaran Rust DEBUG drill, archived by date.">
-<title>Namaran — Rust / DEBUG — Archive</title>
+<meta name="description" content="NamaranのRust DEBUGドリルの過去問を、日付とお題の一覧で。">
+<title>Rust DEBUGの過去問</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/archive">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -44,26 +44,26 @@
 <main>
   <h2>Archive</h2>
   <ul class="past-list">
-    <li><a href="/rust/debug/2026-09-23">2026-09-23</a> <span class="past-topic">a half-open interval boundary bug in a recursive segment tree query</span></li>
-    <li><a href="/rust/debug/2026-09-22">2026-09-22</a> <span class="past-topic">an off-by-one in a segment tree's range-minimum query</span></li>
-    <li><a href="/rust/debug/2026-09-21">2026-09-21</a> <span class="past-topic">a &gt;= 0 comparison that is always true on an unsigned integer</span></li>
-    <li><a href="/rust/debug/2026-09-20">2026-09-20</a> <span class="past-topic">reassigning a let binding requires mut</span></li>
-    <li><a href="/rust/debug/2026-09-19">2026-09-19</a> <span class="past-topic">comparison operators cannot be chained</span></li>
-    <li><a href="/rust/debug/2026-09-18">2026-09-18</a> <span class="past-topic">format! rebuilds the whole string every iteration</span></li>
-    <li><a href="/rust/debug/2026-09-16">2026-09-16</a> <span class="past-topic">an owned parameter moves the caller's argument</span></li>
-    <li><a href="/rust/debug/2026-09-15">2026-09-15</a> <span class="past-topic">identifier patterns in match</span></li>
-    <li><a href="/rust/debug/2026-09-14">2026-09-14</a> <span class="past-topic">temporary lifetime in a while let condition</span></li>
-    <li><a href="/rust/debug/2026-09-13">2026-09-13</a> <span class="past-topic">recursive types need indirection</span></li>
-    <li><a href="/rust/debug/2026-09-12">2026-09-12</a> <span class="past-topic">comparing structs needs derived PartialEq</span></li>
-    <li><a href="/rust/debug/2026-09-11">2026-09-11</a> <span class="past-topic">a runtime-value zero divisor panicking uncaught</span></li>
-    <li><a href="/rust/debug/2026-09-07">2026-09-07</a> <span class="past-topic">returning a reference to a local variable</span></li>
-    <li><a href="/rust/debug/2026-08-27">2026-08-27</a> <span class="past-topic">a loop that forgets to increment its counter</span></li>
-    <li><a href="/rust/debug/2026-08-25">2026-08-25</a> <span class="past-topic">a generic trait method that breaks dyn compatibility</span></li>
-    <li><a href="/rust/debug/2026-08-24">2026-08-24</a> <span class="past-topic">panics on an empty slice</span></li>
-    <li><a href="/rust/debug/2026-08-23">2026-08-23</a> <span class="past-topic">a forgotten field silently comes from Default::default()</span></li>
-    <li><a href="/rust/debug/2026-08-22">2026-08-22</a> <span class="past-topic">move by iteration</span></li>
-    <li><a href="/rust/debug/2026-08-21">2026-08-21</a> <span class="past-topic">borrow checker (mutable + immutable borrow)</span></li>
-    <li><a href="/rust/debug/2026-08-20">2026-08-20</a> <span class="past-topic">simultaneous mutable borrows</span></li>
+    <li><a href="/rust/debug/2026-09-23">2026-09-23</a> <span class="past-topic">半開区間の取り違え</span></li>
+    <li><a href="/rust/debug/2026-09-22">2026-09-22</a> <span class="past-topic">セグ木の区間ずれ</span></li>
+    <li><a href="/rust/debug/2026-09-21">2026-09-21</a> <span class="past-topic">符号なしの&gt;=0</span></li>
+    <li><a href="/rust/debug/2026-09-20">2026-09-20</a> <span class="past-topic">mutのない再代入</span></li>
+    <li><a href="/rust/debug/2026-09-19">2026-09-19</a> <span class="past-topic">比較は連鎖しない</span></li>
+    <li><a href="/rust/debug/2026-09-18">2026-09-18</a> <span class="past-topic">毎回作り直す文字列</span></li>
+    <li><a href="/rust/debug/2026-09-16">2026-09-16</a> <span class="past-topic">引数で所有権を奪う</span></li>
+    <li><a href="/rust/debug/2026-09-15">2026-09-15</a> <span class="past-topic">matchが全部拾う</span></li>
+    <li><a href="/rust/debug/2026-09-14">2026-09-14</a> <span class="past-topic">while letの一時値</span></li>
+    <li><a href="/rust/debug/2026-09-13">2026-09-13</a> <span class="past-topic">再帰型にはBox</span></li>
+    <li><a href="/rust/debug/2026-09-12">2026-09-12</a> <span class="past-topic">derive忘れの比較</span></li>
+    <li><a href="/rust/debug/2026-09-11">2026-09-11</a> <span class="past-topic">実行時の0除算</span></li>
+    <li><a href="/rust/debug/2026-09-07">2026-09-07</a> <span class="past-topic">局所変数を返す</span></li>
+    <li><a href="/rust/debug/2026-08-27">2026-08-27</a> <span class="past-topic">更新のないループ</span></li>
+    <li><a href="/rust/debug/2026-08-25">2026-08-25</a> <span class="past-topic">dyn互換が壊れる</span></li>
+    <li><a href="/rust/debug/2026-08-24">2026-08-24</a> <span class="past-topic">空スライスでパニック</span></li>
+    <li><a href="/rust/debug/2026-08-23">2026-08-23</a> <span class="past-topic">書き忘れた初期化</span></li>
+    <li><a href="/rust/debug/2026-08-22">2026-08-22</a> <span class="past-topic">forで持っていかれる</span></li>
+    <li><a href="/rust/debug/2026-08-21">2026-08-21</a> <span class="past-topic">可変と不変の同居</span></li>
+    <li><a href="/rust/debug/2026-08-20">2026-08-20</a> <span class="past-topic">二重の可変借用</span></li>
   </ul>
 
   <p><a href="/topics">Browse by topic</a></p>

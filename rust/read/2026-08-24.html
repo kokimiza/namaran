@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran Rust READ drill from 2026-08-24: shadowing creates a new binding each time, including inside a nested block.">
-<title>Namaran — Rust / READ — 2026-08-24</title>
+<title>シャドーイング</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-08-24">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-08-24",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "Rust — variable shadowing" },
+      "about": { "@type": "Thing", "name": "シャドーイング" },
+      "keywords": "shadowing, binding",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/rust/debug/2026-08-24">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="シャドーイング"
+  data-tags="shadowing binding"
+  data-concepts="シャドーイング, 変数の束縛, 再宣言, shadowing"
+>
   <h2>2026-08-24</h2>
   <div class="code-frame">
     <p class="code-filename">shadow.rs</p>

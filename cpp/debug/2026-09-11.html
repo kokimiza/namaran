@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="A Namaran C++ DEBUG drill from 2026-09-11: a retry loop's while (attempts &lt;= max_attempts) runs one attempt too many.">
-<title>Namaran — C++ / DEBUG — 2026-09-11</title>
+<title>リトライ回数が1回多い</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-09-11">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-11",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "C++ — an off-by-one while loop bound in a retry counter" },
+      "about": { "@type": "Thing", "name": "リトライ回数が1回多い" },
+      "keywords": "off-by-one, loop",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/cpp/debug/2026-09-11" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="リトライ回数が1回多い"
+  data-tags="off-by-one loop"
+  data-concepts="オフバイワン, ループ境界, リトライ, off-by-one"
+>
   <h2>2026-09-11</h2>
   <div class="code-frame">
     <p class="code-filename">retry_count.cpp</p>

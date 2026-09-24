@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="「ループ」を扱ったNamaranのコーディングドリル22問。終了条件、break、do-while相当、loop condition、loop式、breakの値。">
+<title>ループ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/tag/loop">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+    { "@type": "ListItem", "position": 2, "name": "お題から探す", "item": "https://namaran.jocarium.productions/topics" },
+    { "@type": "ListItem", "position": 3, "name": "ループ" }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<main>
+  <h2>ループ</h2>
+
+  <p class="lede">
+    「ループ」を扱った22問。日付を開くと、その日のドリルがそのまま読めます。
+  </p>
+
+  <ul class="past-list">
+    <li><a href="/rust/write/2026-09-21">Rust / WRITE · 2026-09-21</a> <span class="past-topic">自分で終了条件を書く</span> <span class="past-concepts">終了条件, break, do-while相当, loop condition</span></li>
+    <li><a href="/rust/read/2026-09-21">Rust / READ · 2026-09-21</a> <span class="past-topic">breakで値を返す</span> <span class="past-concepts">loop式, breakの値, 無限ループ, break with value</span></li>
+    <li><a href="/rust/write/2026-09-14">Rust / WRITE · 2026-09-14</a> <span class="past-topic">ラベル付きbreak</span> <span class="past-concepts">ラベル付きbreak, 入れ子ループ, 値を返す, labeled break</span></li>
+    <li><a href="/rust/read/2026-09-14">Rust / READ · 2026-09-14</a> <span class="past-topic">ループ式の型</span> <span class="past-concepts">loop式, 型, breakの値, loop expression</span></li>
+    <li><a href="/haskell/write/2026-09-14">Haskell / WRITE · 2026-09-14</a> <span class="past-topic">whileを関数で書く</span> <span class="past-concepts">whileループ, IOアクション, 再帰, monadic loop</span></li>
+    <li><a href="/c/write/2026-09-14">C / WRITE · 2026-09-14</a> <span class="past-topic">符号なしcharの全域</span> <span class="past-concepts">符号なし, ラップアラウンド, 無限ループ, unsigned char</span></li>
+    <li><a href="/c/read/2026-09-14">C / READ · 2026-09-14</a> <span class="past-topic">do-whileの継続</span> <span class="past-concepts">continue, do-while, ループの継続, loop control</span></li>
+    <li><a href="/c/debug/2026-09-14">C / DEBUG · 2026-09-14</a> <span class="past-topic">符号つき整数の桁あふれ</span> <span class="past-concepts">符号つきオーバーフロー, 未定義動作, ループ条件, signed overflow</span></li>
+    <li><a href="/rust/write/2026-09-12">Rust / WRITE · 2026-09-12</a> <span class="past-topic">等値判定の行き過ぎ</span> <span class="past-concepts">ループ条件, 等値比較, 行き過ぎ, loop guard</span></li>
+    <li><a href="/cpp/write/2026-09-12">C++ / WRITE · 2026-09-12</a> <span class="past-topic">forとwhileの選択</span> <span class="past-concepts">while, for, ループの選択, loop choice</span></li>
+    <li><a href="/cpp/read/2026-09-12">C++ / READ · 2026-09-12</a> <span class="past-topic">forの外の変数</span> <span class="past-concepts">スコープ, ループ変数, 変数の寿命, scope</span></li>
+    <li><a href="/cpp/debug/2026-09-12">C++ / DEBUG · 2026-09-12</a> <span class="past-topic">更新を忘れたwhile</span> <span class="past-concepts">無限ループ, カウンタ更新, while, infinite loop</span></li>
+    <li><a href="/c/write/2026-09-12">C / WRITE · 2026-09-12</a> <span class="past-topic">閉区間の総和</span> <span class="past-concepts">ループ境界, 閉区間, 総和, loop bound</span></li>
+    <li><a href="/c/read/2026-09-12">C / READ · 2026-09-12</a> <span class="past-topic">&lt;=のループ境界</span> <span class="past-concepts">ループ境界, オフバイワン, loop bound, off-by-one</span></li>
+    <li><a href="/c/debug/2026-09-12">C / DEBUG · 2026-09-12</a> <span class="past-topic">配列をはみ出すループ</span> <span class="past-concepts">オフバイワン, 範囲外アクセス, ループ境界, out of bounds</span></li>
+    <li><a href="/cpp/write/2026-09-11">C++ / WRITE · 2026-09-11</a> <span class="past-topic">終了条件が動くループ</span> <span class="past-concepts">while, 回数不定, ループの選択, while loop</span></li>
+    <li><a href="/cpp/read/2026-09-11">C++ / READ · 2026-09-11</a> <span class="past-topic">2つのカウンタのfor</span> <span class="past-concepts">forの複数更新, カンマ演算子, 二重カウンタ, for loop</span></li>
+    <li><a href="/cpp/debug/2026-09-11">C++ / DEBUG · 2026-09-11</a> <span class="past-topic">リトライ回数が1回多い</span> <span class="past-concepts">オフバイワン, ループ境界, リトライ, off-by-one</span></li>
+    <li><a href="/rust/debug/2026-08-27">Rust / DEBUG · 2026-08-27</a> <span class="past-topic">更新のないループ</span> <span class="past-concepts">無限ループ, カウンタ更新, increment, infinite loop</span></li>
+    <li><a href="/c/read/2026-08-27">C / READ · 2026-08-27</a> <span class="past-topic">n --&gt; 0 の正体</span> <span class="past-concepts">後置デクリメント, ループ条件, ゴーイングトゥ演算子, postfix decrement</span></li>
+    <li><a href="/cpp/write/2026-08-24">C++ / WRITE · 2026-08-24</a> <span class="past-topic">範囲forで回す</span> <span class="past-concepts">範囲for, イテレーション, range-based for</span></li>
+    <li><a href="/c/write/2026-08-20">C / WRITE · 2026-08-20</a> <span class="past-topic">文字の出現回数</span> <span class="past-concepts">文字列走査, 出現回数, カウント, character count</span></li>
+  </ul>
+
+  <p><a href="/topics">ほかのお題を見る</a></p>
+</main>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

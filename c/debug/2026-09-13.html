@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran C DEBUG drill from 2026-09-13: a recursive binary search calls itself but forgets to return the result, so the caller reads a value that was never returned.">
-<title>Namaran — C / DEBUG — 2026-09-13</title>
+<title>returnの書き忘れ</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-09-13">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-13",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "C — returning the result of a recursive call" },
+      "about": { "@type": "Thing", "name": "returnの書き忘れ" },
+      "keywords": "recursion, control-flow",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/c/debug/2026-09-13" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="returnの書き忘れ"
+  data-tags="recursion control-flow"
+  data-concepts="再帰, 戻り値, returnの書き忘れ, missing return"
+>
   <h2>2026-09-13</h2>
   <div class="code-frame">
     <p class="code-filename">binary_search.c</p>

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran Haskell WRITE drill from 2026-09-12: write a running-maximum function by threading an immutable value through recursion, with no mutable variable at all.">
-<title>Namaran — Haskell / WRITE — 2026-09-12</title>
+<title>値を持ち回る</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-09-12">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-12",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "Haskell — threading an immutable value instead of mutating one" },
+      "about": { "@type": "Thing", "name": "値を持ち回る" },
+      "keywords": "recursion, immutability",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/haskell/debug/2026-09-12">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="値を持ち回る"
+  data-tags="recursion immutability"
+  data-concepts="不変, 引数で渡す, アキュムレータ, threading state"
+>
   <h2>2026-09-12</h2>
   <div class="code-frame">
     <p class="code-filename">RunningMax.hs</p>

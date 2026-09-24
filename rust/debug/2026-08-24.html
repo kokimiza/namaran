@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran Rust DEBUG drill from 2026-08-24: indexing an empty slice's last element panics.">
-<title>Namaran — Rust / DEBUG — 2026-08-24</title>
+<title>空スライスでパニック</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-08-24">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-08-24",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "Rust — panics on an empty slice" },
+      "about": { "@type": "Thing", "name": "空スライスでパニック" },
+      "keywords": "slice, error-handling, boundary",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/rust/debug/2026-08-24" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="空スライスでパニック"
+  data-tags="slice error-handling boundary"
+  data-concepts="空のスライス, パニック, 境界条件, empty slice"
+>
   <h2>2026-08-24</h2>
   <div class="code-frame">
     <p class="code-filename">last.rs</p>

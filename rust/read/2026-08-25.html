@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran Rust READ drill from 2026-08-25: a trait method returning Self is called only on the concrete type, exactly what where Self: Sized allows while keeping the trait usable as dyn Shape.">
-<title>Namaran — Rust / READ — 2026-08-25</title>
+<title>dyn互換なトレイト</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-08-25">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-08-25",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "Rust — a dyn-compatible trait with one method excluded via Self: Sized" },
+      "about": { "@type": "Thing", "name": "dyn互換なトレイト" },
+      "keywords": "trait-object, dyn-compatibility",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/rust/debug/2026-08-25">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="dyn互換なトレイト"
+  data-tags="trait-object dyn-compatibility"
+  data-concepts="トレイトオブジェクト, dyn互換, オブジェクト安全, object safety"
+>
   <h2>2026-08-25</h2>
   <div class="code-frame">
     <p class="code-filename">shape_dyn.rs</p>

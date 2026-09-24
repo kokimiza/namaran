@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="A Namaran Rust DEBUG drill from 2026-09-19: a chained comparison like min &lt; x &lt; max doesn't compile in Rust, and needs an explicit && instead.">
-<title>Namaran — Rust / DEBUG — 2026-09-19</title>
+<title>比較は連鎖しない</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-09-19">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-19",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "Rust — comparison operators cannot be chained" },
+      "about": { "@type": "Thing", "name": "比較は連鎖しない" },
+      "keywords": "comparison, operator-precedence",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/rust/debug/2026-09-19" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="比較は連鎖しない"
+  data-tags="comparison operator-precedence"
+  data-concepts="比較の連鎖, a &lt; b &lt; c, コンパイルエラー, chained comparison"
+>
   <h2>2026-09-19</h2>
   <div class="code-frame">
     <p class="code-filename">in_range.rs</p>

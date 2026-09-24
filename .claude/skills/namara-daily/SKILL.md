@@ -65,7 +65,8 @@ description: Namaranの問題を作成・検証する。言語・種別・トピ
 * 作る組・日付・お題は引数で確定済みなので、推測で増やしたり減らしたりしない
 * git操作（add/commit/push）は一切しない。検証（§4）を通すところまでが仕事で、
   コミットとpushはワークフローの別ジョブが検証済みの差分だけを使って行う
-* 日付ページと `archive.html` 以外のファイル（このSkill、`script/`、設計書など）は変更しない。
+* 日付ページと `archive.html`、それに `script/tags.tsv`（新しいタグの日本語名を足すときだけ）
+  以外のファイル（このSkill、`script/` の他のファイル、設計書など）は変更しない。
   変更があるとワークフローは何も公開せずに失敗する
 
 ## 1. 雛形生成（script/content.shを使う）
@@ -92,8 +93,8 @@ Bashで実行する。上書きはしない・冪等なので、同じ日付で�
 * `code-filename` の命名規則（C/C++/Rustはsnake_case、Haskellはモジュール名慣習のPascalCase）
 * 問題文・解説文の分量感とトーン（**形式は §3「種別ごとの問題文とコードの形」が優先する。**
   直近ページはそこに書かれた規約より前の古い形のことがある——過去ページは直さない）
-* **`<title>` と `meta description` は直近ページを真似ない。** 2026-09-23以前のページは
-  日付だけのタイトルで、お題のメタデータも持っていない（§3「お題のメタデータ」が現行の規約）
+* `<title>` と `data-topic`（15字以内）の言い切り方——直近ページで実際の長さの感覚をつかむ。
+  ただし `meta description` は2026-09-23以前のページでは英語なので、そこは真似ない
 * READ/WRITE/DEBUGそれぞれの `<details>` の型（WRITEは`<summary>Reference</summary>`＋参考実装の`<pre>`＋説明の`<p>`、READ/DEBUGは`<summary>Answer</summary>`＋説明の`<p>`のみ）
 
 ## 3. 中身を書く（唯一の創造的な作業）
@@ -104,15 +105,14 @@ Bashで実行する。上書きはしない・冪等なので、同じ日付で�
 **言語の使い分け（このリポジトリの確定ルール、doc/basic-design.md §1.5 参照）**:
 
 * `<p class="question">` の本文、`<div class="answer-body">` 内の説明文(`<p>`) → **日本語**
-* `<title>` のお題、`meta description`、`data-topic`、JSON-LDの `about.name` と `description` →
-  **日本語**（英語の術語を混ぜてよい。「値渡しで起きるオブジェクトスライシング」のように）。
+* `<title>`、`meta description`、`data-topic`、JSON-LDの `about.name` と `description` →
+  **日本語**（英語の術語を混ぜてよい。「値渡しで起きる切断」のように）。
   読者もクエリも日本語なので、ここを英語にすると検索から取りこぼす
-* `data-tags` と JSON-LDの `keywords` → **英語のkebab-case**（下記「お題のメタデータ」）
+* `data-tags` と JSON-LDの `keywords` → **英字のスラッグ**（下記「お題のメタデータ」）
 * それ以外すべて（`code-filename`、コード本体とそのコメント、nav、
   `<summary>Answer</summary>`/`<summary>Reference</summary>`ラベル、footer） → **英語のまま**
-* **2026-09-23以前のページは `<title>` が `Namaran — {言語} / {種別} — {日付}` の古い形で、
-  meta descriptionも英語である。公開後のページは直さないので、直近ページを真似るときは
-  ここだけは倣わない**（doc/basic-design.md §7.1 が現行の規約）
+* 2026-09-23以前のページの `meta description` は英語のままである（2026-09-24の一括投入で
+  直したのはタイトルとお題のメタデータだけ）。新しいページでは日本語で書く
 * `<html lang="ja">` は雛形の時点で既にセット済み。触らない
 * JSON-LDの `"inLanguage"` は `"ja"` のまま（雛形は既にそうなっている）
 
@@ -203,32 +203,38 @@ WRITEと同じく、バグの在処や直し方をコメントで示さない。
 雛形の該当TODOを次のように埋める。
 
 ```html
+<title>値渡しで起きる切断</title>
+...
 <main
-  data-topic="値渡しで起きるオブジェクトスライシングと仮想関数の呼び先"
-  data-tags="object-slicing virtual-function value-semantics inheritance"
+  data-topic="値渡しで起きる切断"
+  data-tags="object-slicing virtual-function inheritance"
   data-concepts="オブジェクトスライシング, 値渡し, 仮想関数, object slicing, pass by value"
 >
 ```
 
-* **`data-topic`** — そのドリルのお題を日本語で1行（120字以内）。`<title>` の先頭・JSON-LDの
-  `about.name` と**1文字も違わない同じ文字列**にする
-* **`data-tags`** — 概念を表す英語のタグを空白区切りで2〜6個（上限8）。小文字ASCIIのkebab-case、
-  規格・公式ドキュメントの用語をそのまま、単数形の名詞句。言語名・種別名（`cpp`・`read`）は
-  タグにしない。**新しい語を作る前に `./script/topics.sh --tags` で既存の語彙を見て、
-  あるものを使う**（規則の全文は doc/basic-design.md §7.4）
+* **`data-topic`** — そのドリルのお題を**日本語15字以内**で言い切る。`<title>` は
+  この文字列**だけ**（サイト名も日付も付けない）。JSON-LDの `about.name` も同じ文字列。
+  15字はブラウザのタブとGoogleの検索結果が切り詰めずに出す長さで、ここを定型句に使うと
+  読む側にも検索する側にも何も伝わらない
+* **`data-tags`** — `script/tags.tsv` にあるスラッグを空白区切りで2〜6個（上限8）。
+  **まず `./script/topics.sh --tags` で既存の語彙（スラッグと日本語名）を見て、あるものを使う。**
+  どうしても無いときだけ、`script/tags.tsv` の末尾に `slug<TAB>日本語の名前`（15字以内）を
+  1行足す。スラッグは小文字ASCIIのkebab-caseで、規格・公式ドキュメントの用語をそのまま、
+  単数形の名詞句（規則の全文は doc/basic-design.md §7.4）
 * **`data-concepts`** — 同じ主題を、人が検索窓に打ち込む言葉で2つ以上。日本語と英語を混ぜ、
   空白を含んでよい。タグが1語で表すものを複数の言い方で持つ
 
-`<title>` は `{data-topic} — Namaran {言語} / {種別}` の形にする（日付は入れない）。
-`meta description` は日本語1〜2文・30〜160字で、何を扱うドリルかを具体的に書き、
-JSON-LDの `description` に同じ文を、`keywords` に `data-tags` をカンマ区切りにしたものを書く。
+`meta description` は日本語1〜2文・30〜160字で、何を扱うドリルかを具体的に書く
+（15字の見出しに入りきらない説明はここに置く）。JSON-LDの `description` に同じ文を、
+`keywords` に `data-tags` をカンマ区切りにしたものを書く。
 `meta description`（HTML属性）では `<` `&` をエスケープするが、JSON-LD（`<script>` の中身）では
 エスケープせず生の `<` `&` を書く（`Vec<String>` のように。既存ページもそうなっている）。
 
 同じ主張が複数の場所に出るので、`script/verify.sh` が一致を機械的に確かめる。ずれていれば落ちる。
 
 **`topics.html` や `tag/` は自分で触らない。** 公開時に別ジョブがスクリプトで組み直す
-（非対話実行では、日付ページと `archive.html` 以外のファイルを変更するとワークフローが失敗する）。
+（非対話実行で変更してよいのは、日付ページ・`archive.html`・`script/tags.tsv` だけ。
+それ以外を変更するとワークフローが失敗する）。
 
 ### ハイライトを付ける
 

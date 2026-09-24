@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="A Namaran Haskell DEBUG drill from 2026-09-23: a crash-recovery function replays a write-ahead log past its last commit, resurrecting writes that were never confirmed durable.">
-<title>Namaran — Haskell / DEBUG — 2026-09-23</title>
+<title>未コミットまで再生</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-09-23">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-23",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "Haskell — replaying a WAL past its last commit during crash recovery" },
+      "about": { "@type": "Thing", "name": "未コミットまで再生" },
+      "keywords": "write-ahead-log, fold, error-handling",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/haskell/debug/2026-09-23" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="未コミットまで再生"
+  data-tags="write-ahead-log fold error-handling"
+  data-concepts="WAL, コミット, クラッシュ復旧, replay"
+>
   <h2>2026-09-23</h2>
   <div class="code-frame">
     <p class="code-filename">CrashRecovery.hs</p>

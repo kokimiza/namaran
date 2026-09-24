@@ -652,10 +652,31 @@ main > .past-list:has(.past-topic) > li {
   color: var(--ink-muted);
 }
 
-/* The tag list on /topics is the date grid again, with wider cells: a tag is a
-   phrase, not ten fixed characters. */
+/* An archive line is a date and a short heading, so two fit across a wide
+   screen. A tag page's lines carry the search wordings as well and do not. */
+main > .past-list:has(.past-topic):not(:has(.past-concepts)) {
+  grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr));
+}
+
+/* The tag list on /topics is the date grid again, in the reading face: these
+   are Japanese names, not ten fixed characters of date. */
 .tag-list {
-  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  line-height: 1.8;
+}
+
+.tag-list a {
+  color: var(--ink);
+}
+
+/* How many drills carry that tag. It is information, not decoration, but it
+   is never the reason someone is on this page. */
+.tag-count {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-muted);
 }
 
 /* ---------- footer ----------

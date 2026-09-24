@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="A Namaran Rust DEBUG drill from 2026-09-18: rebuilding a string with format! each loop iteration copies the whole accumulated result every time, making it quadratic.">
-<title>Namaran — Rust / DEBUG — 2026-09-18</title>
+<title>毎回作り直す文字列</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-09-18">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-18",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "Rust — format! rebuilds the whole string every iteration" },
+      "about": { "@type": "Thing", "name": "毎回作り直す文字列" },
+      "keywords": "string, performance",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/rust/debug/2026-09-18" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="毎回作り直す文字列"
+  data-tags="string performance"
+  data-concepts="format!, push_str, 計算量, string building"
+>
   <h2>2026-09-18</h2>
   <div class="code-frame">
     <p class="code-filename">build_csv.rs</p>

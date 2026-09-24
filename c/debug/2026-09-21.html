@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="A Namaran C DEBUG drill from 2026-09-21: a scanf call whose return value is never checked, so unfilled variables get read while still indeterminate.">
-<title>Namaran — C / DEBUG — 2026-09-21</title>
+<title>scanfの結果を信じる</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-09-21">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-21",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "C — using scanf's outputs without checking how many it filled" },
+      "about": { "@type": "Thing", "name": "scanfの結果を信じる" },
+      "keywords": "stdio, error-handling",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/c/debug/2026-09-21" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="scanfの結果を信じる"
+  data-tags="stdio error-handling"
+  data-concepts="scanf, 未初期化, 戻り値, input validation"
+>
   <h2>2026-09-21</h2>
   <div class="code-frame">
     <p class="code-filename">read_sum.c</p>

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="A Namaran C DEBUG drill from 2026-09-22: a counting sort whose bucket array is sized one short of the value range, overflowing on the highest value.">
-<title>Namaran — C / DEBUG — 2026-09-22</title>
+<title>バケット数が1つ足りない</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-09-22">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-22",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "C — an off-by-one bucket count in a range-based counting sort" },
+      "about": { "@type": "Thing", "name": "バケット数が1つ足りない" },
+      "keywords": "counting-sort, off-by-one, sorting",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/c/debug/2026-09-22" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="バケット数が1つ足りない"
+  data-tags="counting-sort off-by-one sorting"
+  data-concepts="計数ソート, バケット数, オフバイワン, counting sort"
+>
   <h2>2026-09-22</h2>
   <div class="code-frame">
     <p class="code-filename">range_sort.c</p>

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="A Namaran Haskell DEBUG drill from 2026-09-19: a -1 sentinel for 'not found' collides with -1 as a genuine reading, making the two indistinguishable.">
-<title>Namaran — Haskell / DEBUG — 2026-09-19</title>
+<title>番兵と実データの衝突</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-09-19">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-19",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "Haskell — a sentinel value colliding with real data" },
+      "about": { "@type": "Thing", "name": "番兵と実データの衝突" },
+      "keywords": "sentinel, maybe",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/haskell/debug/2026-09-19" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="番兵と実データの衝突"
+  data-tags="sentinel maybe"
+  data-concepts="番兵値, 衝突, Maybe, sentinel collision"
+>
   <h2>2026-09-19</h2>
   <div class="code-frame">
     <p class="code-filename">Temperature.hs</p>

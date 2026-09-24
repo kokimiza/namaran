@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="A Namaran C++ DEBUG drill from 2026-09-19: a ring buffer's prev_index wraps with % alone, so index 0 underflows into a negative array index instead of the last slot.">
-<title>Namaran — C++ / DEBUG — 2026-09-19</title>
+<title>負の剰余で添字が壊れる</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-09-19">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-19",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "C++ — negative remainder breaking a wraparound index" },
+      "about": { "@type": "Thing", "name": "負の剰余で添字が壊れる" },
+      "keywords": "division, integer-arithmetic",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/cpp/debug/2026-09-19" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="負の剰余で添字が壊れる"
+  data-tags="division integer-arithmetic"
+  data-concepts="剰余, 負の数, 循環インデックス, negative remainder"
+>
   <h2>2026-09-19</h2>
   <div class="code-frame">
     <p class="code-filename">ring_buffer.cpp</p>

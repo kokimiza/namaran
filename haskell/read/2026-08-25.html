@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran Haskell READ drill from 2026-08-25: deriving Ord ranks constructors by declaration order, not by any meaning in their names, so sorting Large/Medium/Small runs backwards from intuition.">
-<title>Namaran — Haskell / READ — 2026-08-25</title>
+<title>Ordは宣言順</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-08-25">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-08-25",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "Haskell — derived Ord ranks constructors by declaration order" },
+      "about": { "@type": "Thing", "name": "Ordは宣言順" },
+      "keywords": "deriving, typeclass, comparison",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/haskell/debug/2026-08-25">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="Ordは宣言順"
+  data-tags="deriving typeclass comparison"
+  data-concepts="deriving Ord, 宣言順, 比較, derived Ord"
+>
   <h2>2026-08-25</h2>
   <div class="code-frame">
     <p class="code-filename">SizeOrder.hs</p>

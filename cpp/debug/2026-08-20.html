@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran C++ DEBUG drill from 2026-08-20: an iterator invalidated by vector::erase, then incremented anyway.">
-<title>Namaran — C++ / DEBUG — 2026-08-20</title>
+<title>eraseで壊れる反復子</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-08-20">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-08-20",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "C++ — iterator invalidation on erase" },
+      "about": { "@type": "Thing", "name": "eraseで壊れる反復子" },
+      "keywords": "iterator-invalidation, iterator",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/cpp/debug/2026-08-20" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="eraseで壊れる反復子"
+  data-tags="iterator-invalidation iterator"
+  data-concepts="イテレータ無効化, erase, ループ中の削除, iterator invalidation"
+>
   <h2>2026-08-20</h2>
   <div class="code-frame">
     <p class="code-filename">remove_negatives.cpp</p>

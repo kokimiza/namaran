@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran C DEBUG drill from 2026-08-24: missing break statements let a switch fall through into every later case.">
-<title>Namaran — C / DEBUG — 2026-08-24</title>
+<title>breakの書き忘れ</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-08-24">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-08-24",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "C — switch fallthrough" },
+      "about": { "@type": "Thing", "name": "breakの書き忘れ" },
+      "keywords": "switch, control-flow",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/c/debug/2026-08-24" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="breakの書き忘れ"
+  data-tags="switch control-flow"
+  data-concepts="フォールスルー, break, switch, fallthrough"
+>
   <h2>2026-08-24</h2>
   <div class="code-frame">
     <p class="code-filename">day_type.c</p>

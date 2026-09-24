@@ -8,8 +8,8 @@
 #
 #   {lang}/{type}/archive.html   each <li> gets the drill's topic next to
 #                                its date
-#   topics.html                  the list of tags
-#   tag/{tag}.html               one page per tag, listing every drill that
+#   topics.html                  every tag, named in Japanese
+#   tag/{slug}.html              one page per tag, listing every drill that
 #                                touches that concept
 #
 # A drill page itself stays quiet: it shows a date, a filename and code, and
@@ -19,23 +19,26 @@
 # naming it is exactly what is wanted (§7.3).
 #
 # Usage:
-#   script/topics.sh           rewrite the archive lists and topics.html
-#   script/topics.sh --check   exit 1 if either is not up to date
+#   script/topics.sh           rewrite the archive lists, topics.html, tag/
+#   script/topics.sh --check   exit 1 if any of them is not up to date
 #   script/topics.sh --tags    print the tag vocabulary, most used first
 #
 # Where each field comes from, per drill page:
 #
-#   topic     <main data-topic="…">, else the JSON-LD about.name with its
-#             "{Language} — " prefix removed. The fallback is what makes the
-#             archives complete: pages published before this metadata
-#             existed are never edited (§7.1), but every one of them already
-#             carries about.name, and that is the same sentence.
-#   tags      <main data-tags="…">, space separated, kebab-case (§7.4).
-#             Pages older than the metadata have none and so have no tag
-#             page — they are reachable through their archive.
+#   topic     <main data-topic="…"> — a Japanese heading of at most 15
+#             characters. The same string is the page's whole <title>.
+#   tags      <main data-tags="…">, space separated. A tag is an ASCII
+#             kebab-case slug, and it is only ever a URL: what a reader sees
+#             is its Japanese name from script/tags.tsv (§7.4). A tag with
+#             no line there stops the run — an index full of slugs nobody
+#             can read is the thing this layer exists to avoid.
 #   concepts  <main data-concepts="…">, comma separated. The natural-language
 #             wording of the same subject, printed on the tag pages so that a
 #             reader searching "値渡し" or "pass by value" lands somewhere.
+#
+# script/tags.tsv is the tag vocabulary: "slug<TAB>日本語の名前", one per
+# line. This script rewrites it sorted and deduplicated, so a new tag can be
+# appended anywhere by hand.
 #
 # Which dates exist is *not* decided here: archive.html stays the source of
 # truth for what is published (§7.1a), the same file the middleware reads.
@@ -46,8 +49,8 @@
 # HTML-escaped on the way out, and must be short and single-line, or the run
 # fails loudly rather than writing something odd into a page. A topic may
 # well contain < or > (operator<<, Vec<String>, i <= n) — that is text, and
-# it is escaped like any other. The output is deterministic, so
-# re-running it with nothing new published is a no-op diff.
+# it is escaped like any other. The output is deterministic, so re-running it
+# with nothing new published is a no-op diff.
 
 set -euo pipefail
 
@@ -55,7 +58,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 usage() {
-  sed -n '2,50p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+  sed -n '2,52p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
 }
 
 case "${1:-}" in
@@ -66,7 +69,6 @@ esac
 
 exec python3 - "$ROOT_DIR" "${1:-}" <<'PY'
 import html
-import json
 import pathlib
 import re
 import sys
@@ -79,8 +81,10 @@ LANGS = {"c": "C", "cpp": "C++", "rust": "Rust", "haskell": "Haskell"}
 TYPES = {"read": "READ", "write": "WRITE", "debug": "DEBUG"}
 
 TAG_RE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\Z")
-MAX_TOPIC = 120
+MAX_TOPIC = 15
+MAX_LABEL = 15
 MAX_CONCEPT = 60
+TAGS_FILE = root / "script" / "tags.tsv"
 
 
 def die(msg):
@@ -93,10 +97,28 @@ def clean(value, what, where, limit):
     if not text:
         die(f"{where}: empty {what}")
     if len(text) > limit:
-        die(f"{where}: {what} is longer than {limit} characters: {text[:40]!r}…")
+        die(f"{where}: {what} is longer than {limit} characters: {text[:40]!r}")
     if re.search(r"[\x00-\x1f\x7f]", text):
         die(f"{where}: {what} contains a control character: {text[:40]!r}")
     return text
+
+
+def read_labels():
+    """slug -> Japanese name, from script/tags.tsv."""
+    if not TAGS_FILE.is_file():
+        return {}
+    labels = {}
+    for n, line in enumerate(TAGS_FILE.read_text(encoding="utf-8").splitlines(), start=1):
+        if not line.strip():
+            continue
+        slug, _, label = line.partition("\t")
+        if not TAG_RE.match(slug):
+            die(f"script/tags.tsv:{n}: {slug!r} is not a kebab-case ASCII slug")
+        label = clean(label, "tag name", f"script/tags.tsv:{n}", MAX_LABEL)
+        if slug in labels and labels[slug] != label:
+            die(f"script/tags.tsv: {slug!r} has two different names")
+        labels[slug] = label
+    return labels
 
 
 def read_drill(lang, typ, date):
@@ -107,23 +129,16 @@ def read_drill(lang, typ, date):
 
     m = re.search(r"<main\b[^>]*>", s)
     attrs = dict(re.findall(r'([a-z-]+)="([^"]*)"', m.group(0))) if m else {}
-
-    topic = attrs.get("data-topic")
-    if topic is None:
-        # Published before this metadata existed (§7.1: never edited).
-        m = re.search(r'"about":\s*\{[^}]*"name":\s*"((?:[^"\\]|\\.)*)"', s)
-        if not m:
-            die(f"{where}: no data-topic and no JSON-LD about.name to fall back on")
-        topic = json.loads('"' + m.group(1) + '"')
-        prefix = f"{LANGS[lang]} — "
-        if topic.startswith(prefix):
-            topic = topic[len(prefix):]
-    topic = clean(topic, "topic", where, MAX_TOPIC)
+    if "data-topic" not in attrs:
+        die(f"{where}: <main> has no data-topic")
+    topic = clean(attrs["data-topic"], "topic", where, MAX_TOPIC)
 
     tags = []
     for tag in attrs.get("data-tags", "").split():
         if not TAG_RE.match(tag):
             die(f"{where}: tag {tag!r} is not kebab-case ASCII (doc/basic-design.md §7.4)")
+        if tag not in labels:
+            die(f"{where}: tag {tag!r} has no Japanese name in script/tags.tsv")
         if tag not in tags:
             tags.append(tag)
 
@@ -150,20 +165,29 @@ def e(text):
     return html.escape(text, quote=False)
 
 
+labels = read_labels()
 drills = []
 for lang in LANGS:
     for typ in TYPES:
         for date in published_dates(lang, typ):
             drills.append(read_drill(lang, typ, date))
 
+by_tag = {}
+for d in drills:
+    for tag in d["tags"]:
+        by_tag.setdefault(tag, []).append(d)
+
+# Most used first: on a page of two hundred Japanese names there is no
+# alphabet to fall back on, so the order has to mean something.
+tag_order = sorted(by_tag, key=lambda t: (-len(by_tag[t]), t))
+
 if mode == "--tags":
-    counts = {}
-    for d in drills:
-        for tag in d["tags"]:
-            counts[tag] = counts.get(tag, 0) + 1
-    for tag, n in sorted(counts.items(), key=lambda kv: (-kv[1], kv[0])):
-        print(f"{n:4}  {tag}")
-    if not counts:
+    for tag in tag_order:
+        print(f"{len(by_tag[tag]):4}  {tag:<28} {labels[tag]}")
+    unused = sorted(set(labels) - set(by_tag))
+    for tag in unused:
+        print(f"{0:4}  {tag:<28} {labels[tag]}  (not used yet)")
+    if not labels:
         print("(no tags yet)")
     sys.exit(0)
 
@@ -239,35 +263,36 @@ def shell(title, description, canonical, breadcrumb, body):
 
 
 def drill_line(d):
-    label = f'{LANGS[d["lang"]]} / {TYPES[d["type"]]} · {d["date"]}'
+    where = f'{LANGS[d["lang"]]} / {TYPES[d["type"]]} · {d["date"]}'
     concepts = ""
     if d["concepts"]:
         concepts = f' <span class="past-concepts">{e(", ".join(d["concepts"]))}</span>'
-    return (f'    <li><a href="/{d["lang"]}/{d["type"]}/{d["date"]}">{label}</a>'
+    return (f'    <li><a href="/{d["lang"]}/{d["type"]}/{d["date"]}">{where}</a>'
             f' <span class="past-topic">{e(d["topic"])}</span>{concepts}</li>')
 
 
 def render_tag_page(tag, entries):
-    """/tag/{tag} — every drill that touches one concept.
+    """/tag/{slug} — every drill that touches one concept.
 
     One page per tag, not one page with every tag on it: twelve drills a day
     with a handful of tags each would turn a single index into a megabyte
     inside a year, and a page about one concept is the better answer to
     someone searching for that concept anyway.
     """
+    name = labels[tag]
     entries = sorted(entries, key=lambda d: (d["date"], d["lang"], d["type"]), reverse=True)
     words = []
     for d in entries:
         for c in d["concepts"]:
             if c not in words:
                 words.append(c)
-    description = f"{tag}を扱ったNamaranのコーディングドリル。"
+    description = f"「{name}」を扱ったNamaranのコーディングドリル{len(entries)}問。"
     if words:
-        description += "、".join(words[:6])[:120] + "。"
-    body = f"""  <h2>{tag}</h2>
+        description += "、".join(words[:6])[:100] + "。"
+    body = f"""  <h2>{e(name)}</h2>
 
   <p class="lede">
-    「{tag}」を扱った{len(entries)}問。日付ページを開くと、その日のドリルがそのまま読めます。
+    「{e(name)}」を扱った{len(entries)}問。日付を開くと、その日のドリルがそのまま読めます。
   </p>
 
   <ul class="past-list">
@@ -276,20 +301,23 @@ def render_tag_page(tag, entries):
 
   <p><a href="/topics">ほかのお題を見る</a></p>"""
     return root / "tag" / f"{tag}.html", shell(
-        title=f"{tag} — Namaran",
+        title=e(name),
         description=e(description),
         canonical=f"{SITE}/tag/{tag}",
-        breadcrumb=[("Namaran", f"{SITE}/"), ("Topics", f"{SITE}/topics"), (tag, None)],
+        breadcrumb=[("Namaran", f"{SITE}/"), ("お題から探す", f"{SITE}/topics"),
+                    (e(name), None)],
         body=body,
     )
 
 
-def render_topics_index(by_tag):
-    if by_tag:
-        tags = "\n".join(
-            f'    <li><a href="/tag/{tag}">{tag}</a></li>' for tag in sorted(by_tag)
+def render_topics_index():
+    if tag_order:
+        items = "\n".join(
+            f'    <li><a href="/tag/{tag}">{e(labels[tag])}</a>'
+            f' <span class="tag-count">{len(by_tag[tag])}</span></li>'
+            for tag in tag_order
         )
-        listing = f'  <ul class="past-list tag-list">\n{tags}\n  </ul>'
+        listing = f'  <ul class="past-list tag-list">\n{items}\n  </ul>'
     else:
         listing = "  <p>まだタグの付いたドリルがありません。</p>"
 
@@ -297,38 +325,36 @@ def render_topics_index(by_tag):
         f'    <li><a href="/{lang}/{typ}/archive">{LANGS[lang]} / {TYPES[typ]}</a></li>'
         for lang in LANGS for typ in TYPES
     )
-    body = f"""  <h2>Topics</h2>
+    body = f"""  <h2>お題から探す</h2>
 
   <p class="lede">
-    過去に出したドリルを、扱っている概念から辿るための索引です。解く画面には概念の名前を出していないので、探すのはここから。
+    過去に出したドリルを、扱っているお題から辿るための索引です。解く画面にはお題の名前を出していないので、探すのはここから。数字はその題の問題数です。
   </p>
 
 {listing}
 
-  <h2>Archive</h2>
+  <h2>日付から探す</h2>
   <p>
-    日付から辿るなら、言語と種別ごとのアーカイブへ。タグはこの索引を作るより前に公開したドリルには付いていないので、それより前のものはアーカイブから探してください。
+    日付から辿るなら、言語と種別ごとのアーカイブへ。
   </p>
   <ul class="past-list">
 {archives}
   </ul>"""
     return root / "topics.html", shell(
-        title="お題から探す — Namaran",
-        description="Namaranの過去のドリルを、扱っている概念のタグから探す索引。C・C++・Rust・Haskellの読む/書く/直すドリルを、お題ごとにまとめています。",
+        title="お題から探す",
+        description="Namaranの過去のドリルを、扱っているお題から探す索引。C・C++・Rust・Haskellの読む・書く・直すドリルを、お題ごとにまとめています。",
         canonical=f"{SITE}/topics",
-        breadcrumb=[("Namaran", f"{SITE}/"), ("Topics", None)],
+        breadcrumb=[("Namaran", f"{SITE}/"), ("お題から探す", None)],
         body=body,
     )
 
 
-by_tag = {}
-for d in drills:
-    for tag in d["tags"]:
-        by_tag.setdefault(tag, []).append(d)
-
 outputs = [render_archive(lang, typ) for lang in LANGS for typ in TYPES]
-outputs.append(render_topics_index(by_tag))
+outputs.append(render_topics_index())
 outputs.extend(render_tag_page(tag, entries) for tag, entries in sorted(by_tag.items()))
+# The vocabulary file is normalized here, so a new tag can be appended to the
+# end of it by hand and still land in the right place.
+outputs.append((TAGS_FILE, "".join(f"{s}\t{labels[s]}\n" for s in sorted(labels))))
 
 # A tag page whose tag no longer appears anywhere is removed: everything
 # under tag/ is written by this script and by nothing else.
@@ -356,7 +382,6 @@ for p, text in outputs:
     p.write_text(text, encoding="utf-8")
 for p in stale_files:
     p.unlink()
-tagged = sum(1 for d in drills if d["tags"])
 print(f"{len(outputs)} file(s) written ({len(stale)} changed, {len(stale_files)} removed): "
-      f"{len(drills)} drills, {tagged} tagged, {len(by_tag)} tags")
+      f"{len(drills)} drills, {len(by_tag)} tags")
 PY

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="A Namaran Rust WRITE drill from 2026-09-21: write digital_root using loop and break, with an explicit termination check instead of relying on loop to stop on its own.">
-<title>Namaran — Rust / WRITE — 2026-09-21</title>
+<title>自分で終了条件を書く</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-09-21">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-21",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "Rust — an explicit break condition instead of a builtin loop terminator" },
+      "about": { "@type": "Thing", "name": "自分で終了条件を書く" },
+      "keywords": "loop, control-flow",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/rust/debug/2026-09-21">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="自分で終了条件を書く"
+  data-tags="loop control-flow"
+  data-concepts="終了条件, break, do-while相当, loop condition"
+>
   <h2>2026-09-21</h2>
   <div class="code-frame">
     <p class="code-filename">digital_root.rs</p>

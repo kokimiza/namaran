@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="A Namaran C READ drill from 2026-09-21: tracing sscanf's return value and which arguments actually get written when a conversion fails partway through the format string.">
-<title>Namaran — C / READ — 2026-09-21</title>
+<title>sscanfの戻り値</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-09-21">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-09-21",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "C — sscanf's return value and which arguments got written" },
+      "about": { "@type": "Thing", "name": "sscanfの戻り値" },
+      "keywords": "stdio, error-handling",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/c/debug/2026-09-21">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="sscanfの戻り値"
+  data-tags="stdio error-handling"
+  data-concepts="sscanf, 戻り値の確認, 入力の検証, scanf return value"
+>
   <h2>2026-09-21</h2>
   <div class="code-frame">
     <p class="code-filename">parse_pair.c</p>

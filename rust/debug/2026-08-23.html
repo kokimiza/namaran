@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="An archived Namaran Rust DEBUG drill from 2026-08-23: struct update syntax silently fills a forgotten field from Default::default(), so incrementing by a zero step has no effect.">
-<title>Namaran — Rust / DEBUG — 2026-08-23</title>
+<title>書き忘れた初期化</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-08-23">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,7 +28,8 @@
       "dateModified": "2026-08-23",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "Rust — a forgotten field silently comes from Default::default()" },
+      "about": { "@type": "Thing", "name": "書き忘れた初期化" },
+      "keywords": "struct, default",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
@@ -59,7 +60,11 @@
   <a href="/rust/debug/2026-08-23" class="active" aria-current="page">DEBUG</a>
 </nav>
 
-<main>
+<main
+  data-topic="書き忘れた初期化"
+  data-tags="struct default"
+  data-concepts="構造体更新記法, Default, 初期化漏れ, struct update"
+>
   <h2>2026-08-23</h2>
   <div class="code-frame">
     <p class="code-filename">counter_step.rs</p>
