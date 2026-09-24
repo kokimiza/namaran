@@ -136,7 +136,7 @@ jobs:
       - name: Write drills with Claude Code (namara-daily skill)
         id: claude
         if: steps.plan.outputs.combos != ''
-        uses: anthropics/claude-code-action@bf38e86e58df9ebf3420326d019f955bb3be64dd # v1
+        uses: anthropics/claude-code-action@cfc3eb22bfed5c26ef66e3223c982af27e4524de # v1
         with:
           # Subscription token from `claude setup-token`. To bill API credits
           # instead, replace this line with:
