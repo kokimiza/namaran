@@ -598,7 +598,6 @@ pre.code .mc { color: var(--syn-pp); }
 
 .question {
   margin: 0 0 var(--s-section);
-  max-width: 32rem;
   font-size: 1.1875rem;
   line-height: 1.95;
   text-wrap: pretty;
@@ -647,12 +646,13 @@ details.answer summary::after {
 }
 
 /* Indented to start where the word ANSWER starts, so the answer reads as
-   something said underneath the label rather than a new section. */
+   something said underneath the label rather than a new section. Like the
+   question, it runs to the right edge of the code frame above it: one column,
+   one right edge. */
 .answer-body {
   margin-top: var(--s-block);
   padding-left: 1.55rem;
   border-left: 1px solid var(--rule);
-  max-width: 32rem;
   line-height: 1.95;
 }
 
@@ -684,10 +684,12 @@ details.answer summary::after {
    the reference is a bare <sup class="fn-ref"> number, and the <ol> below
    counts the same way.
 
-   A raised number would open up the leading of the line it sits on, so it is
-   lifted by position, not by vertical-align. The reference is data (mono) in
-   the one accent; the notes are prose, one step smaller and muted, on a faint
-   tint of the panel — the answer's tail, quieter than the answer itself. */
+   Without a link, the reader matches a reference to its note by eye, so both
+   numbers are the same small filled chip, in the fill the active type badge
+   uses — a plain raised digit was lost in the text. A raised number would
+   open up the leading of its line, so it is lifted by position, not by
+   vertical-align. The notes themselves are prose, one step smaller and muted,
+   on the panel: the answer's tail, quieter than the answer itself. */
 
 .question sup,
 .question sub,
@@ -709,31 +711,39 @@ details.answer summary::after {
   bottom: -0.25em;
 }
 
-.answer-body .fn-ref {
-  margin-left: 0.1em;
+.answer-body .fn-ref,
+.answer-body .footnotes > li::before {
   font-family: var(--font-mono);
-  font-size: 0.7em;
-  color: var(--accent-strong);
+  font-weight: 600;
+  color: var(--bg);
+  background: var(--accent-strong);
+  border-radius: 999px;
+}
+
+.answer-body .fn-ref {
+  top: -0.6em;
+  margin-left: 0.15em;
+  padding: 0 0.42em;
+  font-size: 0.68em;
 }
 
 .answer-body .footnotes {
   margin: var(--s-block) 0 0;
-  padding: var(--s-sibling) 1.25rem var(--s-sibling) 2.5rem;
+  padding: var(--s-sibling) 1.25rem var(--s-sibling) 3rem;
   border-radius: 8px;
-  /* Half a step toward the panel: enough to set the notes apart from the
-     answer, too little to read as another box to open. */
-  background: color-mix(in srgb, var(--panel) 50%, var(--bg));
+  background: var(--panel);
+  list-style: none;
   font-size: 0.875rem;
   line-height: 1.8;
   color: var(--ink-muted);
 }
 
 /* A stamp, like the other labels on the page. It starts at the box's own
-   side padding, left of the hanging numbers. */
+   side padding, where the number chips start. */
 .answer-body .footnotes::before {
   content: "Notes";
   display: block;
-  margin: 0 0 var(--s-unit) -1.25rem;
+  margin: 0 0 var(--s-unit) -1.75rem;
   font-family: var(--font-ui);
   font-size: 0.6875rem;
   font-weight: 600;
@@ -742,17 +752,26 @@ details.answer summary::after {
 }
 
 /* The notes are one block; inside it they sit at the unit step. */
-.answer-body .footnotes li + li {
+.answer-body .footnotes > li {
+  position: relative;
+}
+
+.answer-body .footnotes > li + li {
   margin-top: var(--s-unit);
 }
 
-.answer-body .footnotes li::marker {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--accent-strong);
+/* The note's number hangs in the left padding, level with its first line. */
+.answer-body .footnotes > li::before {
+  content: counter(list-item);
+  position: absolute;
+  top: 0.3em;
+  right: calc(100% + 0.6rem);
+  padding: 0 0.45em;
+  font-size: 0.6875rem;
+  line-height: 1.7;
 }
 
-/* The code chip is --panel, which would sink into the tint here. */
+/* The code chip is --panel, which would vanish on the panel here. */
 .answer-body .footnotes code {
   background: var(--bg);
 }
