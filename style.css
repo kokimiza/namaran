@@ -677,6 +677,86 @@ details.answer summary::after {
   border-radius: 3px;
 }
 
+/* ---------- footnotes ----------
+   A side note that would stall the explanation — history, the standard's
+   exact wording, one implementation's quirk — goes under the answer as a
+   numbered note. check-patch.sh allows no `id`, so there are no jump links:
+   the reference is a bare <sup class="fn-ref"> number, and the <ol> below
+   counts the same way.
+
+   A raised number would open up the leading of the line it sits on, so it is
+   lifted by position, not by vertical-align. The reference is data (mono) in
+   the one accent; the notes are prose, one step smaller and muted, on a faint
+   tint of the panel — the answer's tail, quieter than the answer itself. */
+
+.question sup,
+.question sub,
+.answer-body sup,
+.answer-body sub {
+  position: relative;
+  font-size: 0.75em;
+  line-height: 0;
+  vertical-align: baseline;
+}
+
+.question sup,
+.answer-body sup {
+  top: -0.5em;
+}
+
+.question sub,
+.answer-body sub {
+  bottom: -0.25em;
+}
+
+.answer-body .fn-ref {
+  margin-left: 0.1em;
+  font-family: var(--font-mono);
+  font-size: 0.7em;
+  color: var(--accent-strong);
+}
+
+.answer-body .footnotes {
+  margin: var(--s-block) 0 0;
+  padding: var(--s-sibling) 1.25rem var(--s-sibling) 2.5rem;
+  border-radius: 8px;
+  /* Half a step toward the panel: enough to set the notes apart from the
+     answer, too little to read as another box to open. */
+  background: color-mix(in srgb, var(--panel) 50%, var(--bg));
+  font-size: 0.875rem;
+  line-height: 1.8;
+  color: var(--ink-muted);
+}
+
+/* A stamp, like the other labels on the page. It starts at the box's own
+   side padding, left of the hanging numbers. */
+.answer-body .footnotes::before {
+  content: "Notes";
+  display: block;
+  margin: 0 0 var(--s-unit) -1.25rem;
+  font-family: var(--font-ui);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* The notes are one block; inside it they sit at the unit step. */
+.answer-body .footnotes li + li {
+  margin-top: var(--s-unit);
+}
+
+.answer-body .footnotes li::marker {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--accent-strong);
+}
+
+/* The code chip is --panel, which would sink into the tint here. */
+.answer-body .footnotes code {
+  background: var(--bg);
+}
+
 /* ---------- past: the date column ---------- */
 
 .past {

@@ -124,6 +124,12 @@ jobs:
           難易度は script/level.sh が組ごとに抽選済み(SKILL.md「難易度」)。各ページはこの難易度で書き、<main> の data-level にこの値を入れる。偏っていても、過去の傾向に合わせて変えない:
           $(printf '%s\n' "$level_lines" | awk -F'\t' 'NF == 2 { printf "- %s: %s\n", $1, $2 }')
 
+          日本語の文章は .claude/skills/namara-daily/humanizer-ja-tech.md で必ず推敲する:
+          - 書き始める前にこのファイルを最後まで読む。
+          - 各ページの問題文、解説、meta description を書いたら、このファイルの手順に沿って推敲する。全ページに適用し、省略しない。
+          - 推敲では答え・コード・出力・難易度を変えない。技術的な内容に手を入れたら script/verify.sh をやり直す。
+          - 脚注は Markdown の [^1] 形式ではなく、doc/basic-design.md §7.1 の HTML(本文に sup.fn-ref、解説の末尾に ol.footnotes)で書く。
+
           これは GitHub Actions 上の非対話実行である(SKILL.md「非対話実行」を参照)。
           - 検証用ソースは $verify_dir/{lang}/{type}/ に置き、次のコマンドが全件通るまで直す:
             ./script/verify.sh $date $verify_dir $combos
