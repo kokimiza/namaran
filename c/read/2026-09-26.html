@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="dstとsrcに同じ変数のアドレスを渡すと、1回目の書き込みが2回目の読み出しに見えることを追うドリル。2つのポインタが同じ場所を指すエイリアシングの基本。2026-09-26のC READ。">
+<title>自分自身を足し込む</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-09-26">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-26" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-09-26",
+      "url": "https://namaran.jocarium.productions/c/read/2026-09-26",
+      "datePublished": "2026-09-26",
+      "dateModified": "2026-09-26",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "自分自身を足し込む" },
+      "keywords": "aliasing, pointer, function-parameter",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "dstとsrcに同じ変数のアドレスを渡すと、1回目の書き込みが2回目の読み出しに見えることを追うドリル。2つのポインタが同じ場所を指すエイリアシングの基本。2026-09-26のC READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-26" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-09-26">C++26</a>
+  <a href="/rust/read/2026-09-26">Rust 2024</a>
+  <a href="/haskell/read/2026-09-26">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-09-26" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-09-26">WRITE</a>
+  <a href="/c/debug/2026-09-26">DEBUG</a>
+</nav>
+
+<main
+  data-topic="自分自身を足し込む"
+  data-tags="aliasing pointer function-parameter"
+  data-concepts="エイリアシング, 同じ変数へのポインタ, ポインタ引数, aliasing, pointer aliasing"
+  data-level="hedgehog"
+>
+  <h2>2026-09-26</h2>
+  <div class="code-frame">
+    <p class="code-filename">add_twice.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">static</span> <span class="ty">void</span> <span class="fn">add_twice</span>(<span class="ty">int</span> *dst, <span class="kw">const</span> <span class="ty">int</span> *src) {
+    *dst += *src;
+    *dst += *src;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="ty">int</span> a = <span class="nu">3</span>, b = <span class="nu">3</span>;
+    <span class="fn">add_twice</span>(&amp;a, &amp;b);
+    <span class="fn">add_twice</span>(&amp;b, &amp;b);
+    <span class="fn">printf</span>(<span class="st">"%d %d\n"</span>, a, b);
+    <span class="kw">return</span> <span class="nu">0</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>9 12</code> と出力されます。
+      </p>
+      <p>
+        1回目の呼び出しでは <code>dst</code> が <code>a</code> を、<code>src</code> が <code>b</code> を指しています。<code>b</code> は変わらないので、<code>a</code> には <code>3</code> が2回足されて <code>9</code> になります。2回目は <code>dst</code> と <code>src</code> がどちらも <code>b</code> を指します。1行目の <code>*dst += *src</code> で <code>b</code> が <code>6</code> になり、2行目の <code>*src</code> はその新しい値を読むので、<code>6 + 6</code> で <code>12</code> です。
+      </p>
+      <p>
+        ポインタが渡すのは値ではなく場所なので、<code>*dst</code> と <code>*src</code> は名前が違っても、同じ場所を指していれば片方への書き込みがもう片方から見えます。1つのオブジェクトを2つの名前で参照しているこの状態を、エイリアシングと呼びます。<code>src</code> の <code>const</code> が禁じているのは <code>src</code> を通した書き込みだけで、指している先が別の名前から書き換えられることまでは防ぎません<sup class="fn-ref">1</sup>。関数の最初で <code>int v = *src;</code> と値を写しておけば、どちらの呼び出しでも元の値の2倍が足されます。
+      </p>
+      <ol class="footnotes">
+        <li>重ならないことを関数の約束にしたいときは、引数を <code>int *restrict dst, const int *restrict src</code> と宣言します。<code>restrict</code> は呼び出し側への要求で、同じ場所を渡して書き換えたときの動作は未定義になります。その代わりコンパイラは、<code>*src</code> を1回だけ読むような最適化をしてよくなります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

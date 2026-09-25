@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="ファイルの数を読んで1増やし同じファイルへ書き戻すプログラムが、readFileの遅延読み込みでファイルを開いたままにしているため、書き込みがresource busyで失敗するバグを直すドリル。2026-09-26のHaskell DEBUG。">
+<title>読み終わらないファイル</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-09-26">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-26" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-09-26",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-09-26",
+      "datePublished": "2026-09-26",
+      "dateModified": "2026-09-26",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "読み終わらないファイル" },
+      "keywords": "lazy-io, laziness, io",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "ファイルの数を読んで1増やし同じファイルへ書き戻すプログラムが、readFileの遅延読み込みでファイルを開いたままにしているため、書き込みがresource busyで失敗するバグを直すドリル。2026-09-26のHaskell DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-26">C23</a>
+  <a href="/cpp/debug/2026-09-26">C++26</a>
+  <a href="/rust/debug/2026-09-26">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-26" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-09-26">READ</a>
+  <a href="/haskell/write/2026-09-26">WRITE</a>
+  <a href="/haskell/debug/2026-09-26" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="読み終わらないファイル"
+  data-tags="lazy-io laziness io"
+  data-concepts="遅延IO, readFile, hGetContents, ファイルのロック, resource busy, lazy I/O, readIO"
+  data-level="peacock"
+>
+  <h2>2026-09-26</h2>
+  <div class="code-frame">
+    <p class="code-filename">Counter.hs</p>
+    <pre class="code"><code><span class="kw">module</span> <span class="ty">Main</span> (main) <span class="kw">where</span>
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = <span class="kw">do</span>
+  writeFile <span class="st">"count.txt"</span> <span class="st">"41"</span>
+  s <span class="op">&lt;-</span> readFile <span class="st">"count.txt"</span>
+  <span class="kw">let</span> n = read s <span class="op">::</span> <span class="ty">Int</span>
+  writeFile <span class="st">"count.txt"</span> (show (n + <span class="nu">1</span>))
+  readFile <span class="st">"count.txt"</span> &gt;&gt;= putStrLn
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>count.txt</code> に書かれた数を1増やして同じファイルへ書き戻し、書き戻した内容を表示するつもりのプログラムです。入力は、最初に書き込む <code>"41"</code> です。いまは何も表示されず、2回目の <code>writeFile</code> が、ファイルが使用中だという例外を出して止まります。本来の出力は <code>42</code> です。どこを直せばよいでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>readFile</code> はファイルを開き、中身を読まないまま文字列を返します。この文字列は、使われた分だけあとから読まれる遅延リストで、最後まで読まれたところでファイルが閉じられます。<code>let n = read s</code> も <code>n</code> を束縛するだけで <code>read</code> は動かないので、2回目の <code>writeFile</code> の時点で <code>count.txt</code> はまだ1文字も読まれておらず、読み込み用に開いたままです。<code>writeFile</code> は中身の <code>show (n + 1)</code> を評価するより先にファイルを書き込み用に開こうとしますが、同じプロセスが読み込み用に開いているファイルなので、GHC の実行時システムはファイルがロックされているという例外を投げます<sup class="fn-ref">1</sup>。
+      </p>
+      <p>
+        直すには、書き込みの前に文字列を最後まで読ませます。最小の修正は、<code>let</code> を <code>readIO</code> に替えることです:
+      </p>
+      <pre class="code"><code>  n <span class="op">&lt;-</span> readIO s <span class="op">::</span> <span class="ty">IO</span> <span class="ty">Int</span>
+</code></pre>
+      <p>
+        <code>readIO</code> は <code>read</code> と同じく文字列を解析する <code>IO</code> アクションで、<code>do</code> の中のこの行で実行されます。解析した値の後ろに余計な文字が無いことを確かめるために文字列の終わりまで読むので、ここで <code>count.txt</code> が閉じられ、次の <code>writeFile</code> が通ります。解析に失敗したときも、<code>read</code> のように値を使った先で <code>error</code> になるのではなく、この行で <code>IO</code> の例外になります。
+      </p>
+      <ol class="footnotes">
+        <li>Haskell 2010 の報告書は、少なくとも同じプロセスの中では、1つのファイルに「複数の読み手か、1つだけの書き手」というロックを掛けるよう実装に求めています。GHC はこれに従っています。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

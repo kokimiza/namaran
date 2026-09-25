@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="2つのレプリカの追加集合と削除集合から、統合後に見える要素を返すvisibleを書くドリル。2P-Setでは一度削除された要素は、どちらのレプリカで追加されていても戻らない。2026-09-26のC++ WRITE。">
+<title>削除が勝つ集合の統合</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-09-26">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-26" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-09-26",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-09-26",
+      "datePublished": "2026-09-26",
+      "dateModified": "2026-09-26",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "削除が勝つ集合の統合" },
+      "keywords": "crdt, set, merge",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "2つのレプリカの追加集合と削除集合から、統合後に見える要素を返すvisibleを書くドリル。2P-Setでは一度削除された要素は、どちらのレプリカで追加されていても戻らない。2026-09-26のC++ WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-26">C23</a>
+  <a href="/cpp/write/2026-09-26" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-09-26">Rust 2024</a>
+  <a href="/haskell/write/2026-09-26">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-26">READ</a>
+  <a href="/cpp/write/2026-09-26" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-09-26">DEBUG</a>
+</nav>
+
+<main
+  data-topic="削除が勝つ集合の統合"
+  data-tags="crdt set merge"
+  data-concepts="2P-Set, CRDT, 追加集合と削除集合, 墓石, tombstone, two-phase set, set union"
+  data-level="peacock"
+>
+  <h2>2026-09-26</h2>
+  <div class="code-frame">
+    <p class="code-filename">two_phase_set.cpp</p>
+    <pre class="code"><code><span class="kw">struct</span> <span class="ty">TwoPSet</span> {
+    std::<span class="ty">set</span>&lt;std::<span class="ty">string</span>&gt; added;
+    std::<span class="ty">set</span>&lt;std::<span class="ty">string</span>&gt; removed;
+};
+
+std::<span class="ty">set</span>&lt;std::<span class="ty">string</span>&gt; <span class="fn">visible</span>(<span class="kw">const</span> <span class="ty">TwoPSet</span>&amp; a, <span class="kw">const</span> <span class="ty">TwoPSet</span>&amp; b) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>TwoPSet</code> は、要素を追加した記録 <code>added</code> と削除した記録 <code>removed</code> を別々に持つ集合で、どちらの記録も増えるだけで減りません。2つのレプリカ <code>a</code> と <code>b</code> の状態を統合したときに見える要素を返す <code>visible</code> を書いてください。見えるのは、どちらかのレプリカで追加され、どちらのレプリカでも削除されていない要素です。どちらも空なら空集合を返します。<code>visible({{"x", "y"}, {}}, {{"x"}, {"x"}})</code> → <code>{"y"}</code>、<code>visible({{"x"}, {}}, {{"y"}, {}})</code> → <code>{"x", "y"}</code>、<code>visible({}, {})</code> → <code>{}</code>
+  </p>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code>std::<span class="ty">set</span>&lt;std::<span class="ty">string</span>&gt; <span class="fn">visible</span>(<span class="kw">const</span> <span class="ty">TwoPSet</span>&amp; a, <span class="kw">const</span> <span class="ty">TwoPSet</span>&amp; b) {
+    std::<span class="ty">set</span>&lt;std::<span class="ty">string</span>&gt; result = a.added;
+    result.<span class="fn">insert</span>(b.added.<span class="fn">begin</span>(), b.added.<span class="fn">end</span>());
+    std::<span class="fn">erase_if</span>(result, [&amp;](<span class="kw">const</span> std::<span class="ty">string</span>&amp; x) {
+        <span class="kw">return</span> a.removed.<span class="fn">contains</span>(x) || b.removed.<span class="fn">contains</span>(x);
+    });
+    <span class="kw">return</span> result;
+}
+</code></pre>
+      <p>
+        統合は2段で考えます。まず両方の <code>added</code> の和集合を取り、そこから両方の <code>removed</code> に入っている要素を除きます。和集合は、<code>a.added</code> をコピーしてから <code>insert</code> に <code>b.added</code> の範囲を渡せば作れます。<code>std::set</code> は同じ要素を2つ持たないので、両方で追加された <code>"x"</code> も1つです。除く方は、C++20 の <code>std::erase_if</code> と <code>contains</code> を使うと、条件を1つのラムダにそのまま書けます。
+      </p>
+      <p>
+        和集合は、どの順で何回取っても結果が変わりません。<code>added</code> も <code>removed</code> も和集合で統合するので、レプリカ同士がどの順で状態を送り合っても、同じ状態を2回受け取っても、最後には同じ集合に収束します。その代わり、一度 <code>removed</code> に入った要素は二度と見えなくなります。1つ目の例で <code>a</code> は <code>"x"</code> を持ったままですが、<code>b</code> の削除が勝つのはそのためです。削除した要素をもう一度追加できるようにしたいなら、追加のたびに一意なタグを付ける OR-Set のような別の設計が要ります。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>std::set_union</code> と <code>std::set_difference</code> を続けて使っても、両方の <code>added</code> を1つずつ見て条件に合うものだけを <code>insert</code> しても、同じ結果になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

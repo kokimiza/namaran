@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="レプリカごとの回数を持つG-Counterの統合を+=で書いたため、状態を送り返しただけで回数が二重に数えられるバグを直すドリル。統合は何回適用しても結果が変わらない操作でなければならない。2026-09-26のC++ DEBUG。">
+<title>2回届くと増える</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-09-26">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-26" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-09-26",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-09-26",
+      "datePublished": "2026-09-26",
+      "dateModified": "2026-09-26",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "2回届くと増える" },
+      "keywords": "crdt, merge, ordered-map",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "レプリカごとの回数を持つG-Counterの統合を+=で書いたため、状態を送り返しただけで回数が二重に数えられるバグを直すドリル。統合は何回適用しても結果が変わらない操作でなければならない。2026-09-26のC++ DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-26">C23</a>
+  <a href="/cpp/debug/2026-09-26" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-09-26">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-26">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-26">READ</a>
+  <a href="/cpp/write/2026-09-26">WRITE</a>
+  <a href="/cpp/debug/2026-09-26" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="2回届くと増える"
+  data-tags="crdt merge ordered-map"
+  data-concepts="G-Counter, CRDT, 冪等性, 状態の統合, 二重計上, idempotence, grow-only counter, state-based merge"
+  data-level="bison"
+>
+  <h2>2026-09-26</h2>
+  <div class="code-frame">
+    <p class="code-filename">g_counter.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;map&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+
+<span class="kw">using</span> <span class="ty">GCounter</span> = std::<span class="ty">map</span>&lt;std::<span class="ty">string</span>, <span class="ty">int</span>&gt;;
+
+<span class="ty">void</span> <span class="fn">merge_into</span>(<span class="ty">GCounter</span>&amp; self, <span class="kw">const</span> <span class="ty">GCounter</span>&amp; other) {
+    <span class="kw">for</span> (<span class="kw">const</span> <span class="kw">auto</span>&amp; [node, n] : other) {
+        self[node] += n;
+    }
+}
+
+<span class="ty">int</span> <span class="fn">total</span>(<span class="kw">const</span> <span class="ty">GCounter</span>&amp; c) {
+    <span class="ty">int</span> sum = <span class="nu">0</span>;
+    <span class="kw">for</span> (<span class="kw">const</span> <span class="kw">auto</span>&amp; [node, n] : c) {
+        sum += n;
+    }
+    <span class="kw">return</span> sum;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="ty">GCounter</span> a{{<span class="st">"a"</span>, <span class="nu">2</span>}};
+    <span class="ty">GCounter</span> b{{<span class="st">"b"</span>, <span class="nu">3</span>}};
+    <span class="fn">merge_into</span>(a, b);
+    <span class="fn">merge_into</span>(b, a);
+    std::cout &lt;&lt; <span class="fn">total</span>(a) &lt;&lt; <span class="st">' '</span> &lt;&lt; <span class="fn">total</span>(b) &lt;&lt; <span class="st">'\n'</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>GCounter</code> は、レプリカごとに自分が数えた回数を持ち、その合計を全体の値とするカウンタで、<code>merge_into</code> は他のレプリカの状態を取り込むつもりの関数です。入力は <code>main</code> のとおりで、<code>a</code> が <code>b</code> の状態を取り込み、続いて <code>b</code> が <code>a</code> の状態を取り込んでから、両方の合計を表示します。いまの出力は <code>5 8</code> ですが、本来の出力は <code>5 5</code> です。どこを直せばよいでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        1回目の <code>merge_into(a, b)</code> では、<code>a</code> に <code>"b"</code> の項目がまだ無いので、<code>self["b"] += 3</code> は <code>0 + 3</code> になり、ここまでは正しく見えます。壊れるのは2回目です。<code>a</code> はすでに <code>b</code> の <code>3</code> を含んでいて、<code>b</code> がそれを取り込むと、<code>b</code> 自身の <code>3</code> に同じ <code>3</code> が足されて <code>"b"</code> が <code>6</code> になります。<code>b</code> の合計は <code>2 + 6</code> で <code>8</code> です。
+      </p>
+      <p>
+        状態を丸ごと送り合う CRDT では、同じ情報が何度届くか、どの順で届くかを決められません。そのため統合は、同じ状態を何度取り込んでも結果が変わらず(冪等)、順序にも依存しない操作である必要があり、足し算はこの条件を満たしません。各項目を増やすのはそのレプリカ自身だけで、値が減ることもないので、2つの状態で値が違えば大きい方が新しい情報です。取り込みは大きい方を取れば足ります:
+      </p>
+      <pre class="code"><code>        self[node] = std::<span class="fn">max</span>(self[node], n);
+</code></pre>
+      <p>
+        <code>std::max</code> は同じ値を何度渡しても結果が変わらず、引数の順序にも依存しないので、<code>b</code> が自分の <code>3</code> を送り返されても <code>3</code> のままです(<code>std::max</code> のために <code>&lt;algorithm&gt;</code> のインクルードも足します)。<code>self[node]</code> は項目が無ければ <code>0</code> で作るので、初めて見るレプリカの値もそのまま入ります。1回ずつの取り込みだけを見るテストでは <code>+=</code> も正しい値を返すので、送り返しや再送が起きて初めて数が合わなくなります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

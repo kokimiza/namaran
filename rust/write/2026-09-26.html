@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="ロックファイルを作れたらOk(true)、すでにあればOk(false)を返すtry_acquireを書くドリル。exists()で確かめてから作るとその間に割り込まれるので、OpenOptions::create_newで確認と作成を1回の操作にする。2026-09-26のRust WRITE。">
+<title>確認せずに作る</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-09-26">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-26" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-09-26",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-09-26",
+      "datePublished": "2026-09-26",
+      "dateModified": "2026-09-26",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "確認せずに作る" },
+      "keywords": "toctou, file-system, error-handling, race-condition",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "ロックファイルを作れたらOk(true)、すでにあればOk(false)を返すtry_acquireを書くドリル。exists()で確かめてから作るとその間に割り込まれるので、OpenOptions::create_newで確認と作成を1回の操作にする。2026-09-26のRust WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-26">C23</a>
+  <a href="/cpp/write/2026-09-26">C++26</a>
+  <a href="/rust/write/2026-09-26" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-09-26">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-09-26">READ</a>
+  <a href="/rust/write/2026-09-26" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-09-26">DEBUG</a>
+</nav>
+
+<main
+  data-topic="確認せずに作る"
+  data-tags="toctou file-system error-handling race-condition"
+  data-concepts="ロックファイル, create_new, O_EXCL, 存在確認と作成の競合, lock file, atomic file creation, TOCTOU"
+  data-level="peacock"
+>
+  <h2>2026-09-26</h2>
+  <div class="code-frame">
+    <p class="code-filename">lock_file.rs</p>
+    <pre class="code"><code><span class="kw">use</span> std::io;
+<span class="kw">use</span> std::path::<span class="ty">Path</span>;
+
+<span class="kw">fn</span> <span class="fn">try_acquire</span>(path: &amp;<span class="ty">Path</span>) -&gt; io::<span class="ty">Result</span>&lt;<span class="ty">bool</span>&gt; {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>path</code> にロックファイルを作る <code>try_acquire</code> を書いてください。ファイルを新しく作れたら <code>Ok(true)</code>、すでにあれば <code>Ok(false)</code> を返し、それ以外の I/O エラーは <code>Err</code> で返します。複数のプロセスが同時に呼んでも、<code>Ok(true)</code> を受け取るのは1つだけでなければなりません。空のディレクトリで <code>try_acquire(Path::new("app.lock"))</code> → <code>Ok(true)</code>、続けて同じ呼び出し → <code>Ok(false)</code>、<code>try_acquire(Path::new("no/such/dir/app.lock"))</code> → 種類が <code>NotFound</code> の <code>Err</code>
+  </p>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">use</span> std::fs::<span class="ty">OpenOptions</span>;
+<span class="kw">use</span> std::io;
+<span class="kw">use</span> std::path::<span class="ty">Path</span>;
+
+<span class="kw">fn</span> <span class="fn">try_acquire</span>(path: &amp;<span class="ty">Path</span>) -&gt; io::<span class="ty">Result</span>&lt;<span class="ty">bool</span>&gt; {
+    <span class="kw">match</span> <span class="ty">OpenOptions</span>::<span class="fn">new</span>().<span class="fn">write</span>(<span class="nu">true</span>).<span class="fn">create_new</span>(<span class="nu">true</span>).<span class="fn">open</span>(path) {
+        <span class="fn">Ok</span>(_) =&gt; <span class="fn">Ok</span>(<span class="nu">true</span>),
+        <span class="fn">Err</span>(e) <span class="kw">if</span> e.<span class="fn">kind</span>() == io::<span class="ty">ErrorKind</span>::<span class="ty">AlreadyExists</span> =&gt; <span class="fn">Ok</span>(<span class="nu">false</span>),
+        <span class="fn">Err</span>(e) =&gt; <span class="fn">Err</span>(e),
+    }
+}
+</code></pre>
+      <p>
+        <code>path.exists()</code> で確かめてから <code>File::create</code> で作ると、確かめてから作るまでの間に、別のプロセスが同じファイルを作れます。両方が「無い」と確かめたあとで両方が作れば、どちらも <code>Ok(true)</code> を受け取ります。<code>File::create</code> は既存のファイルを空にして開くだけで失敗しないので、この競合はエラーとしても表に出ません。
+      </p>
+      <p>
+        <code>OpenOptions</code> の <code>create_new(true)</code> は、ファイルが無ければ作り、あれば <code>AlreadyExists</code> のエラーを返します。存在の確認と作成を OS が1回の操作として行うので、間に割り込まれることがありません<sup class="fn-ref">1</sup>。<code>create_new</code> でファイルを作るには、<code>write(true)</code> か <code>append(true)</code> も指定しておく必要があります。あとはエラーの種類で分け、<code>AlreadyExists</code> だけを <code>Ok(false)</code> に変えて、ディレクトリが無いときの <code>NotFound</code> や権限のエラーはそのまま返します。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>match</code> の代わりに <code>map</code> と <code>or_else</code> をつないで書くこともできます。
+      </p>
+      <ol class="footnotes">
+        <li>Unix では <code>open</code> に <code>O_CREAT | O_EXCL</code> を付けた呼び出し、Windows では <code>CreateFileW</code> に <code>CREATE_NEW</code> を渡した呼び出しに当たります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

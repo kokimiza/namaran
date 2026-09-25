@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「IOアクション」を扱ったNamaranのコーディングドリル10問。例外、途中状態、巻き戻されない副作用、try、IORef、partial state。">
+<meta name="description" content="「IOアクション」を扱ったNamaranのコーディングドリル11問。遅延IO、readFile、hGetContents、ファイルのロック、resource busy、lazy I/O。">
 <title>IOアクション</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/io">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>IOアクション</h2>
 
   <p class="lede">
-    「IOアクション」を扱った10問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「IOアクション」を扱った11問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/haskell/debug/2026-09-26">Haskell / DEBUG · 2026-09-26</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">読み終わらないファイル</span> <span class="past-concepts">遅延IO, readFile, hGetContents, ファイルのロック, resource busy, lazy I/O, readIO</span></li>
     <li><a href="/haskell/read/2026-09-17">Haskell / READ · 2026-09-17</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">例外のあとのIORef</span> <span class="past-concepts">例外, 途中状態, 巻き戻されない副作用, try, IORef, partial state, exception safety</span></li>
     <li><a href="/haskell/debug/2026-09-15">Haskell / DEBUG · 2026-09-15</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">elseのないif</span> <span class="past-concepts">if式, elseが要る, when, if without else</span></li>
     <li><a href="/haskell/write/2026-09-14">Haskell / WRITE · 2026-09-14</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">whileを関数で書く</span> <span class="past-concepts">whileループ, IOアクション, 再帰, monadic loop</span></li>

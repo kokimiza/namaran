@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Mutex::lockが返すガードの一時値が、let文、if letの本体とelse、matchのそれぞれでいつ破棄されるかをtry_lockで確かめるドリル。Rust 2024ではif letのelseに入る前にガードが外れる。2026-09-26のRust READ。">
+<title>ロックはいつ外れるか</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-09-26">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / READ", "item": "https://namaran.jocarium.productions/rust/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-26" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / READ — 2026-09-26",
+      "url": "https://namaran.jocarium.productions/rust/read/2026-09-26",
+      "datePublished": "2026-09-26",
+      "dateModified": "2026-09-26",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "ロックはいつ外れるか" },
+      "keywords": "toctou, mutex, temporary, lifetime, pattern-matching",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "Mutex::lockが返すガードの一時値が、let文、if letの本体とelse、matchのそれぞれでいつ破棄されるかをtry_lockで確かめるドリル。Rust 2024ではif letのelseに入る前にガードが外れる。2026-09-26のRust READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-26">C23</a>
+  <a href="/cpp/read/2026-09-26">C++26</a>
+  <a href="/rust/read/2026-09-26" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/read/2026-09-26">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-09-26" class="active" aria-current="page">READ</a>
+  <a href="/rust/write/2026-09-26">WRITE</a>
+  <a href="/rust/debug/2026-09-26">DEBUG</a>
+</nav>
+
+<main
+  data-topic="ロックはいつ外れるか"
+  data-tags="toctou mutex temporary lifetime pattern-matching"
+  data-concepts="MutexGuard, 一時値の寿命, if letのスコープ, Rust 2024, 確認と使用の間, temporary lifetime, if let rescope, TOCTOU"
+  data-level="whale"
+>
+  <h2>2026-09-26</h2>
+  <div class="code-frame">
+    <p class="code-filename">seat_guard.rs</p>
+    <pre class="code"><code><span class="kw">use</span> std::sync::<span class="ty">Mutex</span>;
+
+<span class="kw">fn</span> <span class="fn">state</span>(m: &amp;<span class="ty">Mutex</span>&lt;<span class="ty">Vec</span>&lt;<span class="ty">u32</span>&gt;&gt;) -&gt; &amp;<span class="lt">'static</span> <span class="ty">str</span> {
+    <span class="kw">if</span> m.<span class="fn">try_lock</span>().<span class="fn">is_ok</span>() { <span class="st">"free"</span> } <span class="kw">else</span> { <span class="st">"held"</span> }
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> seats = <span class="ty">Mutex</span>::<span class="fn">new</span>(<span class="mc">vec!</span>[<span class="nu">7</span>]);
+
+    <span class="kw">let</span> left = seats.<span class="fn">lock</span>().<span class="fn">unwrap</span>().<span class="fn">len</span>();
+    <span class="mc">println!</span>(<span class="st">"1 {left} {}"</span>, <span class="fn">state</span>(&amp;seats));
+
+    <span class="kw">if</span> <span class="kw">let</span> <span class="fn">Some</span>(&amp;n) = seats.<span class="fn">lock</span>().<span class="fn">unwrap</span>().<span class="fn">last</span>() {
+        <span class="mc">println!</span>(<span class="st">"2 {n} {}"</span>, <span class="fn">state</span>(&amp;seats));
+    }
+
+    <span class="kw">match</span> seats.<span class="fn">lock</span>().<span class="fn">unwrap</span>().<span class="fn">pop</span>() {
+        <span class="fn">Some</span>(n) =&gt; <span class="mc">println!</span>(<span class="st">"3 {n} {}"</span>, <span class="fn">state</span>(&amp;seats)),
+        <span class="ty">None</span> =&gt; <span class="mc">println!</span>(<span class="st">"3 none {}"</span>, <span class="fn">state</span>(&amp;seats)),
+    }
+
+    <span class="kw">if</span> <span class="kw">let</span> <span class="fn">Some</span>(n) = seats.<span class="fn">lock</span>().<span class="fn">unwrap</span>().<span class="fn">pop</span>() {
+        <span class="mc">println!</span>(<span class="st">"4 {n} {}"</span>, <span class="fn">state</span>(&amp;seats));
+    } <span class="kw">else</span> {
+        <span class="mc">println!</span>(<span class="st">"4 none {}"</span>, <span class="fn">state</span>(&amp;seats));
+    }
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>1 1 free</code>、<code>2 7 held</code>、<code>3 7 held</code>、<code>4 none free</code> の4行が出力されます。
+      </p>
+      <p>
+        <code>seats.lock().unwrap()</code> が返す <code>MutexGuard</code> は、どの変数にも束縛されない一時値で、ロックはこのガードが破棄されるまで外れません。各行の <code>free</code> と <code>held</code> は、<code>state</code> を呼んだ時点でその一時値がまだ生きているかを表しています。一時値がいつ破棄されるかは、それを含む構文で決まります。
+      </p>
+      <p>
+        1行目の <code>let</code> 文では、一時値は文の終わりで破棄されます。<code>left</code> に残るのは <code>len()</code> が返した <code>usize</code> のコピーだけで、表示の時点でロックは外れています。2行目の <code>if let</code> では、条件の式で作った一時値が本体の終わりまで生きるので、本体の中ではロックを握ったままです。3行目の <code>match</code> も同じで、対象の式の一時値は <code>match</code> 全体の終わりまで生き、どの腕に入っても <code>held</code> になります。4行目では <code>pop()</code> が <code>None</code> を返して <code>else</code> に入ります。Rust 2024 からは、<code>if let</code> の一時値は <code>else</code> に入る前に破棄されるので、ここは <code>free</code> です<sup class="fn-ref">1</sup>。
+      </p>
+      <p>
+        <code>free</code> と <code>held</code> の差は、確認してから使うまでの間にロックが外れているかどうかの差でもあります。1行目の <code>left</code> は表示した瞬間にもう古いかもしれない値で、この数を見て座席を割り当てると、その間に他のスレッドが割り込めます。確認した時点(time of check)と使う時点(time of use)の間に状態が変わる、TOCTOU と呼ばれる競合です。2行目と3行目では、取り出した値を使う間もロックが続いているので、この心配はありません。その代わり、本体の中でもう一度 <code>lock()</code> を呼ぶと戻ってこないので、ここでは待たずに結果を返す <code>try_lock</code> で調べています<sup class="fn-ref">2</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>Rust 2021 までは、<code>if let</code> の一時値は <code>else</code> の終わりまで生きていたので、4行目も <code>held</code> でした。<code>else</code> の中で同じ <code>Mutex</code> をもう一度ロックするコードは、2021 ではデッドロックし、2024 では動きます。</li>
+        <li>ロックを握っているスレッド自身が <code>std::sync::Mutex</code> をもう一度 <code>lock()</code> したときの動作は規定されておらず、デッドロックかパニックになります。<code>try_lock</code> は、ロックが取れなければ待たずに <code>Err</code> を返します。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/read">Today</a></li>
+    <li><a href="/rust/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
