@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="クエリのログから同じSQLが続く回数を数えてN+1クエリを疑うCのループを読み、strcmpが等しいときに0を返すことと、末尾の連続まで拾うための添字の上限を追うドリル。2026-09-09のC READ。">
+<title>N+1を数えるループ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-09-09">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-09" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-09-09",
+      "url": "https://namaran.jocarium.productions/c/read/2026-09-09",
+      "datePublished": "2026-09-09",
+      "dateModified": "2026-09-09",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "N+1を数えるループ" },
+      "keywords": "n-plus-one-query, string, comparison, loop",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "クエリのログから同じSQLが続く回数を数えてN+1クエリを疑うCのループを読み、strcmpが等しいときに0を返すことと、末尾の連続まで拾うための添字の上限を追うドリル。2026-09-09のC READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-09" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-09-09">C++26</a>
+  <a href="/rust/read/2026-09-09">Rust 2024</a>
+  <a href="/haskell/read/2026-09-09">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-09-09" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-09-09">WRITE</a>
+  <a href="/c/debug/2026-09-09">DEBUG</a>
+</nav>
+
+<main
+  data-topic="N+1を数えるループ"
+  data-tags="n-plus-one-query string comparison loop"
+  data-concepts="N+1クエリの検出, 同じSQLの連続, strcmp, N+1 query detection, strcmp returns zero"
+  data-level="hedgehog"
+>
+  <h2>2026-09-09</h2>
+  <div class="code-frame">
+    <p class="code-filename">detect_n_plus_one.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string.h&gt;</span>
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="kw">const</span> <span class="ty">char</span> *queries[] = {
+        <span class="st">"SELECT * FROM posts"</span>,
+        <span class="st">"SELECT * FROM users WHERE id = ?"</span>,
+        <span class="st">"SELECT * FROM users WHERE id = ?"</span>,
+        <span class="st">"SELECT * FROM users WHERE id = ?"</span>,
+        <span class="st">"SELECT * FROM tags WHERE post_id IN (?)"</span>,
+    };
+    <span class="ty">size_t</span> n = <span class="kw">sizeof</span> queries / <span class="kw">sizeof</span> queries[<span class="nu">0</span>];
+    <span class="ty">size_t</span> run = <span class="nu">1</span>;
+    <span class="kw">for</span> (<span class="ty">size_t</span> i = <span class="nu">1</span>; i &lt;= n; i++) {
+        <span class="kw">if</span> (i &lt; n &amp;&amp; <span class="fn">strcmp</span>(queries[i], queries[i - <span class="nu">1</span>]) == <span class="nu">0</span>) {
+            run++;
+            <span class="kw">continue</span>;
+        }
+        <span class="kw">if</span> (run &gt;= <span class="nu">3</span>) {
+            <span class="fn">printf</span>(<span class="st">"N+1? %zu x %s\n"</span>, run, queries[i - <span class="nu">1</span>]);
+        }
+        run = <span class="nu">1</span>;
+    }
+    <span class="kw">return</span> <span class="nu">0</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>N+1? 3 x SELECT * FROM users WHERE id = ?</code> の1行だけを出力します。
+      </p>
+      <p>
+        ループは直前と同じSQLが続くあいだ <code>run</code> を増やし、違うSQLに変わったところで、それまでの連続が3回以上なら報告します。<code>strcmp</code> は2つの文字列が等しいときに0を返すので、<code>== 0</code> が「同じSQLが続いた」の条件です。<code>users</code> のSQLは3行続くので、<code>i = 4</code> で <code>tags</code> のSQLに変わった時点で <code>run</code> は3になっており、ここで報告されます。<code>posts</code> と <code>tags</code> は1回ずつなので何も出ません。
+      </p>
+      <p>
+        上限が <code>i &lt; n</code> ではなく <code>i &lt;= n</code> なのは、ログの最後の連続を拾うためです。<code>i == n</code> の周回では <code>i &lt; n</code> が偽になるので、<code>queries[i]</code> を読まずに報告の判定へ進みます。ログが <code>users</code> の連続で終わっていても、この周回で報告されます。
+      </p>
+      <p>
+        投稿の一覧を1本のSQLで取り、各投稿の著者を1件ずつ引くと、このログのように同じ形のSQLが投稿の数だけ並びます。これがN+1クエリで、見つけたら著者の取得を <code>WHERE id IN (...)</code> の1本にまとめます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

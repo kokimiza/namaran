@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="長さ2までの小さなリストを総当たりして性質の反例を探すHaskellのチェッカーを読み、replicateMとリスト内包表記が組を並べる順から、findが最初に返す反例を追うドリル。2026-09-09のHaskell READ。">
+<title>最初に見つかる反例</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-09-09">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-09" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-09-09",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-09-09",
+      "datePublished": "2026-09-09",
+      "dateModified": "2026-09-09",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "最初に見つかる反例" },
+      "keywords": "property-based-testing, list-monad, laziness, list",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "長さ2までの小さなリストを総当たりして性質の反例を探すHaskellのチェッカーを読み、replicateMとリスト内包表記が組を並べる順から、findが最初に返す反例を追うドリル。2026-09-09のHaskell READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-09">C23</a>
+  <a href="/cpp/read/2026-09-09">C++26</a>
+  <a href="/rust/read/2026-09-09">Rust 2024</a>
+  <a href="/haskell/read/2026-09-09" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-09-09" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-09-09">WRITE</a>
+  <a href="/haskell/debug/2026-09-09">DEBUG</a>
+</nav>
+
+<main
+  data-topic="最初に見つかる反例"
+  data-tags="property-based-testing list-monad laziness list"
+  data-concepts="プロパティベーステスト, 反例, 網羅的なテスト, replicateM, リスト内包表記, property-based testing, counterexample, SmallCheck"
+  data-level="bison"
+>
+  <h2>2026-09-09</h2>
+  <div class="code-frame">
+    <p class="code-filename">Counterexample.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Control.Monad</span> (replicateM)
+<span class="kw">import</span> <span class="ty">Data.List</span> (find, sort)
+
+<span class="fn">small</span> <span class="op">::</span> [[<span class="ty">Int</span>]]
+<span class="fn">small</span> = concatMap (`replicateM` [<span class="nu">1</span>, <span class="nu">2</span>]) [<span class="nu">0</span> .. <span class="nu">2</span>]
+
+<span class="fn">check</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> ([<span class="ty">Int</span>] <span class="op">-&gt;</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> <span class="ty">Bool</span>) <span class="op">-&gt;</span> <span class="ty">IO</span> ()
+<span class="fn">check</span> name prop =
+  putStrLn (name ++ <span class="st">": "</span> ++ maybe <span class="st">"ok"</span> show (find (not . uncurry prop) cases))
+  <span class="kw">where</span>
+    cases = [(xs, ys) | xs <span class="op">&lt;-</span> small, ys <span class="op">&lt;-</span> small]
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = <span class="kw">do</span>
+  check <span class="st">"reverse"</span> (\xs ys <span class="op">-&gt;</span> reverse (xs ++ ys) == reverse xs ++ reverse ys)
+  check <span class="st">"sort"</span> (\xs ys <span class="op">-&gt;</span> sort (xs ++ ys) == sort xs ++ sort ys)
+  check <span class="st">"length"</span> (\xs ys <span class="op">-&gt;</span> length (xs ++ ys) == length xs + length ys)
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>reverse: ([1],[2])</code>、<code>sort: ([2],[1])</code>、<code>length: ok</code> の3行を出力します。
+      </p>
+      <p>
+        <code>replicateM n [1, 2]</code> は、リストモナドで <code>[1, 2]</code> から <code>n</code> 回選んだ組み合わせを、左の位置ほどゆっくり変わる順に並べます。これを長さ0、1、2の順につなぐので、<code>small</code> は <code>[[], [1], [2], [1,1], [1,2], [2,1], [2,2]]</code> です。<code>cases</code> の内包表記では右側の生成器 <code>ys</code> のほうが速く回り、<code>xs</code> を固定したまま <code>ys</code> を一巡してから次の <code>xs</code> へ進みます。<code>find</code> は性質が破れた最初の組を返し、それより後ろの組は評価しません。
+      </p>
+      <p>
+        <code>reverse</code> の性質は、<code>xs</code> が空なら常に成り立ちます。<code>xs = [1]</code> でも <code>ys</code> が <code>[]</code> と <code>[1]</code> のうちは成り立ち、<code>ys = [2]</code> で左辺の <code>reverse [1,2]</code> が <code>[2,1]</code>、右辺が <code>[1,2]</code> になって初めて破れます。<code>sort</code> の性質は、<code>xs = [1]</code> の7通りでは <code>1</code> がどの要素よりも大きくないので、右辺の <code>[1] ++ sort ys</code> も昇順になってすべて成り立ちます。次の <code>xs = [2]</code> で、<code>ys = [1]</code> のとき左辺が <code>[1,2]</code>、右辺が <code>[2,1]</code> に分かれます。<code>length</code> の性質はどの組でも成り立つので、<code>find</code> は <code>Nothing</code> を返し、<code>ok</code> が出ます。
+      </p>
+      <p>
+        小さい入力から順に総当たりして最初の反例を返すと、見つかる反例はその並びの中で最小のものになります。Haskellのライブラリでは SmallCheck がこの方式で、QuickCheck はランダムな入力で反例を見つけたあと、縮小(shrinking)で小さい反例へ近づけます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

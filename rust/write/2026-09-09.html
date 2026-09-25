@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="昇順に並んだidのスライスから、カーソル(最後に見たid)より後ろを最大limit件、要素をコピーせずにスライスのまま返すRustの関数を書くドリル。2026-09-09のRust WRITE。">
+<title>カーソルの次のページ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-09-09">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-09" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-09-09",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-09-09",
+      "datePublished": "2026-09-09",
+      "dateModified": "2026-09-09",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "カーソルの次のページ" },
+      "keywords": "keyset-pagination, pagination, slice, lifetime",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "昇順に並んだidのスライスから、カーソル(最後に見たid)より後ろを最大limit件、要素をコピーせずにスライスのまま返すRustの関数を書くドリル。2026-09-09のRust WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-09">C23</a>
+  <a href="/cpp/write/2026-09-09">C++26</a>
+  <a href="/rust/write/2026-09-09" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-09-09">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-09-09">READ</a>
+  <a href="/rust/write/2026-09-09" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-09-09">DEBUG</a>
+</nav>
+
+<main
+  data-topic="カーソルの次のページ"
+  data-tags="keyset-pagination pagination slice lifetime"
+  data-concepts="カーソル方式のページング, partition_point, スライスを返す, 二分探索, cursor pagination, keyset pagination"
+  data-level="hedgehog"
+>
+  <h2>2026-09-09</h2>
+  <div class="code-frame">
+    <p class="code-filename">next_page.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">next_page</span>(ids: &amp;[<span class="ty">u64</span>], after: <span class="ty">Option</span>&lt;<span class="ty">u64</span>&gt;, limit: <span class="ty">usize</span>) -&gt; &amp;[<span class="ty">u64</span>] {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>ids</code> は重複のない昇順のidの並びです。<code>after</code> が <code>Some(a)</code> なら <code>a</code> より大きいidを、<code>None</code> なら先頭から、最大 <code>limit</code> 件を <code>ids</code> の部分スライスとして返す <code>next_page</code> を書いてください。条件に合うidがなければ空のスライスを返します。<code>next_page(&amp;[2, 4, 6, 8], Some(4), 2)</code> → <code>[6, 8]</code>、<code>next_page(&amp;[2, 4, 6, 8], None, 3)</code> → <code>[2, 4, 6]</code>、<code>next_page(&amp;[2, 4, 6, 8], Some(8), 2)</code> → <code>[]</code>
+  </p>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">next_page</span>(ids: &amp;[<span class="ty">u64</span>], after: <span class="ty">Option</span>&lt;<span class="ty">u64</span>&gt;, limit: <span class="ty">usize</span>) -&gt; &amp;[<span class="ty">u64</span>] {
+    <span class="kw">let</span> start = after.<span class="fn">map_or</span>(<span class="nu">0</span>, |a| ids.<span class="fn">partition_point</span>(|&amp;id| id &lt;= a));
+    <span class="kw">let</span> end = (start + limit).<span class="fn">min</span>(ids.<span class="fn">len</span>());
+    &amp;ids[start..end]
+}
+</code></pre>
+      <p>
+        開始位置は <code>partition_point</code> で求めます。<code>ids</code> は昇順なので <code>id &lt;= a</code> を満たす要素は先頭にかたまっており、<code>partition_point</code> はその境目の添字を二分探索で返します。<code>a</code> そのものが <code>ids</code> に無くても、<code>Some(5)</code> なら <code>5</code> より大きい最初の要素の位置が返ります。<code>None</code> のときは <code>map_or</code> で0にします。
+      </p>
+      <p>
+        終わりの位置は <code>min(ids.len())</code> で切り詰めるので、残りが <code>limit</code> 件に満たなくても範囲外を指しません。戻り値の <code>&amp;[u64]</code> は、参照の引数が <code>ids</code> だけなのでライフタイムを省略でき、<code>ids</code> と同じ寿命のスライスとして要素をコピーせずに返せます。
+      </p>
+      <p>
+        これは参考実装であり、唯一の正解ではありません。<code>ids.iter().position(|&amp;id| id &gt; a)</code> で先頭から探し、見つからなければ <code>ids.len()</code> を使っても結果は同じです。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

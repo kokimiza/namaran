@@ -21,6 +21,7 @@ control-flow	制御の流れ
 copy-assignment	コピー代入
 counting-sort	計数ソート
 dangling-pointer	ダングリング参照
+deduplication	重複除去
 default	デフォルト値
 deref-coercion	Deref型強制
 deriving	自動導出
@@ -50,6 +51,7 @@ increment-decrement	インクリメント
 infinite-list	無限リスト
 infinite-loop	無限ループ
 inheritance	継承
+init-statement	初期化文
 initialization-order	初期化順序
 integer-arithmetic	整数の演算
 integer-overflow	整数オーバーフロー
@@ -59,12 +61,14 @@ io	IOアクション
 ioref	IORef
 iterator	イテレータ
 iterator-invalidation	イテレータ無効化
+keyset-pagination	カーソル方式
 lambda	ラムダ式
 layout-rule	レイアウト規則
 laziness	遅延評価
 lexical-analysis	字句解析
 lifetime	寿命
 list	リスト
+list-monad	リストモナド
 loop	ループ
 maximal-munch	最長一致
 maybe	Maybe型
@@ -75,6 +79,7 @@ method-resolution	メソッド解決
 monotonic-stack	単調スタック
 move-semantics	ムーブ
 mutability	可変性
+n-plus-one-query	N+1クエリ
 object-slicing	スライシング
 off-by-one	オフバイワン
 operator-overload	演算子の多重定義
@@ -82,12 +87,15 @@ operator-precedence	演算子の優先順位
 optional	optional型
 ordered-map	順序付きマップ
 ownership	所有権
+pagination	ページング
 pattern-matching	パターンマッチ
 performance	計算量と速度
 pointer	ポインタ
 pointer-decay	配列のポインタ化
 prefix-sum	累積和
 prime-factorization	素因数分解
+property-based-testing	プロパティベーステスト
+random-number-generator	乱数生成器
 range-for	範囲for
 recursion	再帰
 reference	参照
@@ -102,6 +110,7 @@ short-circuit	短絡評価
 signed-unsigned	符号あり・なし
 slice	スライス
 sorting	ソート
+span	std::span
 stability	安定性
 state-machine	状態機械
 static-storage	静的記憶域
@@ -118,10 +127,12 @@ trait-bound	トレイト境界
 trait-object	トレイトオブジェクト
 tree	木構造
 type-conversion	型変換
+type-deduction	型推論
 typeclass	型クラス
 undefined-behavior	未定義動作
 use-after-free	解放後の使用
 variadic-template	可変長テンプレート
 variant	variant型
+vector-bool	vector<bool>
 virtual-function	仮想関数
 write-ahead-log	WAL

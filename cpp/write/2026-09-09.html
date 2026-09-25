@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="文字列の配列を区切り文字でつなぐjoinをC++で書き、C++20の初期化文付き範囲for文で、最初の要素かどうかを覚えるフラグをループの中に閉じ込めるドリル。2026-09-09のC++ WRITE。">
+<title>区切り文字でつなぐ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-09-09">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-09" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-09-09",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-09-09",
+      "datePublished": "2026-09-09",
+      "dateModified": "2026-09-09",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "区切り文字でつなぐ" },
+      "keywords": "range-for, init-statement, string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "文字列の配列を区切り文字でつなぐjoinをC++で書き、C++20の初期化文付き範囲for文で、最初の要素かどうかを覚えるフラグをループの中に閉じ込めるドリル。2026-09-09のC++ WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-09">C23</a>
+  <a href="/cpp/write/2026-09-09" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-09-09">Rust 2024</a>
+  <a href="/haskell/write/2026-09-09">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-09">READ</a>
+  <a href="/cpp/write/2026-09-09" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-09-09">DEBUG</a>
+</nav>
+
+<main
+  data-topic="区切り文字でつなぐ"
+  data-tags="range-for init-statement string"
+  data-concepts="範囲for文, 初期化文付き範囲for, 文字列の連結, join, range-based for with initializer, string join"
+  data-level="peacock"
+>
+  <h2>2026-09-09</h2>
+  <div class="code-frame">
+    <p class="code-filename">join.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string_view&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+
+std::<span class="ty">string</span> <span class="fn">join</span>(<span class="kw">const</span> std::<span class="ty">vector</span>&lt;std::<span class="ty">string</span>&gt;&amp; words, std::<span class="ty">string_view</span> sep) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>words</code> の要素を先頭から順に、あいだに <code>sep</code> を挟んでつないだ文字列を返す <code>join</code> を書いてください。区切りは要素と要素のあいだにだけ入り、末尾には付きません。<code>words</code> が空なら空文字列を、1要素ならその要素だけを返します。<code>join({"id", "name", "email"}, ", ")</code> → <code>"id, name, email"</code>、<code>join({"users"}, ", ")</code> → <code>"users"</code>、<code>join({}, ", ")</code> → <code>""</code>
+  </p>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code>std::<span class="ty">string</span> <span class="fn">join</span>(<span class="kw">const</span> std::<span class="ty">vector</span>&lt;std::<span class="ty">string</span>&gt;&amp; words, std::<span class="ty">string_view</span> sep) {
+    std::<span class="ty">string</span> out;
+    <span class="kw">for</span> (<span class="ty">bool</span> first = <span class="nu">true</span>; <span class="kw">const</span> <span class="kw">auto</span>&amp; w : words) {
+        <span class="kw">if</span> (!first) {
+            out += sep;
+        }
+        out += w;
+        first = <span class="nu">false</span>;
+    }
+    <span class="kw">return</span> out;
+}
+</code></pre>
+      <p>
+        範囲for文で要素を順に <code>out</code> へ足し、2つ目以降の要素の前にだけ <code>sep</code> を足します。最初の要素かどうかを覚えるフラグ <code>first</code> は、C++20から書ける範囲for文の初期化文に置いています。こうすると <code>first</code> の有効範囲がループの中だけになり、関数の残りの部分からは見えません。
+      </p>
+      <p>
+        要素は <code>const auto&amp;</code> で受けているので、<code>std::string</code> をコピーしません。<code>out += sep</code> は <code>std::string_view</code> を受け取る <code>operator+=</code> で、<code>sep</code> の中身を追記します。
+      </p>
+      <p>
+        これは参考実装であり、唯一の正解ではありません。<code>words</code> が空でなければ先頭の要素を先に入れ、残りを <code>std::views::drop(words, 1)</code> で回して毎回 <code>sep</code> と要素を足す書き方もあります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

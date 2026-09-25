@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="範囲for文のautoで受けた要素に代入するC++のコードを読み、vector&lt;int&gt;ではコピーが変わるだけなのに、vector&lt;bool&gt;ではプロキシを通して元の要素が書き換わる違いを追うドリル。2026-09-09のC++ READ。">
+<title>範囲forのautoに代入</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-09-09">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-09" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-09-09",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-09-09",
+      "datePublished": "2026-09-09",
+      "dateModified": "2026-09-09",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "範囲forのautoに代入" },
+      "keywords": "range-for, vector-bool, type-deduction, reference",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "範囲for文のautoで受けた要素に代入するC++のコードを読み、vector<int>ではコピーが変わるだけなのに、vector<bool>ではプロキシを通して元の要素が書き換わる違いを追うドリル。2026-09-09のC++ READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-09">C23</a>
+  <a href="/cpp/read/2026-09-09" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-09-09">Rust 2024</a>
+  <a href="/haskell/read/2026-09-09">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-09" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-09-09">WRITE</a>
+  <a href="/cpp/debug/2026-09-09">DEBUG</a>
+</nav>
+
+<main
+  data-topic="範囲forのautoに代入"
+  data-tags="range-for vector-bool type-deduction reference"
+  data-concepts="範囲for文, auto, vector&lt;bool&gt;, プロキシオブジェクト, コピーと参照, range-based for, proxy reference"
+  data-level="bison"
+>
+  <h2>2026-09-09</h2>
+  <div class="code-frame">
+    <p class="code-filename">settle_flags.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+
+<span class="ty">void</span> <span class="fn">settle</span>(std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt;&amp; counts, std::<span class="ty">vector</span>&lt;<span class="ty">bool</span>&gt;&amp; dirty) {
+    <span class="kw">for</span> (<span class="kw">auto</span> c : counts) {
+        <span class="kw">if</span> (c &gt; <span class="nu">1</span>) {
+            c = <span class="nu">1</span>;
+        }
+    }
+    <span class="kw">for</span> (<span class="kw">auto</span> d : dirty) {
+        <span class="kw">if</span> (d) {
+            d = <span class="nu">false</span>;
+        }
+    }
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt; counts{<span class="nu">3</span>, <span class="nu">1</span>, <span class="nu">4</span>};
+    std::<span class="ty">vector</span>&lt;<span class="ty">bool</span>&gt; dirty{<span class="nu">true</span>, <span class="nu">true</span>, <span class="nu">false</span>};
+    <span class="fn">settle</span>(counts, dirty);
+    <span class="kw">for</span> (<span class="ty">int</span> c : counts) {
+        std::cout &lt;&lt; c;
+    }
+    std::cout &lt;&lt; <span class="st">' '</span>;
+    <span class="kw">for</span> (<span class="ty">bool</span> d : dirty) {
+        std::cout &lt;&lt; d;
+    }
+    std::cout &lt;&lt; <span class="st">'\n'</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>314 000</code> を出力します。<code>counts</code> は変わらず、<code>dirty</code> だけがすべて <code>false</code> になります。
+      </p>
+      <p>
+        範囲for文の <code>auto c</code> は、要素の値で初期化された別の <code>int</code> です。<code>c = 1</code> はこのコピーを書き換えるだけなので、<code>counts</code> は <code>3 1 4</code> のまま残ります。
+      </p>
+      <p>
+        同じ <code>auto</code> でも、<code>std::vector&lt;bool&gt;</code> では結果が変わります。<code>vector&lt;bool&gt;</code> は要素を1ビットずつ詰めて持つ特殊化で、1ビットを指す <code>bool&amp;</code> は作れないので、イテレータの <code>*it</code> は <code>std::vector&lt;bool&gt;::reference</code> というプロキシのオブジェクトを値で返します。<code>auto d</code> が推論するのはこのプロキシの型で、コピーしても元のビットを指したままです。<code>d = false</code> はプロキシの <code>operator=</code> を呼び、<code>dirty</code> のビットを直接書き換えます。
+      </p>
+      <p>
+        <code>counts</code> も書き換えたいなら <code>auto&amp; c</code> と書きます。逆に <code>dirty</code> を書き換えたくないなら <code>bool d</code> と型を書けば、プロキシから <code>bool</code> の値が取り出されてコピーになります。<code>vector&lt;bool&gt;</code> は <code>auto&amp;</code> で受けることもできません。<code>*it</code> が一時オブジェクトなので、非constの左辺値参照を束縛できないからです。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

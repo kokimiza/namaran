@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="配列を受け取るつもりの引数const int scores[]を範囲for文で回そうとして、引数が実際にはポインタなのでコンパイルが通らないC++の関数を、std::spanで直すドリル。2026-09-09のC++ DEBUG。">
+<title>配列引数を範囲forで</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-09-09">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-09" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-09-09",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-09-09",
+      "datePublished": "2026-09-09",
+      "dateModified": "2026-09-09",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "配列引数を範囲forで" },
+      "keywords": "range-for, pointer-decay, function-parameter, span",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "配列を受け取るつもりの引数const int scores[]を範囲for文で回そうとして、引数が実際にはポインタなのでコンパイルが通らないC++の関数を、std::spanで直すドリル。2026-09-09のC++ DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-09">C23</a>
+  <a href="/cpp/debug/2026-09-09" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-09-09">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-09">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-09">READ</a>
+  <a href="/cpp/write/2026-09-09">WRITE</a>
+  <a href="/cpp/debug/2026-09-09" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="配列引数を範囲forで"
+  data-tags="range-for pointer-decay function-parameter span"
+  data-concepts="範囲for文, 配列引数, 配列のポインタ化, std::span, range-based for over array parameter, array-to-pointer decay"
+  data-level="hedgehog"
+>
+  <h2>2026-09-09</h2>
+  <div class="code-frame">
+    <p class="code-filename">print_scores.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+
+<span class="ty">void</span> <span class="fn">print_scores</span>(<span class="kw">const</span> <span class="ty">int</span> scores[]) {
+    <span class="kw">for</span> (<span class="ty">int</span> s : scores) {
+        std::cout &lt;&lt; s &lt;&lt; <span class="st">'\n'</span>;
+    }
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="ty">int</span> scores[] = {<span class="nu">72</span>, <span class="nu">85</span>, <span class="nu">90</span>};
+    <span class="fn">print_scores</span>(scores);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>print_scores</code> は、受け取った点数を1行に1つずつ出力するつもりの関数です。入力は <code>main</code> のとおり、<code>int scores[] = {72, 85, 90};</code> をそのまま渡す呼び出しです。いまはコンパイルが通りません。本来は <code>72</code>、<code>85</code>、<code>90</code> が1行ずつ出力されます。どこを直せばよいでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        引数を <code>const int scores[]</code> から <code>std::span&lt;const int&gt; scores</code> に変え、<code>#include &lt;span&gt;</code> を足します。
+      </p>
+      <p>
+        関数の引数に配列の型を書いても、その引数は <code>const int *</code> として宣言されます。範囲for文は範囲の始まりと終わりを <code>begin</code> と <code>end</code> で求めますが、ポインタは要素数を持たず、<code>scores.begin()</code> も <code>begin(scores)</code> も見つからないので、コンパイルエラーになります。<code>main</code> の中の <code>scores</code> は <code>int[3]</code> のままなので、同じ <code>for</code> を <code>main</code> に書けば通ります。
+      </p>
+      <p>
+        <code>std::span&lt;const int&gt;</code> は先頭へのポインタと要素数の組で、<code>int[3]</code> の配列から要素数ごと暗黙に作られます。<code>begin</code> と <code>end</code> を持つので、関数の本体は範囲for文のまま変えずに済みます。要素数を型に含めてよければ、<code>const int (&amp;scores)[3]</code> と配列への参照で受ける方法もあります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
