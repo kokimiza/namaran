@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="vectorの中でしきい値より大きい要素を数えるcount_aboveを、引数のしきい値をキャプチャしたラムダとstd::ranges::count_ifで書くドリル。">
+<title>しきい値をキャプチャ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-09-10">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-10" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-09-10",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-09-10",
+      "datePublished": "2026-09-10",
+      "dateModified": "2026-09-10",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "しきい値をキャプチャ" },
+      "keywords": "lambda, capture, higher-order",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "vectorの中でしきい値より大きい要素を数えるcount_aboveを、引数のしきい値をキャプチャしたラムダとstd::ranges::count_ifで書くドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-10">C23</a>
+  <a href="/cpp/write/2026-09-10" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-09-10">Rust 2024</a>
+  <a href="/haskell/write/2026-09-10">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-10">READ</a>
+  <a href="/cpp/write/2026-09-10" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-09-10">DEBUG</a>
+</nav>
+
+<main
+  data-topic="しきい値をキャプチャ"
+  data-tags="lambda capture higher-order"
+  data-concepts="ラムダ式のキャプチャ, 述語, count_if, lambda capture, predicate, std::ranges::count_if"
+  data-level="hedgehog"
+>
+  <h2>2026-09-10</h2>
+  <div class="code-frame">
+    <p class="code-filename">count_above.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;cstddef&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+
+std::<span class="ty">ptrdiff_t</span> <span class="fn">count_above</span>(<span class="kw">const</span> std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt;&amp; v, <span class="ty">int</span> threshold) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>v</code>の要素のうち<code>threshold</code>より大きいものの個数を返す<code>count_above</code>を書いてください。<code>threshold</code>と等しい要素は数えず、<code>v</code>が空なら<code>0</code>です。<code>count_above({3, 8, 1, 9}, 5)</code> → <code>2</code>、<code>count_above({5, 5}, 5)</code> → <code>0</code>、<code>count_above({}, 0)</code> → <code>0</code>
+  </p>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;algorithm&gt;</span>
+
+std::<span class="ty">ptrdiff_t</span> <span class="fn">count_above</span>(<span class="kw">const</span> std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt;&amp; v, <span class="ty">int</span> threshold) {
+    <span class="kw">return</span> std::ranges::<span class="fn">count_if</span>(v, [threshold](<span class="ty">int</span> x) { <span class="kw">return</span> x &gt; threshold; });
+}
+</code></pre>
+      <p>
+        <code>count_if</code>に渡す述語は要素を1つ受け取るだけなので、比べる相手の<code>threshold</code>はラムダの外から持ち込みます。<code>[threshold]</code>と書くと、コンパイラは<code>int</code>のメンバを1つ持つ無名のクラスを作り、ラムダ式を評価した時点の<code>threshold</code>をそのメンバにコピーします。<code>count_if</code>が要素ごとに呼ぶのはこのクラスの<code>operator()</code>で、本体に書いた<code>threshold</code>はそのメンバを指します。
+      </p>
+      <p>
+        述語は<code>count_if</code>が戻る前に使い終わるので、<code>[&amp;threshold]</code>や<code>[&amp;]</code>で参照を持たせても正しく動きます。<code>int</code>1個ならコピーの手間は参照と変わらないため、ここでは値で持たせました。<code>std::ranges::count_if</code>の戻り値は範囲の差の型で、<code>std::vector&lt;int&gt;</code>なら<code>std::ptrdiff_t</code>です。これは参考実装であり、唯一の正解ではありません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

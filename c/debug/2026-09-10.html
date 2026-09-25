@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="int **を受け取るtraceにint grid[3][3]を渡したせいでコンパイルが通らないプログラムを、引数の型を行へのポインタに直して通すドリル。">
+<title>int **に2次元配列</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-09-10">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-10" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-09-10",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-09-10",
+      "datePublished": "2026-09-10",
+      "dateModified": "2026-09-10",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "int **に2次元配列" },
+      "keywords": "array, pointer, function-parameter, pointer-decay",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "int **を受け取るtraceにint grid[3][3]を渡したせいでコンパイルが通らないプログラムを、引数の型を行へのポインタに直して通すドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-10" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-09-10">C++26</a>
+  <a href="/rust/debug/2026-09-10">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-10">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-09-10">READ</a>
+  <a href="/c/write/2026-09-10">WRITE</a>
+  <a href="/c/debug/2026-09-10" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="int **に2次元配列"
+  data-tags="array pointer function-parameter pointer-decay"
+  data-concepts="2次元配列の引数, ポインタのポインタ, 配列へのポインタ, incompatible pointer type, 2D array parameter, pointer to pointer"
+  data-level="hedgehog"
+>
+  <h2>2026-09-10</h2>
+  <div class="code-frame">
+    <p class="code-filename">trace.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="ty">int</span> <span class="fn">trace</span>(<span class="ty">int</span> **m, <span class="ty">int</span> n) {
+    <span class="ty">int</span> t = <span class="nu">0</span>;
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; n; i++) {
+        t += m[i][i];
+    }
+    <span class="kw">return</span> t;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="ty">int</span> grid[<span class="nu">3</span>][<span class="nu">3</span>] = {
+        {<span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">3</span>},
+        {<span class="nu">4</span>, <span class="nu">5</span>, <span class="nu">6</span>},
+        {<span class="nu">7</span>, <span class="nu">8</span>, <span class="nu">9</span>},
+    };
+    <span class="fn">printf</span>(<span class="st">"%d\n"</span>, <span class="fn">trace</span>(grid, <span class="nu">3</span>));
+    <span class="kw">return</span> <span class="nu">0</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>trace</code>は、正方行列の対角成分の和を返すつもりの関数です。入力は<code>trace(grid, 3)</code>で、本来は<code>15</code>を表示するはずですが、いまはコンパイルが通りません。どこを直せばよいでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>trace</code>の引数<code>int **m</code>を<code>int (*m)[3]</code>に直します。関数に渡した配列は先頭要素へのポインタに変わりますが、<code>int grid[3][3]</code>の先頭要素は<code>int</code>ではなく行<code>int[3]</code>です。そのため<code>grid</code>は<code>int (*)[3]</code>(<code>int</code>3個の行を指すポインタ)になり、<code>int *</code>を指すポインタである<code>int **</code>とは型が合いません。
+      </p>
+      <p>
+        <code>int (*m)[3]</code>を受け取るように直すと、<code>m[i][i]</code>は<code>i</code>行目の先頭から<code>i</code>個進んだ要素になり、<code>1 + 5 + 9</code>で<code>15</code>が出ます。<code>int m[][3]</code>と書いても同じ型です<sup class="fn-ref">1</sup>。<code>(int **)grid</code>とキャストすればコンパイルは通りますが、<code>m[i]</code>が<code>grid</code>の中の<code>int</code>をポインタとして読むことになるので、未定義動作です。
+      </p>
+      <ol class="footnotes"><li>C23では、<code>int trace(int n, int m[n][n])</code>のように列数を引数から取る書き方もできます。可変長配列の変数は処理系が省けますが、このような引数の型はC23で必須になりました。</li></ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

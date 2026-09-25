@@ -22,6 +22,7 @@ copy-assignment	コピー代入
 counting-sort	計数ソート
 dangling-pointer	ダングリング参照
 default	デフォルト値
+deref-coercion	Deref型強制
 deriving	自動導出
 destructor	デストラクタ
 division	除算と剰余
@@ -59,6 +60,7 @@ ioref	IORef
 iterator	イテレータ
 iterator-invalidation	イテレータ無効化
 lambda	ラムダ式
+layout-rule	レイアウト規則
 laziness	遅延評価
 lexical-analysis	字句解析
 lifetime	寿命
@@ -69,6 +71,7 @@ maybe	Maybe型
 memoization	メモ化
 memory-management	メモリ管理
 merge	マージ
+method-resolution	メソッド解決
 monotonic-stack	単調スタック
 move-semantics	ムーブ
 mutability	可変性

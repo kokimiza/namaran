@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="m[i][j]で読み書きできるint **の行列を、行ポインタの表と連続したデータ領域の2回の確保で作るalloc_matrixと、対になるfree_matrixをCで書く。">
+<title>連続領域のint **行列</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-09-10">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-10" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-09-10",
+      "url": "https://namaran.jocarium.productions/c/write/2026-09-10",
+      "datePublished": "2026-09-10",
+      "dateModified": "2026-09-10",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "連続領域のint **行列" },
+      "keywords": "pointer, array, memory-management",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "m[i][j]で読み書きできるint **の行列を、行ポインタの表と連続したデータ領域の2回の確保で作るalloc_matrixと、対になるfree_matrixをCで書く。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-10" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-09-10">C++26</a>
+  <a href="/rust/write/2026-09-10">Rust 2024</a>
+  <a href="/haskell/write/2026-09-10">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-09-10">READ</a>
+  <a href="/c/write/2026-09-10" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-09-10">DEBUG</a>
+</nav>
+
+<main
+  data-topic="連続領域のint **行列"
+  data-tags="pointer array memory-management"
+  data-concepts="ポインタのポインタ, 動的な2次元配列, 行ポインタの表, malloc, pointer to pointer, dynamic 2D array, jagged array"
+  data-level="peacock"
+>
+  <h2>2026-09-10</h2>
+  <div class="code-frame">
+    <p class="code-filename">matrix_alloc.c</p>
+    <pre class="code"><code><span class="ty">int</span> **<span class="fn">alloc_matrix</span>(<span class="ty">size_t</span> rows, <span class="ty">size_t</span> cols) {
+}
+
+<span class="ty">void</span> <span class="fn">free_matrix</span>(<span class="ty">int</span> **m) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>rows</code>行<code>cols</code>列の<code>int</code>の行列を確保し、<code>m[i][j]</code>で読み書きできる<code>int **</code>を返す<code>alloc_matrix</code>と、それを解放する<code>free_matrix</code>を書いてください。全要素は1つの連続した領域に行の順で並べます。確保に失敗したら、途中まで確保したものを解放して<code>NULL</code>を返します。<code>rows</code>と<code>cols</code>は1以上とし、<code>free_matrix(NULL)</code>は何もしません。<code>m = alloc_matrix(2, 3)</code> → <code>&amp;m[1][0] - &amp;m[0][0]</code>が<code>3</code>、確保に失敗 → <code>NULL</code>、<code>free_matrix(NULL)</code> → 何もしない
+  </p>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="ty">int</span> **<span class="fn">alloc_matrix</span>(<span class="ty">size_t</span> rows, <span class="ty">size_t</span> cols) {
+    <span class="ty">int</span> **m = <span class="fn">malloc</span>(rows * <span class="kw">sizeof</span> *m);
+    <span class="kw">if</span> (m == <span class="nu">NULL</span>) {
+        <span class="kw">return</span> <span class="nu">NULL</span>;
+    }
+    m[<span class="nu">0</span>] = <span class="fn">malloc</span>(rows * cols * <span class="kw">sizeof</span> **m);
+    <span class="kw">if</span> (m[<span class="nu">0</span>] == <span class="nu">NULL</span>) {
+        <span class="fn">free</span>(m);
+        <span class="kw">return</span> <span class="nu">NULL</span>;
+    }
+    <span class="kw">for</span> (<span class="ty">size_t</span> i = <span class="nu">1</span>; i &lt; rows; i++) {
+        m[i] = m[<span class="nu">0</span>] + i * cols;
+    }
+    <span class="kw">return</span> m;
+}
+
+<span class="ty">void</span> <span class="fn">free_matrix</span>(<span class="ty">int</span> **m) {
+    <span class="kw">if</span> (m != <span class="nu">NULL</span>) {
+        <span class="fn">free</span>(m[<span class="nu">0</span>]);
+    }
+    <span class="fn">free</span>(m);
+}
+</code></pre>
+      <p>
+        確保は2回です。1回目は各行の先頭を指すポインタの表(<code>int *</code>が<code>rows</code>個)、2回目は全要素ぶんの<code>int</code>(<code>rows * cols</code>個)で、表の<code>i</code>番目には2回目の領域の<code>i * cols</code>番目のアドレスを入れます。<code>m[i][j]</code>は<code>*(*(m + i) + j)</code>なので、表から<code>i</code>行目のポインタを読み、そこから<code>j</code>個進んだ<code>int</code>に届きます。
+      </p>
+      <p>
+        本物の2次元配列<code>int a[2][3]</code>なら、行の長さを型が知っているので、<code>a[i][j]</code>はアドレスを1回計算するだけで届きます。<code>int **</code>の<code>m[i][j]</code>は、表と要素の2か所を読みます。それでも要素を1つの領域に置いておけば、<code>m[0]</code>を<code>int *</code>として<code>rows * cols</code>個まとめて<code>memcpy</code>や<code>qsort</code>に渡せ、解放も<code>free</code>2回で済みます。行ごとに<code>malloc</code>する書き方でも動きますが、確保と解放が<code>rows + 1</code>回に増え、途中で失敗したときの後始末も長くなります。
+      </p>
+      <p>
+        これは参考実装であり、唯一の正解ではありません。<code>rows * cols</code>の掛け算が<code>size_t</code>で桁あふれしないかは、ここでは確かめていません<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes"><li>大きな<code>rows</code>や<code>cols</code>を受け付けるなら、掛ける前に<code>cols &gt; SIZE_MAX / rows</code>を確かめて<code>NULL</code>を返します。</li></ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

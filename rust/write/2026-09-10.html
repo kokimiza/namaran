@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="常に昇順を保つ新しい型Sorted&lt;T&gt;を書き、スライスのメソッドと&amp;[T]への型強制だけを外に見せ、並びを崩す操作は通さないDerefの実装を考えるドリル。">
+<title>並びを守るDeref</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-09-10">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-10" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-09-10",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-09-10",
+      "datePublished": "2026-09-10",
+      "dateModified": "2026-09-10",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "並びを守るDeref" },
+      "keywords": "deref-coercion, trait-bound, invariant, slice",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "常に昇順を保つ新しい型Sorted<T>を書き、スライスのメソッドと&[T]への型強制だけを外に見せ、並びを崩す操作は通さないDerefの実装を考えるドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-10">C23</a>
+  <a href="/cpp/write/2026-09-10">C++26</a>
+  <a href="/rust/write/2026-09-10" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-09-10">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-09-10">READ</a>
+  <a href="/rust/write/2026-09-10" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-09-10">DEBUG</a>
+</nav>
+
+<main
+  data-topic="並びを守るDeref"
+  data-tags="deref-coercion trait-bound invariant slice"
+  data-concepts="Derefの実装, newtype, 不変条件を守る型, スライスへの型強制, deref coercion, newtype pattern, sorted vector"
+  data-level="bison"
+>
+  <h2>2026-09-10</h2>
+  <div class="code-frame">
+    <p class="code-filename">sorted.rs</p>
+    <pre class="code"><code><span class="kw">pub</span> <span class="kw">struct</span> <span class="ty">Sorted</span>&lt;<span class="ty">T</span>&gt;(<span class="ty">Vec</span>&lt;<span class="ty">T</span>&gt;);
+
+<span class="kw">impl</span>&lt;<span class="ty">T</span>: <span class="ty">Ord</span>&gt; <span class="ty">Sorted</span>&lt;<span class="ty">T</span>&gt; {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">new</span>(<span class="kw">mut</span> v: <span class="ty">Vec</span>&lt;<span class="ty">T</span>&gt;) -&gt; <span class="ty">Self</span> {
+    }
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>Sorted&lt;T&gt;</code>は、中の要素が常に昇順に並んでいることを保証する型です。<code>new</code>と、<code>Sorted&lt;T&gt;</code>を読み取り用のスライスとして使えるようにする実装を書いてください。<code>&amp;[T]</code>を受け取る関数に<code>&amp;s</code>をそのまま渡せ、<code>len</code>や<code>binary_search</code>のようなスライスのメソッドを<code>s</code>に直接呼べるようにします。ただし、外から要素を書き換えて並びを崩すことはできないようにします。<code>Sorted::new(vec![3, 1, 2])</code>で<code>s.first()</code> → <code>Some(&amp;1)</code>、<code>s.binary_search(&amp;3)</code> → <code>Ok(2)</code>、空の<code>Vec</code>から作ると<code>s.is_empty()</code> → <code>true</code>
+  </p>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">use</span> std::ops::<span class="ty">Deref</span>;
+
+<span class="kw">impl</span>&lt;<span class="ty">T</span>: <span class="ty">Ord</span>&gt; <span class="ty">Sorted</span>&lt;<span class="ty">T</span>&gt; {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">new</span>(<span class="kw">mut</span> v: <span class="ty">Vec</span>&lt;<span class="ty">T</span>&gt;) -&gt; <span class="ty">Self</span> {
+        v.<span class="fn">sort</span>();
+        <span class="fn">Sorted</span>(v)
+    }
+}
+
+<span class="kw">impl</span>&lt;<span class="ty">T</span>&gt; <span class="ty">Deref</span> <span class="kw">for</span> <span class="ty">Sorted</span>&lt;<span class="ty">T</span>&gt; {
+    <span class="kw">type</span> <span class="ty">Target</span> = [<span class="ty">T</span>];
+
+    <span class="kw">fn</span> <span class="fn">deref</span>(&amp;<span class="kw">self</span>) -&gt; &amp;[<span class="ty">T</span>] {
+        &amp;<span class="kw">self</span>.<span class="nu">0</span>
+    }
+}
+</code></pre>
+      <p>
+        <code>Deref&lt;Target = [T]&gt;</code>を実装すると、<code>&amp;Sorted&lt;T&gt;</code>は関数の引数などで<code>&amp;[T]</code>に型強制されます。メソッド呼び出しでも<code>s.len()</code>が<code>(*s).len()</code>、つまりスライスの<code>len</code>として解決されるので、スライスのメソッドを1つずつ転送する必要はありません。
+      </p>
+      <p>
+        並びを守るために、<code>DerefMut</code>は実装しません。<code>Deref</code>が渡すのは<code>&amp;[T]</code>だけなので、<code>s[0] = 9</code>や<code>s.reverse()</code>のように<code>&amp;mut [T]</code>が要る操作はコンパイルが通りません。フィールドを<code>pub</code>にしないのも同じ理由です。<code>Target</code>を<code>Vec&lt;T&gt;</code>ではなく<code>[T]</code>にしたのは、中身が<code>Vec</code>であることを外に見せないためで、<code>Vec&lt;T&gt;</code>にすると<code>capacity</code>のような<code>Vec</code>だけのメソッドまで公開の約束に入ります。
+      </p>
+      <p>
+        2つの<code>impl</code>で境界が違うのも意図したものです。並べ替えには<code>T: Ord</code>が要りますが、借りて見せるだけの<code>Deref</code>には要らないので、<code>impl&lt;T&gt;</code>にしています。これは参考実装であり、唯一の正解ではありません<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes"><li><code>Deref</code>はスマートポインタのためのトレイトなので、新しい型からメソッドを借りる目的では使わない方がよい、という意見もあります。その立場なら<code>AsRef&lt;[T]&gt;</code>や<code>as_slice</code>のようなメソッドを用意します。型強制は起きなくなりますが、スライスとして見せていることが呼び出し側のコードに表れます。</li></ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

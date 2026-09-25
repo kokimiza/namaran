@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="case式の選択肢より深く字下げしたwhereが最後の選択肢だけに付いてしまい、ほかの選択肢から束縛が見えなくなるコンパイルエラーを直すドリル。">
+<title>深すぎるwhere</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-09-10">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-10" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-09-10",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-09-10",
+      "datePublished": "2026-09-10",
+      "dateModified": "2026-09-10",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "深すぎるwhere" },
+      "keywords": "layout-rule, pattern-matching",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "case式の選択肢より深く字下げしたwhereが最後の選択肢だけに付いてしまい、ほかの選択肢から束縛が見えなくなるコンパイルエラーを直すドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-10">C23</a>
+  <a href="/cpp/debug/2026-09-10">C++26</a>
+  <a href="/rust/debug/2026-09-10">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-10" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-09-10">READ</a>
+  <a href="/haskell/write/2026-09-10">WRITE</a>
+  <a href="/haskell/debug/2026-09-10" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="深すぎるwhere"
+  data-tags="layout-rule pattern-matching"
+  data-concepts="レイアウト規則, where句のスコープ, case式の選択肢, parse-error(t), インデント, layout rule, where clause scope, case alternative"
+  data-level="whale"
+>
+  <h2>2026-09-10</h2>
+  <div class="code-frame">
+    <p class="code-filename">Shipping.hs</p>
+    <pre class="code"><code><span class="fn">shipping</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Int</span>
+<span class="fn">shipping</span> weight distance = <span class="kw">case</span> weight <span class="kw">of</span>
+  <span class="nu">0</span> <span class="op">-&gt;</span> <span class="nu">0</span>
+  <span class="nu">1</span> <span class="op">-&gt;</span> base
+  _ <span class="op">-&gt;</span> base + extra
+    <span class="kw">where</span>
+      base = distance * <span class="nu">10</span>
+      extra = (weight - <span class="nu">1</span>) * <span class="nu">5</span>
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (map (`shipping` <span class="nu">3</span>) [<span class="nu">0</span>, <span class="nu">1</span>, <span class="nu">2</span>])
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>shipping</code>は、重さ<code>weight</code>と距離<code>distance</code>から送料を計算するつもりの関数です。入力は<code>map (`shipping` 3) [0, 1, 2]</code>で、本来は<code>[0,30,35]</code>を表示するはずですが、いまはコンパイルが通りません。どこを直せばよいでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>where</code>から始まる3行を2文字ずつ左へずらし、<code>where</code>を選択肢と同じ列に置きます。いまの<code>where</code>は関数全体ではなく、最後の選択肢<code>_ -&gt; base + extra</code>に付いています。
+      </p>
+      <p>
+        <code>case</code>の選択肢は、関数の定義と同じように自分の<code>where</code>を持てます。<code>of</code>のあとで開いた暗黙のブロックでは、選択肢の始まる列より右から始まる行は直前の選択肢の続きとして読まれます。<code>where</code>はその列より右にあるので最後の選択肢の一部になり、<code>base</code>と<code>extra</code>はその選択肢の中でしか見えません。<code>1 -&gt; base</code>の<code>base</code>がスコープにないというエラーは、ここから来ています。
+      </p>
+      <p>
+        <code>where</code>を選択肢と同じ列に置くと、レイアウト規則はまず新しい選択肢が始まったと見なして<code>;</code>を補います。ところが<code>where</code>で始まる選択肢はないので、構文エラーになる字句の手前で暗黙のブロックを閉じる規則が働き、<code>case</code>のブロックはそこで閉じます<sup class="fn-ref">1</sup>。その結果<code>where</code>は<code>shipping</code>の定義全体に付き、3つの選択肢のどれからも<code>base</code>と<code>extra</code>が見えます。
+      </p>
+      <p>
+        「同じ列なら閉じる」と「深ければ続き」は見た目では区別しにくいので、選択肢を4文字下げ、<code>where</code>を2文字下げにする書き方もよく使われます。<code>where</code>が選択肢より左にあれば、字下げだけで<code>case</code>のブロックが閉じ、この規則に頼らずに済みます。
+      </p>
+      <ol class="footnotes"><li>Haskell 2010 Language Reportの10.3節で<code>parse-error(t)</code>と書かれている規則です。<code>let x = 1 in x</code>を1行で書けるのも、<code>in</code>の手前でこの規則が<code>let</code>のブロックを閉じるからです。</li></ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
