@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「資源の後始末」を扱ったNamaranのコーディングドリル3問。finally、例外安全、後始末、cleanup、bracket、例外。">
+<meta name="description" content="「資源の後始末」を扱ったNamaranのコーディングドリル4問。例外安全、ロールバック、onException、IORef、途中状態の復元、rollback。">
 <title>資源の後始末</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/resource-management">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>資源の後始末</h2>
 
   <p class="lede">
-    「資源の後始末」を扱った3問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「資源の後始末」を扱った4問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/haskell/write/2026-09-17">Haskell / WRITE · 2026-09-17</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">失敗したら書き戻す</span> <span class="past-concepts">例外安全, ロールバック, onException, IORef, 途中状態の復元, rollback, exception safety</span></li>
     <li><a href="/haskell/write/2026-09-11">Haskell / WRITE · 2026-09-11</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">finallyで後始末</span> <span class="past-concepts">finally, 例外安全, 後始末, cleanup</span></li>
     <li><a href="/haskell/read/2026-09-11">Haskell / READ · 2026-09-11</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">bracketで確実に後始末</span> <span class="past-concepts">bracket, 例外安全, 後始末, cleanup</span></li>
     <li><a href="/haskell/debug/2026-09-11">Haskell / DEBUG · 2026-09-11</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">飛ばされる後始末</span> <span class="past-concepts">例外, 後始末, bracket, cleanup skipped</span></li>

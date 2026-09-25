@@ -15,6 +15,7 @@ concurrency	並行処理
 conditional-operator	三項演算子
 constexpr	コンパイル時計算
 constructor	コンストラクタ
+continuation-passing-style	継続渡しスタイル
 continue-break	breakとcontinue
 control-flow	制御の流れ
 copy-assignment	コピー代入
@@ -59,13 +60,16 @@ iterator	イテレータ
 iterator-invalidation	イテレータ無効化
 lambda	ラムダ式
 laziness	遅延評価
+lexical-analysis	字句解析
 lifetime	寿命
 list	リスト
 loop	ループ
+maximal-munch	最長一致
 maybe	Maybe型
 memoization	メモ化
 memory-management	メモリ管理
 merge	マージ
+monotonic-stack	単調スタック
 move-semantics	ムーブ
 mutability	可変性
 object-slicing	スライシング

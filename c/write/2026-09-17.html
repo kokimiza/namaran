@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="字句解析器の一部として、文字列の先頭から10進の整数を読み取り、ポインタへのポインタで受け取ったカーソルを数字の直後まで進める関数を書くドリル。2026-09-17のC WRITE。">
+<title>数値トークンの切り出し</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-09-17">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-17" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-09-17",
+      "url": "https://namaran.jocarium.productions/c/write/2026-09-17",
+      "datePublished": "2026-09-17",
+      "dateModified": "2026-09-17",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "数値トークンの切り出し" },
+      "keywords": "lexical-analysis, pointer, string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "字句解析器の一部として、文字列の先頭から10進の整数を読み取り、ポインタへのポインタで受け取ったカーソルを数字の直後まで進める関数を書くドリル。2026-09-17のC WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-17" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-09-17">C++26</a>
+  <a href="/rust/write/2026-09-17">Rust 2024</a>
+  <a href="/haskell/write/2026-09-17">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-09-17">READ</a>
+  <a href="/c/write/2026-09-17" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-09-17">DEBUG</a>
+</nav>
+
+<main
+  data-topic="数値トークンの切り出し"
+  data-tags="lexical-analysis pointer string"
+  data-concepts="字句解析, 数値リテラル, ポインタへのポインタ, カーソル, lexer, pointer to pointer"
+  data-level="hedgehog"
+>
+  <h2>2026-09-17</h2>
+  <div class="code-frame">
+    <p class="code-filename">lex_number.c</p>
+    <pre class="code"><code><span class="ty">long</span> <span class="fn">lex_number</span>(<span class="kw">const</span> <span class="ty">char</span> **cursor) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    字句解析器の一部として、<code>*cursor</code> が指す位置から10進の数字が続く限り読み、その値を返す <code>lex_number</code> を書いてください。呼び出し後の <code>*cursor</code> は、読んだ数字の直後を指すようにします。<code>*cursor</code> の先頭は必ず数字で、値は <code>long</code> に収まるものとします。<code>"123+4"</code> → 戻り値 <code>123</code>、<code>*cursor</code> は <code>"+4"</code>。<code>"7"</code> → <code>7</code>、<code>*cursor</code> は終端の <code>""</code>。<code>"08x"</code> → <code>8</code>、<code>*cursor</code> は <code>"x"</code>。
+  </p>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;ctype.h&gt;</span>
+
+<span class="ty">long</span> <span class="fn">lex_number</span>(<span class="kw">const</span> <span class="ty">char</span> **cursor) {
+    <span class="kw">const</span> <span class="ty">char</span> *p = *cursor;
+    <span class="ty">long</span> value = <span class="nu">0</span>;
+    <span class="kw">while</span> (<span class="fn">isdigit</span>((<span class="ty">unsigned</span> <span class="ty">char</span>)*p)) {
+        value = value * <span class="nu">10</span> + (*p - <span class="st">'0'</span>);
+        p++;
+    }
+    *cursor = p;
+    <span class="kw">return</span> value;
+}
+</code></pre>
+      <p>
+        <code>const char **cursor</code> は、字句解析器が持っている「どこまで読んだか」を指すポインタへのポインタです。関数の中では <code>*cursor</code> をローカルの <code>p</code> に写して読み進め、最後に <code>*cursor = p</code> で呼び出し側のカーソルを書き換えます。Cの関数が返せる値は1つだけなので、読んだ値は戻り値で、次のトークンの開始位置は引数のポインタ越しに返しています。
+      </p>
+      <p>
+        <code>isdigit</code> に <code>char</code> をそのまま渡さず <code>unsigned char</code> にキャストしているのは、<code>char</code> が符号付きの処理系で負の値を渡すと未定義動作になるからです。数字1文字の値は <code>*p - '0'</code> で求まります。<code>'0'</code> から <code>'9'</code> までが連続した値であることは規格が保証しているので、文字コードには依存しません。
+      </p>
+      <p>
+        これは参考実装で、唯一の正解ではありません。<code>strtol</code> を基数10で呼び、第2引数で受け取った終了位置をカーソルに書き戻す方法もあります。ただし <code>strtol</code> は先頭の空白や符号も読むので、字句解析器の中で使うなら、その分の違いを意識しておく必要があります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

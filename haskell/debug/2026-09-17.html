@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="文字列の数値を IORef に足していき、読めない入力が来たら try で中断して途中までの合計を出すはずのコードが、中断されずにあとで落ちるバグを直すドリル。2026-09-17のHaskell DEBUG。">
+<title>捕まらないreadの失敗</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-09-17">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-17" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-09-17",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-09-17",
+      "datePublished": "2026-09-17",
+      "dateModified": "2026-09-17",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "捕まらないreadの失敗" },
+      "keywords": "laziness, exception, ioref, thunk",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "文字列の数値を IORef に足していき、読めない入力が来たら try で中断して途中までの合計を出すはずのコードが、中断されずにあとで落ちるバグを直すドリル。2026-09-17のHaskell DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-17">C23</a>
+  <a href="/cpp/debug/2026-09-17">C++26</a>
+  <a href="/rust/debug/2026-09-17">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-17" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-09-17">READ</a>
+  <a href="/haskell/write/2026-09-17">WRITE</a>
+  <a href="/haskell/debug/2026-09-17" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="捕まらないreadの失敗"
+  data-tags="laziness exception ioref thunk"
+  data-concepts="遅延評価, modifyIORef&#x27;, サンク, try の外で起きる例外, lazy IORef, thunk, exception"
+  data-level="peacock"
+>
+  <h2>2026-09-17</h2>
+  <div class="code-frame">
+    <p class="code-filename">SumAll.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Control.Exception</span>
+<span class="kw">import</span> <span class="ty">Data.IORef</span>
+
+<span class="fn">sumAll</span> <span class="op">::</span> <span class="ty">IORef</span> <span class="ty">Int</span> <span class="op">-&gt;</span> [<span class="ty">String</span>] <span class="op">-&gt;</span> <span class="ty">IO</span> ()
+<span class="fn">sumAll</span> ref = mapM_ (\s <span class="op">-&gt;</span> modifyIORef ref (+ read s))
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = handle (\e <span class="op">-&gt;</span> putStrLn (<span class="st">"crashed: "</span> ++ show (e <span class="op">::</span> <span class="ty">ErrorCall</span>))) $ <span class="kw">do</span>
+  ref <span class="op">&lt;-</span> newIORef <span class="nu">0</span>
+  r <span class="op">&lt;-</span> try (sumAll ref [<span class="st">"10"</span>, <span class="st">"20"</span>, <span class="st">"x"</span>, <span class="st">"40"</span>])
+  <span class="kw">case</span> r <span class="kw">of</span>
+    <span class="ty">Left</span> e <span class="op">-&gt;</span> putStrLn (<span class="st">"cancelled: "</span> ++ show (e <span class="op">::</span> <span class="ty">ErrorCall</span>))
+    <span class="ty">Right</span> () <span class="op">-&gt;</span> putStrLn <span class="st">"done"</span>
+  readIORef ref &gt;&gt;= print
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>sumAll</code> は、文字列の数値を <code>ref</code> に足していくつもりの関数です。<code>main</code> は、読めない文字列で処理が中断されたら <code>try</code> でそれを受け取って <code>cancelled: …</code> を表示し、そこまでの合計を表示するつもりです。入力は <code>["10", "20", "x", "40"]</code>。いまの出力は <code>done</code> と <code>crashed: Prelude.read: no parse</code> の2行ですが、本来の出力は <code>cancelled: Prelude.read: no parse</code> と <code>30</code> の2行です。本来の出力になるよう直してください。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>modifyIORef</code> は、関数を適用した結果を評価しないまま <code>IORef</code> に書き込みます。<code>sumAll</code> の中では <code>read "x"</code> が一度も評価されず、<code>ref</code> には <code>(((0 + read "10") + read "20") + read "x") + read "40"</code> というサンクが積み上がるだけです。どこでも例外が起きないので、<code>try</code> は <code>Right ()</code> を返し、<code>done</code> が表示されます。
+      </p>
+      <p>
+        サンクが評価されるのは、<code>try</code> を抜けたあとの <code>print</code> が値を必要としたときです。そこで初めて <code>read "x"</code> が <code>ErrorCall</code> を投げるので、受け取るのは <code>try</code> ではなく外側の <code>handle</code> になり、<code>crashed: …</code> が表示されます。<code>try</code> が捕まえられるのは、渡したアクションの実行中に起きた例外だけです。
+      </p>
+      <p>
+        <code>modifyIORef</code> を正格版の <code>modifyIORef'</code> に替えれば直ります。
+      </p>
+      <pre class="code"><code><span class="fn">sumAll</span> ref = mapM_ (\s <span class="op">-&gt;</span> modifyIORef' ref (+ read s))
+</code></pre>
+      <p>
+        <code>modifyIORef'</code> は新しい値を弱頭部正規形まで評価してから書き込みます。<code>Int</code> の足し算はその場で計算されるので、<code>read "x"</code> は <code>try</code> の中で例外を投げます。そのとき <code>ref</code> には <code>10</code> と <code>20</code> を足した <code>30</code> が残っており、<code>cancelled: …</code> のあとに <code>30</code> が表示されます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="再帰で組み立てた継続がどの順に呼ばれ、再帰呼び出しの後ろに書いた文がいつ実行されるかを、std::function とラムダで書いた継続渡しの合計から読むドリル。2026-09-17のC++ READ。">
+<title>継続渡しの実行順</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-09-17">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-17" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-09-17",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-09-17",
+      "datePublished": "2026-09-17",
+      "dateModified": "2026-09-17",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "継続渡しの実行順" },
+      "keywords": "continuation-passing-style, lambda, recursion, call-stack",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "再帰で組み立てた継続がどの順に呼ばれ、再帰呼び出しの後ろに書いた文がいつ実行されるかを、std::function とラムダで書いた継続渡しの合計から読むドリル。2026-09-17のC++ READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-17">C23</a>
+  <a href="/cpp/read/2026-09-17" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-09-17">Rust 2024</a>
+  <a href="/haskell/read/2026-09-17">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-17" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-09-17">WRITE</a>
+  <a href="/cpp/debug/2026-09-17">DEBUG</a>
+</nav>
+
+<main
+  data-topic="継続渡しの実行順"
+  data-tags="continuation-passing-style lambda recursion call-stack"
+  data-concepts="継続渡しスタイル, CPS, 継続, 実行順, std::function, continuation-passing style, callback order"
+  data-level="bison"
+>
+  <h2>2026-09-17</h2>
+  <div class="code-frame">
+    <p class="code-filename">sum_cps.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;functional&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;print&gt;</span>
+
+<span class="ty">void</span> <span class="fn">sum_to</span>(<span class="ty">int</span> n, std::<span class="ty">function</span>&lt;<span class="ty">void</span>(<span class="ty">int</span>)&gt; k) {
+    <span class="kw">if</span> (n == <span class="nu">0</span>) {
+        <span class="fn">k</span>(<span class="nu">0</span>);
+        <span class="kw">return</span>;
+    }
+    <span class="fn">sum_to</span>(n - <span class="nu">1</span>, [n, k](<span class="ty">int</span> s) {
+        std::<span class="fn">println</span>(<span class="st">"{}+{}"</span>, s, n);
+        <span class="fn">k</span>(s + n);
+    });
+    std::<span class="fn">println</span>(<span class="st">"&lt;{}&gt;"</span>, n);
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="fn">sum_to</span>(<span class="nu">3</span>, [](<span class="ty">int</span> s) { std::<span class="fn">println</span>(<span class="st">"={}"</span>, s); });
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>0+1</code>、<code>1+2</code>、<code>3+3</code>、<code>=6</code>、<code>&lt;1&gt;</code>、<code>&lt;2&gt;</code>、<code>&lt;3&gt;</code> の7行が、この順に出力されます。
+      </p>
+      <p>
+        <code>sum_to(3, k0)</code> は自分では何も足さず、「<code>s</code> を受け取ったら <code>s+3</code> の形で表示してから <code>k0(s + 3)</code> を呼ぶ」という継続 <code>k3</code> を作って <code>sum_to(2, k3)</code> を呼びます。同じように <code>k2</code> と <code>k1</code> が作られ、それぞれが1つ外側の継続を値としてキャプチャします。<code>sum_to(0, k1)</code> に着いたところで初めて <code>k1(0)</code> が呼ばれ、そこから <code>k1</code>、<code>k2</code>、<code>k3</code>、<code>k0</code> と外側の継続へ呼び出しが続きます。足し算が <code>0+1</code> から順に進み、<code>=6</code> まで出るのはこのためです。
+      </p>
+      <p>
+        この連鎖は、<code>sum_to</code> の呼び出しが1つも戻らないうちに、いちばん深い <code>sum_to(0, k1)</code> の中で最後まで走ります。<code>sum_to(n - 1, ...)</code> の後ろに書いた <code>std::println("&lt;{}&gt;", n)</code> はどの継続にも含まれていないので、<code>k0</code> が <code>=6</code> を出し終えてから、呼び出しスタックが巻き戻るときに <code>n</code> の小さい順で実行されます。継続渡しで「計算の残り」として扱われるのは継続に渡した部分だけで、呼び出しの後ろに書いた文は、ふつうの関数呼び出しから戻ったあとの処理として別に動きます<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>継続渡しの関数では、継続や再帰の呼び出しを末尾に置き、その後ろに何も書かないのがふつうです。後ろに文を書くと、計算の順序が継続とスタックの2本に分かれてしまうからです。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

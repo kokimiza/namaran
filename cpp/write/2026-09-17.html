@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="割り算の結果を返す代わりに、成功したら ok、0で割ろうとしたら err という2つの継続のどちらかを呼ぶ safe_div を、auto 引数の関数テンプレートで書くドリル。2026-09-17のC++ WRITE。">
+<title>成功と失敗の継続</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-09-17">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-17" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-09-17",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-09-17",
+      "datePublished": "2026-09-17",
+      "dateModified": "2026-09-17",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "成功と失敗の継続" },
+      "keywords": "continuation-passing-style, lambda, higher-order, error-handling",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "割り算の結果を返す代わりに、成功したら ok、0で割ろうとしたら err という2つの継続のどちらかを呼ぶ safe_div を、auto 引数の関数テンプレートで書くドリル。2026-09-17のC++ WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-17">C23</a>
+  <a href="/cpp/write/2026-09-17" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-09-17">Rust 2024</a>
+  <a href="/haskell/write/2026-09-17">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-17">READ</a>
+  <a href="/cpp/write/2026-09-17" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-09-17">DEBUG</a>
+</nav>
+
+<main
+  data-topic="成功と失敗の継続"
+  data-tags="continuation-passing-style lambda higher-order error-handling"
+  data-concepts="継続渡しスタイル, 成功継続と失敗継続, 省略関数テンプレート, ゼロ除算, continuation-passing style, success and failure continuations"
+  data-level="hedgehog"
+>
+  <h2>2026-09-17</h2>
+  <div class="code-frame">
+    <p class="code-filename">safe_div.cpp</p>
+    <pre class="code"><code><span class="kw">auto</span> <span class="fn">safe_div</span>(<span class="ty">int</span> a, <span class="ty">int</span> b, <span class="kw">auto</span> ok, <span class="kw">auto</span> err) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>b</code> が <code>0</code> なら <code>err()</code> を、そうでなければ <code>ok(a / b)</code> を呼び、呼んだほうの戻り値をそのまま返す <code>safe_div</code> を書いてください。<code>ok</code> と <code>err</code> は同じ型を返すものとします。<code>safe_div(7, 2, [](int q) { return q * 10; }, [] { return -1; })</code> → <code>30</code>、<code>b</code> を <code>0</code> にした <code>safe_div(7, 0, ...)</code> → <code>-1</code>
+  </p>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">auto</span> <span class="fn">safe_div</span>(<span class="ty">int</span> a, <span class="ty">int</span> b, <span class="kw">auto</span> ok, <span class="kw">auto</span> err) {
+    <span class="kw">if</span> (b == <span class="nu">0</span>) {
+        <span class="kw">return</span> <span class="fn">err</span>();
+    }
+    <span class="kw">return</span> <span class="fn">ok</span>(a / b);
+}
+</code></pre>
+      <p>
+        引数の型に <code>auto</code> を書くと、関数は省略形の関数テンプレートになります(C++20から)。<code>ok</code> と <code>err</code> にはラムダがそれぞれ自分の型のまま渡るので、<code>std::function</code> に包むときのような型消去の手間がかかりません。戻り値の型も <code>auto</code> で推論させていますが、2つの <code>return</code> から推論される型が食い違うとコンパイルエラーになります。「同じ型を返す」という前提は、ここで効いています。
+      </p>
+      <p>
+        <code>safe_div</code> は割り算の結果を返す代わりに、結果を受け取る続きの処理 <code>ok</code> と、失敗したときの続き <code>err</code> を受け取り、どちらか一方だけを呼びます。呼び出し側は失敗の確認を <code>if</code> で書かなくても、<code>ok</code> の中にさらに <code>safe_div</code> を書けば割り算を続けられます。途中で0除算が起きればその時点で <code>err</code> が呼ばれ、残りの <code>ok</code> は呼ばれません。
+      </p>
+      <p>
+        これは参考実装で、唯一の正解ではありません。<code>ok</code> と <code>err</code> を <code>auto&amp;&amp;</code> で受けて <code>std::forward</code> する書き方や、<code>std::function</code> で受ける書き方もあります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

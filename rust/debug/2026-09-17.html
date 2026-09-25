@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="単調スタックで右側にある最初の大きい要素を求める関数で、一部の要素の答えだけが None になってしまうバグを直すドリル。2026-09-17のRust DEBUG。">
+<title>popで消える候補</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-09-17">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-17" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-09-17",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-09-17",
+      "datePublished": "2026-09-17",
+      "dateModified": "2026-09-17",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "popで消える候補" },
+      "keywords": "monotonic-stack, pattern-matching, loop",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "単調スタックで右側にある最初の大きい要素を求める関数で、一部の要素の答えだけが None になってしまうバグを直すドリル。2026-09-17のRust DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-17">C23</a>
+  <a href="/cpp/debug/2026-09-17">C++26</a>
+  <a href="/rust/debug/2026-09-17" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-17">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-09-17">READ</a>
+  <a href="/rust/write/2026-09-17">WRITE</a>
+  <a href="/rust/debug/2026-09-17" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="popで消える候補"
+  data-tags="monotonic-stack pattern-matching loop"
+  data-concepts="単調スタック, while let と pop, 要素の取りこぼし, 次に大きい要素, monotonic stack, while let pop"
+  data-level="bison"
+>
+  <h2>2026-09-17</h2>
+  <div class="code-frame">
+    <p class="code-filename">next_greater.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">next_greater</span>(xs: &amp;[<span class="ty">i32</span>]) -&gt; <span class="ty">Vec</span>&lt;<span class="ty">Option</span>&lt;<span class="ty">i32</span>&gt;&gt; {
+    <span class="kw">let</span> <span class="kw">mut</span> ans = <span class="mc">vec!</span>[<span class="ty">None</span>; xs.<span class="fn">len</span>()];
+    <span class="kw">let</span> <span class="kw">mut</span> stack: <span class="ty">Vec</span>&lt;<span class="ty">usize</span>&gt; = <span class="ty">Vec</span>::<span class="fn">new</span>();
+    <span class="kw">for</span> (i, &amp;x) <span class="kw">in</span> xs.<span class="fn">iter</span>().<span class="fn">enumerate</span>() {
+        <span class="kw">while</span> <span class="kw">let</span> <span class="fn">Some</span>(top) = stack.<span class="fn">pop</span>() {
+            <span class="kw">if</span> xs[top] &gt;= x {
+                <span class="kw">break</span>;
+            }
+            ans[top] = <span class="fn">Some</span>(x);
+        }
+        stack.<span class="fn">push</span>(i);
+    }
+    ans
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="mc">println!</span>(<span class="st">"{:?}"</span>, <span class="fn">next_greater</span>(&amp;[<span class="nu">5</span>, <span class="nu">3</span>, <span class="nu">4</span>, <span class="nu">6</span>]));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>next_greater</code> は、各要素より右にある最初の大きい値を、あれば <code>Some</code>、なければ <code>None</code> として並べて返すつもりの関数です。入力は <code>next_greater(&amp;[5, 3, 4, 6])</code>。いまの出力は <code>[None, Some(4), Some(6), None]</code> ですが、本来の出力は <code>[Some(6), Some(4), Some(6), None]</code> です。本来の出力になるよう直してください。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>while let Some(top) = stack.pop()</code> は、条件を調べるより先に要素をスタックから取り出します。<code>xs[top] &gt;= x</code> で <code>break</code> するとき、その <code>top</code> はもうスタックにありません。まだ自分より大きい値に出会っていない要素が、答えをもらえないまま消えてしまいます。
+      </p>
+      <p>
+        <code>[5, 3, 4, 6]</code> で追うと、<code>3</code> が来たときに <code>5</code> のインデックスが取り出され、<code>5 &gt;= 3</code> で <code>break</code> します。<code>5</code> はここで落ちます。<code>6</code> が来たときにはスタックに <code>5</code> がないので、<code>ans[0]</code> は <code>None</code> のままです。症状は <code>6</code> を処理した結果に出ますが、原因は <code>3</code> を処理したときの <code>break</code> にあります。
+      </p>
+      <p>
+        最小の修正は、<code>break</code> の前に、取り出した要素を積み直すことです。
+      </p>
+      <pre class="code"><code>            <span class="kw">if</span> xs[top] &gt;= x {
+                stack.<span class="fn">push</span>(top);
+                <span class="kw">break</span>;
+            }
+</code></pre>
+      <p>
+        取り出さずに覗く形へ書き換えてもかまいません。<code>while let Some(&amp;top) = stack.last()</code> で上の要素を見て、答えを書いたあとで <code>stack.pop()</code> を呼べば、条件を満たさなかった要素は最初からスタックに残ります。<code>while let Some(x) = stack.pop()</code> はスタックを空になるまで回すときの定番の形ですが、途中で止まることのあるループで使うと、止まった回の要素を失います。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「サンク」を扱ったNamaranのコーディングドリル2問。サンク、modifyIORef、空間リーク、thunk leak、遅延評価、正格性。">
+<meta name="description" content="「サンク」を扱ったNamaranのコーディングドリル3問。遅延評価、modifyIORef'、サンク、try の外で起きる例外、lazy IORef、thunk。">
 <title>サンク</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/thunk">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>サンク</h2>
 
   <p class="lede">
-    「サンク」を扱った2問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「サンク」を扱った3問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/haskell/debug/2026-09-17">Haskell / DEBUG · 2026-09-17</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">捕まらないreadの失敗</span> <span class="past-concepts">遅延評価, modifyIORef', サンク, try の外で起きる例外, lazy IORef, thunk, exception</span></li>
     <li><a href="/haskell/debug/2026-08-27">Haskell / DEBUG · 2026-08-27</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">たまるサンクの鎖</span> <span class="past-concepts">サンク, modifyIORef, 空間リーク, thunk leak</span></li>
     <li><a href="/haskell/read/2026-08-21">Haskell / READ · 2026-08-21</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">評価されないサンク</span> <span class="past-concepts">サンク, 遅延評価, 正格性, thunk</span></li>
   </ul>

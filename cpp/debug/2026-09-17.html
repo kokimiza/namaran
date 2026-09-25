@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="数を数え下ろしてから、引数で渡された継続で最後の処理をするはずの再帰関数で、その最後の1行が表示されないバグを直すドリル。2026-09-17のC++ DEBUG。">
+<title>呼ばれない継続</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-09-17">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-17" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-09-17",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-09-17",
+      "datePublished": "2026-09-17",
+      "dateModified": "2026-09-17",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "呼ばれない継続" },
+      "keywords": "continuation-passing-style, recursion, base-case",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "数を数え下ろしてから、引数で渡された継続で最後の処理をするはずの再帰関数で、その最後の1行が表示されないバグを直すドリル。2026-09-17のC++ DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-17">C23</a>
+  <a href="/cpp/debug/2026-09-17" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-09-17">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-17">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-17">READ</a>
+  <a href="/cpp/write/2026-09-17">WRITE</a>
+  <a href="/cpp/debug/2026-09-17" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="呼ばれない継続"
+  data-tags="continuation-passing-style recursion base-case"
+  data-concepts="継続渡しスタイル, コールバックの呼び忘れ, 基底ケース, 再帰, continuation-passing style, forgotten callback"
+  data-level="hedgehog"
+>
+  <h2>2026-09-17</h2>
+  <div class="code-frame">
+    <p class="code-filename">countdown.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;functional&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;print&gt;</span>
+
+<span class="ty">void</span> <span class="fn">countdown</span>(<span class="ty">int</span> n, <span class="kw">const</span> std::<span class="ty">function</span>&lt;<span class="ty">void</span>()&gt;&amp; k) {
+    <span class="kw">if</span> (n == <span class="nu">0</span>) {
+        <span class="kw">return</span>;
+    }
+    std::<span class="fn">println</span>(<span class="st">"{}"</span>, n);
+    <span class="fn">countdown</span>(n - <span class="nu">1</span>, k);
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="fn">countdown</span>(<span class="nu">3</span>, [] { std::<span class="fn">println</span>(<span class="st">"liftoff"</span>); });
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>countdown</code> は、<code>n</code> から1までの数を1行ずつ表示し、数え終わったら継続 <code>k</code> を呼ぶつもりの関数です。入力は <code>countdown(3, [] { std::println("liftoff"); })</code>。いまの出力は <code>3</code>、<code>2</code>、<code>1</code> の3行だけですが、本来は4行目に <code>liftoff</code> が出ます。本来の出力になるよう直してください。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>n == 0</code> の分岐が、<code>k</code> を呼ばずに <code>return</code> しています。継続渡しの関数にとって、継続は「この関数のあとに続く残りの処理」です。どの経路で終わるときも、最後に継続を呼ばなければなりません。
+      </p>
+      <p>
+        <code>countdown</code> は再帰のたびに同じ <code>k</code> を次へ渡しているだけで、実際に <code>k</code> を呼べる場所は基底ケースしかありません。そこで呼び忘れると、残りの処理は黙って捨てられます。例外もエラーも出ないので、出力が1行足りないことでしか気づけません。基底ケースで <code>k()</code> を呼んでから戻れば直ります。
+      </p>
+      <pre class="code"><code>    <span class="kw">if</span> (n == <span class="nu">0</span>) {
+        <span class="fn">k</span>();
+        <span class="kw">return</span>;
+    }
+</code></pre>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
