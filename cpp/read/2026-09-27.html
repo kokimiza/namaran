@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="posix_spawnpでシェルを通さずにechoを起動したとき、何が表示されるかを読むドリル。渡した並びの先頭はargv[0]になり、*や$HOMEや~は展開されずにそのまま届く。2026-09-27のC++ READ。">
+<title>シェルを通さないecho</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-09-27">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-27" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-09-27",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-09-27",
+      "datePublished": "2026-09-27",
+      "dateModified": "2026-09-27",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "シェルを通さないecho" },
+      "keywords": "process-creation, command-line-argument",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "posix_spawnpでシェルを通さずにechoを起動したとき、何が表示されるかを読むドリル。渡した並びの先頭はargv[0]になり、*や$HOMEや~は展開されずにそのまま届く。2026-09-27のC++ READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-27">C23</a>
+  <a href="/cpp/read/2026-09-27" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-09-27">Rust 2024</a>
+  <a href="/haskell/read/2026-09-27">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-27" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-09-27">WRITE</a>
+  <a href="/cpp/debug/2026-09-27">DEBUG</a>
+</nav>
+
+<main
+  data-topic="シェルを通さないecho"
+  data-tags="process-creation command-line-argument"
+  data-concepts="posix_spawnp, argv[0], シェルを介さない実行, シェル展開, spawn without shell, shell expansion"
+  data-level="peacock"
+>
+  <h2>2026-09-27</h2>
+  <div class="code-frame">
+    <p class="code-filename">spawn_echo.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;spawn.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;sys/wait.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+
+<span class="kw">extern</span> <span class="ty">char</span> **environ;
+
+<span class="ty">int</span> <span class="fn">run</span>(<span class="kw">const</span> std::<span class="ty">string</span> &amp;file, std::<span class="ty">vector</span>&lt;std::<span class="ty">string</span>&gt; args) {
+    std::<span class="ty">vector</span>&lt;<span class="ty">char</span> *&gt; argv;
+    <span class="kw">for</span> (<span class="kw">auto</span> &amp;a : args) {
+        argv.<span class="fn">push_back</span>(a.<span class="fn">data</span>());
+    }
+    argv.<span class="fn">push_back</span>(<span class="nu">nullptr</span>);
+
+    <span class="ty">pid_t</span> pid;
+    <span class="kw">if</span> (<span class="fn">posix_spawnp</span>(&amp;pid, file.<span class="fn">c_str</span>(), <span class="nu">nullptr</span>, <span class="nu">nullptr</span>, argv.<span class="fn">data</span>(), environ) != <span class="nu">0</span>) {
+        <span class="kw">return</span> -<span class="nu">1</span>;
+    }
+    <span class="ty">int</span> status = <span class="nu">0</span>;
+    <span class="fn">waitpid</span>(pid, &amp;status, <span class="nu">0</span>);
+    <span class="kw">return</span> status;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="fn">run</span>(<span class="st">"echo"</span>, {<span class="st">"hello"</span>, <span class="st">"world"</span>, <span class="st">"*"</span>});
+    <span class="fn">run</span>(<span class="st">"echo"</span>, {<span class="st">"echo"</span>, <span class="st">"$HOME"</span>, <span class="st">"~"</span>});
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        1行目が <code>world *</code>、2行目が <code>$HOME ~</code> です。
+      </p>
+      <p>
+        1行目から <code>hello</code> が消えるのは、<code>args</code> の先頭がそのまま子プロセスの <code>argv[0]</code> になるからです。<code>argv[0]</code> はプログラム自身の名前を入れる場所で、<code>echo</code> はここを表示しません。<code>posix_spawnp</code> の第2引数 <code>file</code> は実行するファイルを探すためだけに使われ、<code>argv[0]</code> を埋めてはくれません。シェルで <code>echo hello world</code> と打てばシェルが <code>{"echo", "hello", "world"}</code> を組み立てますが、自分で <code>argv</code> を作るときは先頭に自分でプログラム名を置きます。2回目の呼び出しが <code>"echo"</code> から始まっているのはそのためです。
+      </p>
+      <p>
+        残りの引数には、書いた文字列がそのまま届きます。<code>*</code> をファイル名の一覧に、<code>$HOME</code> を環境変数の値に、<code>~</code> をホームディレクトリに置き換えるのはシェルの仕事です。<code>posix_spawnp</code> はシェルを通さずに <code>echo</code> を直接起動し、<code>echo</code> 自身はこれらの記号を特別扱いしないので、受け取った文字列を空白でつないで表示します。
+      </p>
+      <p>
+        同じ理由で、引数に空白や <code>;</code> が入っていても1つの引数のまま届き、別のコマンドとして実行されることはありません。外から受け取ったファイル名などを渡すときに、シェルを通さない起動が選ばれるのはこのためです。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

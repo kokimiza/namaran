@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="空白を含むファイル名を、シェルの癖で引用符に包んでからposix_spawnpの引数に渡したため、引用符まで表示されてしまうバグを直すドリル。シェルを通さなければ、引数の区切りはvectorの要素の区切りそのものになる。2026-09-27のC++ DEBUG。">
+<title>引数に付けた引用符</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-09-27">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-27" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-09-27",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-09-27",
+      "datePublished": "2026-09-27",
+      "dateModified": "2026-09-27",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "引数に付けた引用符" },
+      "keywords": "command-line-argument, process-creation, string-escaping",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "空白を含むファイル名を、シェルの癖で引用符に包んでからposix_spawnpの引数に渡したため、引用符まで表示されてしまうバグを直すドリル。シェルを通さなければ、引数の区切りはvectorの要素の区切りそのものになる。2026-09-27のC++ DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-27">C23</a>
+  <a href="/cpp/debug/2026-09-27" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-09-27">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-27">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-27">READ</a>
+  <a href="/cpp/write/2026-09-27">WRITE</a>
+  <a href="/cpp/debug/2026-09-27" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="引数に付けた引用符"
+  data-tags="command-line-argument process-creation string-escaping"
+  data-concepts="引数の引用符, シェルのクォート, 空白を含むファイル名, posix_spawnp, shell quoting, argument quoting"
+  data-level="hedgehog"
+>
+  <h2>2026-09-27</h2>
+  <div class="code-frame">
+    <p class="code-filename">bracket_names.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;spawn.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;sys/wait.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+
+<span class="kw">extern</span> <span class="ty">char</span> **environ;
+
+<span class="ty">int</span> <span class="fn">run</span>(std::<span class="ty">vector</span>&lt;std::<span class="ty">string</span>&gt; args) {
+    std::<span class="ty">vector</span>&lt;<span class="ty">char</span> *&gt; argv;
+    <span class="kw">for</span> (<span class="kw">auto</span> &amp;a : args) {
+        argv.<span class="fn">push_back</span>(a.<span class="fn">data</span>());
+    }
+    argv.<span class="fn">push_back</span>(<span class="nu">nullptr</span>);
+
+    <span class="ty">pid_t</span> pid;
+    <span class="kw">if</span> (<span class="fn">posix_spawnp</span>(&amp;pid, argv[<span class="nu">0</span>], <span class="nu">nullptr</span>, <span class="nu">nullptr</span>, argv.<span class="fn">data</span>(), environ) != <span class="nu">0</span>) {
+        <span class="kw">return</span> -<span class="nu">1</span>;
+    }
+    <span class="ty">int</span> status = <span class="nu">0</span>;
+    <span class="fn">waitpid</span>(pid, &amp;status, <span class="nu">0</span>);
+    <span class="kw">return</span> status;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    std::<span class="ty">string</span> name = <span class="st">"my notes.txt"</span>;
+    <span class="fn">run</span>({<span class="st">"printf"</span>, <span class="st">"[%s]\n"</span>, <span class="st">"\""</span> + name + <span class="st">"\""</span>, <span class="st">"todo.txt"</span>});
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>run</code> は、受け取った引数の並びでプログラムをシェルを通さずに起動する関数です。これを使い、<code>printf</code> で2つのファイル名を1つずつ <code>[</code> と <code>]</code> で囲んで表示します。入力のファイル名は <code>name</code> の <code>my notes.txt</code> と <code>todo.txt</code> です。いまの出力は <code>["my notes.txt"]</code> と <code>[todo.txt]</code> の2行ですが、本来の出力は <code>[my notes.txt]</code> と <code>[todo.txt]</code> です。どこを直せばよいでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>name</code> の前後に足している引用符を外し、<code>name</code> をそのまま渡します:
+      </p>
+      <pre class="code"><code>    <span class="fn">run</span>({<span class="st">"printf"</span>, <span class="st">"[%s]\n"</span>, name, <span class="st">"todo.txt"</span>});
+</code></pre>
+      <p>
+        シェルでは、空白を含むファイル名を1つの引数にするために <code>"my notes.txt"</code> と引用符で囲みます。この引用符は、シェルが引数の区切りを決めるための記号です。区切りが決まったあとでシェルが取り除くので、プログラムには <code>my notes.txt</code> だけが届きます。
+      </p>
+      <p>
+        <code>run</code> はシェルを通さないので、引数の区切りは <code>std::vector</code> の要素の区切りそのものです。<code>name</code> は最初から1つの要素なので、空白が入っていても2つには分かれません。そこへ引用符を足すと、取り除く役目のシェルがいないので、引用符も文字列の一部として <code>printf</code> に届きます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

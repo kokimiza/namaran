@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="forM_で範囲を回すループと、条件を先に調べてから関数を繰り返し適用するuntilが、それぞれ何を出力するかを読むドリル。最初から条件を満たす値には、untilは関数を一度も適用しない。2026-09-27のHaskell READ。">
+<title>forM_とuntil</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-09-27">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-27" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-09-27",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-09-27",
+      "datePublished": "2026-09-27",
+      "dateModified": "2026-09-27",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "forM_とuntil" },
+      "keywords": "loop, io, higher-order",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "forM_で範囲を回すループと、条件を先に調べてから関数を繰り返し適用するuntilが、それぞれ何を出力するかを読むドリル。最初から条件を満たす値には、untilは関数を一度も適用しない。2026-09-27のHaskell READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-27">C23</a>
+  <a href="/cpp/read/2026-09-27">C++26</a>
+  <a href="/rust/read/2026-09-27">Rust 2024</a>
+  <a href="/haskell/read/2026-09-27" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-09-27" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-09-27">WRITE</a>
+  <a href="/haskell/debug/2026-09-27">DEBUG</a>
+</nav>
+
+<main
+  data-topic="forM_とuntil"
+  data-tags="loop io higher-order"
+  data-concepts="forM_, until, forループ, whileループ, for loop in Haskell, while loop in Haskell"
+  data-level="hedgehog"
+>
+  <h2>2026-09-27</h2>
+  <div class="code-frame">
+    <p class="code-filename">Loops.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Control.Monad</span> (forM_)
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = <span class="kw">do</span>
+  forM_ [<span class="nu">1</span> .. <span class="nu">3</span> <span class="op">::</span> <span class="ty">Int</span>] $ \i <span class="op">-&gt;</span>
+    putStrLn (replicate i <span class="st">'*'</span>)
+  print (until (&gt; <span class="nu">100</span>) (* <span class="nu">2</span>) (<span class="nu">1</span> <span class="op">::</span> <span class="ty">Int</span>))
+  print (until (&gt; <span class="nu">100</span>) (* <span class="nu">2</span>) (<span class="nu">200</span> <span class="op">::</span> <span class="ty">Int</span>))
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>*</code>、<code>**</code>、<code>***</code>、<code>128</code>、<code>200</code> の5行です。
+      </p>
+      <p>
+        <code>forM_</code> はリストの要素を1つずつ関数に渡し、返ってきた IO アクションを順に実行します。<code>[1 .. 3]</code> は <code>1</code>、<code>2</code>、<code>3</code> なので、<code>replicate i '*'</code> で長さ1から3の行が並びます。命令型言語の <code>for (i = 1; i &lt;= 3; i++)</code> にあたり、上限の <code>3</code> も範囲に含まれます。
+      </p>
+      <p>
+        <code>until p f x</code> は、<code>p x</code> が真になるまで <code>x</code> に <code>f</code> を繰り返し適用し、そのときの値を返します。条件は <code>f</code> を適用する前に調べるので、while ループと同じ順序です。<code>1</code> から倍にしていくと <code>2, 4, … , 64, 128</code> と進み、初めて <code>100</code> を超えた <code>128</code> で止まります。<code>200</code> は最初から <code>(&gt; 100)</code> を満たすので、<code>(* 2)</code> は一度も適用されず、<code>200</code> がそのまま返ります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

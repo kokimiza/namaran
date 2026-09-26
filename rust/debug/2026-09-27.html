@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="read_lineで読んだ行の改行をpopで1文字だけ落としていたため、CRLFの行にCRが残り、終わりを示す行を見逃すバグを直すドリル。trim_end_matchesでCRとLFをまとめて取り除く。2026-09-27のRust DEBUG。">
+<title>read_lineに残るCR</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-09-27">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-27" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-09-27",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-09-27",
+      "datePublished": "2026-09-27",
+      "dateModified": "2026-09-27",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "read_lineに残るCR" },
+      "keywords": "line-ending, stdio, string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "read_lineで読んだ行の改行をpopで1文字だけ落としていたため、CRLFの行にCRが残り、終わりを示す行を見逃すバグを直すドリル。trim_end_matchesでCRとLFをまとめて取り除く。2026-09-27のRust DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-27">C23</a>
+  <a href="/cpp/debug/2026-09-27">C++26</a>
+  <a href="/rust/debug/2026-09-27" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-27">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-09-27">READ</a>
+  <a href="/rust/write/2026-09-27">WRITE</a>
+  <a href="/rust/debug/2026-09-27" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="read_lineに残るCR"
+  data-tags="line-ending stdio string"
+  data-concepts="read_line, 改行の除去, CRLF, trim_end_matches, BufRead, strip newline"
+  data-level="peacock"
+>
+  <h2>2026-09-27</h2>
+  <div class="code-frame">
+    <p class="code-filename">read_items.rs</p>
+    <pre class="code"><code><span class="kw">use</span> std::io::<span class="ty">BufRead</span>;
+
+<span class="kw">fn</span> <span class="fn">read_items</span>(<span class="kw">mut</span> reader: <span class="kw">impl</span> <span class="ty">BufRead</span>) -&gt; <span class="ty">Vec</span>&lt;<span class="ty">String</span>&gt; {
+    <span class="kw">let</span> <span class="kw">mut</span> items = <span class="ty">Vec</span>::<span class="fn">new</span>();
+    <span class="kw">let</span> <span class="kw">mut</span> line = <span class="ty">String</span>::<span class="fn">new</span>();
+    <span class="kw">while</span> reader.<span class="fn">read_line</span>(&amp;<span class="kw">mut</span> line).<span class="fn">unwrap</span>() &gt; <span class="nu">0</span> {
+        <span class="kw">if</span> line.<span class="fn">ends_with</span>(<span class="st">'\n'</span>) {
+            line.<span class="fn">pop</span>();
+        }
+        <span class="kw">if</span> line == <span class="st">"end"</span> {
+            <span class="kw">break</span>;
+        }
+        items.<span class="fn">push</span>(line.<span class="fn">clone</span>());
+        line.<span class="fn">clear</span>();
+    }
+    items
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> input = <span class="st">"apple\r\nbanana\nend\r\ncherry\n"</span>;
+    <span class="mc">println!</span>(<span class="st">"{:?}"</span>, <span class="fn">read_items</span>(input.<span class="fn">as_bytes</span>()));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>read_items</code> は、1行に1つずつ書かれた品名を <code>end</code> の行の手前まで読み、<code>Vec&lt;String&gt;</code> にして返す関数です。入力は <code>"apple\r\nbanana\nend\r\ncherry\n"</code> です。いまの出力は <code>["apple\r", "banana", "end\r", "cherry"]</code> ですが、本来の出力は <code>["apple", "banana"]</code> です。どこを直せばよいでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>read_line</code> は、読んだ行を改行まで含めて <code>line</code> に足します。<code>\r\n</code> で終わる行なら <code>\r\n</code> の2文字が付いてきますが、<code>line.pop()</code> が取り除くのは最後の <code>\n</code> 1文字だけです。そのため <code>apple</code> の行は <code>"apple\r"</code> として <code>items</code> に入ります。<code>end</code> の行も <code>"end\r"</code> になって <code>"end"</code> と一致しないので、ループは止まらずに <code>cherry</code> まで読み進めます。
+      </p>
+      <p>
+        直すには、行末の <code>\r</code> と <code>\n</code> をまとめて取り除きます:
+      </p>
+      <pre class="code"><code>        <span class="kw">let</span> item = line.<span class="fn">trim_end_matches</span>([<span class="st">'\r'</span>, <span class="st">'\n'</span>]);
+        <span class="kw">if</span> item == <span class="st">"end"</span> {
+            <span class="kw">break</span>;
+        }
+        items.<span class="fn">push</span>(item.<span class="fn">to_string</span>());
+</code></pre>
+      <p>
+        <code>trim_end_matches</code> に文字の配列を渡すと、そのどれかに当てはまる文字を末尾から続く限り削ります。<code>\n</code> で終わる行も <code>\r\n</code> で終わる行も同じ結果になるので、改行コードが混在していても品名だけが残ります。<code>BufRead::lines</code> で読むこともでき、こちらは各行から <code>\n</code> や <code>\r\n</code> を取り除いた <code>String</code> を返します。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="2次元配列grid[2][3]と、同じ行を2回指すポインタの配列をint **で扱ったとき、片方の行への書き込みがもう片方の行から見えるかを読むドリル。m[i][j]はまず行ポインタを読み、その指す先をたどる。2026-09-27のC READ。">
+<title>行を共有するint **</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-09-27">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-27" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-09-27",
+      "url": "https://namaran.jocarium.productions/c/read/2026-09-27",
+      "datePublished": "2026-09-27",
+      "dateModified": "2026-09-27",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "行を共有するint **" },
+      "keywords": "multidimensional-array, pointer, aliasing",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "2次元配列grid[2][3]と、同じ行を2回指すポインタの配列をint **で扱ったとき、片方の行への書き込みがもう片方の行から見えるかを読むドリル。m[i][j]はまず行ポインタを読み、その指す先をたどる。2026-09-27のC READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-27" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-09-27">C++26</a>
+  <a href="/rust/read/2026-09-27">Rust 2024</a>
+  <a href="/haskell/read/2026-09-27">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-09-27" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-09-27">WRITE</a>
+  <a href="/c/debug/2026-09-27">DEBUG</a>
+</nav>
+
+<main
+  data-topic="行を共有するint **"
+  data-tags="multidimensional-array pointer aliasing"
+  data-concepts="2次元配列, ポインタのポインタ, 行ポインタの配列, int **, 2D array, pointer to pointer, array of pointers"
+  data-level="hedgehog"
+>
+  <h2>2026-09-27</h2>
+  <div class="code-frame">
+    <p class="code-filename">shared_rows.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="ty">int</span> grid[<span class="nu">2</span>][<span class="nu">3</span>] = {{<span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">3</span>}, {<span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">3</span>}};
+    <span class="ty">int</span> row[<span class="nu">3</span>] = {<span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">3</span>};
+    <span class="ty">int</span> *rows[<span class="nu">2</span>] = {row, row};
+    <span class="ty">int</span> **m = rows;
+
+    grid[<span class="nu">0</span>][<span class="nu">1</span>] = <span class="nu">9</span>;
+    m[<span class="nu">0</span>][<span class="nu">1</span>] = <span class="nu">9</span>;
+    <span class="fn">printf</span>(<span class="st">"%d %d\n"</span>, grid[<span class="nu">1</span>][<span class="nu">1</span>], m[<span class="nu">1</span>][<span class="nu">1</span>]);
+    <span class="kw">return</span> <span class="nu">0</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>2 9</code> です。
+      </p>
+      <p>
+        <code>grid</code> は2行3列の <code>int</code> 6個を1つの領域に並べた配列で、<code>grid[0]</code> と <code>grid[1]</code> はその前半と後半にあたる別々の3要素です。<code>grid[0][1] = 9</code> が書き換えるのは1行目の2番目だけなので、<code>grid[1][1]</code> は初期化したときの <code>2</code> のままです。
+      </p>
+      <p>
+        <code>m</code> のほうはポインタの配列 <code>rows</code> を指していて、<code>m[0][1]</code> は「<code>m[0]</code> が指す先の2番目」を意味します。<code>rows</code> の2つの要素はどちらも同じ <code>row</code> を指しているので、<code>m[0][1]</code> と <code>m[1][1]</code> は同じ <code>int</code> です。<code>m[0][1] = 9</code> のあとは、<code>m[1][1]</code> を読んでも <code>9</code> が返ります。
+      </p>
+      <p>
+        <code>grid[i][j]</code> と <code>m[i][j]</code> は見た目が同じでも、たどり方が違います。<code>grid[i][j]</code> は先頭から <code>i * 3 + j</code> 個先の要素の位置を直接計算しますが、<code>m[i][j]</code> はまずメモリから <code>m[i]</code> というポインタを読み、その値が指す先へ進みます。そのため行ポインタの配列では、行がどこにあるのか、行どうしが重なっていないのかは、ポインタに何を入れたかで決まります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

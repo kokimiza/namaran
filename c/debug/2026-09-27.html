@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="2次元配列int pairs[][2]をqsortで並べ替える比較関数が、要素を行ポインタとして読んでしまい異常終了するバグを直すドリル。qsortは要素へのポインタを渡すので、2次元配列なら行の先頭がそのまま届く。2026-09-27のC DEBUG。">
+<title>qsortに渡る行の型</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-09-27">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-27" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-09-27",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-09-27",
+      "datePublished": "2026-09-27",
+      "dateModified": "2026-09-27",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "qsortに渡る行の型" },
+      "keywords": "multidimensional-array, pointer, sorting, undefined-behavior",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "2次元配列int pairs[][2]をqsortで並べ替える比較関数が、要素を行ポインタとして読んでしまい異常終了するバグを直すドリル。qsortは要素へのポインタを渡すので、2次元配列なら行の先頭がそのまま届く。2026-09-27のC DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-27" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-09-27">C++26</a>
+  <a href="/rust/debug/2026-09-27">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-27">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-09-27">READ</a>
+  <a href="/c/write/2026-09-27">WRITE</a>
+  <a href="/c/debug/2026-09-27" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="qsortに渡る行の型"
+  data-tags="multidimensional-array pointer sorting undefined-behavior"
+  data-concepts="qsortの比較関数, 2次元配列の並べ替え, ポインタのポインタ, qsort comparator, sort 2D array, void pointer cast"
+  data-level="bison"
+>
+  <h2>2026-09-27</h2>
+  <div class="code-frame">
+    <p class="code-filename">sort_pairs.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;stdlib.h&gt;</span>
+
+<span class="kw">static</span> <span class="ty">int</span> <span class="fn">by_first</span>(<span class="kw">const</span> <span class="ty">void</span> *a, <span class="kw">const</span> <span class="ty">void</span> *b) {
+    <span class="kw">const</span> <span class="ty">int</span> *pa = *(<span class="kw">const</span> <span class="ty">int</span> *<span class="kw">const</span> *)a;
+    <span class="kw">const</span> <span class="ty">int</span> *pb = *(<span class="kw">const</span> <span class="ty">int</span> *<span class="kw">const</span> *)b;
+    <span class="kw">return</span> (pa[<span class="nu">0</span>] &gt; pb[<span class="nu">0</span>]) - (pa[<span class="nu">0</span>] &lt; pb[<span class="nu">0</span>]);
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="ty">int</span> pairs[][<span class="nu">2</span>] = {{<span class="nu">3</span>, <span class="nu">30</span>}, {<span class="nu">1</span>, <span class="nu">10</span>}, {<span class="nu">2</span>, <span class="nu">20</span>}};
+    <span class="ty">size_t</span> n = <span class="kw">sizeof</span> pairs / <span class="kw">sizeof</span> pairs[<span class="nu">0</span>];
+    <span class="fn">qsort</span>(pairs, n, <span class="kw">sizeof</span> pairs[<span class="nu">0</span>], by_first);
+    <span class="kw">for</span> (<span class="ty">size_t</span> i = <span class="nu">0</span>; i &lt; n; i++) {
+        <span class="fn">printf</span>(<span class="st">"%d %d\n"</span>, pairs[i][<span class="nu">0</span>], pairs[i][<span class="nu">1</span>]);
+    }
+    <span class="kw">return</span> <span class="nu">0</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>pairs</code> の各行 <code>{キー, 値}</code> を <code>qsort</code> でキーの昇順に並べ替え、1行ずつ表示するプログラムです。入力は <code>{{3, 30}, {1, 10}, {2, 20}}</code> です。いまは何も表示されないまま異常終了します(手元では Segmentation fault でしたが、未定義動作なので結果は定まりません)。本来の出力は <code>1 10</code>、<code>2 20</code>、<code>3 30</code> の3行です。どこを直せばよいでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>by_first</code> の最初の2行が、受け取ったポインタの指す先を取り違えています。
+      </p>
+      <p>
+        <code>qsort</code> は比較関数に、並べ替える配列の要素を指すポインタを渡します。<code>pairs</code> の要素は <code>int[2]</code> という行なので、<code>a</code> が指しているのは <code>{3, 30}</code> のような2つの <code>int</code> そのものです。ところが <code>*(const int *const *)a</code> は、<code>a</code> の指す先に「行を指すポインタ」が置いてあるものとして読みます。実際にそこにあるのは <code>3</code> と <code>30</code> なので、そのバイト列がアドレスとして解釈され、<code>pa[0]</code> はでたらめな場所を読みにいきます。
+      </p>
+      <p>
+        この書き方が正しいのは、要素そのものがポインタである配列、たとえば <code>const int *rows[]</code> や <code>char *names[]</code> を並べ替えるときです。そのときは <code>a</code> が要素のポインタを指しているので、1回たどって行の先頭を取り出す必要があります。2次元配列には行ポインタがどこにも格納されていないので、たどる段数が1つ多すぎます。
+      </p>
+      <p>
+        直すには、<code>a</code> をそのまま行の先頭として受け取ります:
+      </p>
+      <pre class="code"><code>    <span class="kw">const</span> <span class="ty">int</span> *pa = a;
+    <span class="kw">const</span> <span class="ty">int</span> *pb = b;
+</code></pre>
+      <p>
+        行の先頭のアドレスは、その行の最初の <code>int</code> のアドレスと同じです。比較関数の引数は <code>const void *</code> なので、キャストが間違っていてもコンパイラは何も言いません。この取り違えは、実行して初めて表に出ます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
