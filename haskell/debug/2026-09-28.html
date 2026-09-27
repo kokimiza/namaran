@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="負になりうるハッシュ値をレジスタに振り分ける HyperLogLog の関数で、一部の値が黙って捨てられるバグを直すドリル。rem の符号は割られる数に従うので負の値を返し、div と組になるのは mod である。2026-09-28のHaskell DEBUG。">
+<title>負のハッシュとバケット</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-09-28">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-28" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-09-28",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-09-28",
+      "datePublished": "2026-09-28",
+      "dateModified": "2026-09-28",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "負のハッシュとバケット" },
+      "keywords": "hyperloglog, division",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "負になりうるハッシュ値をレジスタに振り分ける HyperLogLog の関数で、一部の値が黙って捨てられるバグを直すドリル。rem の符号は割られる数に従うので負の値を返し、div と組になるのは mod である。2026-09-28のHaskell DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-28">C23</a>
+  <a href="/cpp/debug/2026-09-28">C++26</a>
+  <a href="/rust/debug/2026-09-28">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-28" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-09-28">READ</a>
+  <a href="/haskell/write/2026-09-28">WRITE</a>
+  <a href="/haskell/debug/2026-09-28" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="負のハッシュとバケット"
+  data-tags="hyperloglog division"
+  data-concepts="rem と mod, div と mod, 負の数の剰余, バケットの選択, HyperLogLog, negative remainder, rem vs mod, bucket index"
+  data-level="peacock"
+>
+  <h2>2026-09-28</h2>
+  <div class="code-frame">
+    <p class="code-filename">Buckets.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Data.Bits</span> (countTrailingZeros)
+
+<span class="fn">registers</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> [<span class="ty">Int</span>]
+<span class="fn">registers</span> m hs =
+  [ maximum (<span class="nu">0</span> : [rank (h `div` m) | h <span class="op">&lt;-</span> hs, h `rem` m == i])
+  | i <span class="op">&lt;-</span> [<span class="nu">0</span> .. m - <span class="nu">1</span>]
+  ]
+  <span class="kw">where</span>
+    rank w = countTrailingZeros w + <span class="nu">1</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    ハッシュ値の並び <code>hs</code> を <code>m</code> 個のバケットに振り分け、バケットごとに <code>rank</code> の最大値を記録する <code>registers</code> です。ハッシュ値は負になることもあります。<code>print (registers 4 [6, -7, 5])</code> はいま <code>[0,1,1,0]</code> を出力しますが、本来は <code>[0,2,1,0]</code> です。どこを直せばよいでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>h `rem` m == i</code> を <code>h `mod` m == i</code> に変えます。
+      </p>
+      <p>
+        <code>rem</code> の結果は割られる数と同じ符号になるので、<code>(-7) `rem` 4</code> は <code>-3</code> です。<code>i</code> は <code>0</code> から <code>3</code> までしか動かないので、<code>-7</code> はどのバケットの内包表記にも拾われず、エラーも出ないまま消えます。<code>mod</code> の結果は割る数と同じ符号になり、<code>(-7) `mod` 4</code> は <code>1</code> です。
+      </p>
+      <p>
+        <code>rank</code> に渡す商には <code>div</code> を使っているので、組にすべきなのも <code>mod</code> です。<code>div</code> は負の無限大の方向に丸めるので <code>(-7) `div` 4</code> は <code>-2</code> になり、<code>-2 * 4 + 1</code> で元の <code>-7</code> に戻ります。<code>rem</code> と組になるのは0の方向に丸める <code>quot</code> で、<code>div</code> と <code>rem</code> を混ぜると <code>h</code> の分け方として辻褄が合いません。
+      </p>
+      <p>
+        直すと <code>-7</code> はバケット1に入ります。商の <code>-2</code> は2の補数で表すと末尾に <code>0</code> が1個並ぶので <code>rank</code> は <code>2</code> です。バケット1にはもう1つ <code>5</code> から rank 1 が来ていて、最大値の <code>2</code> が残ります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

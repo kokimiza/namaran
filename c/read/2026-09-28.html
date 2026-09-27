@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="シンボリックリンクをたどってディレクトリを数える関数が、祖先と同じディレクトリだけを飛ばすとき、いくつ数えるかを読むドリル。stat はリンクをたどり、リンクの相対パスはリンクのあるディレクトリから解決される。2026-09-28のC READ。">
+<title>祖先だけ見る循環検出</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-09-28">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-28" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-09-28",
+      "url": "https://namaran.jocarium.productions/c/read/2026-09-28",
+      "datePublished": "2026-09-28",
+      "dateModified": "2026-09-28",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "祖先だけ見る循環検出" },
+      "keywords": "file-system, symbolic-link, cycle-detection, recursion",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "シンボリックリンクをたどってディレクトリを数える関数が、祖先と同じディレクトリだけを飛ばすとき、いくつ数えるかを読むドリル。stat はリンクをたどり、リンクの相対パスはリンクのあるディレクトリから解決される。2026-09-28のC READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-28" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-09-28">C++26</a>
+  <a href="/rust/read/2026-09-28">Rust 2024</a>
+  <a href="/haskell/read/2026-09-28">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-09-28" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-09-28">WRITE</a>
+  <a href="/c/debug/2026-09-28">DEBUG</a>
+</nav>
+
+<main
+  data-topic="祖先だけ見る循環検出"
+  data-tags="file-system symbolic-link cycle-detection recursion"
+  data-concepts="シンボリックリンクの循環, ディレクトリ走査, stat, st_dev と st_ino, 祖先の判定, symlink loop, directory traversal, cycle detection"
+  data-level="bison"
+>
+  <h2>2026-09-28</h2>
+  <div class="code-frame">
+    <p class="code-filename">count_dirs.c</p>
+    <pre class="code"><code><span class="pp">#define</span> _XOPEN_SOURCE <span class="nu">700</span>
+<span class="pp">#include</span> <span class="st">&lt;dirent.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;stdlib.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;sys/stat.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;unistd.h&gt;</span>
+
+<span class="kw">struct</span> <span class="ty">frame</span> {
+    <span class="ty">dev_t</span> dev;
+    <span class="ty">ino_t</span> ino;
+    <span class="kw">const</span> <span class="kw">struct</span> <span class="ty">frame</span> *up;
+};
+
+<span class="kw">static</span> <span class="ty">int</span> <span class="fn">walk</span>(<span class="kw">const</span> <span class="ty">char</span> *path, <span class="kw">const</span> <span class="kw">struct</span> <span class="ty">frame</span> *up) {
+    <span class="kw">struct</span> <span class="ty">stat</span> st;
+    <span class="kw">if</span> (<span class="fn">stat</span>(path, &amp;st) != <span class="nu">0</span> || !<span class="fn">S_ISDIR</span>(st.st_mode)) <span class="kw">return</span> <span class="nu">0</span>;
+    <span class="kw">for</span> (<span class="kw">const</span> <span class="kw">struct</span> <span class="ty">frame</span> *f = up; f; f = f-&gt;up) {
+        <span class="kw">if</span> (f-&gt;dev == st.st_dev &amp;&amp; f-&gt;ino == st.st_ino) <span class="kw">return</span> <span class="nu">0</span>;
+    }
+    <span class="kw">struct</span> <span class="ty">frame</span> me = {st.st_dev, st.st_ino, up};
+    <span class="nu">DIR</span> *dir = <span class="fn">opendir</span>(path);
+    <span class="kw">if</span> (!dir) <span class="kw">return</span> <span class="nu">0</span>;
+    <span class="ty">int</span> count = <span class="nu">1</span>;
+    <span class="kw">struct</span> <span class="ty">dirent</span> *e;
+    <span class="kw">while</span> ((e = <span class="fn">readdir</span>(dir))) {
+        <span class="kw">if</span> (<span class="fn">strcmp</span>(e-&gt;d_name, <span class="st">"."</span>) == <span class="nu">0</span> || <span class="fn">strcmp</span>(e-&gt;d_name, <span class="st">".."</span>) == <span class="nu">0</span>) <span class="kw">continue</span>;
+        <span class="ty">char</span> child[<span class="nu">4096</span>];
+        <span class="fn">snprintf</span>(child, <span class="kw">sizeof</span> child, <span class="st">"%s/%s"</span>, path, e-&gt;d_name);
+        count += <span class="fn">walk</span>(child, &amp;me);
+    }
+    <span class="fn">closedir</span>(dir);
+    <span class="kw">return</span> count;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="ty">char</span> root[] = <span class="st">"/tmp/treeXXXXXX"</span>;
+    <span class="kw">if</span> (!<span class="fn">mkdtemp</span>(root) || <span class="fn">chdir</span>(root) != <span class="nu">0</span>) <span class="kw">return</span> <span class="nu">1</span>;
+    <span class="kw">if</span> (<span class="fn">mkdir</span>(<span class="st">"a"</span>, <span class="nu">0700</span>) || <span class="fn">mkdir</span>(<span class="st">"a/b"</span>, <span class="nu">0700</span>) || <span class="fn">mkdir</span>(<span class="st">"c"</span>, <span class="nu">0700</span>)) <span class="kw">return</span> <span class="nu">1</span>;
+    <span class="kw">if</span> (<span class="fn">symlink</span>(<span class="st">"../c"</span>, <span class="st">"a/c"</span>) || <span class="fn">symlink</span>(<span class="st">".."</span>, <span class="st">"a/b/up"</span>)) <span class="kw">return</span> <span class="nu">1</span>;
+    <span class="fn">printf</span>(<span class="st">"%d\n"</span>, <span class="fn">walk</span>(<span class="st">"."</span>, <span class="nu">NULL</span>));
+    <span class="kw">return</span> <span class="nu">0</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>5</code> です。
+      </p>
+      <p>
+        <code>main</code> が一時ディレクトリの中に作るのは、ディレクトリ <code>a</code>、<code>a/b</code>、<code>c</code> と、2つのシンボリックリンクです。リンクの中身の相対パスは、リンクが置かれたディレクトリから解決されます。<code>a/c</code> の中身 <code>../c</code> は <code>a</code> から見た <code>c</code> を指し、<code>a/b/up</code> の中身 <code>..</code> は <code>a/b</code> の親の <code>a</code> を指します。
+      </p>
+      <p>
+        <code>walk</code> は <code>stat</code> で種類を調べます。<code>stat</code> はリンクをたどってリンク先の情報を返すので、この2つのリンクはどちらもディレクトリとして扱われ、中に入ります。そこで循環を止めるのが <code>up</code> の連なりで、いまのディレクトリに着くまでに通った祖先たちの <code>st_dev</code> と <code>st_ino</code> が積まれています。
+      </p>
+      <p>
+        <code>.</code> から始めると、<code>.</code>、<code>a</code>、<code>a/b</code>、<code>a/c</code>、<code>c</code> の5つが数えられます。<code>a/b/up</code> の先の <code>a</code> は <code>a/b</code> の祖先なので、そこで <code>0</code> が返ります。<code>a/c</code> と <code>c</code> は同じディレクトリですが、どちらも相手の祖先ではないので両方とも数えます。<code>readdir</code> が名前を返す順番は決まっていませんが、どの順で回っても祖先の並びは変わらないので、結果は <code>5</code> のままです。
+      </p>
+      <p>
+        祖先とだけ比べるのは、無限に深くなる原因が祖先へ戻るリンクに限られるからです。同じディレクトリに別の経路から着くことは循環ではないので、この関数は止めません<sup class="fn-ref">1</sup>。比較にパスではなく <code>st_dev</code> と <code>st_ino</code> の組を使うのは、<code>a/b/up</code> と <code>a</code> のように文字列の違うパスでも、<code>stat</code> が返すこの組は同じになるからです。
+      </p>
+      <ol class="footnotes">
+        <li>BSD と glibc の <code>fts</code> も同じ考え方で、祖先と同じディレクトリに入ろうとしたときだけ <code>FTS_DC</code> を返します。同じディレクトリを2度数えたくないなら、見たディレクトリをすべて記録しておく必要があります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

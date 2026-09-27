@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「寿命」を扱ったNamaranのコーディングドリル12問。argv配列、nullptr終端、execvp、posix_spawnp、std::string::data、argv array。">
+<meta name="description" content="「寿命」を扱ったNamaranのコーディングドリル13問。SAT、全探索、impl Trait、戻り値のimpl Iterator、ライフタイムのキャプチャ、Rust 2024。">
 <title>寿命</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/lifetime">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>寿命</h2>
 
   <p class="lede">
-    「寿命」を扱った12問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「寿命」を扱った13問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/write/2026-09-28">Rust / WRITE · 2026-09-28</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">充足割当を返すイテレータ</span> <span class="past-concepts">SAT, 全探索, impl Trait, 戻り値のimpl Iterator, ライフタイムのキャプチャ, Rust 2024, return position impl trait, lifetime capture, lazy iterator</span></li>
     <li><a href="/cpp/write/2026-09-27">C++ / WRITE · 2026-09-27</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">argv配列を組み立てる</span> <span class="past-concepts">argv配列, nullptr終端, execvp, posix_spawnp, std::string::data, argv array, null-terminated argv</span></li>
     <li><a href="/rust/read/2026-09-26">Rust / READ · 2026-09-26</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">ロックはいつ外れるか</span> <span class="past-concepts">MutexGuard, 一時値の寿命, if letのスコープ, Rust 2024, 確認と使用の間, temporary lifetime, if let rescope, TOCTOU</span></li>
     <li><a href="/cpp/write/2026-09-20">C++ / WRITE · 2026-09-20</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">一時値をconst参照に</span> <span class="past-concepts">寿命延長, const参照, 一時オブジェクト, lifetime extension</span></li>

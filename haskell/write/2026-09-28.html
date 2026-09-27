@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="HyperLogLog で値が0のレジスタの数 v から、異なる値の個数を m * log (m / v) で見積もる linearCount を書くドリル。Int の length は / にも log にも渡せず、fromIntegral で変換する。2026-09-28のHaskell WRITE。">
+<title>HLLの線形カウント</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-09-28">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-28" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-09-28",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-09-28",
+      "datePublished": "2026-09-28",
+      "dateModified": "2026-09-28",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "HLLの線形カウント" },
+      "keywords": "hyperloglog, type-conversion, floating-point, maybe",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "HyperLogLog で値が0のレジスタの数 v から、異なる値の個数を m * log (m / v) で見積もる linearCount を書くドリル。Int の length は / にも log にも渡せず、fromIntegral で変換する。2026-09-28のHaskell WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-28">C23</a>
+  <a href="/cpp/write/2026-09-28">C++26</a>
+  <a href="/rust/write/2026-09-28">Rust 2024</a>
+  <a href="/haskell/write/2026-09-28" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-09-28">READ</a>
+  <a href="/haskell/write/2026-09-28" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-09-28">DEBUG</a>
+</nav>
+
+<main
+  data-topic="HLLの線形カウント"
+  data-tags="hyperloglog type-conversion floating-point maybe"
+  data-concepts="HyperLogLog, 線形カウント, fromIntegral, Int から Double, 小さい範囲の補正, linear counting, small range correction, numeric conversion"
+  data-level="peacock"
+>
+  <h2>2026-09-28</h2>
+  <div class="code-frame">
+    <p class="code-filename">LinearCount.hs</p>
+    <pre class="code"><code><span class="fn">linearCount</span> <span class="op">::</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> <span class="ty">Maybe</span> <span class="ty">Double</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    HyperLogLog のレジスタの並び <code>regs</code> から異なる値の個数を見積もる <code>linearCount</code> を書いてください。レジスタの総数を <code>m</code>、値が <code>0</code> のレジスタの数を <code>v</code> として <code>m * log (m / v)</code> を <code>Just</code> で返し、<code>0</code> のレジスタが1つもないとき(<code>regs</code> が空のときも)は <code>Nothing</code> を返します。<code>linearCount [0, 0, 0, 0]</code> → <code>Just 0.0</code>、<code>linearCount [1, 0, 2, 0]</code> → <code>Just 2.772588722239781</code>、<code>linearCount [1, 2]</code> → <code>Nothing</code>
+  </p>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="fn">linearCount</span> <span class="op">::</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> <span class="ty">Maybe</span> <span class="ty">Double</span>
+<span class="fn">linearCount</span> regs
+  | zeros == <span class="nu">0</span> = <span class="ty">Nothing</span>
+  | otherwise = <span class="ty">Just</span> (m * log (m / zeros))
+  <span class="kw">where</span>
+    m = fromIntegral (length regs)
+    zeros = fromIntegral (length (filter (== <span class="nu">0</span>) regs))
+</code></pre>
+      <p>
+        <code>length</code> が返すのは <code>Int</code> で、<code>Int</code> は <code>Fractional</code> でも <code>Floating</code> でもないので、そのままでは <code>/</code> にも <code>log</code> にも渡せません。数えた結果を <code>fromIntegral</code> で変換すると、<code>m</code> と <code>zeros</code> の型は、<code>Just (m * log (m / zeros))</code> が <code>Maybe Double</code> であることから <code>Double</code> に決まります。
+      </p>
+      <p>
+        <code>zeros == 0</code> は <code>Double</code> どうしの比較ですが、整数を変換した値なので誤差は入りません。この判定がないと、<code>0</code> のレジスタが1つもないときに <code>m / 0</code> が <code>Infinity</code> になり、<code>log</code> を通って <code>Just Infinity</code> が返ります。空のリストなら <code>0 / 0</code> で <code>NaN</code> です。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。個数を <code>Int</code> のまま数えて <code>0</code> と比べ、式を計算するところで初めて <code>fromIntegral</code> を使う書き方もできます。HyperLogLog は、見積もった個数がレジスタの数に比べて小さいとき、レジスタの最大値から作る推定値ではなくこの式を使います<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>Flajolet らの論文では、通常の推定値が 5m/2 以下で、しかも値が 0 のレジスタがあるときに、この線形カウントに切り替えます。値の少ないうちは多くのレジスタが 0 のままで、通常の推定値が大きくずれるからです。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -24,6 +24,7 @@ control-flow	制御の流れ
 copy-assignment	コピー代入
 counting-sort	計数ソート
 crdt	CRDT
+cycle-detection	循環検出
 dangling-pointer	ダングリング参照
 deduplication	重複除去
 default	デフォルト値
@@ -49,8 +50,10 @@ function-parameter	関数の引数
 function-pointer	関数ポインタ
 guard	ガード
 higher-order	高階関数
+hyperloglog	HyperLogLog
 immutability	不変性
 imos	いもす法
+impl-trait	impl Trait
 implicit-conversion	暗黙の型変換
 increment-decrement	インクリメント
 infinite-list	無限リスト
@@ -111,6 +114,7 @@ range-for	範囲for
 recursion	再帰
 reference	参照
 resource-management	資源の後始末
+satisfiability	充足可能性問題
 section	セクション記法
 segment-tree	セグメント木
 semaphore	セマフォ
@@ -131,6 +135,7 @@ string-escaping	文字列のエスケープ
 struct	構造体
 swap	値の交換
 switch	switch文
+symbolic-link	シンボリックリンク
 temporary	一時オブジェクト
 testing	テスト
 thunk	サンク

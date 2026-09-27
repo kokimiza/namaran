@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="区間の両端に +v と -v を置いてから std::partial_sum で累積するいもす法で、配列の各要素がいくつになるかを読むドリル。d[r] に引いた値は、添字 r から先を打ち消す。2026-09-28のC++ READ。">
+<title>差分配列の半開区間</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-09-28">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-28" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-09-28",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-09-28",
+      "datePublished": "2026-09-28",
+      "dateModified": "2026-09-28",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "差分配列の半開区間" },
+      "keywords": "imos, prefix-sum, boundary",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "区間の両端に +v と -v を置いてから std::partial_sum で累積するいもす法で、配列の各要素がいくつになるかを読むドリル。d[r] に引いた値は、添字 r から先を打ち消す。2026-09-28のC++ READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-28">C23</a>
+  <a href="/cpp/read/2026-09-28" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-09-28">Rust 2024</a>
+  <a href="/haskell/read/2026-09-28">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-28" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-09-28">WRITE</a>
+  <a href="/cpp/debug/2026-09-28">DEBUG</a>
+</nav>
+
+<main
+  data-topic="差分配列の半開区間"
+  data-tags="imos prefix-sum boundary"
+  data-concepts="いもす法, 差分配列, 区間加算, partial_sum, 半開区間, difference array, range update, half-open interval"
+  data-level="hedgehog"
+>
+  <h2>2026-09-28</h2>
+  <div class="code-frame">
+    <p class="code-filename">range_add.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;array&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;numeric&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;print&gt;</span>
+
+<span class="kw">struct</span> <span class="ty">Add</span> {
+    <span class="ty">int</span> l, r, v;
+};
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="kw">constexpr</span> <span class="ty">Add</span> adds[] = {{<span class="nu">0</span>, <span class="nu">3</span>, <span class="nu">1</span>}, {<span class="nu">2</span>, <span class="nu">5</span>, <span class="nu">2</span>}, {<span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">4</span>}};
+    std::<span class="ty">array</span>&lt;<span class="ty">int</span>, <span class="nu">6</span>&gt; d{};
+    <span class="kw">for</span> (<span class="kw">auto</span> [l, r, v] : adds) {
+        d[l] += v;
+        d[r] -= v;
+    }
+    std::<span class="fn">partial_sum</span>(d.<span class="fn">begin</span>(), d.<span class="fn">end</span>(), d.<span class="fn">begin</span>());
+    <span class="kw">for</span> (<span class="kw">const</span> <span class="ty">char</span> *sep = <span class="st">""</span>; <span class="ty">int</span> x : d) {
+        std::<span class="fn">print</span>(<span class="st">"{}{}"</span>, sep, x);
+        sep = <span class="st">" "</span>;
+    }
+    std::<span class="fn">println</span>();
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>1 5 3 2 2 0</code> です。
+      </p>
+      <p>
+        ループが終わった時点の <code>d</code> には、足し始める位置に <code>+v</code>、足し終わった次の位置に <code>-v</code> が置かれていて、中身は <code>{1, 4, -2, -1, 0, -2}</code> です。<code>std::partial_sum</code> で先頭から累積すると、<code>d[l]</code> の <code>+v</code> は添字 <code>l</code> から後ろのすべてに効き、<code>d[r]</code> の <code>-v</code> が添字 <code>r</code> から先でそれを打ち消します。そのため各 <code>{l, r, v}</code> は、<code>l</code> 以上 <code>r</code> 未満の半開区間に <code>v</code> を足したことになります。
+      </p>
+      <p>
+        区間ごとに見ると、<code>{0, 3, 1}</code> は添字 0〜2 に 1、<code>{2, 5, 2}</code> は 2〜4 に 2、<code>{1, 2, 4}</code> は添字 1 だけに 4 を足します。重なりを合計すると <code>1 5 3 2 2 0</code> で、<code>r</code> として書いた添字 5 の要素には、どの区間も届きません。
+      </p>
+      <p>
+        <code>partial_sum</code> は出力先に入力の先頭を渡してよく、<code>d</code> をその場で累積和に置き換えられます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

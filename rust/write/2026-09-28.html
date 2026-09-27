@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="CNF の論理式を満たす割り当てを Vec に集めず、impl Iterator のまま返す models を書くドリル。返すイテレータは引数の参照を借りたままで、Rust 2024 では戻り値の impl Trait がそのライフタイムを自動でキャプチャする。2026-09-28のRust WRITE。">
+<title>充足割当を返すイテレータ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-09-28">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-28" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-09-28",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-09-28",
+      "datePublished": "2026-09-28",
+      "dateModified": "2026-09-28",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "充足割当を返すイテレータ" },
+      "keywords": "satisfiability, impl-trait, lifetime, iterator, capture",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "CNF の論理式を満たす割り当てを Vec に集めず、impl Iterator のまま返す models を書くドリル。返すイテレータは引数の参照を借りたままで、Rust 2024 では戻り値の impl Trait がそのライフタイムを自動でキャプチャする。2026-09-28のRust WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-28">C23</a>
+  <a href="/cpp/write/2026-09-28">C++26</a>
+  <a href="/rust/write/2026-09-28" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-09-28">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-09-28">READ</a>
+  <a href="/rust/write/2026-09-28" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-09-28">DEBUG</a>
+</nav>
+
+<main
+  data-topic="充足割当を返すイテレータ"
+  data-tags="satisfiability impl-trait lifetime iterator capture"
+  data-concepts="SAT, 全探索, impl Trait, 戻り値のimpl Iterator, ライフタイムのキャプチャ, Rust 2024, return position impl trait, lifetime capture, lazy iterator"
+  data-level="bison"
+>
+  <h2>2026-09-28</h2>
+  <div class="code-frame">
+    <p class="code-filename">models.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">models</span>(n: <span class="ty">u32</span>, clauses: &amp;[<span class="ty">Vec</span>&lt;<span class="ty">i32</span>&gt;]) -&gt; <span class="kw">impl</span> <span class="ty">Iterator</span>&lt;<span class="ty">Item</span> = <span class="ty">u32</span>&gt; {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    変数 <code>n</code> 個の CNF の論理式 <code>clauses</code> を満たす割り当てを、すべて順に返す <code>models</code> を書いてください。割り当ては <code>u32</code> の値 <code>m</code> で表し、変数 x<sub>k</sub>(<code>k</code> は <code>1</code> から <code>n</code>)の値を <code>m</code> の <code>k - 1</code> ビット目とします。節 <code>clauses[i]</code> の要素 <code>k</code> は x<sub>k</sub> を、<code>-k</code> はその否定を表し、節の中のどれか1つが真ならその節は真です。<code>m</code> の小さい順に、<code>Vec</code> に集めずイテレータのまま返します。<code>n</code> は <code>31</code> 以下とします。<code>collect</code> した結果で、<code>models(2, &amp;[vec![1, 2]])</code> → <code>[1, 2, 3]</code>、<code>models(2, &amp;[vec![1], vec![-1]])</code> → <code>[]</code>、<code>models(0, &amp;[])</code> → <code>[0]</code>
+  </p>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">models</span>(n: <span class="ty">u32</span>, clauses: &amp;[<span class="ty">Vec</span>&lt;<span class="ty">i32</span>&gt;]) -&gt; <span class="kw">impl</span> <span class="ty">Iterator</span>&lt;<span class="ty">Item</span> = <span class="ty">u32</span>&gt; {
+    (<span class="nu">0</span>..<span class="nu">1</span> &lt;&lt; n).<span class="fn">filter</span>(|&amp;m| {
+        clauses.<span class="fn">iter</span>().<span class="fn">all</span>(|clause| {
+            clause
+                .<span class="fn">iter</span>()
+                .<span class="fn">any</span>(|&amp;lit| ((m &gt;&gt; (lit.<span class="fn">unsigned_abs</span>() - <span class="nu">1</span>)) &amp; <span class="nu">1</span> == <span class="nu">1</span>) == (lit &gt; <span class="nu">0</span>))
+        })
+    })
+}
+</code></pre>
+      <p>
+        <code>0..1 &lt;&lt; n</code> が 2<sup>n</sup> 通りの割り当てを小さい順に並べ、<code>filter</code> が式を満たすものだけを残します。<code>filter</code> は要素を取り出されるたびに1つずつ調べるだけなので、全体をメモリに並べることはありません。変数のない <code>models(0, &amp;[])</code> は <code>0</code> だけを試し、節が1つもない式は常に真なので <code>[0]</code> になります。
+      </p>
+      <p>
+        返す値の型は <code>Filter&lt;Range&lt;u32&gt;, クロージャ&gt;</code> で、クロージャの型には名前がないので書けません。そこで <code>impl Iterator&lt;Item = u32&gt;</code> として返します。このクロージャは <code>clauses</code> の指す先を読むので、返したイテレータは引数のスライスを借りたままです。Rust 2024 では、戻り値の位置の <code>impl Trait</code> は関数のライフタイム引数をすべて自動でキャプチャするので、このシグネチャのままコンパイルが通ります。Rust 2021 edition までは同じコードが「隠れた型がライフタイムをキャプチャしている」というエラーになり、<code>+ '_</code> を書き足す必要がありました。
+      </p>
+      <p>
+        クロージャが使うのは <code>*clauses</code> と自分の引数の <code>m</code> だけです。<code>*clauses</code> は呼び出し元が持つスライスなので、クロージャはそれを直接借ります。クロージャの中で <code>n</code> も読むなら、<code>n</code> は関数が返った時点で消えるローカル変数なので、<code>move</code> を付けてコピーさせないとコンパイルが通りません。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>1 &lt;&lt; n</code> は <code>n</code> が <code>32</code> になると <code>u32</code> からあふれるので、<code>n</code> を <code>31</code> 以下としています。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="CNF の論理式を満たす割り当ての個数を全探索で数える関数が、満たせるはずの式で 0 を返すバグを直すドリル。CNF は節の論理積で、1つの節はリテラルの論理和なので、節の中は any で調べる。2026-09-28のRust DEBUG。">
+<title>解の個数を数えるSAT</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-09-28">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-28" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-09-28",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-09-28",
+      "datePublished": "2026-09-28",
+      "dateModified": "2026-09-28",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "解の個数を数えるSAT" },
+      "keywords": "satisfiability, iterator",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "CNF の論理式を満たす割り当ての個数を全探索で数える関数が、満たせるはずの式で 0 を返すバグを直すドリル。CNF は節の論理積で、1つの節はリテラルの論理和なので、節の中は any で調べる。2026-09-28のRust DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-28">C23</a>
+  <a href="/cpp/debug/2026-09-28">C++26</a>
+  <a href="/rust/debug/2026-09-28" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-28">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-09-28">READ</a>
+  <a href="/rust/write/2026-09-28">WRITE</a>
+  <a href="/rust/debug/2026-09-28" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="解の個数を数えるSAT"
+  data-tags="satisfiability iterator"
+  data-concepts="SAT, CNF, 充足する割り当ての数, any と all, モデル数え上げ, model counting, conjunctive normal form, Iterator::any"
+  data-level="hedgehog"
+>
+  <h2>2026-09-28</h2>
+  <div class="code-frame">
+    <p class="code-filename">count_models.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">satisfies</span>(clauses: &amp;[<span class="ty">Vec</span>&lt;<span class="ty">i32</span>&gt;], assign: &amp;[<span class="ty">bool</span>]) -&gt; <span class="ty">bool</span> {
+    clauses.<span class="fn">iter</span>().<span class="fn">all</span>(|clause| {
+        clause
+            .<span class="fn">iter</span>()
+            .<span class="fn">all</span>(|&amp;lit| assign[lit.<span class="fn">unsigned_abs</span>() <span class="kw">as</span> <span class="ty">usize</span> - <span class="nu">1</span>] == (lit &gt; <span class="nu">0</span>))
+    })
+}
+
+<span class="kw">fn</span> <span class="fn">count_models</span>(n: <span class="ty">usize</span>, clauses: &amp;[<span class="ty">Vec</span>&lt;<span class="ty">i32</span>&gt;]) -&gt; <span class="ty">usize</span> {
+    (<span class="nu">0</span>..<span class="nu">1u32</span> &lt;&lt; n)
+        .<span class="fn">filter</span>(|m| {
+            <span class="kw">let</span> assign: <span class="ty">Vec</span>&lt;<span class="ty">bool</span>&gt; = (<span class="nu">0</span>..n).<span class="fn">map</span>(|i| (m &gt;&gt; i) &amp; <span class="nu">1</span> == <span class="nu">1</span>).<span class="fn">collect</span>();
+            <span class="fn">satisfies</span>(clauses, &amp;assign)
+        })
+        .<span class="fn">count</span>()
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    CNF の論理式を満たす割り当ての個数を、すべての割り当てを試して数える <code>count_models</code> です。節は整数のリストで、<code>k</code> は変数 x<sub>k</sub> を、<code>-k</code> はその否定を表します。<code>count_models(3, &amp;[vec![1, 2], vec![-1, 3]])</code> を出力すると、いまは <code>0</code> ですが、本来は <code>4</code> です。どこを直せばよいでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>satisfies</code> の内側の <code>.all(|&amp;lit| …)</code> を <code>.any(|&amp;lit| …)</code> に変えます。
+      </p>
+      <p>
+        CNF は節の論理積で、1つの節はリテラルの論理和です。外側の <code>all</code> は「すべての節が真」を正しく調べていますが、内側も <code>all</code> なので、節の中のリテラルがすべて真であることまで求めています。その結果、節 <code>[1, 2]</code> は x1 と x2 の両方が真、節 <code>[-1, 3]</code> は x1 が偽であることを要求し、x1 について矛盾するので、どの割り当ても通りません。
+      </p>
+      <p>
+        内側を <code>any</code> にすると、節の中のどれか1つが真なら節が真になります。x1 が偽なら最初の節のために x2 が真で、x3 はどちらでもよいので2通り、x1 が真なら2番目の節のために x3 が真で、x2 はどちらでもよいので2通りです。合わせて <code>4</code> になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
