@@ -18,7 +18,7 @@
 #   LANG/TYPE pairs default to all 12 (4 languages x 3 exercise types) when
 #   omitted, e.g.: script/content.sh new 2026-08-25 c/read rust/debug
 #
-# `new`  creates {lang}/{type}/{date}.html from script/template.html and
+# `new`  creates {lang}/{type}/{date}.html from script/template-{type}.html and
 #        prepends a matching <li> to {lang}/{type}/archive.html. It never
 #        overwrites an existing dated file (doc/basic-design.md: published
 #        pages are never edited), and skips an archive line that's already
@@ -34,7 +34,6 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-TEMPLATE="$SCRIPT_DIR/template.html"
 
 ALL_LANGS=(c cpp rust haskell)
 ALL_TYPES=(read write debug)
@@ -111,48 +110,28 @@ build_type_nav() {
   echo '</nav>'
 }
 
-build_answer_body() {
-  local type="$1"
-  if [ "$type" = "write" ]; then
-    cat <<'EOF'
-      <pre class="code"><code>TODO: reference implementation
-</code></pre>
-      <p>
-        TODO: 解説をここに書く。参考実装であり、唯一の正解ではないことに触れる。
-      </p>
-EOF
-  else
-    cat <<'EOF'
-      <p>
-        TODO: 答えと解説をここに書く。
-      </p>
-EOF
-  fi
-}
-
-# Renders script/template.html for one (lang, type, date) to stdout.
+# Renders script/template-{type}.html for one (lang, type, date) to stdout.
+# Each type has its own template because the question and answer differ in
+# shape: READ asks one fixed question, WRITE pairs input/output examples,
+# DEBUG answers as Wrong / Right.
 # Block placeholders (@@LANG_NAV@@ etc.) must appear alone on their own
 # line in the template; everything else is a plain inline substitution.
 render() {
   local lang="$1" type="$2" date="$3"
-  local lang_label_v type_label_v code_ext_v summary_label
+  local lang_label_v type_label_v code_ext_v
   lang_label_v="$(lang_label "$lang")"
   type_label_v="$(type_label "$type")"
   code_ext_v="$(code_ext "$lang")"
-  summary_label="Answer"
-  [ "$type" = "write" ] && summary_label="Reference"
 
-  local lang_nav type_nav answer_body
+  local lang_nav type_nav
   lang_nav="$(build_lang_nav "$lang" "$type" "$date")"
   type_nav="$(build_type_nav "$lang" "$type" "$date")"
-  answer_body="$(build_answer_body "$type")"
 
   local line
   while IFS= read -r line || [ -n "$line" ]; do
     case "$line" in
       '@@LANG_NAV@@') printf '%s\n' "$lang_nav" ;;
       '@@TYPE_NAV@@') printf '%s\n' "$type_nav" ;;
-      '@@ANSWER_BODY@@') printf '%s\n' "$answer_body" ;;
       *)
         line="${line//@@DATE@@/$date}"
         line="${line//@@LANG_SLUG@@/$lang}"
@@ -160,11 +139,10 @@ render() {
         line="${line//@@TYPE_SLUG@@/$type}"
         line="${line//@@TYPE_LABEL@@/$type_label_v}"
         line="${line//@@CODE_EXT@@/$code_ext_v}"
-        line="${line//@@SUMMARY_LABEL@@/$summary_label}"
         printf '%s\n' "$line"
         ;;
     esac
-  done < "$TEMPLATE"
+  done < "$SCRIPT_DIR/template-$type.html"
 }
 
 today_in_japan() {
