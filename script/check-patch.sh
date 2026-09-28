@@ -239,7 +239,7 @@ for sec in sections:
     def href_ok(value):
         return (value.startswith("/") and not value.startswith("//")) \
             or value.startswith(SITE + "/") or value == SITE \
-            or value == "https://github.com/kokimiza/namara/issues"
+            or value == "https://github.com/kokimiza/namaran/issues"
 
     class Guard(HTMLParser):
         def __init__(self):
