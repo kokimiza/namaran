@@ -1,69 +1,21 @@
-Haskell2010: 遅延評価の仕組みと注意点
-Haskell2010: 型クラスと多相性
-Haskell2010: Maybeを使った失敗の表現
-Rust2024: 所有権と借用の基本
-Rust2024: ライフタイムと参照の有効範囲
-Rust2024: Resultによるエラー処理
-C++26: RAIIによるリソース管理
-C++26: ムーブセマンティクスの仕組み
-C++26: コンセプトによるテンプレートの制約
+# Namaranのお題候補。1行に「ラベル: テーマ」。script/odai.sh が言語ごとに1つ抽選する。
+# ラベルは C23 / C++26 / Rust2024 / Haskell2010 か、4言語すべての候補になる Any。
+# #で始まる行と空行は無視される。
+#
+# 足すときの基準:
+# - READ・DEBUGを21行以内で書ける切り口があること(ponytail.md)。長いアルゴリズムは要の数行を切り出して問う
+# - script/verify.sh のツールチェーン(gcc-14 / g++-14 / 安定版rustc / GHC、標準ライブラリのみ)で確かめられること
+# - Anyの行と同じことを特定の言語の言葉で言い直しただけの行は足さない(Anyがその言語の候補も兼ねる)
+
+# ---- C23 ----
 C23: ポインタと配列の違い
 C23: オブジェクトの記憶域期間と寿命
 C23: 未定義動作が最適化に与える影響
-Any: 計算量と実行時間の違い
-Any: 並行処理と並列処理の違い
-Any: 値渡しと参照渡しの違い
-Any: 単体テストで何を検証するか
-Any: 条件分岐の基本とif・elseの役割
-Any: 条件分岐のネストを浅くする考え方
-Any: 複数の条件をAND・OR・NOTで組み合わせる
-Any: 短絡評価の仕組みと注意点
-Any: 比較演算子と等値判定の基本
-Any: switchによる分岐とパターンマッチングの違い
-Any: パターンマッチングで値の形に応じて処理を分ける
-Any: パターンマッチングの網羅性とは何か
-Any: forとwhileによる繰り返し処理の基本
-Any: ループの終了条件と無限ループ
-Any: breakとcontinueの役割
-Any: ループの境界で起きるオフバイワンエラー
-Any: インクリメントとデクリメントの基本
-Any: 前置インクリメントと後置インクリメントの違い
-Any: 代入と等値比較の違い
-Any: 変数の初期化と再代入の違い
-Any: 変数のスコープとシャドーイング
-Any: 可変な値と不変な値の使い分け
-Any: 整数の除算と余りを使う場面
-Any: 演算子の優先順位と括弧の役割
-Any: 関数の引数と戻り値の基本
-Any: 仮引数と実引数の違い
-Any: 関数を分けるタイミングと責務の考え方
-Any: returnによる関数の終了と早期リターン
-Any: 副作用のある関数と純粋関数の違い
-Any: 再帰の基本と基底ケースの役割
-Any: 再帰とループで同じ処理を書く
-Any: 再帰呼び出しとコールスタックの関係
-Any: 無名関数と高階関数の基本
-Any: クロージャが外側の変数を使う仕組み
-Haskell2010: 関数定義と関数適用の基本
-Haskell2010: if式でelseが必要になる理由
-Haskell2010: ガードで条件ごとの処理を書き分ける
-Haskell2010: リストのパターンマッチングと再帰
-Haskell2010: letとwhereによる局所的な定義
-Rust2024: letとmutによる変数の宣言
-Rust2024: if式の結果を変数に代入する
-Rust2024: matchによる分岐と網羅性
-Rust2024: forと範囲を使った繰り返し
-Rust2024: 関数の末尾の式とreturnの違い
-C++26: 関数の宣言と定義の違い
-C++26: 関数のオーバーロードの基本
-C++26: 範囲for文で要素を順に処理する
-C++26: ラムダ式とキャプチャの基本
-C++26: switch文のbreakとフォールスルー
 C23: 関数プロトタイプと引数の型
 C23: if文の条件でゼロと非ゼロが意味するもの
 C23: for文の初期化・条件・更新の役割
 C23: 前置と後置のインクリメントを単独で使う場合と式で使う場合
-C23: 再帰関数で階乗を計算するC23: a[i]とi[a]が同じ意味になる理由
+C23: a[i]とi[a]が同じ意味になる理由
 C23: 配列を関数に渡すとsizeofが変わる理由
 C23: sizeof('a')がCではintの大きさになる理由
 C23: sizeofの中の式は評価されない
@@ -80,7 +32,6 @@ C23: 符号付き整数と符号なし整数の比較で起きる変換
 C23: 符号なし整数の減算がラップアラウンドする場面
 C23: シフト量が型の幅以上になると未定義動作になる
 C23: INT_MIN / -1 と abs(INT_MIN) の落とし穴
-C23: 負の数の除算と剰余はゼロ方向に切り捨てられる
 C23: 2147483648という整数リテラルの型
 C23: ckd_addによるオーバーフロー検査付きの加算
 C23: _BitIntで幅を指定した整数を使う
@@ -116,10 +67,8 @@ C23: マクロ引数が二重に評価される罠
 C23: 複文マクロをdo { } while (0)で包む理由
 C23: #演算子と##演算子によるマクロでのトークン操作
 C23: _Genericによる型ごとの分岐
-C23: goto cleanupによるエラー時の後始末
 C23: setjmpとlongjmpでローカル変数の値が不定になる場面
 C23: qsortの比較関数でa - bと書く危険
-C23: 0.1 + 0.2 != 0.3 と浮動小数点の比較
 C23: NaNは自分自身とも等しくない
 C23: assertの中に副作用を書くとNDEBUGで消える
 C23: argv[argc]はNULLポインタである
@@ -130,6 +79,44 @@ C23: 評価順序が規定されない式と副作用
 C23: volatileが必要になる場面
 C23: 構造体の代入はメンバごとのコピーになる
 C23: 2次元配列とポインタのポインタの違い
+C23: realloc(p, 0)がC23で未定義動作になった
+C23: 符号付き整数が2の補数に決まっても、オーバーフローは未定義動作のまま
+C23: switchのcaseラベルの直後に宣言を書けるようになった
+C23: __VA_OPT__で可変長マクロの余分なカンマを消す
+C23: <stdbit.h>のstdc_count_onesとstdc_bit_width
+C23: printfの%bで2進数を出力する
+C23: thread_localと<threads.h>でスレッドごとの変数を持つ
+C23: VLAのsizeofは実行時に評価される
+C23: 可変長引数でfloatはdoubleに、charはintに昇格する
+C23: printfの書式指定子と引数の型の不一致(%dとsize_t)
+C23: charが符号付きか符号なしかは処理系定義
+C23: boolへの変換は0かどうかで決まる((bool)0.5はtrue)
+C23: 三項演算子の結果の型と通常の算術変換
+C23: カンマ演算子と関数呼び出しのカンマの違い
+C23: ifやforの直後の余分なセミコロン
+C23: ぶら下がりelseはどのifに付くか
+C23: 文字列を==で比較するとアドレスを比べてしまう
+C23: sizeof(ポインタ)でmallocの大きさを計算する誤り
+C23: 未初期化の自動変数を読む
+C23: ローカル変数へのポインタを返す
+C23: 解放後の使用と二重解放
+C23: ポインタ演算が有効なのは同じ配列の中と末尾の1つ先まで
+C23: 共用体による型の読み替えとmemcpy
+C23: 構造体をmemcmpで比較するとパディングで食い違う
+C23: 不完全型で実装を隠す不透明ポインタ
+C23: Cのinline関数とC++のinlineの違い(外部定義の要否)
+C23: マクロが呼び出し側の変数名を取り込む(衛生的でないマクロ)
+C23: errnoは呼び出し前に0にしておく
+C23: strtokが元の文字列を書き換え、内部に状態を持つ
+C23: snprintfの戻り値で切り詰めを検出する
+C23: atexitで登録した関数は登録と逆の順に呼ばれる
+C23: exitと_Exitと出力バッファの吐き出し
+C23: シグナルハンドラで書き換えてよいのはvolatile sig_atomic_tだけ
+
+# ---- C++26 ----
+C++26: 関数の宣言と定義の違い
+C++26: 範囲for文で要素を順に処理する
+C++26: switch文のbreakとフォールスルー
 C++26: 最も厄介な構文解析(most vexing parse)
 C++26: vector<int>(3, 5)とvector<int>{3, 5}の違い
 C++26: 波括弧初期化と縮小変換の禁止
@@ -158,12 +145,10 @@ C++26: string_viewが指す先の寿命
 C++26: map::operator[]は存在しないキーを挿入する
 C++26: unordered_mapの再ハッシュとイテレータの無効化
 C++26: std::erase_ifによる要素の削除
-C++26: std::sortの比較関数と狭義の弱順序
 C++26: 三方比較演算子<=>とdefaultの比較
 C++26: vector<bool>が普通のコンテナではない理由
 C++26: std::arrayと組み込み配列の違い
 C++26: size_tのループ変数でカウントダウンする罠
-C++26: std::optionalで値がないことを表す
 C++26: std::variantとstd::visitによる分岐
 C++26: std::expectedによるエラー処理
 C++26: constexpr、constinit、constの違い
@@ -173,7 +158,6 @@ C++26: テンプレートの完全特殊化と関数オーバーロード
 C++26: コンセプトとrequires節でオーバーロードを選ぶ
 C++26: クラステンプレートの実引数推論(CTAD)
 C++26: 構造化束縛と参照
-C++26: 範囲ライブラリのビューは遅延評価される
 C++26: filterビューのbeginが結果をキャッシュする
 C++26: std::ranges::toでビューをコンテナにする
 C++26: std::formatとstd::printによる書式付き出力
@@ -201,6 +185,59 @@ C++26: 例外安全性と強い保証
 C++26: std::lock_guardとstd::scoped_lock
 C++26: std::atomicとデータ競合
 C++26: std::jthreadと協調的な停止
+C++26: 後置++が古い値のコピーを作る理由(イテレータには前置++)
+C++26: 仮想関数のデフォルト引数は静的な型で決まる
+C++26: catchを値で受けると例外がスライスされる
+C++26: std::minが返す参照と一時オブジェクト
+C++26: std::accumulateの初期値の型で結果が切り捨てられる
+C++26: uint8_tをstd::coutに出力すると文字になる
+C++26: "abc" + 1と文字列リテラルのポインタ演算
+C++26: >>のあとのstd::getlineが空行を読む
+C++26: std::asyncが返すfutureのデストラクタは完了を待つ
+C++26: joinもdetachもしないstd::threadの破棄
+C++26: emplace_backとpush_backとexplicitコンストラクタ
+C++26: reserveとresizeの違い
+C++26: next_permutationは昇順から始めないと全部を列挙しない
+C++26: if constexprで捨てられる分岐はテンプレートの中だけ
+C++26: decltype(auto)で局所変数への参照を返してしまう
+C++26: 参照修飾されたメンバ関数(&と&&)
+C++26: CRTPで静的な多相を書く
+C++26: std::functionの型消去とラムダの型
+C++26: 空の基底クラスの最適化と[[no_unique_address]]
+C++26: 菱形継承と仮想基底クラス
+C++26: 仮想関数の共変戻り値型
+C++26: private仮想関数とNVIパターン
+C++26: コンストラクタで例外が出たときに呼ばれるデストラクタ
+C++26: 指示付き初期化子は宣言順に書く(Cとの違い)
+C++26: 丸括弧による集成体の初期化
+C++26: std::cmp_lessで符号の違う整数を安全に比較する
+C++26: std::bit_castとstd::popcount
+C++26: chronoのduration_castは切り捨てる
+C++26: views::zipとviews::enumerate
+C++26: views::chunkとviews::slide
+C++26: 右辺値の範囲を渡したranges::findがdanglingを返す
+C++26: 一時オブジェクトへの参照を返す関数がC++26で不適格になった
+C++26: 副作用のない無限ループがC++26で未定義動作でなくなった
+C++26: static_assertのメッセージに定数式の文字列を渡す(C++26)
+C++26: std::add_satによる飽和演算(C++26)
+C++26: consteval関数は必ずコンパイル時に評価される
+C++26: constexpr関数の中での一時的な動的確保
+C++26: ユーザー定義リテラル
+C++26: std::endlと'\n'と出力のフラッシュ
+C++26: ios::sync_with_stdio(false)とCの入出力の混在
+C++26: mutableメンバとconstメンバ関数
+C++26: 自己代入に弱い代入演算子とcopy-and-swap
+C++26: std::exchangeでムーブコンストラクタを書く
+C++26: std::setの比較関数と等価性
+C++26: 隠れたフレンドはADLでしか見つからない
+C++26: テンプレートの依存名とtypename、this->
+C++26: std::spanで配列とvectorを同じように受け取る
+
+# ---- Rust 2024 ----
+Rust2024: 所有権と借用の基本
+Rust2024: if式の結果を変数に代入する
+Rust2024: forと範囲を使った繰り返し
+Rust2024: 関数の末尾の式とreturnの違い
 Rust2024: Rust 2024でのif letの一時値の寿命
 Rust2024: Rust 2024でのブロック末尾の式の一時値の寿命
 Rust2024: Rust 2024でのimpl Traitのライフタイム捕捉規則
@@ -222,7 +259,6 @@ Rust2024: ライフタイム省略規則
 Rust2024: 'staticの2つの意味
 Rust2024: Derefによる型強制
 Rust2024: Stringを添字でアクセスできない理由
-Rust2024: len()はバイト数でchars().count()は文字数
 Rust2024: 文字列スライスが文字の境界でないとパニックする
 Rust2024: &strとStringの使い分け
 Rust2024: デバッグビルドとリリースビルドの整数オーバーフロー
@@ -245,16 +281,13 @@ Rust2024: collectの型推論とターボフィッシュ
 Rust2024: Result<Vec<T>, E>へのcollect
 Rust2024: iter、iter_mut、into_iterの違い
 Rust2024: binary_searchが返すErrの意味
-Rust2024: sortとsort_unstableの違い
 Rust2024: HashMapのentry APIでカウントする
 Rust2024: std::mem::take、replace、swap
 Rust2024: Option::takeで値を取り出す
 Rust2024: Dropを実装した型からフィールドをムーブできない
 Rust2024: Rc<RefCell<T>>と実行時の借用チェックによるパニック
 Rust2024: CellとRefCellの違い
-Rust2024: Box<dyn Trait>と動的ディスパッチ
 Rust2024: dyn互換性(オブジェクト安全性)
-Rust2024: ジェネリクスとトレイト境界による静的ディスパッチ
 Rust2024: 関連型とジェネリクス引数の違い
 Rust2024: 孤児ルールとnewtypeパターン
 Rust2024: Defaultトレイトと構造体更新記法..Default::default()
@@ -268,6 +301,55 @@ Rust2024: スレッド間で共有するためのArc<Mutex<T>>
 Rust2024: SendとSync
 Rust2024: std::thread::scopeで借用をスレッドに渡す
 Rust2024: PhantomDataで型に意味を持たせる
+Rust2024: ++演算子がない理由と+= 1
+Rust2024: Rust 2024でのif letのチェーン(let chains)
+Rust2024: Rust 2024でのパターンの既定束縛モードの制限
+Rust2024: Rust 2024でstatic mutへの参照が禁止された
+Rust2024: Rust 2024でBox<[T]>のinto_iterが要素を値で返すようになった
+Rust2024: Rust 2024でマクロのexprフラグメントがconstブロックと_にもマッチする
+Rust2024: Rust 2024のunsafe属性#[unsafe(no_mangle)]
+Rust2024: use<..>による精密な捕捉(precise capturing)
+Rust2024: トレイトのアップキャスト(&dyn Subから&dyn Superへ)
+Rust2024: split_at_mutとget_disjoint_mutで複数の可変借用を取る
+Rust2024: asyncブロックはpollされるまで実行されない
+Rust2024: matchの対象式の一時値がMutexのガードを握り続ける
+Rust2024: mpscのチャネルは送信側をすべてdropするまで終わらない
+Rust2024: take_whileが条件を満たさなかった要素まで消費する
+Rust2024: max_by_keyは最後の、min_by_keyは最初の要素を返す
+Rust2024: rev().enumerate()とenumerate().rev()の違い
+Rust2024: イテレータアダプタは遅延され、mapだけでは何も起きない
+Rust2024: read_lineはバッファを空にせず追記する
+Rust2024: s1 + &s2で左辺がムーブされる
+Rust2024: 定数パターンのつもりが変数束縛になるmatch
+Rust2024: スライスパターン[first, .., last]とrest @ ..
+Rust2024: ラベル付きbreakとloopが返す値
+Rust2024: BinaryHeapは最大ヒープで、Reverseで最小ヒープにする
+Rust2024: vec![Rc::new(x); n]は同じRcをn個複製する
+Rust2024: 空のVecでlen() - 1がアンダーフローする
+Rust2024: std::process::exitはデストラクタを走らせない
+Rust2024: クロージャはそれぞれ固有の型を持つ
+Rust2024: 暗黙のSized境界と?Sized
+Rust2024: ライフタイムの変性と&mut Tが不変である理由
+Rust2024: 高階トレイト境界for<'a>
+Rust2024: const genericsで配列の長さを型に持たせる
+Rust2024: macro_rules!の繰り返しと衛生性
+Rust2024: Display実装で{:>5}の幅指定が効かない理由(f.pad)
+Rust2024: FromIteratorとExtendを自作の型に実装する
+Rust2024: IntoIteratorを&MyTypeに実装してforで回す
+Rust2024: BorrowトレイトとHashMap<String, V>を&strで引く仕組み
+Rust2024: Cowで必要なときだけ複製する
+Rust2024: 部分的にムーブした構造体の使用
+Rust2024: Option::as_refとas_derefでムーブを避ける
+Rust2024: ゼロサイズ型
+Rust2024: #[expect]で意図した警告を明示する
+Rust2024: i32::MIN.abs()のパニックとunsigned_abs
+
+# ---- Haskell 2010 ----
+Haskell2010: 関数定義と関数適用の基本
+Haskell2010: if式でelseが必要になる理由
+Haskell2010: ガードで条件ごとの処理を書き分ける
+Haskell2010: リストのパターンマッチングと再帰
+Haskell2010: letとwhereによる局所的な定義
 Haskell2010: foldlとfoldrの違いと無限リスト
 Haskell2010: foldlがスペースリークを起こす理由
 Haskell2010: seqが評価するのは弱頭部正規形まで
@@ -282,7 +364,6 @@ Haskell2010: zipWithで数列を組み立てる
 Haskell2010: iterateとtakeWhileによる反復
 Haskell2010: リスト内包表記と複数のジェネレータ
 Haskell2010: 演算子セクションと(-1)がセクションにならない理由
-Haskell2010: subtractと負のリテラル
 Haskell2010: 中置記法のバッククォートと結合性宣言
 Haskell2010: 関数合成(.)とポイントフリースタイル
 Haskell2010: カリー化と部分適用
@@ -312,27 +393,85 @@ Haskell2010: mapMとsequenceとmapM_
 Haskell2010: IOアクションは値であり、実行とは別である
 Haskell2010: returnは関数から抜けない
 Haskell2010: headやfromJustのような部分関数の危険
-Haskell2010: caseとパターンの網羅性
 Haskell2010: パターンは上から順に照合される
 Haskell2010: 文字列はCharのリストである
 Haskell2010: ++の計算量と左結合で連結する罠
 Haskell2010: 末尾再帰と遅延評価のアキュムレータ
 Haskell2010: 共有とメモ化(let束縛は1回だけ評価される)
-Haskell2010: whereで定義した値の再計算を避ける
 Haskell2010: Data.Listのgroup、sortBy、nubの計算量
 Haskell2010: Data.Maybeのmaybe、fromMaybe、catMaybes
 Haskell2010: zip、unzip、lookupによる連想リスト
-Haskell2010: 型注釈がないと曖昧になる式
 Haskell2010: 高階関数と型シグネチャを読む
 Haskell2010: 型変数と多相関数でできることの制限
 Haskell2010: Ordering型とcompare、comparing
-Haskell2010: Enumと範囲[x, y .. z]の意外な挙動
+Haskell2010: [10 .. 1]が空リストになる理由と減る範囲の書き方
 Haskell2010: 浮動小数点の範囲[0.1, 0.2 .. 1.0]が1.0を超える
 Haskell2010: Data.Arrayによる配列と遅延評価を使った動的計画法
 Haskell2010: Data.Bitsによるビット演算
 Haskell2010: interactで入出力をリスト処理として書く
 Haskell2010: System.IO.hSetBufferingとバッファリング
 Haskell2010: errorと例外とExitFailure
+Haskell2010: パターンガード(Haskell 2010で標準入り)
+Haskell2010: n+kパターンがHaskell 2010で削除された
+Haskell2010: -->や--|が行コメントにならない字句規則
+Haskell2010: FFIでCの関数を呼ぶ(foreign import ccall)
+Haskell2010: 報告書のPreludeとGHCのbaseの違い(Foldable)
+Haskell2010: GHCのbaseでlength (1, 2)が1になる理由
+Haskell2010: ^と^^と**の違い
+Haskell2010: showが文字列の非ASCII文字をエスケープする
+Haskell2010: linesとunlinesは往復しない
+Haskell2010: showsPrecで優先順位に応じた括弧を付ける
+Haskell2010: 正格フィールド!と遅延フィールド
+Haskell2010: Data.MapのinsertWithで溜まるサンク
+Haskell2010: modifyIORefのスペースリークとmodifyIORef'
+Haskell2010: 純粋なコードのerrorがcatchをすり抜ける理由とevaluate
+Haskell2010: SemigroupとMonoidで畳み込む(Sum、Product)
+Haskell2010: Applicativeスタイル(<$>と<*>)
+Haskell2010: Functor則を満たさないインスタンス
+Haskell2010: fixで名前を使わずに再帰する
+Haskell2010: unfoldrで種から列を育てる
+Haskell2010: sortOnとsortBy (comparing f)の違い
+Haskell2010: transposeが長さの違うリストをどう扱うか
+Haskell2010: replicateMで直積を列挙する
+Haskell2010: foldMでモナドの中で畳み込む
+Haskell2010: BoundedとEnumを導出して全要素を列挙する
+Haskell2010: 型クラスのスーパークラス制約
+Haskell2010: concatMapとリスト内包表記とdo記法の対応
+Haskell2010: caseはWHNFまで評価し、letは評価しない
+Haskell2010: 結び目を作る(tying the knot)
+Haskell2010: Rationalと%で分数を正確に扱う
+Haskell2010: 遅延IOでファイルを閉じると中身が読めない
+
+# ---- Any(4言語すべての候補になる) ----
+Any: 計算量と実行時間の違い
+Any: 並行処理と並列処理の違い
+Any: 値渡しと参照渡しの違い
+Any: 単体テストで何を検証するか
+Any: 条件分岐の基本とif・elseの役割
+Any: 複数の条件をAND・OR・NOTで組み合わせる
+Any: 短絡評価の仕組みと注意点
+Any: 比較演算子と等値判定の基本
+Any: switchによる分岐とパターンマッチングの違い
+Any: パターンマッチングで値の形に応じて処理を分ける
+Any: パターンマッチングの網羅性とは何か
+Any: forとwhileによる繰り返し処理の基本
+Any: ループの終了条件と無限ループ
+Any: breakとcontinueの役割
+Any: ループの境界で起きるオフバイワンエラー
+Any: 代入と等値比較の違い
+Any: 変数の初期化と再代入の違い
+Any: 変数のスコープとシャドーイング
+Any: 可変な値と不変な値の使い分け
+Any: 整数の除算と余りを使う場面
+Any: 演算子の優先順位と括弧の役割
+Any: 関数の引数と戻り値の基本
+Any: 関数を分けるタイミングと責務の考え方
+Any: 副作用のある関数と純粋関数の違い
+Any: 再帰の基本と基底ケースの役割
+Any: 再帰とループで同じ処理を書く
+Any: 再帰呼び出しとコールスタックの関係
+Any: 無名関数と高階関数の基本
+Any: クロージャが外側の変数を使う仕組み
 Any: 整数のオーバーフローを各言語はどう扱うか
 Any: 値がないことの表し方(NULL、nullptr、Option、Maybe)
 Any: エラーを返すか、例外を投げるか、型で表すか
@@ -342,7 +481,6 @@ Any: 浮動小数点数の等値比較
 Any: 安定ソートと不安定ソート
 Any: 同値(値が等しい)と同一(同じオブジェクト)の違い
 Any: 関数の引数の評価順序
-Any: 一時オブジェクトの寿命
 Any: 静的ディスパッチと動的ディスパッチ
 Any: 型推論が決める型を読む
 Any: ジェネリクスとテンプレートと型クラス
@@ -563,3 +701,94 @@ Any: ベクトル時計で分散したイベントの因果関係を表す
 Any: CRDTで並行して行われた更新を統合する
 Any: 差分同期で変更された部分だけを転送する
 Any: Merkle木で大きなデータの差分と整合性を確認する
+Any: De Morganの法則で条件を書き換える
+Any: 空のコレクションに対するallとany(空虚な真)
+Any: 隣り合う重複だけを取り除く(unique、dedup、group)
+Any: 既定値の式はいつ評価されるか(unwrap_or、value_or、fromMaybe)
+Any: 0.5の丸め方(四捨五入と偶数への丸め)
+Any: -0.0と+0.0
+Any: 倍精度浮動小数点数で正確に表せる整数は2^53まで
+Any: 負の数の右シフト(算術シフトと論理シフト)
+Any: x & (x - 1)で最下位の1ビットを消す
+Any: XORで値を交換すると同じ場所では0になる
+Any: 先頭が0の整数リテラルと8進数(010と0o10)
+Any: トークンの最長一致(x+++y、>>、-->)
+Any: 演算子の結合性(右結合の代入と累乗)
+Any: 文字列の分割で空の要素をどう扱うか
+Any: 1行読み込んだ文字列に改行が残るか
+Any: 1文字を表す型の大きさと意味
+Any: 真偽値と整数の相互変換
+Any: 配列の長さを誰が覚えているか(ポインタと長さ、スライス、リスト)
+Any: 浅いコピーと深いコピー
+Any: スレッド安全な一度きりの初期化
+Any: 再入可能でない関数と隠れた静的状態
+Any: 等値とハッシュ値(または順序)の一貫性
+Any: マップに入れたあとでキーを書き換える
+Any: 型消去で異なる型を同じ入れ物に入れる
+Any: 単位の違う数を型で区別する
+Any: 名前付き引数がない言語で引数の取り違えを防ぐ
+Any: 複数の値を返す方法(構造体、タプル、出力引数)
+Any: 書式指定で幅・精度・0埋めをそろえる
+Any: ハッシュ表の反復順序に依存するバグ
+Any: 事前条件・事後条件・不変条件を表明する
+Any: 名前空間とモジュールで名前の衝突を避ける
+Any: 演算子オーバーロードで守るべき性質(==の対称性)
+Any: 状態を持つイテレータを手で書く
+Any: 型の要素数を数える(直積は積、直和は和)
+Any: Monoidの結合則で畳み込みを分割する
+Any: 正格評価と非正格評価で結果が変わる式
+Any: 参照透過性と等式推論でプログラムを書き換える
+Any: 減っていく量でループの停止を確かめる(ループ変量)
+Any: 全域関数にするために戻り値の型を広げる
+Any: 閏年の判定(100年と400年の例外)
+Any: Unix時間と2038年問題
+Any: Welford法で分散を安定して計算する
+Any: XORによる暗号化で鍵を使い回す危険
+Any: Luhnアルゴリズムで番号の入力誤りを検出する
+Any: 多倍長整数の足し算を筆算で書く
+Any: 左再帰の文法が再帰下降構文解析で無限ループになる理由
+Any: 再帰で書く小さな正規表現マッチャ(^ $ . *だけ)
+Any: コピーGCで生きているオブジェクトを詰め直す
+Any: lower_boundとupper_boundで等しい値の範囲を求める
+Any: 答えを決め打ちして二分探索する
+Any: 三分探索で単峰関数の極値を探す
+Any: 半分全列挙で探索空間を平方根にする
+Any: ダブリングでK回先の状態を求める
+Any: 最小共通祖先をダブリングで求める
+Any: 最長増加部分列をO(n log n)で求める
+Any: 区間DPで区間を分割する最適な方法を求める
+Any: 桁DPで上限以下の条件を満たす数を数える
+Any: 包除原理で重なりを数える
+Any: 素数を法とする逆元で組み合わせの数を計算する
+Any: 拡張ユークリッドの互除法で一次不定方程式を解く
+Any: 中国剰余定理で連立合同式を解く
+Any: 行列累乗で線形漸化式の第n項を求める
+Any: Miller-Rabin法で大きな数の素数判定をする
+Any: 約数を平方根までの走査で列挙する
+Any: 最小素因数の表で多数の数を素因数分解する
+Any: スパーステーブルで区間最小値を定数時間で答える
+Any: 平方分割で区間の問い合わせを処理する
+Any: ローリングハッシュで部分文字列を比較する
+Any: Z-algorithmで接頭辞との一致長を求める
+Any: Warshall-Floyd法の3重ループの順序
+Any: 01-BFSで重みが0と1の最短経路を求める
+Any: 木の直径を2回の探索で求める
+Any: オイラーツアーで部分木を区間として扱う
+Any: 最大流を増加路で求める
+Any: 2次元累積和で長方形の合計を求める
+Any: ビット全探索で部分集合をすべて試す
+Any: 部分集合の部分集合を(s - 1) & maskで列挙する
+Any: 辞書順で次の順列を求める
+Any: Grundy数で石取りゲームの勝敗を判定する
+Any: 外積で3点の向きを判定する
+Any: 靴紐公式で多角形の面積を求める
+Any: 凸包をAndrewのアルゴリズムで求める
+Any: Floydの循環検出(ウサギとカメ)
+Any: Boyer-Mooreの多数決アルゴリズム
+Any: Kadane法で最大部分配列和を求める
+Any: Lomuto分割とHoare分割の違い
+Any: 挿入ソートがほぼ整列済みの入力で速い理由
+Any: 基数ソートで桁ごとに安定に並べる
+Any: 競技プログラミングの高速な入出力と出力のまとめ書き
+Any: スキップリストで確率的に平衡させる
+Any: 二分探索木の回転で高さを保つ(AVL木)
