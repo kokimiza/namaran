@@ -51,7 +51,8 @@
 # <code> contents are HTML-escaped (the highlighter's <span>s aside), every
 # non-comment line of every <pre class="code"> block appears (ignoring
 # indentation) in one of that combo's ok/ng/bug files — so the code readers
-# see is the code that was checked — and the listings are highlighted exactly
+# see is the code that was checked — READ/DEBUG question code (outside
+# <details>) is at most 21 lines — and the listings are highlighted exactly
 # as script/highlight.sh would write them.
 #
 # Toolchains (override the command names with environment variables):
@@ -393,6 +394,18 @@ for block in re.findall(r'<pre class="code"><code>(.*?)</code></pre>', s, re.S):
         t = line.strip()
         if t and not comment.match(t) and t not in verified:
             problems.append(f"published code line is in no ok/ng/bug file: {t!r}")
+
+# READ/DEBUG code is read in full before answering, so it must stay small
+# (doc/requirements.md §12). Over the limit is a badly chosen problem: pick
+# another angle, don't squeeze lines. <details> (the answer) doesn't count.
+MAX_LINES = 21
+if typ in ("read", "debug"):
+    question = re.sub(r"<details.*?</details>", "", s, flags=re.S)
+    n = sum(len(b.strip("\n").splitlines())
+            for b in re.findall(r'<pre class="code"><code>(.*?)</code></pre>', question, re.S))
+    if n > MAX_LINES:
+        problems.append(f"question code is {n} lines; {typ.upper()} must fit in {MAX_LINES}"
+                        " (a problem-design error: choose a smaller angle, see ponytail.md)")
 
 print("\n".join(problems))
 sys.exit(1 if problems else 0)
