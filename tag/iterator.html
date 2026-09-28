@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「イテレータ」を扱ったNamaranのコーディングドリル15問。SAT、全探索、impl Trait、戻り値のimpl Iterator、ライフタイムのキャプチャ、Rust 2024。">
+<meta name="description" content="「イテレータ」を扱ったNamaranのコーディングドリル16問。部分集合の列挙、サブマスク、(sub - 1) &amp; mask、successors、then と then_some、submask enumeration。">
 <title>イテレータ</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/iterator">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>イテレータ</h2>
 
   <p class="lede">
-    「イテレータ」を扱った15問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「イテレータ」を扱った16問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/write/2026-09-29">Rust / WRITE · 2026-09-29</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">部分集合を大きい順に</span> <span class="past-concepts">部分集合の列挙, サブマスク, (sub - 1) &amp; mask, successors, then と then_some, submask enumeration, subset enumeration, bitmask</span></li>
     <li><a href="/rust/write/2026-09-28">Rust / WRITE · 2026-09-28</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">充足割当を返すイテレータ</span> <span class="past-concepts">SAT, 全探索, impl Trait, 戻り値のimpl Iterator, ライフタイムのキャプチャ, Rust 2024, return position impl trait, lifetime capture, lazy iterator</span></li>
     <li><a href="/rust/read/2026-09-28">Rust / READ · 2026-09-28</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">最初に見つかる充足割当</span> <span class="past-concepts">SAT, 充足可能性, CNF, 全探索, ビットマスク, 2進数の書式, brute-force SAT, bitmask assignment, binary format</span></li>
     <li><a href="/rust/debug/2026-09-28">Rust / DEBUG · 2026-09-28</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">解の個数を数えるSAT</span> <span class="past-concepts">SAT, CNF, 充足する割り当ての数, any と all, モデル数え上げ, model counting, conjunctive normal form, Iterator::any</span></li>

@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="cap &amp; (cap - 1) == 0 で容量が2のべき乗かを調べる関数が、0 を渡すとデバッグビルドで panic し、リリースビルドでは true を返すバグを直す。2026-09-29のRust DEBUG。">
+<title>容量の2のべき判定</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-09-29">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-29" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-09-29",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-09-29",
+      "datePublished": "2026-09-29",
+      "dateModified": "2026-09-29",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "容量の2のべき判定" },
+      "keywords": "bit-operation, integer-overflow, panic",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "cap & (cap - 1) == 0 で容量が2のべき乗かを調べる関数が、0 を渡すとデバッグビルドで panic し、リリースビルドでは true を返すバグを直す。2026-09-29のRust DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-29">C23</a>
+  <a href="/cpp/debug/2026-09-29">C++26</a>
+  <a href="/rust/debug/2026-09-29" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-29">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-09-29">READ</a>
+  <a href="/rust/write/2026-09-29">WRITE</a>
+  <a href="/rust/debug/2026-09-29" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="容量の2のべき判定"
+  data-tags="bit-operation integer-overflow panic"
+  data-concepts="2のべき乗判定, x &amp; (x - 1), 減算のオーバーフロー, リングバッファの容量, power of two check, integer overflow panic, is_power_of_two"
+  data-level="hedgehog"
+>
+  <h2>2026-09-29</h2>
+  <div class="code-frame">
+    <p class="code-filename">capacity.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">valid_capacity</span>(cap: <span class="ty">usize</span>) -&gt; <span class="ty">bool</span> {
+    cap &amp; (cap - <span class="nu">1</span>) == <span class="nu">0</span>
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">for</span> cap <span class="kw">in</span> [<span class="nu">16</span>, <span class="nu">12</span>, <span class="nu">0</span>] {
+        <span class="mc">println!</span>(<span class="st">"{cap}: {}"</span>, <span class="fn">valid_capacity</span>(cap));
+    }
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>valid_capacity</code> は、リングバッファの容量が2のべき乗かどうかを調べるつもりの関数で、容量 <code>0</code> は不正な値として <code>false</code> を返すべきです。実行すると、本来は <code>16: true</code>、<code>12: false</code>、<code>0: false</code> の3行を出力するはずですが、いまはデバッグビルドで <code>16: true</code>、<code>12: false</code> を出力したあと、<code>attempt to subtract with overflow</code> で panic します。リリースビルドでは panic せずに、3行目に <code>0: true</code> を出力します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code>cap &amp; (cap - <span class="nu">1</span>) == <span class="nu">0</span>
+</code></pre>
+      <p>
+        <code>cap &amp; (cap - 1)</code> は <code>cap</code> の最下位の1ビットを消す式で、結果が <code>0</code> かどうかは「1のビットが1個以下か」を調べています。<code>0</code> は1のビットが1個もないので、この判定だけでは弾けません。
+      </p>
+      <p>
+        そのうえ <code>cap</code> が <code>0</code> のとき、<code>cap - 1</code> は <code>usize</code> の範囲を下回ります。Rust の整数演算はデバッグビルドではあふれを検査して panic し、リリースビルドでは既定で回り込みます。回り込んだ <code>usize::MAX</code> はすべてのビットが1なので、<code>0 &amp; usize::MAX</code> は <code>0</code> になり、<code>0</code> が2のべき乗と判定されます<sup class="fn-ref">1</sup>。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code>cap != <span class="nu">0</span> &amp;&amp; cap &amp; (cap - <span class="nu">1</span>) == <span class="nu">0</span>
+</code></pre>
+      <p>
+        <code>&amp;&amp;</code> は左辺が偽なら右辺を評価しないので、<code>cap</code> が <code>0</code> のときは引き算そのものが行われません。<code>0</code> を除いたうえで1のビットが1個以下の数は、1のビットがちょうど1個の数、つまり2のべき乗だけです。標準ライブラリの <code>usize::is_power_of_two</code> を使っても、<code>0</code> の扱いを含めて同じ判定になります。
+      </p>
+      <ol class="footnotes">
+        <li>Rust の <code>&amp;</code> は <code>==</code> より強く結びつくので、<code>cap &amp; (cap - 1) == 0</code> は意図どおり <code>(cap &amp; (cap - 1)) == 0</code> と読まれます。C で同じ式を書くと <code>cap &amp; ((cap - 1) == 0)</code> になります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

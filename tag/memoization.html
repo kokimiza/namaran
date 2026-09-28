@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「メモ化」を扱ったNamaranのコーディングドリル8問。ビットDP、訪問済み集合を状態に持つDP、bitmask dynamic programming、Hamiltonian path、tie the knot、自己参照する配列の無限ループ。">
+<meta name="description" content="「メモ化」を扱ったNamaranのコーディングドリル9問。TOCTOU、古い値での上書き、更新の消失、メモ化、IORef、再入。">
 <title>メモ化</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/memoization">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>メモ化</h2>
 
   <p class="lede">
-    「メモ化」を扱った8問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「メモ化」を扱った9問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/haskell/debug/2026-09-29">Haskell / DEBUG · 2026-09-29</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">読んだ表で上書き</span> <span class="past-concepts">TOCTOU, 古い値での上書き, 更新の消失, メモ化, IORef, 再入, lost update, stale snapshot, memoization cache</span></li>
     <li><a href="/haskell/read/2026-09-24">Haskell / READ · 2026-09-24</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">ビットDPの最短路</span> <span class="past-concepts">ビットDP, 訪問済み集合を状態に持つDP, bitmask dynamic programming, Hamiltonian path, tie the knot</span></li>
     <li><a href="/haskell/debug/2026-09-24">Haskell / DEBUG · 2026-09-24</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">止まらない自己参照</span> <span class="past-concepts">自己参照する配列の無限ループ, ビットDPの状態遷移忘れ, tie the knot, infinite loop, NonTermination</span></li>
     <li><a href="/c/write/2026-08-25">C / WRITE · 2026-08-25</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">計算済みフラグ</span> <span class="past-concepts">メモ化, 計算済み判定, キャッシュ, memoization</span></li>

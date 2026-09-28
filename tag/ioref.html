@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「IORef」を扱ったNamaranのコーディングドリル10問。例外安全、ロールバック、onException、IORef、途中状態の復元、rollback。">
+<meta name="description" content="「IORef」を扱ったNamaranのコーディングドリル13問。TOCTOU、atomicModifyIORef'、不可分な更新、在庫の取り置き、check and update、atomic update。">
 <title>IORef</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/ioref">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>IORef</h2>
 
   <p class="lede">
-    「IORef」を扱った10問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「IORef」を扱った13問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/haskell/write/2026-09-29">Haskell / WRITE · 2026-09-29</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">確認と更新を一度に</span> <span class="past-concepts">TOCTOU, atomicModifyIORef', 不可分な更新, 在庫の取り置き, check and update, atomic update, race condition</span></li>
+    <li><a href="/haskell/read/2026-09-29">Haskell / READ · 2026-09-29</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">確認と実行の間</span> <span class="past-concepts">TOCTOU, 確認と使用の間の競合, IOアクションは値, IORef, when, check then act, time of check to time of use</span></li>
+    <li><a href="/haskell/debug/2026-09-29">Haskell / DEBUG · 2026-09-29</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">読んだ表で上書き</span> <span class="past-concepts">TOCTOU, 古い値での上書き, 更新の消失, メモ化, IORef, 再入, lost update, stale snapshot, memoization cache</span></li>
     <li><a href="/haskell/write/2026-09-17">Haskell / WRITE · 2026-09-17</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">失敗したら書き戻す</span> <span class="past-concepts">例外安全, ロールバック, onException, IORef, 途中状態の復元, rollback, exception safety</span></li>
     <li><a href="/haskell/read/2026-09-17">Haskell / READ · 2026-09-17</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">例外のあとのIORef</span> <span class="past-concepts">例外, 途中状態, 巻き戻されない副作用, try, IORef, partial state, exception safety</span></li>
     <li><a href="/haskell/debug/2026-09-17">Haskell / DEBUG · 2026-09-17</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">捕まらないreadの失敗</span> <span class="past-concepts">遅延評価, modifyIORef', サンク, try の外で起きる例外, lazy IORef, thunk, exception</span></li>

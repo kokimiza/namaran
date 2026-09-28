@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「競合状態」を扱ったNamaranのコーディングドリル3問。TOCTOU、atomicModifyIORef'、不可分な更新、在庫の取り置き、check and update、atomic update。">
-<title>競合状態</title>
-<link rel="canonical" href="https://namaran.jocarium.productions/tag/race-condition">
+<meta name="description" content="「アトミック操作」を扱ったNamaranのコーディングドリル1問。TOCTOU、atomicModifyIORef'、不可分な更新、在庫の取り置き、check and update、atomic update。">
+<title>アトミック操作</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/tag/atomic">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
 {
@@ -15,7 +15,7 @@
   "itemListElement": [
     { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
     { "@type": "ListItem", "position": 2, "name": "お題から探す", "item": "https://namaran.jocarium.productions/topics" },
-    { "@type": "ListItem", "position": 3, "name": "競合状態" }
+    { "@type": "ListItem", "position": 3, "name": "アトミック操作" }
   ]
 }
 </script>
@@ -29,16 +29,14 @@
 </header>
 
 <main>
-  <h2>競合状態</h2>
+  <h2>アトミック操作</h2>
 
   <p class="lede">
-    「競合状態」を扱った3問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「アトミック操作」を扱った1問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
     <li><a href="/haskell/write/2026-09-29">Haskell / WRITE · 2026-09-29</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">確認と更新を一度に</span> <span class="past-concepts">TOCTOU, atomicModifyIORef', 不可分な更新, 在庫の取り置き, check and update, atomic update, race condition</span></li>
-    <li><a href="/rust/write/2026-09-26">Rust / WRITE · 2026-09-26</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">確認せずに作る</span> <span class="past-concepts">ロックファイル, create_new, O_EXCL, 存在確認と作成の競合, lock file, atomic file creation, TOCTOU</span></li>
-    <li><a href="/rust/debug/2026-09-26">Rust / DEBUG · 2026-09-26</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">確認と引き出しの間</span> <span class="past-concepts">残高の二重引き出し, Mutexのロック範囲, check-then-act, 競合状態, race condition, TOCTOU</span></li>
   </ul>
 
   <p><a href="/topics">ほかのお題を見る</a></p>
