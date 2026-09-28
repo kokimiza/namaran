@@ -37,6 +37,9 @@
   --rule: #e3dac9;
   --accent: #c2611a;
   --accent-strong: #9a4a12;
+  /* DEBUG answers: the Wrong and Right stamps. Both >= 6:1 on --bg. */
+  --wrong: #a2302a;
+  --right: #2e6b3a;
 
   /* the slab: cool dark — code frames and the footer */
   --slab: #141a23;
@@ -603,6 +606,64 @@ pre.code .mc { color: var(--syn-pp); }
   text-wrap: pretty;
 }
 
+/* ---------- WRITE examples ----------
+   Each example is one row: input on the left, its output on the right, so
+   pair n reads across and never has to be matched by eye. They are data, so
+   mono on the paper panel — not the slab, which means "code to compile". The
+   examples take over the question's section step; the question keeps a block
+   step above them. */
+
+.question:has(+ .examples) {
+  margin-bottom: var(--s-block);
+}
+
+.examples {
+  display: grid;
+  gap: var(--s-sibling);
+  margin: 0 0 var(--s-section);
+}
+
+.example {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto 1fr;
+  grid-auto-flow: column;
+  column-gap: var(--s-sibling);
+}
+
+.example-label {
+  margin: 0 0 var(--s-unit);
+  font-family: var(--font-ui);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--ink-muted);
+}
+
+pre.io {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background: var(--panel);
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+
+/* Too narrow for two columns: input above its output, then the next pair. */
+@media (max-width: 39.99rem) {
+  .example {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    grid-auto-flow: row;
+  }
+
+  pre.io + .example-label {
+    margin-top: var(--s-sibling);
+  }
+}
+
 /* ---------- answer ---------- */
 
 /* One rule, not two: the summary draws its own hairline, so the details box
@@ -660,14 +721,34 @@ details.answer summary::after {
   margin-top: var(--s-sibling);
 }
 
+/* A DEBUG answer's two stamps, Wrong and Right, each over the listing it
+   names. Styled like the ANSWER label, in red and green. Right opens a new
+   block; Wrong is the first thing in the answer and needs no gap. */
+.answer-body h3 {
+  margin: var(--s-block) 0 0;
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.answer-body > h3:first-child {
+  margin-top: 0;
+}
+
+.answer-body h3.wrong { color: var(--wrong); }
+.answer-body h3.right { color: var(--right); }
+
 /* The rule on the left ends with the answer, not a margin after it. */
 .answer-body > :last-child {
   margin-bottom: 0;
 }
 
-/* Only inline code, in the question as well as the answer: a WRITE question
-   carries its examples as `input -> output` pairs. A listing's <code> sits
-   inside <pre> and must stay on the slab, where the chip is unreadable. */
+/* Only inline code, in the question as well as the answer: WRITE questions
+   before .examples carried theirs as `input -> output` pairs. A listing's
+   <code> sits inside <pre> and must stay on the slab, where the chip is
+   unreadable. */
 .question code,
 .answer-body :not(pre) > code {
   font-family: var(--font-mono);
