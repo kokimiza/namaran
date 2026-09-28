@@ -124,6 +124,8 @@ jobs:
           難易度は script/level.sh が組ごとに抽選済み(SKILL.md「難易度」)。各ページはこの難易度で書き、<main> の data-level にこの値を入れる。偏っていても、過去の傾向に合わせて変えない:
           $(printf '%s\n' "$level_lines" | awk -F'\t' 'NF == 2 { printf "- %s: %s\n", $1, $2 }')
 
+          コードは .claude/skills/namara-daily/ponytail.md の規律で短く書く。書き始める前にこのファイルを最後まで読む。READ・DEBUG のコードは21行以内で、超えたら作問ミスとして切り口から作り直す(行を詰めて収めない)。
+
           日本語の文章は .claude/skills/namara-daily/humanizer-ja-tech.md で必ず推敲する:
           - 書き始める前にこのファイルを最後まで読む。
           - 各ページの問題文、解説、meta description を書いたら、このファイルの §7 の手順で推敲する。全ページに適用し、省略しない。
