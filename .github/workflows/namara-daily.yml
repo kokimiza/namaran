@@ -64,6 +64,7 @@ jobs:
       combos: ${{ steps.plan.outputs.combos }}
       levels: ${{ steps.plan.outputs.levels }}
       topics: ${{ steps.plan.outputs.topics }}
+      drop: ${{ steps.pack.outputs.drop }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -242,6 +243,7 @@ jobs:
       # job's environment may have been altered by what ran before — it only
       # has to be convenient when the run went well.
       - name: Package the patch and verification sources
+        id: pack
         if: steps.plan.outputs.combos != ''
         env:
           DATE: ${{ steps.plan.outputs.date }}
@@ -276,15 +278,13 @@ jobs:
           [ -s "$drop/drills.patch" ] || { echo "::error::Claude Code produced no pages"; exit 1; }
           cp -R "$VERIFY_DIR" "$drop/verify"
           git diff HEAD --stat -- "${allowed[@]}"
-
-      - name: Upload the patch and verification sources
-        if: steps.plan.outputs.combos != ''
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: namara-drop
-          path: ${{ runner.temp }}/namara-drop
-          if-no-files-found: error
-          retention-days: 3
+          # Handed on as a job output (base64 tar.gz) instead of an artifact,
+          # so the run page lists no artifact. ponytail: an env var holds at
+          # most ~128 KB on Linux; if drops outgrow that, go back to
+          # actions/upload-artifact.
+          drop_b64="$(tar -czf - -C "$drop" . | base64 -w0)"
+          [ "${#drop_b64}" -le 100000 ] || { echo "::error::drop too large for a job output (${#drop_b64} chars)"; exit 1; }
+          echo "drop=$drop_b64" >> "$GITHUB_OUTPUT"
 
   verify:
     needs: write
@@ -298,11 +298,12 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Download the patch and verification sources
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
-        with:
-          name: namara-drop
-          path: ${{ runner.temp }}/namara-drop
+      - name: Unpack the patch and verification sources
+        env:
+          DROP: ${{ needs.write.outputs.drop }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/namara-drop"
+          printf '%s' "$DROP" | base64 -d | tar -xz -C "$RUNNER_TEMP/namara-drop"
 
       - name: Check the patch
         env:
@@ -339,11 +340,14 @@ jobs:
         with:
           ref: main
 
-      - name: Download the patch
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
-        with:
-          name: namara-drop
-          path: ${{ runner.temp }}/namara-drop
+      # Only the patch is taken out of the drop; the verification sources
+      # are of no use here.
+      - name: Unpack the patch
+        env:
+          DROP: ${{ needs.write.outputs.drop }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/namara-drop"
+          printf '%s' "$DROP" | base64 -d | tar -xz -C "$RUNNER_TEMP/namara-drop" ./drills.patch
 
       # main may have moved on while the drills were being written (e.g. a
       # drill published by hand). The dated pages are new files and apply
