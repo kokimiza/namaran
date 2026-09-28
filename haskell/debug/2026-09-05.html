@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="符号つき整数を符号なし整数へ移すジグザグ符号化(zigzag encoding)で、負の数が巨大な値になってしまうHaskellのバグを直すドリルです。Data.Bitsの shiftR が型によって上位を何で埋めるかを扱います。">
+<title>ジグザグ符号化の右シフト</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-09-05">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-05" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-09-05",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-09-05",
+      "datePublished": "2026-09-05",
+      "dateModified": "2026-09-05",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "ジグザグ符号化の右シフト" },
+      "keywords": "zigzag-encoding, bit-operation, signed-unsigned, twos-complement",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "符号つき整数を符号なし整数へ移すジグザグ符号化(zigzag encoding)で、負の数が巨大な値になってしまうHaskellのバグを直すドリルです。Data.Bitsの shiftR が型によって上位を何で埋めるかを扱います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-05">C23</a>
+  <a href="/cpp/debug/2026-09-05">C++26</a>
+  <a href="/rust/debug/2026-09-05">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-05" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-09-05">READ</a>
+  <a href="/haskell/write/2026-09-05">WRITE</a>
+  <a href="/haskell/debug/2026-09-05" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="ジグザグ符号化の右シフト"
+  data-tags="zigzag-encoding bit-operation signed-unsigned twos-complement"
+  data-concepts="ジグザグ符号化, 算術右シフト, 論理右シフト, 符号拡張, Data.Bits, zigzag encoding, arithmetic shift, sign extension"
+  data-level="peacock"
+>
+  <h2>2026-09-05</h2>
+  <div class="code-frame">
+    <p class="code-filename">ZigZag.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Data.Bits</span> (shiftL, shiftR, xor)
+<span class="kw">import</span> <span class="ty">Data.Int</span> (<span class="ty">Int64</span>)
+<span class="kw">import</span> <span class="ty">Data.Word</span> (<span class="ty">Word64</span>)
+
+<span class="fn">zigzag</span> <span class="op">::</span> <span class="ty">Int64</span> <span class="op">-&gt;</span> <span class="ty">Word64</span>
+<span class="fn">zigzag</span> n = (w `shiftL` <span class="nu">1</span>) `xor` (w `shiftR` <span class="nu">63</span>)
+  <span class="kw">where</span>
+    w = fromIntegral n
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (map zigzag [<span class="nu">0</span>, -<span class="nu">1</span>, <span class="nu">1</span>, -<span class="nu">2</span>])
+</code></pre>
+  </div>
+
+  <p class="question">
+    符号つきの整数 <code>0, -1, 1, -2, …</code> を、符号なしの <code>0, 1, 2, 3, …</code> へ順に移す <code>zigzag</code> です。<code>map zigzag [0, -1, 1, -2]</code> は、いま <code>[0,18446744073709551615,2,18446744073709551613]</code> を返します。本来は <code>[0,1,2,3]</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="fn">zigzag</span> n = (w `shiftL` <span class="nu">1</span>) `xor` (w `shiftR` <span class="nu">63</span>)
+  <span class="kw">where</span>
+    w = fromIntegral n
+</code></pre>
+      <p>
+        <code>w</code> は <code>Word64</code> なので、<code>shiftR</code> は空いた上位のビットを <code>0</code> で埋めます。<code>w `shiftR` 63</code> は符号ビットを最下位へ下ろしただけの <code>0</code> か <code>1</code> にしかなりません。<code>-1</code> なら <code>w</code> はすべて <code>1</code> のビット列で、左へ1つずらすと <code>...1110</code> になり、そこへ <code>1</code> を <code>xor</code> すると <code>...1111</code>、つまり <code>18446744073709551615</code> です。<code>0</code> 以上の数は右シフトの結果が <code>0</code> で、<code>n</code> の2倍がそのまま返るので、<code>1</code> は正しく <code>2</code> になります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="fn">zigzag</span> n = fromIntegral ((n `shiftL` <span class="nu">1</span>) `xor` (n `shiftR` <span class="nu">63</span>))
+</code></pre>
+      <p>
+        <code>Int64</code> のまま右へ <code>63</code> ずらすと、符号つきの型の <code>shiftR</code> は上位を符号ビットで埋めるので、結果は負の数ならすべて <code>1</code>、<code>0</code> 以上ならすべて <code>0</code> になります。すべて <code>1</code> との <code>xor</code> は全ビットの反転なので、<code>-1</code> を左へずらした <code>...1110</code> は <code>1</code> に、<code>-2</code> の <code>...1100</code> は <code>3</code> になります。<code>Word64</code> への変換は、ビットの操作が済んでから最後に一度だけ行います<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>Protocol Buffers の <code>sint32</code> と <code>sint64</code> は、この変換をしてから可変長の整数として書き込みます。<code>-1</code> を <code>int64</code> としてそのまま書くと10バイトになりますが、ジグザグ符号化した <code>1</code> なら1バイトで済みます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

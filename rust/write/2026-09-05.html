@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="有効期限(TTL)つきキャッシュのHashMapから、期限切れの要素をまとめて取り除き、その数を返す関数をRustで書くドリルです。HashMap::retain とクロージャのパターンを使います。">
+<title>期限切れを一掃する</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-09-05">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-05" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-09-05",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-09-05",
+      "datePublished": "2026-09-05",
+      "dateModified": "2026-09-05",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "期限切れを一掃する" },
+      "keywords": "cache, timeout, hash-table, closure",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "有効期限(TTL)つきキャッシュのHashMapから、期限切れの要素をまとめて取り除き、その数を返す関数をRustで書くドリルです。HashMap::retain とクロージャのパターンを使います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-05">C23</a>
+  <a href="/cpp/write/2026-09-05">C++26</a>
+  <a href="/rust/write/2026-09-05" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-09-05">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-09-05">READ</a>
+  <a href="/rust/write/2026-09-05" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-09-05">DEBUG</a>
+</nav>
+
+<main
+  data-topic="期限切れを一掃する"
+  data-tags="cache timeout hash-table closure"
+  data-concepts="TTLキャッシュ, 期限切れの削除, HashMap::retain, クロージャ, cache eviction, time to live, retain"
+  data-level="hedgehog"
+>
+  <h2>2026-09-05</h2>
+  <div class="code-frame">
+    <p class="code-filename">purge.rs</p>
+    <pre class="code"><code><span class="kw">use</span> std::collections::<span class="ty">HashMap</span>;
+
+<span class="kw">fn</span> <span class="fn">purge</span>(cache: &amp;<span class="kw">mut</span> <span class="ty">HashMap</span>&lt;<span class="ty">String</span>, (<span class="ty">i32</span>, <span class="ty">u64</span>)&gt;, now: <span class="ty">u64</span>) -&gt; <span class="ty">usize</span> {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    キャッシュ <code>cache</code> から期限切れの要素を取り除き、取り除いた数を返す <code>purge</code> を書いてください。値は <code>(値, 期限)</code> の組で、時刻 <code>now</code> が期限と同じか、それより後なら期限切れです。期限切れが1つもなければ、<code>cache</code> を変えずに <code>0</code> を返します。例では <code>cache</code> の中身を <code>{"a": (1, 10)}</code> のように書きます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>cache = {"a": (1, 10), "b": (2, 20)}; purge(&amp;mut cache, 15)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>1, cache = {"b": (2, 20)}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>cache = {"a": (1, 10)}; purge(&amp;mut cache, 10)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>1, cache = {}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>cache = {}; purge(&amp;mut cache, 0)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>0, cache = {}</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">purge</span>(cache: &amp;<span class="kw">mut</span> <span class="ty">HashMap</span>&lt;<span class="ty">String</span>, (<span class="ty">i32</span>, <span class="ty">u64</span>)&gt;, now: <span class="ty">u64</span>) -&gt; <span class="ty">usize</span> {
+    <span class="kw">let</span> before = cache.<span class="fn">len</span>();
+    cache.<span class="fn">retain</span>(|_, &amp;<span class="kw">mut</span> (_, expires)| expires &gt; now);
+    before - cache.<span class="fn">len</span>()
+}
+</code></pre>
+      <p>
+        <code>HashMap::retain</code> は、クロージャが <code>true</code> を返した要素だけを残します。残すのは、期限がまだ来ていない <code>expires &gt; now</code> の要素です。<code>retain</code> は取り除いた数を返さないので、呼ぶ前と後の <code>len()</code> の差で求めます。
+      </p>
+      <p>
+        クロージャはキーへの参照と値への可変参照を受け取ります。パターン <code>&amp;mut (_, expires)</code> で値の組から期限だけを取り出しており、<code>u64</code> は <code>Copy</code> なので、参照を外して値のまま受け取れます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。期限切れのキーを <code>Vec</code> に集めてから1つずつ <code>remove</code> しても同じ結果になります。ただし、<code>HashMap</code> を走査している最中にその <code>HashMap</code> から消すことは借用の規則が許さないので、いったん別の場所に集める必要があります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

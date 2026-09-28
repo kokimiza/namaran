@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="型推論の単一化で無限の型を作らないための出現検査(occurs check)を、型を表す木をたどる再帰関数としてCで書くドリルです。束縛済みの型変数は束縛先までたどります。">
+<title>型変数の出現検査</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-09-05">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-05" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-09-05",
+      "url": "https://namaran.jocarium.productions/c/write/2026-09-05",
+      "datePublished": "2026-09-05",
+      "dateModified": "2026-09-05",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "型変数の出現検査" },
+      "keywords": "occurs-check, unification, type-deduction, recursion",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "型推論の単一化で無限の型を作らないための出現検査(occurs check)を、型を表す木をたどる再帰関数としてCで書くドリルです。束縛済みの型変数は束縛先までたどります。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-05" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-09-05">C++26</a>
+  <a href="/rust/write/2026-09-05">Rust 2024</a>
+  <a href="/haskell/write/2026-09-05">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-09-05">READ</a>
+  <a href="/c/write/2026-09-05" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-09-05">DEBUG</a>
+</nav>
+
+<main
+  data-topic="型変数の出現検査"
+  data-tags="occurs-check unification type-deduction recursion"
+  data-concepts="出現検査, 単一化, 型変数, 再帰, occurs check, unification, type variable, recursion"
+  data-level="hedgehog"
+>
+  <h2>2026-09-05</h2>
+  <div class="code-frame">
+    <p class="code-filename">occurs.c</p>
+    <pre class="code"><code><span class="kw">typedef</span> <span class="kw">struct</span> <span class="ty">T</span> { <span class="ty">char</span> tag; <span class="kw">struct</span> <span class="ty">T</span> *l, *r; } <span class="ty">T</span>;
+
+<span class="ty">bool</span> <span class="fn">occurs</span>(<span class="kw">const</span> <span class="ty">T</span> *v, <span class="kw">const</span> <span class="ty">T</span> *t) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    型を表す木 <code>t</code> の中に型変数 <code>v</code> が現れるかを返す <code>occurs</code> を書いてください。<code>tag</code> は <code>'v'</code> が型変数、<code>'f'</code> が関数型 <code>l -&gt; r</code>、それ以外は <code>int</code> などの基本型です。型変数の <code>l</code> は束縛先を指し、未束縛なら <code>NULL</code> です。<code>t</code> の中の束縛済みの型変数は束縛先までたどって調べ、<code>v</code> は未束縛とします。<code>t</code> が <code>v</code> そのものなら <code>true</code> です。例では型を <code>int -&gt; a</code> のように書きます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>occurs(a, int -&gt; a)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>true</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>occurs(a, b -&gt; int)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>false</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>occurs(a, a)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>true</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="ty">bool</span> <span class="fn">occurs</span>(<span class="kw">const</span> <span class="ty">T</span> *v, <span class="kw">const</span> <span class="ty">T</span> *t) {
+    <span class="kw">while</span> (t-&gt;tag == <span class="st">'v'</span> &amp;&amp; t-&gt;l) t = t-&gt;l;
+    <span class="kw">if</span> (t == v) <span class="kw">return</span> <span class="nu">true</span>;
+    <span class="kw">return</span> t-&gt;tag == <span class="st">'f'</span> &amp;&amp; (<span class="fn">occurs</span>(v, t-&gt;l) || <span class="fn">occurs</span>(v, t-&gt;r));
+}
+</code></pre>
+      <p>
+        束縛済みの型変数は、先に束縛先までたどってから調べます。たどらずに型変数のまま扱うと、<code>b</code> が <code>int -&gt; a</code> に束縛されているとき、<code>b -&gt; int</code> の中にある <code>a</code> を見落とします。たどり着いた先が <code>v</code> そのものなら <code>v</code> は現れていて、関数型なら左右のどちらかに現れるかを再帰で調べます。基本型や、<code>v</code> ではない未束縛の型変数には <code>v</code> は現れません。
+      </p>
+      <p>
+        単一化では、型変数 <code>a</code> を型 <code>t</code> に束縛する前にこの検査をします。<code>a</code> を <code>int -&gt; a</code> に束縛すると、<code>a</code> をたどった先にまた <code>a</code> がある循環した型ができ、束縛をたどるループや型を表示する再帰が止まらなくなるからです。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。束縛をたどる部分を別の関数に分けても構いません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

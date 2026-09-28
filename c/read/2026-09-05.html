@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Hindley-Milner型推論の単一化(unification)を、型変数の束縛を直接書き換えるCの実装で追います。途中で失敗した単一化が、それまでに作った束縛をどう残すかを問うドリルです。">
+<title>失敗した単一化の後始末</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-09-05">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-05" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-09-05",
+      "url": "https://namaran.jocarium.productions/c/read/2026-09-05",
+      "datePublished": "2026-09-05",
+      "dateModified": "2026-09-05",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "失敗した単一化の後始末" },
+      "keywords": "unification, type-deduction, side-effect, backtracking",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "Hindley-Milner型推論の単一化(unification)を、型変数の束縛を直接書き換えるCの実装で追います。途中で失敗した単一化が、それまでに作った束縛をどう残すかを問うドリルです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-05" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-09-05">C++26</a>
+  <a href="/rust/read/2026-09-05">Rust 2024</a>
+  <a href="/haskell/read/2026-09-05">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-09-05" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-09-05">WRITE</a>
+  <a href="/c/debug/2026-09-05">DEBUG</a>
+</nav>
+
+<main
+  data-topic="失敗した単一化の後始末"
+  data-tags="unification type-deduction side-effect backtracking"
+  data-concepts="単一化, 型推論, 型変数の束縛, 失敗時の巻き戻し, Hindley-Milner, unification, type variable binding, backtracking"
+  data-level="bison"
+>
+  <h2>2026-09-05</h2>
+  <div class="code-frame">
+    <p class="code-filename">unify.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">typedef</span> <span class="kw">struct</span> <span class="ty">T</span> { <span class="ty">char</span> tag; <span class="kw">struct</span> <span class="ty">T</span> *l, *r; } <span class="ty">T</span>;
+
+<span class="kw">static</span> <span class="ty">int</span> <span class="fn">unify</span>(<span class="ty">T</span> *a, <span class="ty">T</span> *b) {
+    <span class="kw">while</span> (a-&gt;tag == <span class="st">'v'</span> &amp;&amp; a-&gt;l) a = a-&gt;l;
+    <span class="kw">while</span> (b-&gt;tag == <span class="st">'v'</span> &amp;&amp; b-&gt;l) b = b-&gt;l;
+    <span class="kw">if</span> (a == b) <span class="kw">return</span> <span class="nu">1</span>;
+    <span class="kw">if</span> (a-&gt;tag == <span class="st">'v'</span>) { a-&gt;l = b; <span class="kw">return</span> <span class="nu">1</span>; }
+    <span class="kw">if</span> (b-&gt;tag == <span class="st">'v'</span>) { b-&gt;l = a; <span class="kw">return</span> <span class="nu">1</span>; }
+    <span class="kw">if</span> (a-&gt;tag != b-&gt;tag) <span class="kw">return</span> <span class="nu">0</span>;
+    <span class="kw">return</span> a-&gt;tag != <span class="st">'f'</span> || (<span class="fn">unify</span>(a-&gt;l, b-&gt;l) &amp;&amp; <span class="fn">unify</span>(a-&gt;r, b-&gt;r));
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="ty">T</span> i = {.tag = <span class="st">'i'</span>}, b = {.tag = <span class="st">'b'</span>}, x = {.tag = <span class="st">'v'</span>};
+    <span class="ty">T</span> f = {<span class="st">'f'</span>, &amp;x, &amp;x}, g = {<span class="st">'f'</span>, &amp;i, &amp;b};
+    <span class="ty">int</span> ok = <span class="fn">unify</span>(&amp;f, &amp;g);
+    <span class="fn">printf</span>(<span class="st">"%d %c\n"</span>, ok, x.l ? x.l-&gt;tag : <span class="st">'-'</span>);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>0 i</code> です。
+      </p>
+      <p>
+        <code>unify(&amp;f, &amp;g)</code> は <code>x -&gt; x</code> と <code>int -&gt; bool</code> を単一化します。どちらも関数型なので、最後の行で左辺どうし、右辺どうしを順に単一化します。左辺の <code>unify(&amp;x, &amp;i)</code> では <code>x</code> が未束縛の型変数なので、<code>x</code> を <code>int</code> に束縛して <code>1</code> を返します。
+      </p>
+      <p>
+        <code>1</code> が返ったので <code>&amp;&amp;</code> の右側、<code>unify(&amp;x, &amp;b)</code> も評価されます。先頭の <code>while</code> が <code>x</code> の束縛をたどるので、比べるのは <code>x</code> ではなく <code>int</code> と <code>bool</code> です。タグが違うので <code>0</code> が返り、<code>ok</code> は <code>0</code> になります。<code>x</code> はもう型変数として扱われないため、ここで <code>bool</code> に束縛し直されることもありません。
+      </p>
+      <p>
+        左辺で書き込んだ <code>x.l = &amp;i</code> は、全体が失敗しても取り消されません。この <code>unify</code> は束縛を構造体へ直接書き込むだけで、失敗したときに元へ戻す仕組みを持たないからです。<code>ok</code> は <code>0</code> なのに <code>x</code> は <code>int</code> に決まったまま残り、<code>x.l-&gt;tag</code> は <code>i</code> です。型検査器が単一化を「合うかどうか試す」ために使うなら、失敗した試行の束縛が次の試行に持ち越されてしまいます<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>Prolog の処理系は、単一化で書き換えた変数をトレイル(trail)と呼ぶスタックに記録しておき、失敗して後戻りするときにそこから束縛を外します。書き換える実装で試行を取り消したいなら、同じような記録が要ります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

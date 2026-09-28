@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="期限をBinaryHeapで管理する有効期限(TTL)つきキャッシュで、期限を延ばしたはずの値が消えてしまうRustのバグを直すドリルです。ヒープに残る古い期限の扱いを考えます。">
+<title>延長前の期限で消える</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-09-05">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-05" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-09-05",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-09-05",
+      "datePublished": "2026-09-05",
+      "dateModified": "2026-09-05",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "延長前の期限で消える" },
+      "keywords": "cache, timeout, priority-queue, heap, lazy-deletion",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "期限をBinaryHeapで管理する有効期限(TTL)つきキャッシュで、期限を延ばしたはずの値が消えてしまうRustのバグを直すドリルです。ヒープに残る古い期限の扱いを考えます。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-05">C23</a>
+  <a href="/cpp/debug/2026-09-05">C++26</a>
+  <a href="/rust/debug/2026-09-05" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-05">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-09-05">READ</a>
+  <a href="/rust/write/2026-09-05">WRITE</a>
+  <a href="/rust/debug/2026-09-05" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="延長前の期限で消える"
+  data-tags="cache timeout priority-queue heap lazy-deletion"
+  data-concepts="TTLキャッシュ, 有効期限の延長, BinaryHeap, Reverse, 遅延削除, lazy deletion, min-heap, cache expiration"
+  data-level="whale"
+>
+  <h2>2026-09-05</h2>
+  <div class="code-frame">
+    <p class="code-filename">ttl_cache.rs</p>
+    <pre class="code"><code><span class="kw">use</span> std::cmp::<span class="ty">Reverse</span>;
+<span class="kw">use</span> std::collections::{<span class="ty">BinaryHeap</span>, <span class="ty">HashMap</span>};
+
+<span class="kw">struct</span> <span class="ty">Cache</span> {
+    map: <span class="ty">HashMap</span>&lt;&amp;<span class="lt">'static</span> <span class="ty">str</span>, (<span class="ty">i32</span>, <span class="ty">u64</span>)&gt;,
+    expiry: <span class="ty">BinaryHeap</span>&lt;<span class="ty">Reverse</span>&lt;(<span class="ty">u64</span>, &amp;<span class="lt">'static</span> <span class="ty">str</span>)&gt;&gt;,
+}
+
+<span class="kw">impl</span> <span class="ty">Cache</span> {
+    <span class="kw">fn</span> <span class="fn">put</span>(&amp;<span class="kw">mut</span> <span class="kw">self</span>, key: &amp;<span class="lt">'static</span> <span class="ty">str</span>, value: <span class="ty">i32</span>, expires: <span class="ty">u64</span>) {
+        <span class="kw">self</span>.map.<span class="fn">insert</span>(key, (value, expires));
+        <span class="kw">self</span>.expiry.<span class="fn">push</span>(<span class="fn">Reverse</span>((expires, key)));
+    }
+
+    <span class="kw">fn</span> <span class="fn">purge</span>(&amp;<span class="kw">mut</span> <span class="kw">self</span>, now: <span class="ty">u64</span>) {
+        <span class="kw">while</span> <span class="kw">self</span>.expiry.<span class="fn">peek</span>().<span class="fn">is_some_and</span>(|<span class="fn">Reverse</span>((e, _))| *e &lt;= now) {
+            <span class="kw">let</span> <span class="fn">Reverse</span>((_, key)) = <span class="kw">self</span>.expiry.<span class="fn">pop</span>().<span class="fn">unwrap</span>();
+            <span class="kw">self</span>.map.<span class="fn">remove</span>(key);
+        }
+    }
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    有効期限つきのキャッシュ <code>Cache</code> です。<code>put</code> は値と期限を入れ、<code>purge(now)</code> は期限が <code>now</code> 以下の値を消します。期限の早い順に取り出せるよう、期限とキーの組を <code>BinaryHeap</code> にも積んでいます。空の <code>Cache</code> に <code>put("a", 1, 10)</code>、<code>put("b", 2, 12)</code>、<code>put("a", 3, 20)</code> の順に入れて <code>purge(11)</code> を呼び、<code>"a"</code> と <code>"b"</code> の値を <code>{:?}</code> で出すと、いまは <code>None Some(2)</code> です。本来は <code>Some(3) Some(2)</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">let</span> <span class="fn">Reverse</span>((_, key)) = <span class="kw">self</span>.expiry.<span class="fn">pop</span>().<span class="fn">unwrap</span>();
+<span class="kw">self</span>.map.<span class="fn">remove</span>(key);
+</code></pre>
+      <p>
+        <code>BinaryHeap</code> は大きい値から取り出すヒープですが、<code>Reverse</code> で包んでいるので、期限の小さい組から順に出てきます。<code>purge(11)</code> が最初に取り出すのは <code>(10, "a")</code> で、期限 <code>10</code> は <code>11</code> 以下なので、<code>map.remove("a")</code> を呼びます。次の <code>(12, "b")</code> は <code>11</code> より後なので、そこで止まります。ここまでは <code>&lt;=</code> の境界も <code>Reverse</code> の向きも正しく働いています。
+      </p>
+      <p>
+        食い違いは <code>put("a", 3, 20)</code> で生まれています。<code>map.insert</code> は <code>"a"</code> の値を <code>(3, 20)</code> に上書きしますが、ヒープには古い <code>(10, "a")</code> を残したまま <code>(20, "a")</code> を足します。<code>purge</code> はこの古い組をキーだけで信じて消すので、実際に消えるのは期限を <code>20</code> に延ばした新しい値 <code>3</code> です。<code>BinaryHeap</code> から先頭以外の組を消すには <code>retain</code> でヒープ全体をなめ直すしかなく、<code>put</code> のたびにそうするとヒープで期限を管理する意味が薄れます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">let</span> <span class="fn">Reverse</span>((expires, key)) = <span class="kw">self</span>.expiry.<span class="fn">pop</span>().<span class="fn">unwrap</span>();
+<span class="kw">if</span> <span class="kw">self</span>.map.<span class="fn">get</span>(key).<span class="fn">is_some_and</span>(|&amp;(_, e)| e == expires) {
+    <span class="kw">self</span>.map.<span class="fn">remove</span>(key);
+}
+</code></pre>
+      <p>
+        ヒープから出した組の期限が、<code>map</code> にある今の期限と同じときだけ消します。<code>(10, "a")</code> は <code>map</code> の期限 <code>20</code> と一致しないので読み捨てられ、<code>"a"</code> は残ります。<code>(20, "a")</code> は、時刻 <code>20</code> 以降の <code>purge</code> で取り出されたときに一致して、そこで消えます。ヒープの組は期限を書き換えるたびに古くなりうる控えなので、消す前に <code>map</code> と照らし合わせる必要があります<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>消せない要素をヒープに残しておき、取り出したときに古ければ捨てるやり方は、遅延削除(lazy deletion)と呼ばれます。ダイクストラ法で同じ頂点を何度も <code>BinaryHeap</code> に積み、取り出した距離が古ければ飛ばす書き方も同じ形です。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

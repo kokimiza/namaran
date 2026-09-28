@@ -113,6 +113,7 @@ edition	エディション
 encapsulation	カプセル化
 end-of-file	EOF
 endianness	エンディアン
+entry-api	Entry API
 enum	列挙型
 errno	errno
 error-handling	エラー処理
@@ -148,6 +149,7 @@ generator	ジェネレータ
 generic-programming	ジェネリクス
 generic-selection	_Generic
 graph	グラフ
+gray-code	グレイコード
 greatest-common-divisor	最大公約数
 greedy-algorithm	貪欲法
 grundy-number	Grundy数
@@ -195,6 +197,7 @@ lambda	ラムダ式
 lambda-calculus	ラムダ計算
 layout-rule	レイアウト規則
 laziness	遅延評価
+lazy-deletion	遅延削除
 lazy-initialization	遅延初期化
 lazy-io	遅延IO
 leap-year	閏年
@@ -253,6 +256,7 @@ null-terminated-string	ヌル終端文字列
 number-theory	整数論
 numerical-analysis	数値計算
 object-slicing	スライシング
+occurs-check	出現検査
 off-by-one	オフバイワン
 one-definition-rule	ODR
 operator-overload	演算子の多重定義
@@ -270,6 +274,7 @@ parametric-polymorphism	パラメトリック多相
 parsing	構文解析
 partial-application	部分適用
 partial-function	部分関数
+pass-by-value	値渡し
 path-traversal	パストラバーサル
 pattern-guard	パターンガード
 pattern-matching	パターンマッチ
@@ -420,4 +425,5 @@ weak-head-normal-form	弱頭部正規形
 write-ahead-log	WAL
 z-algorithm	Z-algorithm
 zero-sized-type	ゼロサイズ型
+zigzag-encoding	ジグザグ符号化
 zipper	Zipper

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="スキップリストのノードの高さを std::mt19937 で決めるC++の関数が、どのノードにも同じ高さを返してしまうバグを直すドリルです。乱数生成器を値渡しすると何が起きるかを扱います。">
+<title>コピーされた乱数生成器</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-09-05">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-05" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-09-05",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-09-05",
+      "datePublished": "2026-09-05",
+      "dateModified": "2026-09-05",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "コピーされた乱数生成器" },
+      "keywords": "skip-list, random-number-generator, pass-by-value",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "スキップリストのノードの高さを std::mt19937 で決めるC++の関数が、どのノードにも同じ高さを返してしまうバグを直すドリルです。乱数生成器を値渡しすると何が起きるかを扱います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-05">C23</a>
+  <a href="/cpp/debug/2026-09-05" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-09-05">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-05">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-05">READ</a>
+  <a href="/cpp/write/2026-09-05">WRITE</a>
+  <a href="/cpp/debug/2026-09-05" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="コピーされた乱数生成器"
+  data-tags="skip-list random-number-generator pass-by-value"
+  data-concepts="スキップリスト, 乱数生成器のコピー, 値渡し, 参照渡し, mt19937, pass by value, random engine state, skip list level"
+  data-level="bison"
+>
+  <h2>2026-09-05</h2>
+  <div class="code-frame">
+    <p class="code-filename">random_height.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;random&gt;</span>
+
+<span class="ty">int</span> <span class="fn">random_height</span>(std::mt19937 rng) {
+    <span class="ty">int</span> h = <span class="nu">1</span>;
+    <span class="kw">while</span> (h &lt; <span class="nu">4</span> &amp;&amp; <span class="fn">rng</span>() % <span class="nu">2</span> == <span class="nu">1</span>) ++h;
+    <span class="kw">return</span> h;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    std::mt19937 rng;
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; <span class="nu">8</span>; ++i) std::cout &lt;&lt; <span class="fn">random_height</span>(rng);
+    std::cout &lt;&lt; <span class="st">'\n'</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    スキップリストに入れるノードの高さを、乱数が奇数の間だけ1段ずつ上げて決める <code>random_height</code> です(上限は4段)。8個のノードの高さを続けて出すと、いまは <code>11111111</code> と出ます。本来は <code>11124141</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="ty">int</span> <span class="fn">random_height</span>(std::mt19937 rng) {
+</code></pre>
+      <p>
+        <code>rng</code> を値で受け取っているので、呼ぶたびに <code>main</code> の <code>rng</code> のコピーが作られます。<code>std::mt19937</code> は内部状態をまるごと持つ普通の値の型で、コピーは元と同じ状態から始まります。<code>random_height</code> の中の <code>rng()</code> が進めるのはコピーの状態だけで、<code>main</code> の <code>rng</code> は一度も進みません。8回とも同じ乱数列の先頭から読むことになり、既定の種で作った列は最初の値が偶数なので、どれも高さ <code>1</code> です。
+      </p>
+      <p>
+        既定の種がいつも同じだからと考えて <code>std::random_device</code> で種を与えても、直りません。実行するたびに列は変わりますが、1回の実行の中ではやはりすべてのノードが同じ高さになります。高さがそろうと、どの段も同じノードを並べるだけになり、上の段で区間を飛ばせないので、探索は最下段を1つずつたどるのと変わらなくなります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="ty">int</span> <span class="fn">random_height</span>(std::mt19937&amp; rng) {
+</code></pre>
+      <p>
+        参照で受け取れば、<code>rng()</code> が進めるのは <code>main</code> の <code>rng</code> そのものの状態です。呼ぶたびに乱数列の続きを読むので、高さがばらつきます<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li><code>std::mt19937</code> の既定の種は <code>5489</code> で、生成器がそのまま返す値の列は規格で決まっています。規格は、既定の状態で作った生成器の10000回目の出力が <code>4123659995</code> であることまで求めています。一方、<code>std::bernoulli_distribution</code> などの分布クラスの計算方法は処理系ごとに違ってよいので、ここでは <code>rng() % 2</code> で奇数かどうかを見ています。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
