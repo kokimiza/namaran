@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="列の文字と段の文字を組み合わせて盤のマスの名前を並べる関数を、2つの生成器を持つリスト内包表記で書くドリル。生成器の順で並び順が決まる。2026-09-06のHaskell WRITE。">
+<title>列と段からマスの名前</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-09-06">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-06" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-09-06",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-09-06",
+      "datePublished": "2026-09-06",
+      "dateModified": "2026-09-06",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "列と段からマスの名前" },
+      "keywords": "list-comprehension, list-monad, string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "列の文字と段の文字を組み合わせて盤のマスの名前を並べる関数を、2つの生成器を持つリスト内包表記で書くドリル。生成器の順で並び順が決まる。2026-09-06のHaskell WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-06">C23</a>
+  <a href="/cpp/write/2026-09-06">C++26</a>
+  <a href="/rust/write/2026-09-06">Rust 2024</a>
+  <a href="/haskell/write/2026-09-06" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-09-06">READ</a>
+  <a href="/haskell/write/2026-09-06" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-09-06">DEBUG</a>
+</nav>
+
+<main
+  data-topic="列と段からマスの名前"
+  data-tags="list-comprehension list-monad string"
+  data-concepts="リスト内包表記, 複数の生成器, 直積, 生成器の順序, list comprehension, multiple generators, cartesian product"
+  data-level="hedgehog"
+>
+  <h2>2026-09-06</h2>
+  <div class="code-frame">
+    <p class="code-filename">Squares.hs</p>
+    <pre class="code"><code><span class="fn">squares</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">String</span> <span class="op">-&gt;</span> [<span class="ty">String</span>]
+</code></pre>
+  </div>
+
+  <p class="question">
+    列の名前 <code>files</code> と段の名前 <code>ranks</code> から、盤のマスの名前をすべて並べる <code>squares</code> を書いてください。マスの名前は列の文字と段の文字をこの順につないだ2文字で、列ごとにまとめ、同じ列の中では <code>ranks</code> の順に並べます。どちらかが空なら空リストです。<code>squares "ab" "12"</code> → <code>["a1","a2","b1","b2"]</code>、<code>squares "c" "123"</code> → <code>["c1","c2","c3"]</code>、<code>squares "ab" ""</code> → <code>[]</code>
+  </p>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="fn">squares</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">String</span> <span class="op">-&gt;</span> [<span class="ty">String</span>]
+<span class="fn">squares</span> files ranks = [[f, r] | f <span class="op">&lt;-</span> files, r <span class="op">&lt;-</span> ranks]
+</code></pre>
+      <p>
+        2つの生成器を並べると、左の <code>f &lt;- files</code> が外側、右の <code>r &lt;- ranks</code> が内側のループになります。<code>f</code> が <code>'a'</code> のあいだに <code>r</code> が <code>ranks</code> を一巡してから、<code>f</code> が <code>'b'</code> に進むので、列ごとにまとまった順に並びます。生成器を <code>r &lt;- ranks, f &lt;- files</code> の順に書くと、段ごとにまとまった <code>["a1","b1","a2","b2"]</code> になります。
+      </p>
+      <p>
+        <code>[f, r]</code> は2つの <code>Char</code> からなるリストで、<code>String</code> は <code>[Char]</code> の別名なので、そのままマスの名前になります。どちらかが空なら、そのループが一度も回らないので結果も空です。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>do</code> 記法で <code>f &lt;- files</code> と <code>r &lt;- ranks</code> を順に書き、<code>return [f, r]</code> で終える書き方も、同じリストを作ります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

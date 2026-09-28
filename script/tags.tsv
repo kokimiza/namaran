@@ -10,6 +10,7 @@ argument-dependent-lookup	ADL
 arithmetic-sequence	範囲表記
 array	配列
 as-pattern	asパターン
+assertion	アサーション
 associated-type	関連型
 associativity	結合性
 async-await	async/await
@@ -110,6 +111,7 @@ dynamically-sized-type	動的サイズ型
 edit-distance	編集距離
 edition	エディション
 encapsulation	カプセル化
+end-of-file	EOF
 endianness	エンディアン
 enum	列挙型
 errno	errno
@@ -325,6 +327,7 @@ set	集合
 shadowing	シャドーイング
 short-circuit	短絡評価
 shortest-path	最短経路
+side-effect	副作用
 sieve-of-eratosthenes	エラトステネスの篩
 signal	シグナル
 signed-unsigned	符号あり・なし

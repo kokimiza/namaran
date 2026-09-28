@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="空のスライスなら None を返す整数の平均を、bool のメソッドを使った1つの式で書くドリル。値を先に評価する then_some とクロージャを遅れて呼ぶ then の違いが、0 での割り算に効く。2026-09-06のRust WRITE。">
+<title>空なら割らない平均</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-09-06">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-06" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-09-06",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-09-06",
+      "datePublished": "2026-09-06",
+      "dateModified": "2026-09-06",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "空なら割らない平均" },
+      "keywords": "strictness, closure, division, panic, optional",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "空のスライスなら None を返す整数の平均を、bool のメソッドを使った1つの式で書くドリル。値を先に評価する then_some とクロージャを遅れて呼ぶ then の違いが、0 での割り算に効く。2026-09-06のRust WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-06">C23</a>
+  <a href="/cpp/write/2026-09-06">C++26</a>
+  <a href="/rust/write/2026-09-06" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-09-06">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-09-06">READ</a>
+  <a href="/rust/write/2026-09-06" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-09-06">DEBUG</a>
+</nav>
+
+<main
+  data-topic="空なら割らない平均"
+  data-tags="strictness closure division panic optional"
+  data-concepts="bool::then, bool::then_some, 引数の正格評価, 0 での割り算, 整数の平均, eager argument evaluation, divide by zero panic"
+  data-level="peacock"
+>
+  <h2>2026-09-06</h2>
+  <div class="code-frame">
+    <p class="code-filename">average.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">average</span>(xs: &amp;[<span class="ty">i32</span>]) -&gt; <span class="ty">Option</span>&lt;<span class="ty">i32</span>&gt; {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    スライス <code>xs</code> の平均を整数で返す <code>average</code> を書いてください。合計を要素数で <code>/</code> で割り、端数は <code>0</code> の方向へ切り捨てます。<code>xs</code> が空なら <code>None</code> です。<code>if</code> も <code>match</code> も使わず、<code>bool</code> のメソッドを使った1つの式で書きます。<code>average(&amp;[1, 2, 6])</code> → <code>Some(3)</code>、<code>average(&amp;[-3, 4])</code> → <code>Some(0)</code>、<code>average(&amp;[])</code> → <code>None</code>
+  </p>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">average</span>(xs: &amp;[<span class="ty">i32</span>]) -&gt; <span class="ty">Option</span>&lt;<span class="ty">i32</span>&gt; {
+    (!xs.<span class="fn">is_empty</span>()).<span class="fn">then</span>(|| xs.<span class="fn">iter</span>().<span class="fn">sum</span>::&lt;<span class="ty">i32</span>&gt;() / xs.<span class="fn">len</span>() <span class="kw">as</span> <span class="ty">i32</span>)
+}
+</code></pre>
+      <p>
+        <code>bool::then</code> は、<code>self</code> が真のときだけ渡したクロージャを呼び、その結果を <code>Some</code> で包みます。偽なら <code>None</code> を返してクロージャは呼ばないので、空のスライスで <code>0</code> による割り算が行われることはありません。
+      </p>
+      <p>
+        よく似た <code>then_some</code> は、クロージャではなく値そのものを受け取ります。<code>(!xs.is_empty()).then_some(xs.iter().sum::&lt;i32&gt;() / xs.len() as i32)</code> と書くと、関数の引数なので割り算は <code>then_some</code> を呼ぶ前に必ず評価されます。空のスライスでは <code>0 / 0</code> を計算することになり、<code>None</code> を返す前に panic します。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>bool</code> のメソッドを使うという条件がなければ、<code>if xs.is_empty() { None } else { Some(...) }</code> と書くのが素直です。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="while (!in.eof()) で回したループが最後に1周多く回り、失敗した std::getline が残した空文字列を空行として数えてしまうバグを直すドリル。2026-09-06のC++ DEBUG。">
+<title>eof()で回すと1周多い</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-09-06">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-06" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-09-06",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-09-06",
+      "datePublished": "2026-09-06",
+      "dateModified": "2026-09-06",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "eof()で回すと1周多い" },
+      "keywords": "stdio, end-of-file, loop, off-by-one",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "while (!in.eof()) で回したループが最後に1周多く回り、失敗した std::getline が残した空文字列を空行として数えてしまうバグを直すドリル。2026-09-06のC++ DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-06">C23</a>
+  <a href="/cpp/debug/2026-09-06" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-09-06">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-06">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-06">READ</a>
+  <a href="/cpp/write/2026-09-06">WRITE</a>
+  <a href="/cpp/debug/2026-09-06" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="eof()で回すと1周多い"
+  data-tags="stdio end-of-file loop off-by-one"
+  data-concepts="while (!eof()), std::getline, 空行を数える, 最後の1周, eof loop, getline returns stream, extra iteration"
+  data-level="peacock"
+>
+  <h2>2026-09-06</h2>
+  <div class="code-frame">
+    <p class="code-filename">count_blank.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;sstream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+
+<span class="ty">int</span> <span class="fn">count_blank</span>(std::<span class="ty">istream</span> &amp;in) {
+    <span class="ty">int</span> blanks = <span class="nu">0</span>;
+    std::<span class="ty">string</span> line;
+    <span class="kw">while</span> (!in.<span class="fn">eof</span>()) {
+        std::<span class="fn">getline</span>(in, line);
+        <span class="kw">if</span> (line.<span class="fn">empty</span>()) {
+            ++blanks;
+        }
+    }
+    <span class="kw">return</span> blanks;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    std::<span class="ty">istringstream</span> <span class="fn">in</span>(<span class="st">"a\n\nb\n"</span>);
+    std::cout &lt;&lt; <span class="fn">count_blank</span>(in) &lt;&lt; <span class="st">'\n'</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    入力に含まれる空行を数える <code>count_blank</code> です。入力 <code>"a\n\nb\n"</code> に対して、いまは <code>2</code> を出力します。本来の出力は <code>1</code> です。どこを直せばよいでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>while (!in.eof())</code> と <code>std::getline(in, line);</code> の2行を、<code>while (std::getline(in, line))</code> の1行にまとめます。
+      </p>
+      <p>
+        <code>eof()</code> が真になるのは、読もうとして入力の終わりにぶつかったあとです。<code>b</code> の行を読んだ <code>getline</code> は改行で止まり、その先を見ていないので、この時点の <code>eof()</code> はまだ偽です。ループはもう1周し、4回目の <code>getline</code> が何も読めずに失敗して、そこで初めて終わりに気付きます。
+      </p>
+      <p>
+        失敗した回の <code>line</code> は、前の <code>"b"</code> のままではありません。<code>getline</code> は読み始める前に <code>line</code> を空にするので、何も読めなかった回の <code>line</code> は空文字列になり、空行として数えられます。前の行が残ると思って読むと、1周多く回っても数は変わらないように見えてしまいます。
+      </p>
+      <p>
+        <code>getline</code> の戻り値を条件にすると、読めた回だけループの中身が動きます。末尾に改行がない <code>"a\n\nb"</code> なら、<code>b</code> を読んだ時点で終わりにぶつかって <code>eof()</code> が真になるので、元のコードでも <code>1</code> が返ります。このバグが表に出るのは、ふつうのテキストファイルのように最後の行が改行で終わっているときです。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

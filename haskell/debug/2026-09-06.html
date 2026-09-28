@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="終わりのない日の列と9時から17時の枠を2つの生成器で並べ、最初の空き枠を探す関数で、生成器の順番のせいで9時の枠しか探さないバグを直すドリル。2026-09-06のHaskell DEBUG。">
+<title>最初の空き枠</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-09-06">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-06" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-09-06",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-09-06",
+      "datePublished": "2026-09-06",
+      "dateModified": "2026-09-06",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "最初の空き枠" },
+      "keywords": "list-comprehension, infinite-list, laziness, maybe",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "終わりのない日の列と9時から17時の枠を2つの生成器で並べ、最初の空き枠を探す関数で、生成器の順番のせいで9時の枠しか探さないバグを直すドリル。2026-09-06のHaskell DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-06">C23</a>
+  <a href="/cpp/debug/2026-09-06">C++26</a>
+  <a href="/rust/debug/2026-09-06">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-06" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-09-06">READ</a>
+  <a href="/haskell/write/2026-09-06">WRITE</a>
+  <a href="/haskell/debug/2026-09-06" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="最初の空き枠"
+  data-tags="list-comprehension infinite-list laziness maybe"
+  data-concepts="リスト内包表記, 生成器の順序, 内側の無限リスト, 遅延評価, listToMaybe, 空き枠の探索, generator order, infinite inner generator, lazy search"
+  data-level="whale"
+>
+  <h2>2026-09-06</h2>
+  <div class="code-frame">
+    <p class="code-filename">FirstFree.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Data.Maybe</span> (listToMaybe)
+
+<span class="fn">firstFree</span> <span class="op">::</span> [(<span class="ty">Int</span>, <span class="ty">Int</span>)] <span class="op">-&gt;</span> <span class="ty">Maybe</span> (<span class="ty">Int</span>, <span class="ty">Int</span>)
+<span class="fn">firstFree</span> taken =
+  listToMaybe [(day, hour) | hour <span class="op">&lt;-</span> [<span class="nu">9</span> .. <span class="nu">17</span>], day <span class="op">&lt;-</span> [<span class="nu">1</span> ..], (day, hour) `notElem` taken]
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (firstFree [(<span class="nu">1</span>, <span class="nu">9</span>)])
+</code></pre>
+  </div>
+
+  <p class="question">
+    予約で埋まっている枠の一覧 <code>taken</code> を避けて、最も早い空き枠 <code>(日, 時)</code> を返す <code>firstFree</code> です。日は <code>1</code> から始まって終わりがなく、各日の枠は <code>9</code> 時から <code>17</code> 時までです。早さはまず日で比べ、同じ日なら時で比べます。<code>firstFree [(1, 9)]</code> に対して、いまは <code>Just (2,9)</code> を出力します。本来の出力は <code>Just (1,10)</code> です。どこを直せばよいでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        2つの生成器の順番を入れ替えて、<code>day &lt;- [1 ..], hour &lt;- [9 .. 17]</code> にします。
+      </p>
+      <p>
+        内包表記の生成器は、左が外側、右が内側のループになります。いまのコードでは外側が <code>hour</code>、内側が <code>day</code> なので、枠は <code>(1,9)</code>、<code>(2,9)</code>、<code>(3,9)</code> の順に、日をまたいで同じ時刻から並びます。<code>(1,9)</code> は埋まっているので、最初に条件を満たすのは <code>(2,9)</code> です。結果の組を <code>(day, hour)</code> の順に書いていても、並び順を決めるのは生成器の順番で、組の形ではありません。
+      </p>
+      <p>
+        内側の <code>day &lt;- [1 ..]</code> には終わりがないので、<code>hour</code> が <code>10</code> に進むことはありません。それでもプログラムが止まらずに答えを返すのは、<code>listToMaybe</code> が先頭の1要素しか求めず、内包表記もその1要素が決まるところまでしか評価されないからです。無限の生成器を内側に置いた誤りはハングとして現れず、<code>9</code> 時の枠しか探さないという、出力だけ見ればもっともらしい結果になります。
+      </p>
+      <p>
+        入れ替えると、外側の <code>day</code> には終わりがなくても、内側の <code>hour</code> は9個で一巡するので、1日目の <code>9</code> 時から <code>17</code> 時までを調べてから2日目に進みます。最初に条件を満たすのは <code>(1,10)</code> です。<code>taken</code> は有限なので、空き枠はどこかの日で必ず見つかります。並び順を気にせずに全体から <code>minimum</code> で最小の組を選ぶ直し方では、終わりのないリストを最後まで読もうとして、今度は本当に止まらなくなります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

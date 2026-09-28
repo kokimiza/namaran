@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="HashMap の entry と or_insert で文字列に ID を振る関数で、引数に書いたブロック式が毎回評価され、既にある文字列まで names に積まれてしまうバグを直すドリル。2026-09-06のRust DEBUG。">
+<title>or_insertの引数</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-09-06">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-06" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-09-06",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-09-06",
+      "datePublished": "2026-09-06",
+      "dateModified": "2026-09-06",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "or_insertの引数" },
+      "keywords": "strictness, evaluation-order, hash-table, closure",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "HashMap の entry と or_insert で文字列に ID を振る関数で、引数に書いたブロック式が毎回評価され、既にある文字列まで names に積まれてしまうバグを直すドリル。2026-09-06のRust DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-06">C23</a>
+  <a href="/cpp/debug/2026-09-06">C++26</a>
+  <a href="/rust/debug/2026-09-06" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-06">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-09-06">READ</a>
+  <a href="/rust/write/2026-09-06">WRITE</a>
+  <a href="/rust/debug/2026-09-06" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="or_insertの引数"
+  data-tags="strictness evaluation-order hash-table closure"
+  data-concepts="or_insert と or_insert_with, entry API, 引数の正格評価, ブロック式, 文字列のインターン, eager evaluation of arguments, block expression, string interning"
+  data-level="bison"
+>
+  <h2>2026-09-06</h2>
+  <div class="code-frame">
+    <p class="code-filename">interner.rs</p>
+    <pre class="code"><code><span class="kw">use</span> std::collections::<span class="ty">HashMap</span>;
+
+<span class="kw">fn</span> <span class="fn">intern</span>(ids: &amp;<span class="kw">mut</span> <span class="ty">HashMap</span>&lt;<span class="ty">String</span>, <span class="ty">usize</span>&gt;, names: &amp;<span class="kw">mut</span> <span class="ty">Vec</span>&lt;<span class="ty">String</span>&gt;, name: &amp;<span class="ty">str</span>) -&gt; <span class="ty">usize</span> {
+    *ids.<span class="fn">entry</span>(name.<span class="fn">to_string</span>()).<span class="fn">or_insert</span>({
+        names.<span class="fn">push</span>(name.<span class="fn">to_string</span>());
+        names.<span class="fn">len</span>() - <span class="nu">1</span>
+    })
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> <span class="kw">mut</span> ids = <span class="ty">HashMap</span>::<span class="fn">new</span>();
+    <span class="kw">let</span> <span class="kw">mut</span> names = <span class="ty">Vec</span>::<span class="fn">new</span>();
+    <span class="kw">let</span> got = [<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"a"</span>, <span class="st">"c"</span>].<span class="fn">map</span>(|n| <span class="fn">intern</span>(&amp;<span class="kw">mut</span> ids, &amp;<span class="kw">mut</span> names, n));
+    <span class="mc">println!</span>(<span class="st">"{got:?} {names:?}"</span>);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    文字列に <code>0</code> から順に ID を振る <code>intern</code> です。同じ文字列には同じ ID を返し、<code>names[id]</code> でその文字列を引けるようにするつもりです。<code>"a"</code>、<code>"b"</code>、<code>"a"</code>、<code>"c"</code> を順に <code>intern</code> すると、いまは <code>[0, 1, 0, 3] ["a", "b", "a", "c"]</code> と出力されます。本来の出力は <code>[0, 1, 0, 2] ["a", "b", "c"]</code> です。どこを直せばよいでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>or_insert({ ... })</code> を <code>or_insert_with(|| { ... })</code> に変えます。
+      </p>
+      <p>
+        出力を見ると、2回目の <code>"a"</code> には正しく <code>0</code> が返っているのに、<code>names</code> には <code>"a"</code> がもう1つ積まれています。既にある文字列でも <code>push</code> が実行されたということで、その分 <code>names.len()</code> が1つ進み、次の <code>"c"</code> が <code>3</code> になりました。
+      </p>
+      <p>
+        <code>or_insert</code> はエントリが空いているときだけ値を入れるメソッドですが、渡している <code>{ ... }</code> はブロック式です。あとで必要になったときに実行されるコードではなく、評価するとその場で値になる式なので、関数の引数としては呼び出しの前に評価されます。ブロックの中の <code>push</code> は、エントリが空いているかどうかに関係なく、<code>or_insert</code> が呼ばれる前に毎回実行されます。2回目の <code>"a"</code> では、ブロックが返した <code>2</code> は捨てられ、<code>push</code> の効果だけが残ります。
+      </p>
+      <p>
+        <code>or_insert_with</code> はクロージャを受け取り、エントリが空いているときだけそれを呼びます。<code>push</code> と <code>len</code> がクロージャの中に移るので、新しい文字列のときにしか動きません。元のブロックと同じく、クロージャが借用する <code>names</code> は <code>entry</code> が借用している <code>ids</code> とは別の変数なので、借用の衝突も起きません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="NDEBUG を定義したリリースビルドでも sscanf が呼ばれるよう、副作用のある呼び出しを assert の外に出して整数を読む関数を書くドリル。2026-09-06のC WRITE。">
+<title>assertの外で読む</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-09-06">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-06" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-09-06",
+      "url": "https://namaran.jocarium.productions/c/write/2026-09-06",
+      "datePublished": "2026-09-06",
+      "dateModified": "2026-09-06",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "assertの外で読む" },
+      "keywords": "assertion, side-effect, stdio",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "NDEBUG を定義したリリースビルドでも sscanf が呼ばれるよう、副作用のある呼び出しを assert の外に出して整数を読む関数を書くドリル。2026-09-06のC WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-06" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-09-06">C++26</a>
+  <a href="/rust/write/2026-09-06">Rust 2024</a>
+  <a href="/haskell/write/2026-09-06">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-09-06">READ</a>
+  <a href="/c/write/2026-09-06" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-09-06">DEBUG</a>
+</nav>
+
+<main
+  data-topic="assertの外で読む"
+  data-tags="assertion side-effect stdio"
+  data-concepts="assert の中の副作用, NDEBUG, リリースビルド, sscanf の戻り値, assert with side effects, release build, NDEBUG"
+  data-level="hedgehog"
+>
+  <h2>2026-09-06</h2>
+  <div class="code-frame">
+    <p class="code-filename">parse_count.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;assert.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="ty">int</span> <span class="fn">parse_count</span>(<span class="kw">const</span> <span class="ty">char</span> *s) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    文字列 <code>s</code> の先頭にある整数を <code>sscanf</code> で読んで返す <code>parse_count</code> を書いてください。整数が読めなかったときは <code>assert</code> で止めますが、<code>NDEBUG</code> を定義したリリースビルドでは止まらずに <code>0</code> を返します。整数が読めたときは、どちらのビルドでも同じ値を返すようにします。<code>parse_count("42")</code> → <code>42</code>、<code>parse_count("  -3 apples")</code> → <code>-3</code>、<code>parse_count("x")</code> → <code>assert</code> が失敗(<code>NDEBUG</code> なら <code>0</code>)
+  </p>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="ty">int</span> <span class="fn">parse_count</span>(<span class="kw">const</span> <span class="ty">char</span> *s) {
+    <span class="ty">int</span> n = <span class="nu">0</span>;
+    <span class="ty">int</span> got = <span class="fn">sscanf</span>(s, <span class="st">"%d"</span>, &amp;n);
+    <span class="fn">assert</span>(got == <span class="nu">1</span>);
+    (<span class="ty">void</span>)got;
+    <span class="kw">return</span> n;
+}
+</code></pre>
+      <p>
+        <code>sscanf</code> は <code>assert</code> の外で呼び、戻り値だけを <code>assert</code> で確かめます。<code>assert(sscanf(s, "%d", &amp;n) == 1)</code> と1行にまとめると、<code>NDEBUG</code> を定義したビルドでは <code>assert</code> が中の式ごと消え、<code>sscanf</code> が呼ばれなくなります。<code>n</code> は初期値の <code>0</code> のままなので、<code>parse_count("42")</code> まで <code>0</code> を返します。
+      </p>
+      <p>
+        <code>NDEBUG</code> のビルドでは <code>got</code> を読む式が消え、使われない変数の警告(<code>-Wunused-variable</code>)が出ます。<code>(void)got;</code> はそれを抑えるための行です。読めなかったときに <code>0</code> を返せるのは <code>n</code> を <code>0</code> で初期化してあるからで、<code>sscanf</code> は読めなかった引数に何も書きません。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>strtol</code> で読み、返ってきた終わりの位置が <code>s</code> から進んだかどうかで読めたかを確かめる書き方もできます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

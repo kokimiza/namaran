@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="std::getline で読んだ入力を空行で段落に分け、各段落の行数を返す関数を書くドリル。入力の終わりは空行ではないので、最後の段落を取りこぼさないようにする。2026-09-06のC++ WRITE。">
+<title>空行で区切る段落</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-09-06">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-06" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-09-06",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-09-06",
+      "datePublished": "2026-09-06",
+      "dateModified": "2026-09-06",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "空行で区切る段落" },
+      "keywords": "stdio, end-of-file, string, boundary",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "std::getline で読んだ入力を空行で段落に分け、各段落の行数を返す関数を書くドリル。入力の終わりは空行ではないので、最後の段落を取りこぼさないようにする。2026-09-06のC++ WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-06">C23</a>
+  <a href="/cpp/write/2026-09-06" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-09-06">Rust 2024</a>
+  <a href="/haskell/write/2026-09-06">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-06">READ</a>
+  <a href="/cpp/write/2026-09-06" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-09-06">DEBUG</a>
+</nav>
+
+<main
+  data-topic="空行で区切る段落"
+  data-tags="stdio end-of-file string boundary"
+  data-concepts="std::getline, 段落, 空行区切り, 最後の段落, 入力の終わり, paragraphs separated by blank lines, end of input, flush last group"
+  data-level="peacock"
+>
+  <h2>2026-09-06</h2>
+  <div class="code-frame">
+    <p class="code-filename">paragraph_sizes.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;istream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+
+std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt; <span class="fn">paragraph_sizes</span>(std::<span class="ty">istream</span> &amp;in) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>in</code> から読んだ行を空行で区切って段落に分け、各段落の行数を順に並べて返す <code>paragraph_sizes</code> を書いてください。空行が続いても区切りは1つで、先頭や末尾の空行は段落を作りません。最後の行が改行で終わっていなくても、その行は段落に数えます。段落が1つもなければ空の <code>vector</code> を返します。<code>in</code> の中身が <code>"a\nb\n\nc\n"</code> → <code>{2, 1}</code>、<code>"a\n\n\nb"</code> → <code>{1, 1}</code>、<code>"\n"</code> → <code>{}</code>
+  </p>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code>std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt; <span class="fn">paragraph_sizes</span>(std::<span class="ty">istream</span> &amp;in) {
+    std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt; sizes;
+    <span class="ty">int</span> count = <span class="nu">0</span>;
+    std::<span class="ty">string</span> line;
+    <span class="kw">while</span> (std::<span class="fn">getline</span>(in, line)) {
+        <span class="kw">if</span> (!line.<span class="fn">empty</span>()) {
+            ++count;
+        } <span class="kw">else</span> <span class="kw">if</span> (count &gt; <span class="nu">0</span>) {
+            sizes.<span class="fn">push_back</span>(count);
+            count = <span class="nu">0</span>;
+        }
+    }
+    <span class="kw">if</span> (count &gt; <span class="nu">0</span>) {
+        sizes.<span class="fn">push_back</span>(count);
+    }
+    <span class="kw">return</span> sizes;
+}
+</code></pre>
+      <p>
+        <code>getline</code> が成功しているあいだは、空でない行なら <code>count</code> を増やし、空行なら数えていた段落を閉じます。<code>count</code> が <code>0</code> のときの空行は何もしないので、続く空行や先頭の空行が大きさ <code>0</code> の段落を作ることはありません。
+      </p>
+      <p>
+        ループを抜けるのは入力の終わりに着いたときで、そこで空行が読めるわけではありません。最後の段落は閉じる空行が来ないまま残るので、ループのあとでもう一度 <code>count</code> を足します。この後始末を忘れると、<code>"a\nb\n\nc\n"</code> から <code>{2}</code> しか返りません。入力の終わりを最後の空行のように扱いたくなりますが、<code>getline</code> にとって空行は読めた行で、入力の終わりは読めなかったことなので、ループの中では区別されます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。空行で段落を閉じる代わりに、段落の最初の行(入力の先頭か空行の直後にある、空でない行)で <code>sizes.push_back(0)</code> して段落を始め、行ごとに <code>++sizes.back()</code> する書き方なら、ループのあとの後始末は要りません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
