@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="要素数と合計を求めるsummarizeがコンパイルできないバグを直すドリル。集成体を丸括弧で初期化できるようになっても、空の丸括弧を付けた宣言は変数ではなく関数の宣言として読まれる。2026-09-08のC++ DEBUG。">
+<title>空の丸括弧で初期化</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-09-08">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-08" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-09-08",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-09-08",
+      "datePublished": "2026-09-08",
+      "dateModified": "2026-09-08",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "空の丸括弧で初期化" },
+      "keywords": "aggregate-initialization, most-vexing-parse, list-initialization",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "要素数と合計を求めるsummarizeがコンパイルできないバグを直すドリル。集成体を丸括弧で初期化できるようになっても、空の丸括弧を付けた宣言は変数ではなく関数の宣言として読まれる。2026-09-08のC++ DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-08">C23</a>
+  <a href="/cpp/debug/2026-09-08" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-09-08">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-08">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-08">READ</a>
+  <a href="/cpp/write/2026-09-08">WRITE</a>
+  <a href="/cpp/debug/2026-09-08" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="空の丸括弧で初期化"
+  data-tags="aggregate-initialization most-vexing-parse list-initialization"
+  data-concepts="最も厄介な構文解析, 丸括弧による集成体初期化, 値初期化, 関数宣言と変数定義, most vexing parse, value initialization"
+  data-level="hedgehog"
+>
+  <h2>2026-09-08</h2>
+  <div class="code-frame">
+    <p class="code-filename">summarize.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+
+<span class="kw">struct</span> <span class="ty">Stats</span> {
+    <span class="ty">int</span> count;
+    <span class="ty">int</span> sum;
+};
+
+<span class="ty">Stats</span> <span class="fn">summarize</span>(<span class="kw">const</span> std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt;&amp; xs) {
+    <span class="ty">Stats</span> <span class="fn">s</span>();
+    <span class="kw">for</span> (<span class="ty">int</span> x : xs) {
+        s.count++;
+        s.sum += x;
+    }
+    <span class="kw">return</span> s;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="ty">Stats</span> s = <span class="fn">summarize</span>({<span class="nu">3</span>, <span class="nu">4</span>, <span class="nu">5</span>});
+    std::cout &lt;&lt; s.count &lt;&lt; <span class="st">' '</span> &lt;&lt; s.sum &lt;&lt; <span class="st">'\n'</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    整数の列から要素数と合計を求める <code>summarize</code> です。入力は <code>main</code> のとおり <code>{3, 4, 5}</code> で、本来は <code>3 12</code> を出力します。ところが、いまはコンパイルが通りません。どこを直せばよいでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>Stats s();</code> を <code>Stats s{};</code> に変えます。
+      </p>
+      <p>
+        C++20 からは <code>Stats s(0, 0);</code> のように集成体を丸括弧で初期化できるので、引数を省いた <code>Stats s();</code> も、全メンバが <code>0</code> の <code>s</code> を作る文に見えます。しかしこの行は、引数を取らず <code>Stats</code> を返す関数 <code>s</code> の宣言として読まれます。関数の宣言とも変数の定義とも読める文は、関数の宣言として扱うという規則があるからです。<code>s</code> は関数なので、<code>s.count</code> や <code>return s</code> がコンパイルエラーになります。
+      </p>
+      <p>
+        空の波括弧 <code>Stats s{};</code> は関数の宣言にはなりえず、値初期化によって <code>count</code> と <code>sum</code> が <code>0</code> で始まります。括弧を消して <code>Stats s;</code> にするとコンパイルは通りますが、<code>count</code> と <code>sum</code> が不定値のまま足し算が始まってしまいます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

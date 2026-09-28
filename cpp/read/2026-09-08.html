@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="コンストラクタを持たない構造体を丸括弧で初期化したときのメンバの値を読むドリル。C++20からの丸括弧による集成体初期化は、波括弧と違って縮小変換を許し、引数のないメンバはデフォルトメンバ初期化子で初期化される。2026-09-08のC++ READ。">
+<title>丸括弧で作る集成体</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-09-08">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-08" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-09-08",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-09-08",
+      "datePublished": "2026-09-08",
+      "dateModified": "2026-09-08",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "丸括弧で作る集成体" },
+      "keywords": "aggregate-initialization, narrowing-conversion, default",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "コンストラクタを持たない構造体を丸括弧で初期化したときのメンバの値を読むドリル。C++20からの丸括弧による集成体初期化は、波括弧と違って縮小変換を許し、引数のないメンバはデフォルトメンバ初期化子で初期化される。2026-09-08のC++ READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-08">C23</a>
+  <a href="/cpp/read/2026-09-08" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-09-08">Rust 2024</a>
+  <a href="/haskell/read/2026-09-08">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-08" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-09-08">WRITE</a>
+  <a href="/cpp/debug/2026-09-08">DEBUG</a>
+</nav>
+
+<main
+  data-topic="丸括弧で作る集成体"
+  data-tags="aggregate-initialization narrowing-conversion default"
+  data-concepts="丸括弧による集成体初期化, 縮小変換, デフォルトメンバ初期化子, parenthesized aggregate initialization, narrowing conversion, default member initializer"
+  data-level="peacock"
+>
+  <h2>2026-09-08</h2>
+  <div class="code-frame">
+    <p class="code-filename">price.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+
+<span class="kw">struct</span> <span class="ty">Price</span> {
+    <span class="ty">int</span> yen;
+    <span class="ty">int</span> tax = yen / <span class="nu">10</span>;
+};
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="ty">Price</span> <span class="fn">a</span>(<span class="nu">1980.9</span>);
+    <span class="ty">Price</span> <span class="fn">b</span>(<span class="nu">500</span>, <span class="nu">0</span>);
+    std::cout &lt;&lt; a.yen &lt;&lt; <span class="st">' '</span> &lt;&lt; a.tax &lt;&lt; <span class="st">' '</span> &lt;&lt; b.tax &lt;&lt; <span class="st">'\n'</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>1980 198 0</code> です。
+      </p>
+      <p>
+        <code>Price</code> はコンストラクタを持たない集成体です。C++20 からは、集成体も <code>Price a(1980.9)</code> のように丸括弧で初期化でき、引数は先頭のメンバから順に渡されます。<code>a.yen</code> は <code>1980.9</code> から初期化されますが、<code>yen</code> は <code>int</code> なので、<code>double</code> からの変換で小数部が切り捨てられて <code>1980</code> になります。
+      </p>
+      <p>
+        波括弧の <code>Price a{1980.9}</code> なら、<code>double</code> から <code>int</code> への縮小変換としてコンパイルエラーになるところです。丸括弧のほうは各メンバを引数からコピー初期化するだけなので、関数に引数を渡すときと同じく縮小変換も通ります。
+      </p>
+      <p>
+        <code>a</code> には引数が1つしかないので、<code>tax</code> はデフォルトメンバ初期化子 <code>yen / 10</code> で初期化されます。メンバは宣言順に初期化されるため、この時点の <code>yen</code> はすでに <code>1980</code> で、<code>tax</code> は整数除算の結果の <code>198</code> です。<code>b</code> では2つ目の引数 <code>0</code> が <code>tax</code> に渡るので、デフォルトメンバ初期化子は使われず、<code>b.tax</code> は <code>0</code> です。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

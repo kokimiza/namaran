@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="CNFの節を簡約しながら分岐するSATソルバsolveが返す割り当ての一覧を読むドリル。リスト内包表記による分岐の順序、節が尽きたときに返る [[]]、先に満たされた節とともに割り当てが不要になる変数、負のリテラルから試す分岐が絡み合う。2026-09-08のHaskell READ。">
+<title>DPLLが返す解の一覧</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-09-08">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-08" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-09-08",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-09-08",
+      "datePublished": "2026-09-08",
+      "dateModified": "2026-09-08",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "DPLLが返す解の一覧" },
+      "keywords": "satisfiability, list-comprehension, backtracking, list-monad",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "CNFの節を簡約しながら分岐するSATソルバsolveが返す割り当ての一覧を読むドリル。リスト内包表記による分岐の順序、節が尽きたときに返る [[]]、先に満たされた節とともに割り当てが不要になる変数、負のリテラルから試す分岐が絡み合う。2026-09-08のHaskell READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-08">C23</a>
+  <a href="/cpp/read/2026-09-08">C++26</a>
+  <a href="/rust/read/2026-09-08">Rust 2024</a>
+  <a href="/haskell/read/2026-09-08" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-09-08" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-09-08">WRITE</a>
+  <a href="/haskell/debug/2026-09-08">DEBUG</a>
+</nav>
+
+<main
+  data-topic="DPLLが返す解の一覧"
+  data-tags="satisfiability list-comprehension backtracking list-monad"
+  data-concepts="SATソルバ, DPLL, 充足可能性問題, リスト内包表記, バックトラック, 部分割り当て, SAT solver, backtracking search"
+  data-level="whale"
+>
+  <h2>2026-09-08</h2>
+  <div class="code-frame">
+    <p class="code-filename">Dpll.hs</p>
+    <pre class="code"><code><span class="kw">type</span> <span class="ty">Clause</span> = [<span class="ty">Int</span>]
+
+<span class="fn">assign</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> [<span class="ty">Clause</span>] <span class="op">-&gt;</span> [<span class="ty">Clause</span>]
+<span class="fn">assign</span> l = map (filter (/= negate l)) . filter (notElem l)
+
+<span class="fn">solve</span> <span class="op">::</span> [<span class="ty">Clause</span>] <span class="op">-&gt;</span> [[<span class="ty">Int</span>]]
+<span class="fn">solve</span> [] = [[]]
+<span class="fn">solve</span> cs@((v : _) : _) =
+  [l : ls | l <span class="op">&lt;-</span> [v, negate v], ls <span class="op">&lt;-</span> solve (assign l cs)]
+<span class="fn">solve</span> _ = []
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (solve [[-<span class="nu">1</span>, <span class="nu">2</span>], [<span class="nu">1</span>, <span class="nu">3</span>], [<span class="nu">2</span>, <span class="nu">3</span>]])
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>[[-1,3],[1,2]]</code> です。
+      </p>
+      <p>
+        節は整数のリストで、<code>k</code> は k 番目の変数 xk が真、<code>-k</code> は偽を表すリテラルです。<code>solve</code> は、論理式を満たす割り当てを、真にしたリテラルの列として並べて返します。最初の節の先頭のリテラル <code>v</code> を選び、<code>v</code> を真にする場合と <code>negate v</code> を真にする場合をこの順に試します。<code>assign l</code> は、<code>l</code> を含む節を満たされたものとして取り除き、残った節から <code>l</code> の否定を消します。
+      </p>
+      <p>
+        最初の節は <code>[-1, 2]</code> なので <code>v</code> は <code>-1</code> で、先に試すのは x1 を偽にする枝です。<code>assign (-1)</code> で <code>[-1, 2]</code> が消え、残りの節から <code>1</code> が消えて <code>[[3], [2, 3]]</code> になります。ここで <code>3</code> を真にすると節がすべて消えて <code>solve []</code> に着き、<code>[[]]</code> が返ります。<code>-3</code> の枝では <code>[3]</code> から <code>3</code> が消えて空の節が先頭に来るので、<code>solve _ = []</code> が解なしを返します。この枝で得られる解は <code>[-1,3]</code> の1つです。
+      </p>
+      <p>
+        あとから試す x1 を真にする枝では、<code>[[2], [2, 3]]</code> が残ります。<code>2</code> を真にすると節が尽きて <code>[1,2]</code> が得られ、<code>-2</code> の枝は空の節が生じて解がありません。
+      </p>
+      <p>
+        この論理式を満たす x1, x2, x3 の真偽の組は4つありますが、出力されるのは2つです。<code>solve []</code> が <code>[[]]</code> を返すのは、節が尽きた時点で残りの変数はどちらでもよいからで、<code>[-1,3]</code> の x2 と <code>[1,2]</code> の x3 は割り当てられないまま解になります。<code>[[]]</code> は「何も決めなくてよい解が1つある」、<code>[]</code> は「解がない」で、ここを取り違えて <code>solve [] = []</code> と書くと、どの枝からも解が返らなくなります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

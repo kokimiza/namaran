@@ -231,6 +231,7 @@ monoid	Monoid
 monomorphism-restriction	単相性制限
 monotonic-clock	単調増加時計
 monotonic-stack	単調スタック
+most-vexing-parse	最も厄介な構文解析
 move-semantics	ムーブ
 multidimensional-array	多次元配列
 multiple-inheritance	多重継承

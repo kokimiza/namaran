@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="小数を100倍した整数で持つ固定小数点数Fixedの掛け算と表示を読むドリル。整数の / はゼロ方向に切り捨て、% の符号は割られる数に従うので、負の値では整数部と小数部の組み立てが崩れる。2026-09-08のRust READ。">
+<title>負の固定小数点の表示</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-09-08">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / READ", "item": "https://namaran.jocarium.productions/rust/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-08" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / READ — 2026-09-08",
+      "url": "https://namaran.jocarium.productions/rust/read/2026-09-08",
+      "datePublished": "2026-09-08",
+      "dateModified": "2026-09-08",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "負の固定小数点の表示" },
+      "keywords": "fixed-point, division, format-string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "小数を100倍した整数で持つ固定小数点数Fixedの掛け算と表示を読むドリル。整数の / はゼロ方向に切り捨て、% の符号は割られる数に従うので、負の値では整数部と小数部の組み立てが崩れる。2026-09-08のRust READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-08">C23</a>
+  <a href="/cpp/read/2026-09-08">C++26</a>
+  <a href="/rust/read/2026-09-08" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/read/2026-09-08">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-09-08" class="active" aria-current="page">READ</a>
+  <a href="/rust/write/2026-09-08">WRITE</a>
+  <a href="/rust/debug/2026-09-08">DEBUG</a>
+</nav>
+
+<main
+  data-topic="負の固定小数点の表示"
+  data-tags="fixed-point division format-string"
+  data-concepts="固定小数点数, 整数除算, ゼロ方向への切り捨て, 剰余の符号, 書式指定の幅, fixed-point, truncating division, remainder sign"
+  data-level="bison"
+>
+  <h2>2026-09-08</h2>
+  <div class="code-frame">
+    <p class="code-filename">fixed.rs</p>
+    <pre class="code"><code><span class="kw">use</span> std::fmt;
+
+<span class="kw">struct</span> <span class="fn">Fixed</span>(<span class="ty">i64</span>); <span class="cm">// value * 100</span>
+
+<span class="kw">impl</span> <span class="ty">Fixed</span> {
+    <span class="kw">fn</span> <span class="fn">times</span>(<span class="kw">self</span>, rhs: <span class="ty">Fixed</span>) -&gt; <span class="ty">Fixed</span> {
+        <span class="fn">Fixed</span>(<span class="kw">self</span>.<span class="nu">0</span> * rhs.<span class="nu">0</span> / <span class="nu">100</span>)
+    }
+}
+
+<span class="kw">impl</span> fmt::<span class="ty">Display</span> <span class="kw">for</span> <span class="ty">Fixed</span> {
+    <span class="kw">fn</span> <span class="fn">fmt</span>(&amp;<span class="kw">self</span>, f: &amp;<span class="kw">mut</span> fmt::<span class="ty">Formatter</span>) -&gt; fmt::<span class="ty">Result</span> {
+        <span class="mc">write!</span>(f, <span class="st">"{}.{:02}"</span>, <span class="kw">self</span>.<span class="nu">0</span> / <span class="nu">100</span>, <span class="kw">self</span>.<span class="nu">0</span> % <span class="nu">100</span>)
+    }
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="fn">Fixed</span>(<span class="nu">199</span>).<span class="fn">times</span>(<span class="fn">Fixed</span>(<span class="nu">50</span>)));
+    <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="fn">Fixed</span>(-<span class="nu">199</span>).<span class="fn">times</span>(<span class="fn">Fixed</span>(<span class="nu">50</span>)));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>0.99</code> と <code>0.-99</code> の2行です。
+      </p>
+      <p>
+        <code>Fixed</code> は値を100倍した整数で持つので、<code>Fixed(199)</code> は 1.99、<code>Fixed(50)</code> は 0.5 を表します。<code>times</code> は内部の整数どうしを掛けてから100で割り、スケールを戻します。<code>199 * 50</code> は <code>9950</code> で、100で割ると 99.5 ですが、整数の除算なので小数部が落ちて <code>Fixed(99)</code> になり、<code>0.99</code> と表示されます。
+      </p>
+      <p>
+        2行目の掛け算は <code>-199 * 50</code> で <code>-9950</code> です。Rust の整数除算はゼロの方向へ切り捨てるので、100で割った -99.5 は <code>-100</code> ではなく <code>-99</code> になります。ここまでは1行目と符号が違うだけです。
+      </p>
+      <p>
+        ずれるのは表示です。<code>-99 / 100</code> もゼロ方向への切り捨てで <code>0</code> になり、整数部から符号が消えます。一方 <code>-99 % 100</code> は、割られる数と同じ符号を持つ <code>-99</code> です。<code>{:02}</code> は幅が2に満たないときだけ <code>0</code> を詰める指定で、<code>-99</code> はすでに3文字あるのでそのまま出ます。こうして <code>0</code> と <code>.</code> と <code>-99</code> がつながり、2行目は <code>-0.99</code> ではなく <code>0.-99</code> になります。
+      </p>
+      <p>
+        負の値を正しく表示するには、符号を先に書き出してから、絶対値を整数部と小数部に分けます。<code>self.0.unsigned_abs()</code> を使えば、<code>i64::MIN</code> でも溢れません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/read">Today</a></li>
+    <li><a href="/rust/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namara/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
