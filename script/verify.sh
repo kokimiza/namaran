@@ -24,11 +24,12 @@
 #                  timeout, sanitizers on for C/C++) and its stdout must
 #                  match this file byte for byte. Required for every READ
 #                  ok file, so the published answer is the observed output.
-#   NAME.ng.EXT    must FAIL to compile: a "this doesn't compile" answer,
-#                  or a DEBUG drill whose bug is a compile error.
-#   NAME.bug.EXT   must compile (warnings allowed); never analyzed. A DEBUG
-#                  drill whose bug is at run time (undefined behavior, a
-#                  hang, a wrong result).
+#   NAME.ng.EXT    must FAIL to compile: a READ "this doesn't compile"
+#                  answer. Not allowed for DEBUG.
+#   NAME.bug.EXT   must compile (warnings allowed); never analyzed. The
+#                  broken DEBUG program: DEBUG code always compiles and
+#                  fails at run time (undefined behavior, a hang, a wrong
+#                  result).
 #   NAME.bug.stdout  optional, next to NAME.bug.EXT: the broken program is
 #                  built as it is (warnings allowed, no sanitizers) and run
 #                  (10s timeout), and its stdout must match this file. That
@@ -38,7 +39,7 @@
 #                  crash) — and then the question must not quote one either.
 #
 # Per combo, at least: READ one file of any kind; WRITE one ok file; DEBUG
-# one ok file plus one ng or bug file.
+# one ok file plus one bug file, and no ng file.
 #
 # Page checks, for {lang}/{type}/DATE.html: JSON-LD parses, no TODO left,
 # the topic metadata is there and agrees with itself (<main>'s data-topic —
@@ -52,7 +53,9 @@
 # non-comment line of every <pre class="code"> block appears (ignoring
 # indentation) in one of that combo's ok/ng/bug files — so the code readers
 # see is the code that was checked — READ/DEBUG question code (outside
-# <details>) is at most 21 lines — and the listings are highlighted exactly
+# <details>) is at most 21 lines, a WRITE page's examples sit in
+# <div class="examples">, a DEBUG answer is Wrong + listing then Right +
+# listing — and the listings are highlighted exactly
 # as script/highlight.sh would write them.
 #
 # Toolchains (override the command names with environment variables):
@@ -79,7 +82,7 @@ GHC="${NAMARA_GHC:-ghc}"
 HLINT="${NAMARA_HLINT:-hlint}"
 
 usage() {
-  sed -n '2,64p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+  sed -n '2,67p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
 }
 
 code_ext() {
@@ -268,7 +271,8 @@ verify_sources() {
     write) [ "$n_ok" -ge 1 ] || fail "WRITE needs at least one ok file (the reference)" ;;
     debug)
       [ "$n_ok" -ge 1 ] || fail "DEBUG needs at least one ok file (the fixed program)"
-      [ $((n_ng + n_bug)) -ge 1 ] || fail "DEBUG needs an ng or bug file (the broken program)"
+      [ "$n_bug" -ge 1 ] || fail "DEBUG needs a bug file (the broken program)"
+      [ "$n_ng" -eq 0 ] || fail "DEBUG code must compile: use a bug file, not an ng file"
       ;;
   esac
 }
@@ -406,6 +410,16 @@ if typ in ("read", "debug"):
     if n > MAX_LINES:
         problems.append(f"question code is {n} lines; {typ.upper()} must fit in {MAX_LINES}"
                         " (a problem-design error: choose a smaller angle, see ponytail.md)")
+
+# The shape each type's template gives (script/template-{type}.html).
+if typ == "write" and '<div class="examples">' not in s:
+    problems.append('WRITE needs its input/output examples in <div class="examples">')
+if typ == "debug":
+    answer = s[s.find('<details class="answer">'):]
+    if not re.search(r'<h3 class="wrong">Wrong</h3>\s*<pre class="code">.*?'
+                     r'<h3 class="right">Right</h3>\s*<pre class="code">', answer, re.S):
+        problems.append('DEBUG answer must be <h3 class="wrong">Wrong</h3> + listing, '
+                        'then <h3 class="right">Right</h3> + listing')
 
 print("\n".join(problems))
 sys.exit(1 if problems else 0)
