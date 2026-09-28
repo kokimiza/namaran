@@ -179,7 +179,9 @@ namara/
 │                               # ファイル名がスラッグ、中身の見出しは日本語（§7.4）
 ├── script/
 │   ├── content.sh              # ローカル運用スクリプト（§9.1）。サイトには配信されない
-│   ├── template.html           # 雛形生成元のテンプレート
+│   ├── template-read.html      # 雛形生成元のテンプレート。種別ごとに1枚（§7.1）
+│   ├── template-write.html
+│   ├── template-debug.html
 │   ├── verify.sh               # 問題ページと検証用ソースの検証（§9.2）
 │   ├── highlight.sh            # コードのシンタックスハイライト（§9.4）
 │   ├── check-patch.sh          # 公開前のパッチ検査（§9.2）
@@ -476,6 +478,7 @@ env.ASSETS.fetch("/c/read/2026-08-21") を取得し、そのままレスポン�
 * `lang-nav` / `type-nav` は同じ日付を保ったまま言語・種別だけを切り替える（例: `/c/write/2026-08-21` → `/rust/write/2026-08-21`）。現在地のリンクにだけ `class="active"` と `aria-current="page"` を手動で付ける
 * コードは `<div class="code-frame">` で囲み、直下の `<p class="code-filename">` にお題に沿ったファイル名を、対象言語の命名規則で書く（C/C++/Rustはsnake_case、Haskellはモジュール名慣習のPascalCase）。以前あった `<p class="path">/* c/read */</p>` のようなコメント演出は廃止した
 * WRITEページは `<summary>Answer</summary>` を `<summary>Reference</summary>` に変える（要件定義 §9 WRITEの節）
+* 種別ごとの問題文と解答の形は雛形（`script/template-{type}.html`）が決める。READの問題文は「これは何を出力するでしょうか?」で固定。WRITEの入出力例は問題文に埋め込まず、問題文の後の `<div class="examples">` に1組1つの `<div class="example">` として置き、`<p class="example-label">入力例 n</p>` `<pre class="io"><code>…</code></pre>` `<p class="example-label">出力例 n</p>` `<pre class="io">…` の順に書く。`pre.io` は `pre.code` ではないので、検証用ソースとの照合（§9.2）とハイライト（§9.4）の対象外。DEBUGの解答は `<h3 class="wrong">Wrong</h3>`＋欠陥のある箇所の `pre.code`＋説明、`<h3 class="right">Right</h3>`＋直したコードの `pre.code`＋説明、任意で脚注、の順。2026-09-28以前のWRITE・DEBUGページは古い形のまま（§7.1の方針どおり編集しない）
 * コード内の `<` `>` `&` は `&lt;` `&gt;` `&amp;` に置換してから貼る
 * 解説の流れを止める補足（歴史的経緯、規格の厳密な文言、処理系ごとの違いなど）は脚注にしてよい。本文の該当箇所に `<sup class="fn-ref">1</sup>` を置き、`<div class="answer-body">` の最後に `<ol class="footnotes"><li>補足。</li></ol>` を置く。番号は `<sup>` と `<ol>` の順で手で揃える。`check-patch.sh` が `id` 属性を許さないため、本文と脚注の間にページ内リンクは張らない。脚注は解説の中だけで使い、問題文には置かない。見た目は §8
 * コードを貼ったら `script/highlight.sh` でシンタックスハイライトを付ける（§9.4）。`<pre class="code"><code>` の中に置いてよいマークアップは、このスクリプトが書く `<span class="…">` だけで、手では書かない
@@ -654,6 +657,8 @@ URL:               /tag/object-slicing
 * `nav a.active` はインク色とアクセント色の下線で示す
 * 難易度の動物（`/level/*.svg`）はCSSの `mask` で文字色に塗る。絵文字は使わない——環境ごとに絵柄も色も変わり、新しい絵文字（バイソンは2020年）は古い環境で豆腐になるうえ、フルカラーの絵はこのページの色数の方針に合わない。ドリルページでは `main[data-level] > h2::before` を `order: 1` で日付の罫線の右端へ回して描き、索引では `topics.sh` が書く `<span class="level">` に描く。どちらも読み上げ用の名前（「クジラ（上級）」）を持つ
 * 解説の脚注（§7.1）は、本文との間を block 段（2rem）あけ、`--panel` の角丸の面に置く。先頭に「Notes」の小さなラベル（CSSの `::before`。マークアップは増やさない）。本文より一段小さく、色は `--ink-muted`。ページ内リンクが張れないので、読者は番号を目で照合する。そのため本文側の `sup.fn-ref` と脚注側の番号を同じ小さな塗りのチップ（等幅、`--accent-strong` の地に白抜き。type-nav の現在地と同じ塗り）にそろえる。脚注側の番号は `ol` のマーカーではなく `li::before` の `counter(list-item)` で描く。上付き文字は `vertical-align` ではなく `position` で持ち上げ、その行の行間を広げない
+* WRITEの入出力例（§7.1）は、1組を1行として入力例を左、出力例を右に並べ、番号で対応させる。値はデータなので等幅で `--panel` の角丸の面に置く（コードの slab は「コンパイルするコード」専用）。ラベルは脚注の「Notes」と同じ小さな UI 書体。40rem未満では入力例の下に出力例を積む。問題文の直後に例がある場合、問題文の下は block 段、例の下が section 段になる（`:has()`）
+* DEBUGの解答の Wrong / Right（§7.1）は、`summary` の ANSWER と同じ小さな大文字の見出しで、Wrong を `--wrong`（赤）、Right を `--right`（緑）で塗る。どちらも `--bg` と `--panel` の上で5:1以上。Right の上は block 段
 * 問題文と解説は `max-width` で絞らず、コード枠と同じ右端まで使う。1カラムの中で右端を1本にそろえる
 * 区切りの罫線は1か所に1本。解答の `<details>` は枠線を持たず、`summary` の罫線だけで問題文と区切る。問題文との間は問題文の section 段（3.5rem）だけで、罫線と余白を二重に取らない
 * 索引ページでは、リード文と一覧の間を block 段（2rem）、一覧とその後の「ほかの〜を見る」の間も block 段にする。狭い画面でドリルの下に落ちた Past ペインは、ナビと同じく横一列に並べる
@@ -698,7 +703,7 @@ script/content.sh undo [DATE] [LANG/TYPE ...]   # その取り消し
 ```
 
 * `DATE`省略時はAsia/Tokyoの今日（`functions/_middleware.js`の`todayInJapan()`と同じ基準）。`LANG/TYPE`省略時は12組全部が対象
-* `new`は`script/template.html`から雛形を生成する。既存の日付付きファイルは上書きしない（公開後は編集しないという方針、§7.1と同じ理由）。archive.htmlに同じ日付の行がすでにあれば追記しない——何度実行しても安全（冪等）
+* `new`は種別に応じて`script/template-{read,write,debug}.html`から雛形を生成する。既存の日付付きファイルは上書きしない（公開後は編集しないという方針、§7.1と同じ理由）。archive.htmlに同じ日付の行がすでにあれば追記しない——何度実行しても安全（冪等）
 * `undo`は`new`の逆で、生成したファイルとarchive.htmlの行を削除する。ただし安全装置として、ファイルの中に`TODO:`が1つも残っていない（＝すでに中身を書き始めている）場合は削除を拒否し、手動での判断に委ねる
 * このスクリプト自身はCloudflare Pages上では一切動かない。配信されるのはこれまで通り生成済みの静的HTMLだけであり、「配信されるものを単純に保つ」ことと「それを作る手元の作業を自動化する」ことは別レイヤーの話である
 
