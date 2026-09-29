@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="記録した値があればそれを使い、なければ乱数を引く処理を unwrap_or と unwrap_or_else の2通りで書き、同じシードから結果を比べる。引数がいつ評価されるかで、乱数を引く回数が変わる。2026-09-04のRust READ。">
+<title>記録と乱数の再生</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-09-04">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / READ", "item": "https://namaran.jocarium.productions/rust/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-04" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / READ — 2026-09-04",
+      "url": "https://namaran.jocarium.productions/rust/read/2026-09-04",
+      "datePublished": "2026-09-04",
+      "dateModified": "2026-09-04",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "記録と乱数の再生" },
+      "keywords": "random-number-generator, evaluation-order, closure",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "記録した値があればそれを使い、なければ乱数を引く処理を unwrap_or と unwrap_or_else の2通りで書き、同じシードから結果を比べる。引数がいつ評価されるかで、乱数を引く回数が変わる。2026-09-04のRust READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-04">C23</a>
+  <a href="/cpp/read/2026-09-04">C++26</a>
+  <a href="/rust/read/2026-09-04" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/read/2026-09-04">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-09-04" class="active" aria-current="page">READ</a>
+  <a href="/rust/write/2026-09-04">WRITE</a>
+  <a href="/rust/debug/2026-09-04">DEBUG</a>
+</nav>
+
+<main
+  data-topic="記録と乱数の再生"
+  data-tags="random-number-generator evaluation-order closure"
+  data-concepts="unwrap_or, unwrap_or_else, 引数の先行評価, 乱数のシード, 再現性, eager evaluation, seeded RNG"
+  data-level="peacock"
+>
+  <h2>2026-09-04</h2>
+  <div class="code-frame">
+    <p class="code-filename">replay.rs</p>
+    <pre class="code"><code><span class="kw">struct</span> <span class="fn">Lcg</span>(<span class="ty">u32</span>);
+
+<span class="kw">impl</span> <span class="ty">Lcg</span> {
+    <span class="kw">fn</span> <span class="fn">next</span>(&amp;<span class="kw">mut</span> <span class="kw">self</span>) -&gt; <span class="ty">u32</span> {
+        <span class="kw">self</span>.<span class="nu">0</span> = (<span class="kw">self</span>.<span class="nu">0</span> * <span class="nu">5</span> + <span class="nu">1</span>) % <span class="nu">16</span>;
+        <span class="kw">self</span>.<span class="nu">0</span>
+    }
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> saved = [<span class="fn">Some</span>(<span class="nu">9</span>), <span class="ty">None</span>, <span class="fn">Some</span>(<span class="nu">4</span>)];
+    <span class="kw">let</span> <span class="kw">mut</span> rng = <span class="fn">Lcg</span>(<span class="nu">3</span>);
+    <span class="kw">let</span> a: <span class="ty">Vec</span>&lt;<span class="ty">u32</span>&gt; = saved.<span class="fn">iter</span>().<span class="fn">map</span>(|s| s.<span class="fn">unwrap_or</span>(rng.<span class="fn">next</span>())).<span class="fn">collect</span>();
+    <span class="kw">let</span> <span class="kw">mut</span> rng = <span class="fn">Lcg</span>(<span class="nu">3</span>);
+    <span class="kw">let</span> b: <span class="ty">Vec</span>&lt;<span class="ty">u32</span>&gt; = saved.<span class="fn">iter</span>().<span class="fn">map</span>(|s| s.<span class="fn">unwrap_or_else</span>(|| rng.<span class="fn">next</span>())).<span class="fn">collect</span>();
+    <span class="mc">println!</span>(<span class="st">"{a:?} {b:?}"</span>);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>[9, 1, 4] [9, 0, 4]</code> です。
+      </p>
+      <p>
+        <code>Lcg(3)</code> は、<code>next</code> を呼ぶたびに 0, 1, 6, … を返します。3 × 5 + 1 = 16 を 16 で割った余りが 0、次が 0 × 5 + 1 = 1、その次が 1 × 5 + 1 = 6 です。2つの <code>rng</code> は同じシード 3 から始まるので、返す値の並びも同じです。結果の違いは、それぞれが <code>next</code> を何回呼ぶかから生まれます。
+      </p>
+      <p>
+        <code>unwrap_or(rng.next())</code> は普通のメソッド呼び出しなので、<code>s</code> が <code>Some</code> でも <code>None</code> でも、呼ぶ前に引数の <code>rng.next()</code> が評価されます。<code>a</code> を作るときは要素ごとに1回ずつ <code>next</code> が呼ばれ、2番目の <code>None</code> が受け取るのは2回目の値 1 です。<code>Some(9)</code> と <code>Some(4)</code> のときに引いた 0 と 6 は、使われずに捨てられます。
+      </p>
+      <p>
+        <code>unwrap_or_else</code> に渡したクロージャは、<code>s</code> が <code>None</code> のときにしか呼ばれません。<code>b</code> を作るときに <code>next</code> が呼ばれるのは <code>None</code> の1回だけなので、最初の値 0 がそのまま入ります。同じシードでも、記録した値で済ませた要素の分まで乱数を引くかどうかで、その後に続く値がずれます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/read">Today</a></li>
+    <li><a href="/rust/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

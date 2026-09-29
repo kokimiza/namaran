@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="0始まりの配列の添字をそのまま Fenwick木の位置に使ったため、終わらなくなるプログラムを直す。0 &amp; -0 は 0 なので、位置 0 から始まる更新のループは先へ進まない。2026-09-04のC DEBUG。">
+<title>止まらない累積和</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-09-04">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-04" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-09-04",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-09-04",
+      "datePublished": "2026-09-04",
+      "dateModified": "2026-09-04",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "止まらない累積和" },
+      "keywords": "fenwick-tree, infinite-loop, off-by-one, bit-operation",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "0始まりの配列の添字をそのまま Fenwick木の位置に使ったため、終わらなくなるプログラムを直す。0 & -0 は 0 なので、位置 0 から始まる更新のループは先へ進まない。2026-09-04のC DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-04" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-09-04">C++26</a>
+  <a href="/rust/debug/2026-09-04">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-04">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-09-04">READ</a>
+  <a href="/c/write/2026-09-04">WRITE</a>
+  <a href="/c/debug/2026-09-04" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="止まらない累積和"
+  data-tags="fenwick-tree infinite-loop off-by-one bit-operation"
+  data-concepts="Fenwick木, 1始まりの添字, 最下位ビット, 無限ループ, i &amp; -i, Binary Indexed Tree, one-based index, lowest set bit"
+  data-level="peacock"
+>
+  <h2>2026-09-04</h2>
+  <div class="code-frame">
+    <p class="code-filename">prefix_sum.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="ty">int</span> t[<span class="nu">5</span>];
+
+<span class="ty">int</span> <span class="fn">sum</span>(<span class="ty">int</span> i) {
+    <span class="ty">int</span> s = <span class="nu">0</span>;
+    <span class="kw">for</span> (; i &gt; <span class="nu">0</span>; i -= i &amp; -i)
+        s += t[i];
+    <span class="kw">return</span> s;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="ty">int</span> a[<span class="nu">4</span>] = {<span class="nu">5</span>, <span class="nu">3</span>, <span class="nu">7</span>, <span class="nu">9</span>};
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; <span class="nu">4</span>; i++)
+        <span class="kw">for</span> (<span class="ty">int</span> j = i; j &lt;= <span class="nu">4</span>; j += j &amp; -j)
+            t[j] += a[i];
+    <span class="fn">printf</span>(<span class="st">"%d\n"</span>, <span class="fn">sum</span>(<span class="nu">3</span>));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>main</code> は配列 <code>a</code> を Fenwick木 <code>t</code> に積み、<code>sum(3)</code> で <code>a</code> の先頭3個の和を出力するつもりのプログラムです。本来は 5 + 3 + 7 の <code>15</code> を出力するはずですが、いまは何も出力しないまま終わりません。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; <span class="nu">4</span>; i++)
+    <span class="kw">for</span> (<span class="ty">int</span> j = i; j &lt;= <span class="nu">4</span>; j += j &amp; -j)
+        t[j] += a[i];
+</code></pre>
+      <p>
+        最初の <code>i = 0</code> で内側のループから抜け出せません。内側のループは <code>j</code> に <code>j &amp; -j</code> を足して次の節へ進みますが、<code>0 &amp; -0</code> は 0 なので、<code>j</code> は 0 のまま動きません。<code>j &lt;= 4</code> はいつまでも真のままで、<code>t[0]</code> に 5 を足し続けます<sup class="fn-ref">1</sup>。
+      </p>
+      <p>
+        <code>j &amp; -j</code> は <code>j</code> の一番下にある 1 のビットです。1 以上の <code>j</code> なら必ず 1 以上になり、ループは毎回先へ進みます。立っているビットが1つもないのは 0 だけで、Fenwick木が位置を 1 から数えるのはこのためです。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; <span class="nu">4</span>; i++)
+    <span class="kw">for</span> (<span class="ty">int</span> j = i + <span class="nu">1</span>; j &lt;= <span class="nu">4</span>; j += j &amp; -j)
+        t[j] += a[i];
+</code></pre>
+      <p>
+        配列の <code>a[i]</code> を、木の位置 <code>i + 1</code> に対応させます。位置は 1〜4 になり、どれも更新のループが先へ進みます。<code>sum(3)</code> は位置 1〜3 に入った <code>a[0]</code>〜<code>a[2]</code> の和 5 + 3 + 7 = 15 を返します。
+      </p>
+      <ol class="footnotes">
+        <li><code>t[0]</code> は <code>int</code> なので、足し続けるといずれ <code>INT_MAX</code> を超えます。符号付き整数のオーバーフローは未定義動作なので、最適化の具合によっては、止まらない以外の振る舞いになることもあります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

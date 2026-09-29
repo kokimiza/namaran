@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="メモのリストを unlines で保存して lines で読み戻すと、改行を含むメモが2つに割れる。show と read を挟み、1件のメモを必ず1行に収めて直す。2026-09-04のHaskell DEBUG。">
+<title>改行入りのメモが割れる</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-09-04">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-04" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-09-04",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-09-04",
+      "datePublished": "2026-09-04",
+      "dateModified": "2026-09-04",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "改行入りのメモが割れる" },
+      "keywords": "string, list, line-ending, string-escaping",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "メモのリストを unlines で保存して lines で読み戻すと、改行を含むメモが2つに割れる。show と read を挟み、1件のメモを必ず1行に収めて直す。2026-09-04のHaskell DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-04">C23</a>
+  <a href="/cpp/debug/2026-09-04">C++26</a>
+  <a href="/rust/debug/2026-09-04">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-04" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-09-04">READ</a>
+  <a href="/haskell/write/2026-09-04">WRITE</a>
+  <a href="/haskell/debug/2026-09-04" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="改行入りのメモが割れる"
+  data-tags="string list line-ending string-escaping"
+  data-concepts="unlines, lines, 改行を含む文字列, 保存と読み込み, show と read, エスケープ, serialization round trip"
+  data-level="peacock"
+>
+  <h2>2026-09-04</h2>
+  <div class="code-frame">
+    <p class="code-filename">Memo.hs</p>
+    <pre class="code"><code><span class="fn">save</span> <span class="op">::</span> [<span class="ty">String</span>] <span class="op">-&gt;</span> <span class="ty">String</span>
+<span class="fn">save</span> = unlines
+
+<span class="fn">load</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> [<span class="ty">String</span>]
+<span class="fn">load</span> = lines
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (load (save [<span class="st">"buy milk"</span>, <span class="st">"call Ann\nabout Friday"</span>]))
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>save</code> はメモのリストを1つの文字列にし、<code>load</code> はそれを元のリストに戻すつもりの関数です。<code>main</code> は2件のメモを保存して読み戻します。本来は <code>[&quot;buy milk&quot;,&quot;call Ann\nabout Friday&quot;]</code> を出力するはずですが、いまは <code>[&quot;buy milk&quot;,&quot;call Ann&quot;,&quot;about Friday&quot;]</code> を出力します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="fn">save</span> = unlines
+<span class="fn">load</span> = lines
+</code></pre>
+      <p>
+        <code>unlines</code> はメモの後ろに <code>'\n'</code> を付けてつなぐだけで、メモの中にある <code>'\n'</code> には手を付けません。保存した文字列は <code>&quot;buy milk\ncall Ann\nabout Friday\n&quot;</code> になり、どの <code>'\n'</code> がメモの区切りで、どれがメモの中身だったのかを区別できなくなります。<code>lines</code> はすべての <code>'\n'</code> で区切るので、2件目のメモが <code>&quot;call Ann&quot;</code> と <code>&quot;about Friday&quot;</code> の2件に割れます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="fn">save</span> = unlines . map show
+<span class="fn">load</span> = map read . lines
+</code></pre>
+      <p>
+        <code>show</code> は文字列を引用符で囲み、中の改行を <code>\</code> と <code>n</code> の2文字に置き換えます。2件目のメモは <code>&quot;call Ann\nabout Friday&quot;</code> という引用符付きの1行として保存されるので、本物の <code>'\n'</code> はメモの区切りにしか現れません。<code>lines</code> で区切った各行を <code>read</code> すると、<code>show</code> する前の文字列に戻ります<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li><code>read</code> は形の合わない行を渡されると例外を投げます。人が手で編集しうるファイルなら、GHC の base にある <code>Text.Read.readMaybe</code> で読み、読めなかった行を別に扱う方が安全です。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

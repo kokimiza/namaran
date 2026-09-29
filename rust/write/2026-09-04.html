@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="線形合同法の乱数生成器の状態を、n 回進めた後の値まで一気に進める skip を書く。1回分の写像 s * A + C を自分自身と合成して2乗していけば、n が 10の12乗でも64回の計算で済む。2026-09-04のRust WRITE。">
+<title>乱数をn回ぶん先送り</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-09-04">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-04" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-09-04",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-09-04",
+      "datePublished": "2026-09-04",
+      "dateModified": "2026-09-04",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "乱数をn回ぶん先送り" },
+      "keywords": "random-number-generator, exponentiation-by-squaring, function-composition, integer-overflow",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "線形合同法の乱数生成器の状態を、n 回進めた後の値まで一気に進める skip を書く。1回分の写像 s * A + C を自分自身と合成して2乗していけば、n が 10の12乗でも64回の計算で済む。2026-09-04のRust WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-04">C23</a>
+  <a href="/cpp/write/2026-09-04">C++26</a>
+  <a href="/rust/write/2026-09-04" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-09-04">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-09-04">READ</a>
+  <a href="/rust/write/2026-09-04" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-09-04">DEBUG</a>
+</nav>
+
+<main
+  data-topic="乱数をn回ぶん先送り"
+  data-tags="random-number-generator exponentiation-by-squaring function-composition integer-overflow"
+  data-concepts="線形合同法, ジャンプアヘッド, 繰り返し二乗法, 一次関数の合成, wrapping_mul, LCG jump ahead, exponentiation by squaring"
+  data-level="whale"
+>
+  <h2>2026-09-04</h2>
+  <div class="code-frame">
+    <p class="code-filename">skip.rs</p>
+    <pre class="code"><code><span class="kw">const</span> <span class="ty">A</span>: <span class="ty">u64</span> = <span class="nu">6364136223846793005</span>;
+<span class="kw">const</span> <span class="ty">C</span>: <span class="ty">u64</span> = <span class="nu">1442695040888963407</span>;
+
+<span class="kw">fn</span> <span class="fn">skip</span>(state: <span class="ty">u64</span>, n: <span class="ty">u64</span>) -&gt; <span class="ty">u64</span> {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    シードから始まる乱数生成器があり、1回進むたびに状態 <code>s</code> が「<code>s * A + C</code> を2の64乗で割った余り」に置き換わります。状態 <code>state</code> から <code>n</code> 回進めた後の状態を返す <code>skip</code> を書いてください。途中の状態から実行を再現するのに使うので、<code>n</code> が 10の12乗程度でもすぐに返る必要があります。<code>n</code> が 0 なら <code>state</code> をそのまま返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>skip(0, 1)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>1442695040888963407</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>skip(42, 0)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>42</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>skip(42, 1_000_000_000_000)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>1621903161643487274</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">skip</span>(state: <span class="ty">u64</span>, n: <span class="ty">u64</span>) -&gt; <span class="ty">u64</span> {
+    <span class="kw">let</span> (<span class="kw">mut</span> s, <span class="kw">mut</span> mul, <span class="kw">mut</span> add) = (state, <span class="ty">A</span>, <span class="ty">C</span>);
+    <span class="kw">for</span> bit <span class="kw">in</span> <span class="nu">0</span>..<span class="nu">64</span> {
+        <span class="kw">if</span> (n &gt;&gt; bit) &amp; <span class="nu">1</span> == <span class="nu">1</span> {
+            s = s.<span class="fn">wrapping_mul</span>(mul).<span class="fn">wrapping_add</span>(add);
+        }
+        add = add.<span class="fn">wrapping_mul</span>(mul).<span class="fn">wrapping_add</span>(add);
+        mul = mul.<span class="fn">wrapping_mul</span>(mul);
+    }
+    s
+}
+</code></pre>
+      <p>
+        1回進める操作は、状態 <code>s</code> を <code>s * A + C</code> へ移す一次関数 f です。f を2回続けると f(f(s)) = (s * A + C) * A + C = s * A * A + (C * A + C) となり、これも「掛けて足す」形をしています。そこで、掛ける数 <code>mul</code> と足す数 <code>add</code> の組で「f を何回か続けた関数」を表します。ループの後半の2行がこの組を自分自身と合成する計算で、f を 2の <code>bit</code> 乗回続けた関数から、2の <code>bit + 1</code> 乗回続けた関数を作ります。新しい <code>add</code> は古い <code>mul</code> を使うので、<code>mul</code> より先に更新します。
+      </p>
+      <p>
+        <code>n</code> を2進数で見て、<code>bit</code> 番目が 1 のときだけ、その時点の組を <code>s</code> に適用します。適用する関数はどれも同じ f を何回か続けたものなので、順番を入れ替えても結果は変わらず、下のビットから順に適用してかまいません。<code>n</code> が 10の12乗でも、ループは64回で終わります。
+      </p>
+      <p>
+        2の64乗で割った余りを取る計算は、<code>u64</code> の <code>wrapping_mul</code> と <code>wrapping_add</code> がそのまま行ってくれます。<code>*</code> と <code>+</code> で書くと、オーバーフローの検査が有効なビルド（デバッグビルドの既定）では、あふれた時点で panic します。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>n</code> 回ループして1回ずつ進める実装でも結果は同じですが、<code>n</code> が 10の12乗だと、返るまでに長い時間がかかります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

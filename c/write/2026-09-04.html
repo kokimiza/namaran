@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Fenwick木だけが残っているときに、a[i] に足すのではなく a[i] を v に置き換える fw_set を書く。いまの a[i] を累積和の差から求め、その差分を木に加える。2026-09-04のC WRITE。">
+<title>Fenwick木で値を上書き</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-09-04">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-04" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-09-04",
+      "url": "https://namaran.jocarium.productions/c/write/2026-09-04",
+      "datePublished": "2026-09-04",
+      "dateModified": "2026-09-04",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "Fenwick木で値を上書き" },
+      "keywords": "fenwick-tree, prefix-sum, bit-operation",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "Fenwick木だけが残っているときに、a[i] に足すのではなく a[i] を v に置き換える fw_set を書く。いまの a[i] を累積和の差から求め、その差分を木に加える。2026-09-04のC WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-04" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-09-04">C++26</a>
+  <a href="/rust/write/2026-09-04">Rust 2024</a>
+  <a href="/haskell/write/2026-09-04">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-09-04">READ</a>
+  <a href="/c/write/2026-09-04" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-09-04">DEBUG</a>
+</nav>
+
+<main
+  data-topic="Fenwick木で値を上書き"
+  data-tags="fenwick-tree prefix-sum bit-operation"
+  data-concepts="Fenwick木, 一点更新, 値の代入, 差分の加算, Binary Indexed Tree, point update, point assignment"
+  data-level="bison"
+>
+  <h2>2026-09-04</h2>
+  <div class="code-frame">
+    <p class="code-filename">fenwick_set.c</p>
+    <pre class="code"><code><span class="ty">void</span> <span class="fn">fw_set</span>(<span class="ty">long</span> t[], <span class="ty">int</span> n, <span class="ty">int</span> i, <span class="ty">long</span> v) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>t[1]</code>〜<code>t[n]</code> は、配列 <code>a[1]</code>〜<code>a[n]</code> から作った Fenwick木です。<code>t[k]</code> は <code>a[k - (k &amp; -k) + 1]</code>〜<code>a[k]</code> の和で、<code>t[0]</code> は使いません。元の配列 <code>a</code> はもう手元にありません。<code>a[i]</code> を <code>v</code> に置き換えたときの Fenwick木になるよう <code>t</code> を書き換える <code>fw_set</code> を書いてください。<code>i</code> は 1 以上 <code>n</code> 以下です。入出力例では <code>t[1]</code>〜<code>t[n]</code> を並べて示します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>t = {3, 4, 4, 9, 5}; fw_set(t, 5, 3, 0);</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>t = {3, 4, 0, 5, 5}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>t = {3, 4, 4, 9, 5}; fw_set(t, 5, 1, 10);</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>t = {10, 11, 4, 16, 5}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>t = {7}; fw_set(t, 1, 1, 2);</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>t = {2}</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="ty">void</span> <span class="fn">fw_set</span>(<span class="ty">long</span> t[], <span class="ty">int</span> n, <span class="ty">int</span> i, <span class="ty">long</span> v) {
+    <span class="ty">long</span> cur = <span class="nu">0</span>;
+    <span class="kw">for</span> (<span class="ty">int</span> j = i; j &gt; <span class="nu">0</span>; j -= j &amp; -j)
+        cur += t[j];
+    <span class="kw">for</span> (<span class="ty">int</span> j = i - <span class="nu">1</span>; j &gt; <span class="nu">0</span>; j -= j &amp; -j)
+        cur -= t[j];
+    <span class="kw">for</span> (<span class="ty">long</span> d = v - cur; i &lt;= n; i += i &amp; -i)
+        t[i] += d;
+}
+</code></pre>
+      <p>
+        Fenwick木に直接できるのは、<code>a[i]</code> に差分 <code>d</code> を足すことだけです。置き換えるには、いまの <code>a[i]</code> を知って <code>d = v - a[i]</code> を足します。いまの <code>a[i]</code> は、先頭から <code>i</code> 個の和と <code>i - 1</code> 個の和の差です。最初の2つのループは、<code>j</code> から <code>j &amp; -j</code> を引きながら <code>t[j]</code> を拾い、この2つの和を求めます。最後のループは、<code>i &amp; -i</code> を足しながら差分を積む、ふだんの更新です。
+      </p>
+      <p>
+        <code>t[i] = v</code> と書くと誤りになります。<code>t[i]</code> が持つのは <code>a[i]</code> だけでなく、その手前を含む区間の和です。そのうえ <code>a[i]</code> は、<code>i</code> から上に続く節にも含まれています。例1では <code>t[4]</code> が <code>a[1]</code>〜<code>a[4]</code> の和 9 なので、<code>a[3]</code> を 4 から 0 にしたら <code>t[3]</code> と一緒に <code>t[4]</code> も 4 減らす必要があります。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>i</code> 個の和と <code>i - 1</code> 個の和は、たどる節が途中から同じになるので、そこから先は足しても引いても打ち消し合います。その手前で止めれば、ループを短くできます。元の値を別の配列に持っておけるなら、差分はその配列から求まります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

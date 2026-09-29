@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="乱数のバイト列から 0 以上 n 未満の整数を偏りなく1つ選ぶ pick を書く。256 が n で割り切れないときは、余りに偏りを生む大きいバイトを捨てて次のバイトを使う。2026-09-04のC++ WRITE。">
+<title>偏りなくn通りを選ぶ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-09-04">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-04" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-09-04",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-09-04",
+      "datePublished": "2026-09-04",
+      "dateModified": "2026-09-04",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "偏りなくn通りを選ぶ" },
+      "keywords": "random-number-generator, modular-arithmetic, sampling, span",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "乱数のバイト列から 0 以上 n 未満の整数を偏りなく1つ選ぶ pick を書く。256 が n で割り切れないときは、余りに偏りを生む大きいバイトを捨てて次のバイトを使う。2026-09-04のC++ WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-04">C23</a>
+  <a href="/cpp/write/2026-09-04" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-09-04">Rust 2024</a>
+  <a href="/haskell/write/2026-09-04">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-04">READ</a>
+  <a href="/cpp/write/2026-09-04" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-09-04">DEBUG</a>
+</nav>
+
+<main
+  data-topic="偏りなくn通りを選ぶ"
+  data-tags="random-number-generator modular-arithmetic sampling span"
+  data-concepts="棄却法, 剰余による偏り, 一様乱数, 乱数の範囲変換, rejection sampling, modulo bias, uniform random integer"
+  data-level="hedgehog"
+>
+  <h2>2026-09-04</h2>
+  <div class="code-frame">
+    <p class="code-filename">pick.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;cstdint&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;span&gt;</span>
+
+<span class="ty">int</span> <span class="fn">pick</span>(std::<span class="ty">span</span>&lt;<span class="kw">const</span> std::<span class="ty">uint8_t</span>&gt; bytes, <span class="ty">int</span> n) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>bytes</code> には、0〜255 のどれもが同じ確率で出る乱数のバイトが並んでいます。これを先頭から使い、0 以上 <code>n</code> 未満の整数のどれもが同じ確率で出るように1つ返す <code>pick</code> を書いてください。バイトを <code>n</code> で割った余りを使い、そのままでは余りの出方に偏りが出るバイトは捨てて次のバイトに進みます。捨てるのは偏りをなくすのに要る最小限のバイトだけにします。<code>n</code> は 1〜256 で、<code>bytes</code> には使えるバイトが必ず含まれているものとします。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>pick(std::array&lt;std::uint8_t, 2&gt;{255, 7}, 3)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>1</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>pick(std::array&lt;std::uint8_t, 3&gt;{252, 255, 9}, 6)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>3</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>pick(std::array&lt;std::uint8_t, 1&gt;{200}, 1)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="ty">int</span> <span class="fn">pick</span>(std::<span class="ty">span</span>&lt;<span class="kw">const</span> std::<span class="ty">uint8_t</span>&gt; bytes, <span class="ty">int</span> n) {
+    <span class="kw">const</span> <span class="ty">int</span> limit = <span class="nu">256</span> - <span class="nu">256</span> % n;
+    <span class="kw">for</span> (<span class="ty">int</span> b : bytes)
+        <span class="kw">if</span> (b &lt; limit)
+            <span class="kw">return</span> b % n;
+    std::<span class="fn">unreachable</span>();
+}
+</code></pre>
+      <p>
+        256 を <code>n</code> で割った余り <code>256 % n</code> が、どの余りにも均等には配れないバイトの数です。<code>limit = 256 - 256 % n</code> は <code>n</code> の倍数なので、0〜<code>limit - 1</code> のバイトなら、余り 0〜<code>n - 1</code> のそれぞれにちょうど <code>limit / n</code> 個ずつ対応します。<code>limit</code> 以上のバイトが出たら捨てて、次のバイトを見ます。例1では <code>limit</code> が 255 なので 255 だけを捨て、<code>7 % 3</code> の 1 を返します。
+      </p>
+      <p>
+        捨てずに <code>b % n</code> を返すと、<code>n</code> が 3 のときは余り 0 に 86 個、1 と 2 に 85 個ずつのバイトが対応し、0 だけがわずかに出やすくなります。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。ループを抜けるのは使えるバイトが尽きたときだけで、問題の前提ではそこに来ないので <code>std::unreachable()</code> を置いています。実際のコードでは、足りなくなったら乱数源からバイトを読み足します。標準ライブラリで済ませるなら、<code>std::uniform_int_distribution</code> が偏りのない範囲変換をしてくれます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

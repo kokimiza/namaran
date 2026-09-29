@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="文字列を改行文字ごとに区切り、区切りの改行を挟んでつなぎ直すと元に戻るリストを返す splitLines を書く。lines と違い、末尾の改行の後にある空文字列も残す。2026-09-04のHaskell WRITE。">
+<title>改行で余さず分割</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-09-04">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-04" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-09-04",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-09-04",
+      "datePublished": "2026-09-04",
+      "dateModified": "2026-09-04",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "改行で余さず分割" },
+      "keywords": "string, list, recursion, line-ending",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "文字列を改行文字ごとに区切り、区切りの改行を挟んでつなぎ直すと元に戻るリストを返す splitLines を書く。lines と違い、末尾の改行の後にある空文字列も残す。2026-09-04のHaskell WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-04">C23</a>
+  <a href="/cpp/write/2026-09-04">C++26</a>
+  <a href="/rust/write/2026-09-04">Rust 2024</a>
+  <a href="/haskell/write/2026-09-04" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-09-04">READ</a>
+  <a href="/haskell/write/2026-09-04" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-09-04">DEBUG</a>
+</nav>
+
+<main
+  data-topic="改行で余さず分割"
+  data-tags="string list recursion line-ending"
+  data-concepts="lines, 改行で分割, 末尾の空行, break, split on newline, round trip"
+  data-level="hedgehog"
+>
+  <h2>2026-09-04</h2>
+  <div class="code-frame">
+    <p class="code-filename">SplitLines.hs</p>
+    <pre class="code"><code><span class="fn">splitLines</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> [<span class="ty">String</span>]
+</code></pre>
+  </div>
+
+  <p class="question">
+    文字列を <code>'\n'</code> ごとに区切った各部分を返す <code>splitLines</code> を書いてください。どの <code>s</code> についても、<code>Data.List</code> の <code>intercalate &quot;\n&quot; (splitLines s)</code> が <code>s</code> に戻るようにします。<code>s</code> が <code>'\n'</code> で終わるときは最後の要素が空文字列になり、<code>s</code> が空文字列なら <code>[&quot;&quot;]</code> を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>splitLines "a\n\nb\n"</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>["a","","b",""]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>splitLines ""</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>[""]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>splitLines "a"</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>["a"]</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="fn">splitLines</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> [<span class="ty">String</span>]
+<span class="fn">splitLines</span> s = <span class="kw">case</span> break (== <span class="st">'\n'</span>) s <span class="kw">of</span>
+  (l, []) <span class="op">-&gt;</span> [l]
+  (l, _ : rest) <span class="op">-&gt;</span> l : splitLines rest
+</code></pre>
+      <p>
+        <code>break (== '\n') s</code> は、<code>s</code> を最初の <code>'\n'</code> の手前とそれ以降に分けます。後ろが空なら <code>'\n'</code> はもう残っていないので、手前の部分が最後の要素です。後ろが <code>'\n'</code> で始まっていれば、その <code>'\n'</code> を落とした残りを同じように区切ります。
+      </p>
+      <p>
+        残りが空文字列になっても再帰を続けるところが、<code>lines</code> との違いです。<code>&quot;a\n&quot;</code> は1回目の <code>break</code> で <code>&quot;a&quot;</code> と <code>&quot;\n&quot;</code> に分かれ、残りの <code>&quot;&quot;</code> に対する2回目の <code>break</code> が <code>(&quot;&quot;, &quot;&quot;)</code> を返すので、最後に空文字列が入ります。<code>lines</code> は残りが空になった時点で止まるので、<code>&quot;a\n&quot;</code> と <code>&quot;a&quot;</code> をどちらも <code>[&quot;a&quot;]</code> にしてしまいます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>foldr</code> で1文字ずつ見て、<code>'\n'</code> のたびに新しい要素を始める書き方もできます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

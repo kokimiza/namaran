@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="乱数のバイトを b % 62 で英数字62文字に割り当てたため、一部の文字だけが出やすくなるトークン生成を直す。256 は 62 で割り切れず、余ったバイトが先頭の文字に重なる。2026-09-04のC++ DEBUG。">
+<title>トークンの文字の偏り</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-09-04">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-04" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-09-04",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-09-04",
+      "datePublished": "2026-09-04",
+      "dateModified": "2026-09-04",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "トークンの文字の偏り" },
+      "keywords": "random-number-generator, modular-arithmetic, sampling, string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "乱数のバイトを b % 62 で英数字62文字に割り当てたため、一部の文字だけが出やすくなるトークン生成を直す。256 は 62 で割り切れず、余ったバイトが先頭の文字に重なる。2026-09-04のC++ DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-04">C23</a>
+  <a href="/cpp/debug/2026-09-04" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-09-04">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-04">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-04">READ</a>
+  <a href="/cpp/write/2026-09-04">WRITE</a>
+  <a href="/cpp/debug/2026-09-04" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="トークンの文字の偏り"
+  data-tags="random-number-generator modular-arithmetic sampling string"
+  data-concepts="剰余による偏り, ランダムな文字列, トークン生成, 棄却法, modulo bias, random token, rejection sampling"
+  data-level="hedgehog"
+>
+  <h2>2026-09-04</h2>
+  <div class="code-frame">
+    <p class="code-filename">token.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;algorithm&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;print&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+
+<span class="kw">const</span> std::<span class="ty">string</span> alphabet =
+    <span class="st">"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"</span>;
+
+std::<span class="ty">string</span> <span class="fn">token</span>(<span class="kw">const</span> std::<span class="ty">string</span>&amp; bytes) {
+    std::<span class="ty">string</span> s;
+    <span class="kw">for</span> (<span class="ty">unsigned</span> <span class="ty">char</span> b : bytes)
+        s += alphabet[b % alphabet.<span class="fn">size</span>()];
+    <span class="kw">return</span> s;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    std::<span class="ty">string</span> all;
+    <span class="kw">for</span> (<span class="ty">int</span> b = <span class="nu">0</span>; b &lt; <span class="nu">256</span>; ++b)
+        all += <span class="kw">static_cast</span>&lt;<span class="ty">char</span>&gt;(b);
+    std::<span class="ty">string</span> t = <span class="fn">token</span>(all);
+    std::<span class="fn">println</span>(<span class="st">"{} {}"</span>, std::ranges::<span class="fn">count</span>(t, <span class="st">'A'</span>), std::ranges::<span class="fn">count</span>(t, <span class="st">'z'</span>));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>token</code> は、乱数のバイト列から、英数字62文字のどれもが同じ確率で出るトークンを作るつもりの関数です。<code>main</code> は 0〜255 のバイトを1つずつすべて渡し、できた文字列に <code>'A'</code> と <code>'z'</code> が何回ずつ現れるかを出力します。本来は <code>4 4</code> を出力するはずですが、いまは <code>5 4</code> を出力します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">for</span> (<span class="ty">unsigned</span> <span class="ty">char</span> b : bytes)
+    s += alphabet[b % alphabet.<span class="fn">size</span>()];
+</code></pre>
+      <p>
+        バイトは256通りあり、256 = 62 × 4 + 8 です。<code>b % 62</code> はバイト 0〜247 で 0〜61 を4周し、残りの 248〜255 で 0〜7 をもう一度たどります。<code>alphabet</code> の先頭8文字 <code>A</code>〜<code>H</code> には5つのバイトが、残りの54文字には4つずつが対応するので、<code>'A'</code> は5回、<code>'z'</code> は4回現れます。
+      </p>
+      <p>
+        本物の乱数を渡しても同じで、<code>A</code>〜<code>H</code> は他の文字の 5/4 倍出やすくなります。推測されにくいことが求められるトークンに、文字の出方の偏りが残ります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">for</span> (<span class="ty">unsigned</span> <span class="ty">char</span> b : bytes)
+    <span class="kw">if</span> (b &lt; <span class="nu">256</span> - <span class="nu">256</span> % alphabet.<span class="fn">size</span>())
+        s += alphabet[b % alphabet.<span class="fn">size</span>()];
+</code></pre>
+      <p>
+        <code>256 - 256 % 62</code> は 248 で、62 の倍数です。248 以上のバイトを捨てれば、残る 0〜247 は62文字のそれぞれにちょうど4つずつ対応します。捨てた分だけトークンは渡したバイト数より短くなるので、実際に使うときは、必要な長さになるまでバイトを読み足します。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

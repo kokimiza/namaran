@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「乱数生成器」を扱ったNamaranのコーディングドリル3問。プロパティベーステスト、乱数の種、純粋関数、状態の受け渡し、random seed threading、pure function。">
+<meta name="description" content="「乱数生成器」を扱ったNamaranのコーディングドリル9問。プロパティベーステスト、乱数の種、純粋関数、状態の受け渡し、random seed threading、pure function。">
 <title>乱数生成器</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/random-number-generator">
 <link rel="stylesheet" href="/style.css">
@@ -32,13 +32,19 @@
   <h2>乱数生成器</h2>
 
   <p class="lede">
-    「乱数生成器」を扱った3問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「乱数生成器」を扱った9問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
     <li><a href="/haskell/debug/2026-09-09">Haskell / DEBUG · 2026-09-09</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">通ってしまうテスト</span> <span class="past-concepts">プロパティベーステスト, 乱数の種, 純粋関数, 状態の受け渡し, random seed threading, pure function</span></li>
     <li><a href="/cpp/read/2026-09-05">C++ / READ · 2026-09-05</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">上限でも投げるコイン</span> <span class="past-concepts">スキップリストの高さ, 短絡評価, 評価順序, コイン投げ, skip list level, short-circuit evaluation, random level</span></li>
     <li><a href="/cpp/debug/2026-09-05">C++ / DEBUG · 2026-09-05</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">コピーされた乱数生成器</span> <span class="past-concepts">スキップリスト, 乱数生成器のコピー, 値渡し, 参照渡し, mt19937, pass by value, random engine state, skip list level</span></li>
+    <li><a href="/rust/write/2026-09-04">Rust / WRITE · 2026-09-04</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">乱数をn回ぶん先送り</span> <span class="past-concepts">線形合同法, ジャンプアヘッド, 繰り返し二乗法, 一次関数の合成, wrapping_mul, LCG jump ahead, exponentiation by squaring</span></li>
+    <li><a href="/rust/read/2026-09-04">Rust / READ · 2026-09-04</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">記録と乱数の再生</span> <span class="past-concepts">unwrap_or, unwrap_or_else, 引数の先行評価, 乱数のシード, 再現性, eager evaluation, seeded RNG</span></li>
+    <li><a href="/rust/debug/2026-09-04">Rust / DEBUG · 2026-09-04</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">シード固定でも毎回違う</span> <span class="past-concepts">HashMapの反復順序, RandomState, シード固定の乱数, 再現性, BTreeMap, HashMap iteration order, reproducible randomness</span></li>
+    <li><a href="/cpp/write/2026-09-04">C++ / WRITE · 2026-09-04</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">偏りなくn通りを選ぶ</span> <span class="past-concepts">棄却法, 剰余による偏り, 一様乱数, 乱数の範囲変換, rejection sampling, modulo bias, uniform random integer</span></li>
+    <li><a href="/cpp/read/2026-09-04">C++ / READ · 2026-09-04</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">サイコロで4択</span> <span class="past-concepts">剰余, 乱数の範囲変換, 剰余による偏り, modulo bias, サイコロ, random range</span></li>
+    <li><a href="/cpp/debug/2026-09-04">C++ / DEBUG · 2026-09-04</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">トークンの文字の偏り</span> <span class="past-concepts">剰余による偏り, ランダムな文字列, トークン生成, 棄却法, modulo bias, random token, rejection sampling</span></li>
   </ul>
 
   <p><a href="/topics">ほかのお題を見る</a></p>

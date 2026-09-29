@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="add(i, i) を8回呼んだあとの配列 t から t[4]・t[6]・t[7]・t[8] を読むドリル。i &amp; -i ずつ進む更新のループが、各マスにどの値を積むかを追う。2026-09-04のC READ。">
+<title>Fenwick木のt[i]</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-09-04">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-04" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-09-04",
+      "url": "https://namaran.jocarium.productions/c/read/2026-09-04",
+      "datePublished": "2026-09-04",
+      "dateModified": "2026-09-04",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "Fenwick木のt[i]" },
+      "keywords": "fenwick-tree, bit-operation, prefix-sum, twos-complement",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "add(i, i) を8回呼んだあとの配列 t から t[4]・t[6]・t[7]・t[8] を読むドリル。i & -i ずつ進む更新のループが、各マスにどの値を積むかを追う。2026-09-04のC READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-04" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-09-04">C++26</a>
+  <a href="/rust/read/2026-09-04">Rust 2024</a>
+  <a href="/haskell/read/2026-09-04">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-09-04" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-09-04">WRITE</a>
+  <a href="/c/debug/2026-09-04">DEBUG</a>
+</nav>
+
+<main
+  data-topic="Fenwick木のt[i]"
+  data-tags="fenwick-tree bit-operation prefix-sum twos-complement"
+  data-concepts="Fenwick木, BIT, 最下位ビット, i &amp; -i, 区間和, Binary Indexed Tree, lowest set bit"
+  data-level="peacock"
+>
+  <h2>2026-09-04</h2>
+  <div class="code-frame">
+    <p class="code-filename">fenwick.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="ty">int</span> t[<span class="nu">9</span>];
+
+<span class="ty">void</span> <span class="fn">add</span>(<span class="ty">int</span> i, <span class="ty">int</span> v) {
+    <span class="kw">for</span> (; i &lt;= <span class="nu">8</span>; i += i &amp; -i)
+        t[i] += v;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">1</span>; i &lt;= <span class="nu">8</span>; i++)
+        <span class="fn">add</span>(i, i);
+    <span class="fn">printf</span>(<span class="st">"%d %d %d %d\n"</span>, t[<span class="nu">4</span>], t[<span class="nu">6</span>], t[<span class="nu">7</span>], t[<span class="nu">8</span>]);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>10 11 7 36</code> です。
+      </p>
+      <p>
+        <code>add</code> は <code>t[i]</code> に <code>v</code> を足したあと、<code>i</code> に <code>i &amp; -i</code> を足して次のマスへ進みます。C23 の符号付き整数は2の補数で表されるので、<code>i &amp; -i</code> は <code>i</code> の一番下にある 1 のビットだけを残した値です。4 (<code>100</code>) なら 4、6 (<code>110</code>) なら 2、7 (<code>111</code>) なら 1 になります。
+      </p>
+      <p>
+        そのため <code>add(i, i)</code> が値 <code>i</code> を書き込む先は <code>t[i]</code> だけではありません。<code>add(3, 3)</code> なら <code>t[3]</code> に足したあと 3 + 1 = 4 へ、4 + 4 = 8 へと進み、<code>t[3]</code>・<code>t[4]</code>・<code>t[8]</code> の3か所に 3 を足します。<code>t[i]</code> には <code>i</code> だけが入ると読むと <code>4 6 7 8</code> と答えてしまいますが、<code>t[k]</code> に入るのは、進んだ先で <code>k</code> を通る <code>i</code> の合計です。
+      </p>
+      <p>
+        <code>t[4]</code> を通るのは 1 → 2 → 4、2 → 4、3 → 4、4 の4本で、1 + 2 + 3 + 4 = 10 です。<code>t[6]</code> を通るのは 5 → 6 と 6 で 11、<code>t[7]</code> は 7 から次が 8 に飛ぶので 7 だけです。どの <code>i</code> も最後は 8 を通るので、<code>t[8]</code> は 1〜8 の和 36 になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

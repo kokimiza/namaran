@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="乱数のシードを 42 に固定したのに、実行するたびに結果が変わるプログラムを直す。HashMap を反復する順番は実行ごとに変わり、その順番で乱数を引いている。2026-09-04のRust DEBUG。">
+<title>シード固定でも毎回違う</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-09-04">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-04" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-09-04",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-09-04",
+      "datePublished": "2026-09-04",
+      "dateModified": "2026-09-04",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "シード固定でも毎回違う" },
+      "keywords": "random-number-generator, hash-table, ordered-map, iterator",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "乱数のシードを 42 に固定したのに、実行するたびに結果が変わるプログラムを直す。HashMap を反復する順番は実行ごとに変わり、その順番で乱数を引いている。2026-09-04のRust DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-04">C23</a>
+  <a href="/cpp/debug/2026-09-04">C++26</a>
+  <a href="/rust/debug/2026-09-04" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-04">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-09-04">READ</a>
+  <a href="/rust/write/2026-09-04">WRITE</a>
+  <a href="/rust/debug/2026-09-04" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="シード固定でも毎回違う"
+  data-tags="random-number-generator hash-table ordered-map iterator"
+  data-concepts="HashMapの反復順序, RandomState, シード固定の乱数, 再現性, BTreeMap, HashMap iteration order, reproducible randomness"
+  data-level="bison"
+>
+  <h2>2026-09-04</h2>
+  <div class="code-frame">
+    <p class="code-filename">pick.rs</p>
+    <pre class="code"><code><span class="kw">use</span> std::collections::<span class="ty">HashMap</span>;
+
+<span class="kw">struct</span> <span class="fn">Lcg</span>(<span class="ty">u64</span>);
+
+<span class="kw">impl</span> <span class="ty">Lcg</span> {
+    <span class="kw">fn</span> <span class="fn">next</span>(&amp;<span class="kw">mut</span> <span class="kw">self</span>) -&gt; <span class="ty">u64</span> {
+        <span class="kw">self</span>.<span class="nu">0</span> = <span class="kw">self</span>.<span class="nu">0</span>.<span class="fn">wrapping_mul</span>(<span class="nu">6364136223846793005</span>).<span class="fn">wrapping_add</span>(<span class="nu">1442695040888963407</span>);
+        <span class="kw">self</span>.<span class="nu">0</span> &gt;&gt; <span class="nu">33</span>
+    }
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> stock = <span class="ty">HashMap</span>::<span class="fn">from</span>([(<span class="st">"apple"</span>, <span class="nu">3</span>), (<span class="st">"fig"</span>, <span class="nu">5</span>), (<span class="st">"pear"</span>, <span class="nu">7</span>)]);
+    <span class="kw">let</span> <span class="kw">mut</span> rng = <span class="fn">Lcg</span>(<span class="nu">42</span>);
+    <span class="kw">let</span> <span class="kw">mut</span> picked: <span class="ty">Vec</span>&lt;(&amp;<span class="ty">str</span>, <span class="ty">u64</span>)&gt; = stock.<span class="fn">iter</span>().<span class="fn">map</span>(|(&amp;k, &amp;n)| (k, rng.<span class="fn">next</span>() % n)).<span class="fn">collect</span>();
+    picked.<span class="fn">sort</span>();
+    <span class="mc">println!</span>(<span class="st">"{picked:?}"</span>);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    在庫の果物ごとに、0 以上在庫数未満の数を乱数で1つずつ選ぶプログラムです。乱数生成器のシードを 42 に固定しているので、何度実行しても同じ結果になるつもりです。本来は毎回 <code>[("apple", 1), ("fig", 1), ("pear", 0)]</code> を出力するはずですが、いまは <code>[("apple", 2), ("fig", 4), ("pear", 0)]</code> や <code>[("apple", 1), ("fig", 4), ("pear", 2)]</code> のように、実行するたびに違う結果を出力します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">let</span> stock = <span class="ty">HashMap</span>::<span class="fn">from</span>([(<span class="st">"apple"</span>, <span class="nu">3</span>), (<span class="st">"fig"</span>, <span class="nu">5</span>), (<span class="st">"pear"</span>, <span class="nu">7</span>)]);
+<span class="kw">let</span> <span class="kw">mut</span> rng = <span class="fn">Lcg</span>(<span class="nu">42</span>);
+<span class="kw">let</span> <span class="kw">mut</span> picked: <span class="ty">Vec</span>&lt;(&amp;<span class="ty">str</span>, <span class="ty">u64</span>)&gt; = stock.<span class="fn">iter</span>().<span class="fn">map</span>(|(&amp;k, &amp;n)| (k, rng.<span class="fn">next</span>() % n)).<span class="fn">collect</span>();
+picked.<span class="fn">sort</span>();
+</code></pre>
+      <p>
+        <code>Lcg(42)</code> が返す値の並びは、実行ごとに変わりません。変わるのは、その値をどの果物が受け取るかです。<code>HashMap</code> を <code>iter</code> で回す順番は決まっておらず、標準の <code>HashMap</code> はプロセスごとにランダムに選んだ鍵でハッシュ値を計算するので、実行するたびに順番が変わります<sup class="fn-ref">1</sup>。1つ目の乱数が <code>apple</code> に行く回もあれば、<code>pear</code> に行く回もあります。
+      </p>
+      <p>
+        最後の <code>picked.sort()</code> で出力は名前順にそろうので、反復の順番が変わっていることは出力からは見えません。並べ替えは乱数を引いた後なので、どの果物がどの乱数を受け取ったかは元に戻りません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">use</span> std::collections::<span class="ty">BTreeMap</span>;
+<span class="kw">let</span> stock = <span class="ty">BTreeMap</span>::<span class="fn">from</span>([(<span class="st">"apple"</span>, <span class="nu">3</span>), (<span class="st">"fig"</span>, <span class="nu">5</span>), (<span class="st">"pear"</span>, <span class="nu">7</span>)]);
+</code></pre>
+      <p>
+        <code>BTreeMap</code> は鍵の順に反復するので、乱数は毎回 <code>apple</code>、<code>fig</code>、<code>pear</code> の順に引かれます。乱数の並びも、それを受け取る順番も固定されるので、結果は1つに決まります。<code>picked</code> は最初から名前順になるので、<code>sort</code> を残しても出力は変わりません。
+      </p>
+      <ol class="footnotes">
+        <li><code>HashMap</code> の既定のハッシャー <code>RandomState</code> がランダムな鍵を使うのは、ハッシュ値を外から予測して衝突を狙う攻撃（HashDoS）を防ぐためです。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
