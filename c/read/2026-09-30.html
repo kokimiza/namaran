@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="atexit で登録した2つの関数が、main から戻ったあとにどの順で呼ばれるかを追う。exit を書かなくても終了処理が走ることと、登録の逆順を扱う。2026-09-30のC READ。">
+<title>exitと後始末の順番</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-09-30">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-30" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-09-30",
+      "url": "https://namaran.jocarium.productions/c/read/2026-09-30",
+      "datePublished": "2026-09-30",
+      "dateModified": "2026-09-30",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "exitと後始末の順番" },
+      "keywords": "program-termination, control-flow",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "atexit で登録した2つの関数が、main から戻ったあとにどの順で呼ばれるかを追う。exit を書かなくても終了処理が走ることと、登録の逆順を扱う。2026-09-30のC READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-30" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-09-30">C++26</a>
+  <a href="/rust/read/2026-09-30">Rust 2024</a>
+  <a href="/haskell/read/2026-09-30">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-09-30" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-09-30">WRITE</a>
+  <a href="/c/debug/2026-09-30">DEBUG</a>
+</nav>
+
+<main
+  data-topic="exitと後始末の順番"
+  data-tags="program-termination control-flow"
+  data-concepts="atexit, exit, 後始末の関数, 終了処理の順序, mainからのreturn, exit handler, atexit order, LIFO"
+  data-level="hedgehog"
+>
+  <h2>2026-09-30</h2>
+  <div class="code-frame">
+    <p class="code-filename">farewell.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;stdlib.h&gt;</span>
+
+<span class="kw">static</span> <span class="ty">void</span> <span class="fn">first</span>(<span class="ty">void</span>) {
+    <span class="fn">puts</span>(<span class="st">"first"</span>);
+}
+
+<span class="kw">static</span> <span class="ty">void</span> <span class="fn">second</span>(<span class="ty">void</span>) {
+    <span class="fn">puts</span>(<span class="st">"second"</span>);
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="fn">atexit</span>(first);
+    <span class="fn">atexit</span>(second);
+    <span class="fn">puts</span>(<span class="st">"main"</span>);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>main</code>、<code>second</code>、<code>first</code> の3行です。
+      </p>
+      <p>
+        <code>main</code> には <code>exit</code> の呼び出しがありませんが、<code>main</code> から戻ることは <code>exit</code> を呼ぶのと同じ扱いです。最後の <code>}</code> まで進むと <code>exit(0)</code> と同じ終了処理が始まるので、<code>puts("main")</code> のあとに後始末の関数が呼ばれます。
+      </p>
+      <p>
+        <code>atexit</code> で登録した関数は、登録とは逆の順で呼ばれます。先に登録した <code>first</code> が最後になり、後から登録した <code>second</code> が先に出力されます。
+      </p>
+      <p>
+        後始末の関数が <code>puts</code> で書いた内容も失われません。<code>exit</code> は登録された関数をすべて呼び終えてから、開いているストリームのバッファを吐き出して閉じるからです<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>同じ終了でも <code>_Exit</code> は登録された関数を呼ばず、バッファを吐き出すかどうかも処理系に任されています。<code>main</code> の最後で <code>_Exit(0)</code> を呼ぶと、<code>second</code> も <code>first</code> も呼ばれません。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

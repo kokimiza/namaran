@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="予定を時刻順に並べる std::set の比較関数を書く。時刻が同じでも名前の違う予定が消えないよう、std::tie で名前まで比べる。2026-09-30のC++ WRITE。">
+<title>同時刻の予定を残す比較</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-09-30">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-30" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-09-30",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-09-30",
+      "datePublished": "2026-09-30",
+      "dateModified": "2026-09-30",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "同時刻の予定を残す比較" },
+      "keywords": "set, strict-weak-ordering, struct, comparison",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "予定を時刻順に並べる std::set の比較関数を書く。時刻が同じでも名前の違う予定が消えないよう、std::tie で名前まで比べる。2026-09-30のC++ WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-30">C23</a>
+  <a href="/cpp/write/2026-09-30" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-09-30">Rust 2024</a>
+  <a href="/haskell/write/2026-09-30">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-30">READ</a>
+  <a href="/cpp/write/2026-09-30" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-09-30">DEBUG</a>
+</nav>
+
+<main
+  data-topic="同時刻の予定を残す比較"
+  data-tags="set strict-weak-ordering struct comparison"
+  data-concepts="std::set, 比較関数, std::tie, 辞書式比較, 同じ時刻の予定, comparator, lexicographic comparison, tie-breaker"
+  data-level="hedgehog"
+>
+  <h2>2026-09-30</h2>
+  <div class="code-frame">
+    <p class="code-filename">events.cpp</p>
+    <pre class="code"><code><span class="kw">struct</span> <span class="ty">Event</span> {
+    <span class="ty">int</span> time;
+    std::<span class="ty">string</span> name;
+};
+
+<span class="kw">struct</span> <span class="ty">ByTime</span> {
+    <span class="ty">bool</span> <span class="kw">operator</span>()(<span class="kw">const</span> <span class="ty">Event</span>&amp; a, <span class="kw">const</span> <span class="ty">Event</span>&amp; b) <span class="kw">const</span> {
+    }
+};
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>std::set&lt;Event, ByTime&gt;</code> が予定を <code>time</code> の早い順に並べるよう、<code>ByTime</code> の <code>operator()</code> を書いてください。<code>time</code> が同じ予定は <code>name</code> の辞書順に並べ、<code>time</code> も <code>name</code> も同じ予定だけを重複として1つにまとめます。出力例は、できた <code>set</code> を先頭から並べたものです。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>std::set&lt;Event, ByTime&gt;{{2, "b"}, {1, "z"}, {2, "a"}}</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>{1, "z"} {2, "a"} {2, "b"}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>std::set&lt;Event, ByTime&gt;{{1, "a"}, {1, "a"}}</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>{1, "a"}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>std::set&lt;Event, ByTime&gt;{{3, "x"}, {0, "y"}}</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>{0, "y"} {3, "x"}</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code>    <span class="ty">bool</span> <span class="kw">operator</span>()(<span class="kw">const</span> <span class="ty">Event</span>&amp; a, <span class="kw">const</span> <span class="ty">Event</span>&amp; b) <span class="kw">const</span> {
+        <span class="kw">return</span> std::<span class="fn">tie</span>(a.time, a.name) &lt; std::<span class="fn">tie</span>(b.time, b.name);
+    }
+</code></pre>
+      <p>
+        <code>std::set</code> は、<code>comp(a, b)</code> と <code>comp(b, a)</code> がどちらも偽になる2つの要素を同じものとして扱い、後から来た方を入れません。<code>a.time &lt; b.time</code> だけを返すと、時刻が同じで名前の違う予定もこの条件を満たすので、例1の <code>{2, "a"}</code> は入らずに消えます。
+      </p>
+      <p>
+        <code>std::tie</code> は引数への参照を <code>std::tuple</code> にまとめ、<code>&lt;</code> は先頭の要素から順に比べます。<code>time</code> が等しいときだけ <code>name</code> の比較に進むので、等価になるのは両方が等しい予定だけです。掲載したのは参考実装で、唯一の正解ではありません。<code>a.time != b.time ? a.time &lt; b.time : a.name &lt; b.name</code> と書いても同じ順序になります<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>C++20 からは、<code>Event</code> に <code>auto operator&lt;=&gt;(const Event&amp;) const = default;</code> と書けば、メンバを宣言の順に比べる比較演算子が作られます。比較関数を渡さずに <code>std::set&lt;Event&gt;</code> と書いても、同じ並びになります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="区間の最小値を持つ非再帰のセグメント木で、葉を1つ書き換えて根までの節を直す update を書く。値が大きくなる更新でも木の形を保つ。2026-09-30のRust WRITE。">
+<title>葉を書き換えて親を直す</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-09-30">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-30" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-09-30",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-09-30",
+      "datePublished": "2026-09-30",
+      "dateModified": "2026-09-30",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "葉を書き換えて親を直す" },
+      "keywords": "segment-tree, tree",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "区間の最小値を持つ非再帰のセグメント木で、葉を1つ書き換えて根までの節を直す update を書く。値が大きくなる更新でも木の形を保つ。2026-09-30のRust WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-30">C23</a>
+  <a href="/cpp/write/2026-09-30">C++26</a>
+  <a href="/rust/write/2026-09-30" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-09-30">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-09-30">READ</a>
+  <a href="/rust/write/2026-09-30" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-09-30">DEBUG</a>
+</nav>
+
+<main
+  data-topic="葉を書き換えて親を直す"
+  data-tags="segment-tree tree"
+  data-concepts="セグメント木の一点更新, 親の再計算, i / 2, point update, range minimum query, segment tree update"
+  data-level="hedgehog"
+>
+  <h2>2026-09-30</h2>
+  <div class="code-frame">
+    <p class="code-filename">update.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">update</span>(t: &amp;<span class="kw">mut</span> [<span class="ty">i32</span>], i: <span class="ty">usize</span>, v: <span class="ty">i32</span>) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>t</code> は区間の最小値を求めるセグメント木で、長さは <code>2n</code> です。<code>t[n + j]</code> が元の配列の <code>j</code> 番目の要素で、<code>1</code> 以上 <code>n</code> 未満の <code>k</code> について <code>t[k]</code> は <code>t[2k]</code> と <code>t[2k + 1]</code> の小さい方です。<code>t[0]</code> は使いません。元の配列の <code>i</code> 番目を <code>v</code> に書き換え、<code>t</code> がこの形を保つようにする <code>update</code> を書いてください。<code>n</code> が <code>1</code> なら、書き換えるのは葉の <code>t[1]</code> だけです。出力例は、呼び出したあとの <code>t</code> です。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>let mut t = [0, 3, 3, 6, 5, 3, 8, 6]; update(&amp;mut t, 1, 9);</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>[0, 5, 5, 6, 5, 9, 8, 6]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>let mut t = [0, 3, 3, 6, 5, 3, 8, 6]; update(&amp;mut t, 2, 1);</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>[0, 1, 3, 1, 5, 3, 1, 6]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>let mut t = [0, 4]; update(&amp;mut t, 0, 7);</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>[0, 7]</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">update</span>(t: &amp;<span class="kw">mut</span> [<span class="ty">i32</span>], i: <span class="ty">usize</span>, v: <span class="ty">i32</span>) {
+    <span class="kw">let</span> <span class="kw">mut</span> i = i + t.<span class="fn">len</span>() / <span class="nu">2</span>;
+    t[i] = v;
+    <span class="kw">while</span> i &gt; <span class="nu">1</span> {
+        i /= <span class="nu">2</span>;
+        t[i] = t[<span class="nu">2</span> * i].<span class="fn">min</span>(t[<span class="nu">2</span> * i + <span class="nu">1</span>]);
+    }
+}
+</code></pre>
+      <p>
+        葉 <code>t[n + i]</code> を書き換えたとき、値が変わりうるのはその葉の祖先だけです。<code>n</code> は <code>t.len() / 2</code> で求まり、節 <code>i</code> の親は <code>i / 2</code> なので、<code>i</code> を半分にしながら根の <code>t[1]</code> まで上り、各節を2つの子の小さい方で計算し直します。
+      </p>
+      <p>
+        親を <code>t[i] = t[i].min(v)</code> で直したくなりますが、これは値が小さくなる更新にしか使えません。例1は最小値だった <code>3</code> を <code>9</code> に上げるので、この書き方では <code>t[1]</code> と <code>t[2]</code> に古い <code>3</code> が残ります。子から計算し直せば、上げる更新も下げる更新も同じ形で扱えます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。上るたびに <code>i ^ 1</code> で兄弟の節を求め、<code>t[i].min(t[i ^ 1])</code> を親に入れる書き方もあります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

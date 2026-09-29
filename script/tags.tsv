@@ -37,10 +37,12 @@ bottom	ボトム
 boundary	境界条件
 breadth-first-search	幅優先探索
 buffer-overflow	バッファ溢れ
+buffering	バッファリング
 cache	キャッシュ
 cache-locality	キャッシュ局所性
 call-stack	コールスタック
 capture	キャプチャ
+case-mapping	大文字小文字変換
 channel	チャネル
 character-encoding	文字コード
 check-digit	チェックディジット
@@ -212,6 +214,7 @@ list	リスト
 list-comprehension	リスト内包表記
 list-initialization	リスト初期化
 list-monad	リストモナド
+locale	ロケール
 longest-increasing-subsequence	最長増加部分列
 loop	ループ
 lowest-common-ancestor	最小共通祖先
@@ -292,6 +295,7 @@ prime-factorization	素因数分解
 priority-queue	優先度付きキュー
 process-creation	プロセス生成
 profiling	プロファイリング
+program-termination	プログラムの終了
 property-based-testing	プロパティベーステスト
 question-mark-operator	?演算子
 queue	キュー
@@ -357,6 +361,7 @@ static-storage	静的記憶域
 stdio	標準入出力
 storage-duration	記憶域期間
 strict-aliasing	厳密な別名規則
+strict-weak-ordering	狭義の弱順序
 strictness	正格性
 string	文字列
 string-escaping	文字列のエスケープ

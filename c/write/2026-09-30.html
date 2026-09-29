@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="atexit で登録した後始末を呼ばずに、それまでの標準出力を失わないまま異常終了する fail を書く。exit と _Exit の違いと、fflush を呼ぶ位置を扱う。2026-09-30のC WRITE。">
+<title>後始末を飛ばして終わる</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-09-30">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-30" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-09-30",
+      "url": "https://namaran.jocarium.productions/c/write/2026-09-30",
+      "datePublished": "2026-09-30",
+      "dateModified": "2026-09-30",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "後始末を飛ばして終わる" },
+      "keywords": "program-termination, buffering, stdio",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "atexit で登録した後始末を呼ばずに、それまでの標準出力を失わないまま異常終了する fail を書く。exit と _Exit の違いと、fflush を呼ぶ位置を扱う。2026-09-30のC WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-30" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-09-30">C++26</a>
+  <a href="/rust/write/2026-09-30">Rust 2024</a>
+  <a href="/haskell/write/2026-09-30">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-09-30">READ</a>
+  <a href="/c/write/2026-09-30" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-09-30">DEBUG</a>
+</nav>
+
+<main
+  data-topic="後始末を飛ばして終わる"
+  data-tags="program-termination buffering stdio"
+  data-concepts="_Exit, fflush, 出力バッファ, 後始末を呼ばない終了, exit without atexit handlers, flush before _Exit"
+  data-level="bison"
+>
+  <h2>2026-09-30</h2>
+  <div class="code-frame">
+    <p class="code-filename">fail.c</p>
+    <pre class="code"><code>[[noreturn]] <span class="ty">void</span> <span class="fn">fail</span>(<span class="kw">const</span> <span class="ty">char</span> *msg) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    標準出力に <code>msg</code> と改行を書いてから、終了状態 <code>EXIT_FAILURE</code> でただちにプログラムを終える <code>fail</code> を書いてください。<code>atexit</code> で登録した関数は呼びません。<code>fail</code> を呼ぶ前に標準出力へ書いた内容と <code>msg</code> は、出力先が端末でもファイルでも失われないようにします。例の <code>bye</code> は、標準出力に <code>bye</code> と1行書く関数です。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>atexit(bye); printf("1 2 "); fail("stop");</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>1 2 stop</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>atexit(bye); fail("disk full");</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>disk full</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code>[[noreturn]] <span class="ty">void</span> <span class="fn">fail</span>(<span class="kw">const</span> <span class="ty">char</span> *msg) {
+    <span class="fn">puts</span>(msg);
+    <span class="fn">fflush</span>(stdout);
+    <span class="fn">_Exit</span>(<span class="nu">EXIT_FAILURE</span>);
+}
+</code></pre>
+      <p>
+        <code>exit(EXIT_FAILURE)</code> では条件を満たせません。<code>exit</code> は <code>atexit</code> で登録した関数を呼んでから終わるので、例1の出力に <code>bye</code> の行が加わります。登録した関数を呼ばずに終わるには <code>_Exit</code> を使います。
+      </p>
+      <p>
+        ただし <code>_Exit</code> は、ストリームのバッファを吐き出すかどうかを処理系に任せており、glibc は吐き出さずに終わります。標準出力が端末につながっていれば行バッファリングなので、<code>puts</code> が書く改行でそこまでの内容が送り出されます。ファイルやパイプにつながっていると完全バッファリングになり、<code>1 2 </code> も <code>stop</code> もバッファに残ったまま消えます。出力先によらず残すには、<code>_Exit</code> の前に <code>fflush(stdout)</code> で自分で吐き出します。
+      </p>
+      <p>
+        <code>fflush</code> を呼ぶ位置も決まっています。<code>puts</code> より先に呼ぶと、そのあとに書いた <code>msg</code> がまたバッファに残るので、書いてから吐き出し、それから終わります。<code>fail</code> は呼び出し元へ戻らないので <code>[[noreturn]]</code> を付けています。掲載したのは参考実装で、唯一の正解ではありません。標準出力のほかにも書き込み中のファイルがあるなら、<code>fflush(NULL)</code> で出力用のストリームをまとめて吐き出せます<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li><code>abort</code> も後始末の関数を呼びませんが、バッファを吐き出すかどうかは処理系次第で、終了状態も <code>EXIT_FAILURE</code> ではなく異常終了を表す値になります。<code>quick_exit</code> は <code>at_quick_exit</code> で登録した関数だけを呼んでから <code>_Exit</code> と同じように終わるので、こちらもバッファは自分で吐き出す必要があります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

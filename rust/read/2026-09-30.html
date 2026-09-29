@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="長さ 2n の配列の後半に葉を並べる非再帰のセグメント木を、要素数5で組み立てる。n が2のべきでないとき、内部の節がどの要素の最小値を持つかを追う。2026-09-30のRust READ。">
+<title>葉が5枚のセグメント木</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-09-30">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / READ", "item": "https://namaran.jocarium.productions/rust/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-30" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / READ — 2026-09-30",
+      "url": "https://namaran.jocarium.productions/rust/read/2026-09-30",
+      "datePublished": "2026-09-30",
+      "dateModified": "2026-09-30",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "葉が5枚のセグメント木" },
+      "keywords": "segment-tree, tree",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "長さ 2n の配列の後半に葉を並べる非再帰のセグメント木を、要素数5で組み立てる。n が2のべきでないとき、内部の節がどの要素の最小値を持つかを追う。2026-09-30のRust READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-30">C23</a>
+  <a href="/cpp/read/2026-09-30">C++26</a>
+  <a href="/rust/read/2026-09-30" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/read/2026-09-30">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-09-30" class="active" aria-current="page">READ</a>
+  <a href="/rust/write/2026-09-30">WRITE</a>
+  <a href="/rust/debug/2026-09-30">DEBUG</a>
+</nav>
+
+<main
+  data-topic="葉が5枚のセグメント木"
+  data-tags="segment-tree tree"
+  data-concepts="非再帰セグメント木, ボトムアップのセグメント木, 節の番号, 2i と 2i+1, bottom-up segment tree, non-power-of-two size, range minimum"
+  data-level="bison"
+>
+  <h2>2026-09-30</h2>
+  <div class="code-frame">
+    <p class="code-filename">tree.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> a = [<span class="nu">7</span>, <span class="nu">9</span>, <span class="nu">6</span>, <span class="nu">5</span>, <span class="nu">2</span>];
+    <span class="kw">let</span> n = a.<span class="fn">len</span>();
+    <span class="kw">let</span> <span class="kw">mut</span> t = <span class="mc">vec!</span>[<span class="nu">0</span>; <span class="nu">2</span> * n];
+    t[n..].<span class="fn">copy_from_slice</span>(&amp;a);
+    <span class="kw">for</span> i <span class="kw">in</span> (<span class="nu">1</span>..n).<span class="fn">rev</span>() {
+        t[i] = t[<span class="nu">2</span> * i].<span class="fn">min</span>(t[<span class="nu">2</span> * i + <span class="nu">1</span>]);
+    }
+    <span class="mc">println!</span>(<span class="st">"{:?}"</span>, &amp;t[<span class="nu">1</span>..n]);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>[2, 2, 6, 2]</code> です。
+      </p>
+      <p>
+        葉は <code>t[5]</code> から <code>t[9]</code> に並び、<code>t[5 + i]</code> が <code>a[i]</code> です。内部の節 <code>t[i]</code> には、子の <code>t[2 * i]</code> と <code>t[2 * i + 1]</code> の小さい方が、<code>i</code> の大きい順に入ります。
+      </p>
+      <p>
+        <code>t[4]</code> の子は葉の <code>t[8]</code> と <code>t[9]</code> で、これは <code>a[3]</code> と <code>a[4]</code> なので <code>2</code> です。同じく <code>t[3]</code> の子の <code>t[6]</code> と <code>t[7]</code> は <code>a[1]</code> と <code>a[2]</code> で、<code>t[3]</code> は <code>6</code> になります。
+      </p>
+      <p>
+        <code>t[2]</code> の子は <code>t[4]</code> と <code>t[5]</code> ですが、<code>t[5]</code> は内部の節ではなく葉の <code>a[0]</code> です。<code>t[2]</code> が持つのは <code>a[3]</code>、<code>a[4]</code>、<code>a[0]</code> の最小値 <code>2</code> で、配列の連続した区間には対応しません。根の <code>t[1]</code> は <code>t[2]</code> と <code>t[3]</code> の小さい方の <code>2</code> です。
+      </p>
+      <p>
+        <code>t[2]</code> を左半分 <code>[7, 9, 6]</code>、<code>t[3]</code> を右半分 <code>[5, 2]</code> の最小値と読むと、<code>t[2]</code> を <code>6</code>、<code>t[3]</code> を <code>2</code> と答えたくなります。節をそう読めるのは、<code>n</code> が2のべきのときだけです<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>それでもこの形の木で、区間 <code>[l, r)</code> の最小値は正しく求められます。葉から根へ向かって上る問い合わせは区間の内側に収まる節だけを使うので、<code>t[2]</code> のように端から回り込んだ節には届きません。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/read">Today</a></li>
+    <li><a href="/rust/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

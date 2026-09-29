@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="管理者の名前を std::set&lt;const char*&gt; に入れて調べ、登録してある名前でも見つからないバグを直す。set の比較がポインタの値で行われることを扱う。2026-09-30のC++ DEBUG。">
+<title>ポインタを並べるset</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-09-30">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-30" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-09-30",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-09-30",
+      "datePublished": "2026-09-30",
+      "dateModified": "2026-09-30",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "ポインタを並べるset" },
+      "keywords": "set, pointer, string, comparison",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "管理者の名前を std::set<const char*> に入れて調べ、登録してある名前でも見つからないバグを直す。set の比較がポインタの値で行われることを扱う。2026-09-30のC++ DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-30">C23</a>
+  <a href="/cpp/debug/2026-09-30" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-09-30">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-30">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-30">READ</a>
+  <a href="/cpp/write/2026-09-30">WRITE</a>
+  <a href="/cpp/debug/2026-09-30" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="ポインタを並べるset"
+  data-tags="set pointer string comparison"
+  data-concepts="std::set&lt;const char*&gt;, ポインタの比較, 文字列の比較, std::less, c_str, pointer comparison, string literal"
+  data-level="peacock"
+>
+  <h2>2026-09-30</h2>
+  <div class="code-frame">
+    <p class="code-filename">admins.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;cstdio&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;set&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+
+<span class="kw">const</span> std::<span class="ty">set</span>&lt;<span class="kw">const</span> <span class="ty">char</span>*&gt; admins{<span class="st">"alice"</span>, <span class="st">"bob"</span>};
+
+<span class="ty">bool</span> <span class="fn">is_admin</span>(<span class="kw">const</span> std::<span class="ty">string</span>&amp; name) {
+    <span class="kw">return</span> admins.<span class="fn">contains</span>(name.<span class="fn">c_str</span>());
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="kw">const</span> std::<span class="ty">string</span> name = <span class="st">"bob"</span>;
+    std::<span class="fn">puts</span>(<span class="fn">is_admin</span>(name) ? <span class="st">"admin"</span> : <span class="st">"guest"</span>);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>is_admin</code> は、名前が <code>admins</code> に登録されていれば <code>true</code> を返すつもりの関数です。<code>main</code> のとおり <code>"bob"</code> を調べると、本来は <code>admin</code> と出力するはずですが、いまは <code>guest</code> と出力します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">const</span> std::<span class="ty">set</span>&lt;<span class="kw">const</span> <span class="ty">char</span>*&gt; admins{<span class="st">"alice"</span>, <span class="st">"bob"</span>};
+
+<span class="ty">bool</span> <span class="fn">is_admin</span>(<span class="kw">const</span> std::<span class="ty">string</span>&amp; name) {
+    <span class="kw">return</span> admins.<span class="fn">contains</span>(name.<span class="fn">c_str</span>());
+}
+</code></pre>
+      <p>
+        <code>std::set&lt;const char*&gt;</code> の要素はポインタで、既定の比較関数 <code>std::less&lt;const char*&gt;</code> が比べるのもポインタの値で、これは文字列が置かれているアドレスです。<code>contains</code> が調べるのは、指している文字の中身が同じ要素ではなく、同じアドレスの要素です。
+      </p>
+      <p>
+        <code>admins</code> の <code>"bob"</code> は文字列リテラルを指し、<code>name.c_str()</code> は <code>std::string</code> が持つ別の領域を指しています。中身は同じ <code>bob</code> でもアドレスが違うので、等価な要素は見つかりません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">const</span> std::<span class="ty">set</span>&lt;std::<span class="ty">string</span>&gt; admins{<span class="st">"alice"</span>, <span class="st">"bob"</span>};
+</code></pre>
+      <p>
+        要素を <code>std::string</code> にすると、比較は <code>std::string</code> どうしの <code>&lt;</code>、つまり文字の中身の辞書順になります。<code>contains(name.c_str())</code> の引数は <code>std::string</code> に変換されてから比べられるので、中身が同じなら見つかります<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>変換のたびに一時的な <code>std::string</code> を作るのを避けたいなら、<code>std::set&lt;std::string, std::less&lt;&gt;&gt;</code> とします。<code>std::less&lt;&gt;</code> は透過的な比較関数なので、<code>contains</code> や <code>find</code> に <code>const char*</code> や <code>std::string_view</code> をそのまま渡して、中身で比べられます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

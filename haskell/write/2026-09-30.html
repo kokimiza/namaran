@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="大文字と小文字の違いを無視して単語を数え、最初に現れた綴りで返す tally を書く。Map.fromListWith に渡す関数の引数の順と、toLower した文字列の並び順を扱う。2026-09-30のHaskell WRITE。">
+<title>綴りを残して数える</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-09-30">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-30" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-09-30",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-09-30",
+      "datePublished": "2026-09-30",
+      "dateModified": "2026-09-30",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "綴りを残して数える" },
+      "keywords": "case-mapping, ordered-map, comparison",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "大文字と小文字の違いを無視して単語を数え、最初に現れた綴りで返す tally を書く。Map.fromListWith に渡す関数の引数の順と、toLower した文字列の並び順を扱う。2026-09-30のHaskell WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-30">C23</a>
+  <a href="/cpp/write/2026-09-30">C++26</a>
+  <a href="/rust/write/2026-09-30">Rust 2024</a>
+  <a href="/haskell/write/2026-09-30" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-09-30">READ</a>
+  <a href="/haskell/write/2026-09-30" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-09-30">DEBUG</a>
+</nav>
+
+<main
+  data-topic="綴りを残して数える"
+  data-tags="case-mapping ordered-map comparison"
+  data-concepts="大文字小文字を無視した集計, Map.fromListWith, 最初の綴り, toLower, case-insensitive count, first spelling, Data.Map"
+  data-level="whale"
+>
+  <h2>2026-09-30</h2>
+  <div class="code-frame">
+    <p class="code-filename">Tally.hs</p>
+    <pre class="code"><code><span class="fn">tally</span> <span class="op">::</span> [<span class="ty">String</span>] <span class="op">-&gt;</span> [(<span class="ty">String</span>, <span class="ty">Int</span>)]
+</code></pre>
+  </div>
+
+  <p class="question">
+    大文字と小文字の違いを無視して、単語ごとの出現回数を数える <code>tally</code> を書いてください。各単語は最初に現れたときの綴りで返し、並び順は各単語を <code>map toLower</code> した文字列の昇順です。空のリストには空のリストを返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>tally ["Go", "rust", "go", "GO"]</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>[("Go",3),("rust",1)]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>tally ["b", "_a", "B"]</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>[("_a",1),("b",2)]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>tally []</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>[]</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">import</span> <span class="ty">Data.Char</span> (toLower)
+<span class="kw">import</span> <span class="kw">qualified</span> <span class="ty">Data.Map</span> <span class="kw">as</span> <span class="ty">Map</span>
+
+<span class="fn">tally</span> <span class="op">::</span> [<span class="ty">String</span>] <span class="op">-&gt;</span> [(<span class="ty">String</span>, <span class="ty">Int</span>)]
+<span class="fn">tally</span> ws = <span class="ty">Map</span>.elems (<span class="ty">Map</span>.fromListWith keepFirst [(map toLower w, (w, <span class="nu">1</span>)) | w <span class="op">&lt;-</span> ws])
+  <span class="kw">where</span>
+    keepFirst (_, n) (w, m) = (w, m + n)
+</code></pre>
+      <p>
+        キーには <code>map toLower w</code> を、値には元の綴りと回数の組を入れます。<code>Map</code> は要素をキーの順に持つので、<code>Map.elems</code> で取り出せば、そのまま問題の並び順になります。
+      </p>
+      <p>
+        同じキーの値をまとめる関数は、引数の順に気を付けます。<code>Map.fromListWith f</code> はリストを先頭から入れていき、キーがすでにあれば <code>f 新しい値 すでにある値</code> を計算します。最初の綴りは、すでにある値の側、つまり第2引数に入っています。<code>keepFirst</code> がそちらの <code>w</code> を残すのはそのためで、第1引数の綴りを残すと、例1は最後の綴りの <code>("GO",3)</code> になります。
+      </p>
+      <p>
+        キーを <code>map toUpper</code> で作っても、同じ単語どうしはまとまりますが、並び順が変わります。<code>'_'</code> の文字コードは大文字と小文字の間にあるので、小文字にそろえると <code>"_a"</code> は <code>"b"</code> より前に、大文字にそろえると <code>"B"</code> より後ろに並び、例2の順が逆になります。
+      </p>
+      <p>
+        この並びは文字コードの順で、ロケールの照合順序ではありません。<code>toLower</code> もロケールを見ずに1文字ずつ変換するので、どの環境で動かしても例と同じ結果になり、たとえば <code>'é'</code> で始まる単語は <code>'z'</code> で始まる単語より後ろに並びます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>sortOn</code> で並べてから、キーが同じ単語の連続をまとめる書き方もあります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

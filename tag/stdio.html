@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「標準入出力」を扱ったNamaranのコーディングドリル8問。read_line、改行の除去、CRLF、trim_end_matches、BufRead、strip newline。">
+<meta name="description" content="「標準入出力」を扱ったNamaranのコーディングドリル9問。_Exit、fflush、出力バッファ、後始末を呼ばない終了、exit without atexit handlers、flush before _Exit。">
 <title>標準入出力</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/stdio">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>標準入出力</h2>
 
   <p class="lede">
-    「標準入出力」を扱った8問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「標準入出力」を扱った9問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/c/write/2026-09-30">C / WRITE · 2026-09-30</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">後始末を飛ばして終わる</span> <span class="past-concepts">_Exit, fflush, 出力バッファ, 後始末を呼ばない終了, exit without atexit handlers, flush before _Exit</span></li>
     <li><a href="/rust/debug/2026-09-27">Rust / DEBUG · 2026-09-27</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">read_lineに残るCR</span> <span class="past-concepts">read_line, 改行の除去, CRLF, trim_end_matches, BufRead, strip newline</span></li>
     <li><a href="/c/write/2026-09-21">C / WRITE · 2026-09-21</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">sscanfの結果を確認</span> <span class="past-concepts">sscanf, 入力検証, 戻り値, input validation</span></li>
     <li><a href="/c/read/2026-09-21">C / READ · 2026-09-21</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">sscanfの戻り値</span> <span class="past-concepts">sscanf, 戻り値の確認, 入力の検証, scanf return value</span></li>
