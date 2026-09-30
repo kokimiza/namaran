@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="2^32 進の桁 (limb) を u32 で並べた多倍長整数の足し算で、最上位の繰り上がりが落ちるバグを直す。wrapping_add の結果を足す前の値と比べる繰り上がりの判定が、どの入力で外れるかを扱う。2026-10-01のRust DEBUG。">
+<title>取りこぼした繰り上がり</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-10-01">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-01" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-10-01",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-10-01",
+      "datePublished": "2026-10-01",
+      "dateModified": "2026-10-01",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "取りこぼした繰り上がり" },
+      "keywords": "arbitrary-precision, integer-overflow, checked-arithmetic",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "2^32 進の桁 (limb) を u32 で並べた多倍長整数の足し算で、最上位の繰り上がりが落ちるバグを直す。wrapping_add の結果を足す前の値と比べる繰り上がりの判定が、どの入力で外れるかを扱う。2026-10-01のRust DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-01">C23</a>
+  <a href="/cpp/debug/2026-10-01">C++26</a>
+  <a href="/rust/debug/2026-10-01" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-01">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-01">READ</a>
+  <a href="/rust/write/2026-10-01">WRITE</a>
+  <a href="/rust/debug/2026-10-01" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="取りこぼした繰り上がり"
+  data-tags="arbitrary-precision integer-overflow checked-arithmetic"
+  data-concepts="繰り上がりの判定, wrapping_add, overflowing_add, 多倍長整数の足し算, carry detection, wraparound, limb addition, bignum"
+  data-level="peacock"
+>
+  <h2>2026-10-01</h2>
+  <div class="code-frame">
+    <p class="code-filename">limbs.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">add</span>(a: &amp;[<span class="ty">u32</span>], b: &amp;[<span class="ty">u32</span>]) -&gt; <span class="ty">Vec</span>&lt;<span class="ty">u32</span>&gt; {
+    <span class="kw">let</span> <span class="kw">mut</span> out = <span class="ty">Vec</span>::<span class="fn">new</span>();
+    <span class="kw">let</span> <span class="kw">mut</span> carry = <span class="nu">0</span>;
+    <span class="kw">for</span> (&amp;x, &amp;y) <span class="kw">in</span> a.<span class="fn">iter</span>().<span class="fn">zip</span>(b) {
+        <span class="kw">let</span> s = x.<span class="fn">wrapping_add</span>(y).<span class="fn">wrapping_add</span>(carry);
+        carry = <span class="ty">u32</span>::<span class="fn">from</span>(s &lt; x);
+        out.<span class="fn">push</span>(s);
+    }
+    out.<span class="fn">push</span>(carry);
+    out
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="cm">// limbs are base 2^32, least significant first</span>
+    <span class="mc">println!</span>(<span class="st">"{:?}"</span>, <span class="fn">add</span>(&amp;[<span class="nu">1</span>, <span class="nu">5</span>], &amp;[<span class="ty">u32</span>::<span class="nu">MAX</span>, <span class="ty">u32</span>::<span class="nu">MAX</span>]));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>add</code> は、2^32 進の各桁を下の桁から <code>u32</code> で並べた2つの整数を、桁数が同じもの同士で足すつもりです。引数も標準入力も使わず、<code>add(&amp;[1, 5], &amp;[u32::MAX, u32::MAX])</code> の結果を出力します。本来は <code>[0, 5, 1]</code> と出力されるはずが、いまは <code>[0, 5, 0]</code> と出力されます。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">let</span> s = x.<span class="fn">wrapping_add</span>(y).<span class="fn">wrapping_add</span>(carry);
+carry = <span class="ty">u32</span>::<span class="fn">from</span>(s &lt; x);
+</code></pre>
+      <p>
+        2つの <code>u32</code> を <code>wrapping_add</code> で足したとき、和が <code>x</code> より小さくなるのは 2^32 を超えて一周したときだけです。1桁目の <code>1 + u32::MAX</code> はこの判定どおりに動き、和は <code>0</code>、<code>0 &lt; 1</code> なので繰り上がりは <code>1</code> になります。
+      </p>
+      <p>
+        ところが、この判定が成り立つのは足す値が2つのときだけです。2桁目は <code>5 + u32::MAX + 1</code> の3つを足し、<code>x</code> に加わる <code>u32::MAX + 1</code> はちょうど 2^32 で、一周分にあたります。和は <code>x</code> と同じ <code>5</code> に戻り、<code>5 &lt; 5</code> は偽なので、繰り上がりは <code>0</code> とされて最上位の <code>1</code> が落ちます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">let</span> (s, c1) = x.<span class="fn">overflowing_add</span>(y);
+<span class="kw">let</span> (s, c2) = s.<span class="fn">overflowing_add</span>(carry);
+carry = <span class="ty">u32</span>::<span class="fn">from</span>(c1 || c2);
+</code></pre>
+      <p>
+        <code>overflowing_add</code> は和と一緒に、一周したかどうかを <code>bool</code> で返します。3つの値を2回に分けて足し、どちらかで一周していれば繰り上がりにします。2回とも一周することはありません。1回目で一周したなら和は <code>u32::MAX - 1</code> 以下なので、そこに繰り上がりの <code>1</code> を足しても一周しないからです<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li><code>u64</code> に広げて <code>u64::from(x) + u64::from(y) + u64::from(carry)</code> を計算し、下位32ビットを桁に、上位32ビットを繰り上がりにする書き方でも直ります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

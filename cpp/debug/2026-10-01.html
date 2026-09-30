@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="靴紐公式で求めた多角形の面積を double で返す area が、1.5 のはずの三角形の面積を 1 と出力するバグを直す。戻り値の型が double でも、割り算そのものは int どうしで行われることを扱う。2026-10-01のC++ DEBUG。">
+<title>面積の0.5が消える</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-10-01">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-01" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-10-01",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-10-01",
+      "datePublished": "2026-10-01",
+      "dateModified": "2026-10-01",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "面積の0.5が消える" },
+      "keywords": "computational-geometry, division, implicit-conversion, integer-arithmetic",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "靴紐公式で求めた多角形の面積を double で返す area が、1.5 のはずの三角形の面積を 1 と出力するバグを直す。戻り値の型が double でも、割り算そのものは int どうしで行われることを扱う。2026-10-01のC++ DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-01">C23</a>
+  <a href="/cpp/debug/2026-10-01" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-10-01">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-01">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-01">READ</a>
+  <a href="/cpp/write/2026-10-01">WRITE</a>
+  <a href="/cpp/debug/2026-10-01" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="面積の0.5が消える"
+  data-tags="computational-geometry division implicit-conversion integer-arithmetic"
+  data-concepts="整数除算, 戻り値の型変換, 切り捨て, 靴紐公式, integer division, implicit conversion to double, shoelace formula"
+  data-level="hedgehog"
+>
+  <h2>2026-10-01</h2>
+  <div class="code-frame">
+    <p class="code-filename">area.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;cstdlib&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+
+<span class="kw">struct</span> <span class="ty">P</span> { <span class="ty">int</span> x, y; };
+
+<span class="ty">double</span> <span class="fn">area</span>(<span class="kw">const</span> std::<span class="ty">vector</span>&lt;<span class="ty">P</span>&gt;&amp; ps) {
+    <span class="ty">int</span> s = <span class="nu">0</span>;
+    <span class="kw">for</span> (std::<span class="ty">size_t</span> i = <span class="nu">0</span>; i &lt; ps.<span class="fn">size</span>(); ++i) {
+        <span class="kw">const</span> <span class="ty">P</span>&amp; a = ps[i];
+        <span class="kw">const</span> <span class="ty">P</span>&amp; b = ps[(i + <span class="nu">1</span>) % ps.<span class="fn">size</span>()];
+        s += a.x * b.y - b.x * a.y;
+    }
+    <span class="kw">return</span> std::<span class="fn">abs</span>(s) / <span class="nu">2</span>;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    std::cout &lt;&lt; <span class="fn">area</span>({{<span class="nu">0</span>, <span class="nu">0</span>}, {<span class="nu">3</span>, <span class="nu">0</span>}, {<span class="nu">0</span>, <span class="nu">1</span>}}) &lt;&lt; <span class="st">'\n'</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>area</code> は頂点の並びから多角形の面積を求め、<code>double</code> で返すつもりです。引数も標準入力も使わず、頂点が <code>(0, 0)</code>、<code>(3, 0)</code>、<code>(0, 1)</code> の三角形の面積を出力します。本来は <code>1.5</code> と出力されるはずが、いまは <code>1</code> と出力されます。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">return</span> std::<span class="fn">abs</span>(s) / <span class="nu">2</span>;
+</code></pre>
+      <p>
+        ループを終えた時点の <code>s</code> は <code>3</code> で、面積の2倍としては合っています。問題はその次の割り算で、<code>std::abs(s)</code> も <code>2</code> も <code>int</code> なので、<code>/</code> は整数どうしの割り算になり、小数部を捨てた <code>1</code> を返します。
+      </p>
+      <p>
+        戻り値の型が <code>double</code> であることは、この割り算に影響しません。<code>double</code> への変換は、割り算が終わって <code>1</code> になった値を <code>return</code> で返すときに初めて行われます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">return</span> std::<span class="fn">abs</span>(s) / <span class="nu">2.0</span>;
+</code></pre>
+      <p>
+        <code>2.0</code> は <code>double</code> なので、<code>std::abs(s)</code> の <code>3</code> が <code>double</code> に変換されてから割り算が行われ、結果は <code>1.5</code> になります<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>格子点を頂点とする多角形の面積は、必ず <code>0.5</code> の倍数です。そのため面積の2倍を整数のまま持ち、表示するときだけ2で割る書き方もよく使われます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="views::pairwise で隣り合う頂点を組にし、靴紐公式 (shoelace formula) で正方形の面積を2回求める。最後の頂点から最初の頂点へ戻る項が抜けた和が、平行移動の前と後でどう変わるかを追う。2026-10-01のC++ READ。">
+<title>閉じ忘れた靴紐公式</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-10-01">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-01" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-10-01",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-10-01",
+      "datePublished": "2026-10-01",
+      "dateModified": "2026-10-01",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "閉じ忘れた靴紐公式" },
+      "keywords": "computational-geometry, cross-product, range-adaptor, structured-binding",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "views::pairwise で隣り合う頂点を組にし、靴紐公式 (shoelace formula) で正方形の面積を2回求める。最後の頂点から最初の頂点へ戻る項が抜けた和が、平行移動の前と後でどう変わるかを追う。2026-10-01のC++ READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-01">C23</a>
+  <a href="/cpp/read/2026-10-01" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-10-01">Rust 2024</a>
+  <a href="/haskell/read/2026-10-01">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-01" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-10-01">WRITE</a>
+  <a href="/cpp/debug/2026-10-01">DEBUG</a>
+</nav>
+
+<main
+  data-topic="閉じ忘れた靴紐公式"
+  data-tags="computational-geometry cross-product range-adaptor structured-binding"
+  data-concepts="靴紐公式, 多角形の面積, views::pairwise, 最後の辺, 平行移動, shoelace formula, polygon area, closing edge"
+  data-level="whale"
+>
+  <h2>2026-10-01</h2>
+  <div class="code-frame">
+    <p class="code-filename">shoelace.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;cstdlib&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;ranges&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+
+<span class="kw">struct</span> <span class="ty">P</span> { <span class="ty">int</span> x, y; };
+
+<span class="ty">int</span> <span class="fn">area</span>(<span class="kw">const</span> std::<span class="ty">vector</span>&lt;<span class="ty">P</span>&gt;&amp; ps) {
+    <span class="ty">int</span> s = <span class="nu">0</span>;
+    <span class="kw">for</span> (<span class="kw">auto</span> [a, b] : ps | std::views::pairwise)
+        s += a.x * b.y - b.x * a.y;
+    <span class="kw">return</span> std::<span class="fn">abs</span>(s) / <span class="nu">2</span>;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    std::cout &lt;&lt; <span class="fn">area</span>({{<span class="nu">0</span>, <span class="nu">0</span>}, {<span class="nu">2</span>, <span class="nu">0</span>}, {<span class="nu">2</span>, <span class="nu">2</span>}, {<span class="nu">0</span>, <span class="nu">2</span>}}) &lt;&lt; <span class="st">' '</span>
+              &lt;&lt; <span class="fn">area</span>({{<span class="nu">1</span>, <span class="nu">1</span>}, {<span class="nu">3</span>, <span class="nu">1</span>}, {<span class="nu">3</span>, <span class="nu">3</span>}, {<span class="nu">1</span>, <span class="nu">3</span>}}) &lt;&lt; <span class="st">'\n'</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>4 5</code> です。
+      </p>
+      <p>
+        靴紐公式は、隣り合う2頂点 <code>a</code>、<code>b</code> ごとに <code>a.x * b.y - b.x * a.y</code> を足し、その和の絶対値を面積の2倍とします。ただし和には、最後の頂点から最初の頂点へ戻る組も含めます。<code>std::views::pairwise</code> が作る組は <code>(ps[0], ps[1])</code>、<code>(ps[1], ps[2])</code>、<code>(ps[2], ps[3])</code> の3つだけで、多角形を閉じる <code>(ps[3], ps[0])</code> はありません。
+      </p>
+      <p>
+        それでも1つ目の正方形は正しく求まります。抜けた組は <code>(0, 2)</code> と <code>(0, 0)</code> で、原点を含む組の項は <code>0 * 0 - 0 * 2</code> のように必ず <code>0</code> になるからです。3組の和 <code>0 + 4 + 4 = 8</code> は本来の和と一致し、<code>4</code> が出力されます。
+      </p>
+      <p>
+        2つ目は同じ正方形を <code>(1, 1)</code> だけ動かしたもので、本当の面積は <code>4</code> のままです。しかし原点を含む頂点がなくなったので、抜けた組 <code>(1, 3)</code> と <code>(1, 1)</code> の項 <code>1 * 1 - 1 * 3 = -2</code> は <code>0</code> ではありません。3組の項は <code>-2</code>、<code>6</code>、<code>6</code> で、和の <code>10</code> を2で割った <code>5</code> が出力されます。
+      </p>
+      <p>
+        <code>pairwise</code> が最後と最初も組にすると読んでも、組の欠けに気付いたうえで平行移動では面積が変わらないと考えても、答えは <code>4 4</code> になります。和が平行移動で変わらないのは、多角形を閉じるまで足したときだけです<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>各項は、原点と2頂点がなす三角形の符号付き面積の2倍です。多角形が閉じていれば、原点をどこに置いても、多角形の外にはみ出した三角形どうしが打ち消し合います。閉じていない和では、その打ち消し合う相手が1つ欠けます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

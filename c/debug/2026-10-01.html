@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="負の値を見つけると -1 を返す scale_all を、値を直してから呼び直すと、先頭の要素だけが2回掛けられるバグを直す。途中で失敗した処理が配列に残した書き込みと、やり直しの関係を扱う。2026-10-01のC DEBUG。">
+<title>やり直すと二重に掛かる</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-10-01">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-01" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-10-01",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-10-01",
+      "datePublished": "2026-10-01",
+      "dateModified": "2026-10-01",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "やり直すと二重に掛かる" },
+      "keywords": "error-handling, retry, idempotency, array",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "負の値を見つけると -1 を返す scale_all を、値を直してから呼び直すと、先頭の要素だけが2回掛けられるバグを直す。途中で失敗した処理が配列に残した書き込みと、やり直しの関係を扱う。2026-10-01のC DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-01" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-10-01">C++26</a>
+  <a href="/rust/debug/2026-10-01">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-01">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-01">READ</a>
+  <a href="/c/write/2026-10-01">WRITE</a>
+  <a href="/c/debug/2026-10-01" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="やり直すと二重に掛かる"
+  data-tags="error-handling retry idempotency array"
+  data-concepts="途中で失敗した更新, 部分的な書き込み, 失敗後の再試行, 検証してから書き込む, partial update, retry after failure, validate then commit"
+  data-level="bison"
+>
+  <h2>2026-10-01</h2>
+  <div class="code-frame">
+    <p class="code-filename">scale.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">static</span> <span class="ty">int</span> <span class="fn">scale_all</span>(<span class="ty">int</span> *v, <span class="ty">int</span> n, <span class="ty">int</span> k) {
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; n; i++) {
+        <span class="kw">if</span> (v[i] &lt; <span class="nu">0</span>)
+            <span class="kw">return</span> -<span class="nu">1</span>;
+        v[i] *= k;
+    }
+    <span class="kw">return</span> <span class="nu">0</span>;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="ty">int</span> v[] = {<span class="nu">1</span>, <span class="nu">2</span>, -<span class="nu">3</span>, <span class="nu">4</span>};
+    <span class="kw">if</span> (<span class="fn">scale_all</span>(v, <span class="nu">4</span>, <span class="nu">10</span>) != <span class="nu">0</span>) {
+        v[<span class="nu">2</span>] = <span class="nu">3</span>;
+        <span class="fn">scale_all</span>(v, <span class="nu">4</span>, <span class="nu">10</span>);
+    }
+    <span class="fn">printf</span>(<span class="st">"%d %d %d %d\n"</span>, v[<span class="nu">0</span>], v[<span class="nu">1</span>], v[<span class="nu">2</span>], v[<span class="nu">3</span>]);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>scale_all</code> は配列の各要素を <code>k</code> 倍し、負の値が1つでもあれば <code>-1</code> を返して失敗を知らせるつもりです。<code>main</code> は失敗したら負の値を直して呼び直します。引数も標準入力も使いません。本来は <code>10 20 30 40</code> と出力されるはずが、いまは <code>100 200 30 40</code> と出力されます。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; n; i++) {
+    <span class="kw">if</span> (v[i] &lt; <span class="nu">0</span>)
+        <span class="kw">return</span> -<span class="nu">1</span>;
+    v[i] *= k;
+}
+</code></pre>
+      <p>
+        1回目の呼び出しは <code>v[0]</code> と <code>v[1]</code> を <code>10</code> 倍したあとで <code>v[2]</code> の <code>-3</code> に出会い、<code>-1</code> を返します。失敗を返しても、それまでの書き込みは取り消されません。<code>main</code> に戻ったとき、配列はもう <code>{10, 20, -3, 4}</code> です。
+      </p>
+      <p>
+        <code>main</code> は <code>v[2]</code> を <code>3</code> に直して呼び直しますが、2回目の <code>scale_all</code> は配列を先頭から掛け直します。1回目で <code>10</code> 倍済みの <code>v[0]</code> と <code>v[1]</code> はもう一度掛けられて <code>100</code> と <code>200</code> になり、1回目で届かなかった <code>v[2]</code> と <code>v[3]</code> だけが正しく <code>30</code> と <code>40</code> になります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; n; i++)
+    <span class="kw">if</span> (v[i] &lt; <span class="nu">0</span>)
+        <span class="kw">return</span> -<span class="nu">1</span>;
+<span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; n; i++)
+    v[i] *= k;
+</code></pre>
+      <p>
+        すべての要素を調べ終えてから書き込みを始めれば、<code>-1</code> を返す時点では配列にまだ何も書いていません。失敗した呼び出しが配列をまったく変えないので、値を直して呼び直しても、各要素はちょうど1回だけ <code>k</code> 倍されます<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>検証をまとめて先に済ませられない処理では、書き込む前の値を控えておき、失敗したらそこへ戻します。データベースのトランザクションが、途中で失敗したときに変更をすべて取り消すのと同じ考え方です。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

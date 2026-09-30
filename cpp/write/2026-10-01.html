@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="格子点を頂点とする多角形の面積の2倍を、靴紐公式 (shoelace formula) で整数のまま求める doubled_area を書く。最後の頂点から最初の頂点へ戻る項と、頂点の向きで変わる符号を扱う。2026-10-01のC++ WRITE。">
+<title>多角形の面積の2倍</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-10-01">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-01" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-10-01",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-10-01",
+      "datePublished": "2026-10-01",
+      "dateModified": "2026-10-01",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "多角形の面積の2倍" },
+      "keywords": "computational-geometry, cross-product, span",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "格子点を頂点とする多角形の面積の2倍を、靴紐公式 (shoelace formula) で整数のまま求める doubled_area を書く。最後の頂点から最初の頂点へ戻る項と、頂点の向きで変わる符号を扱う。2026-10-01のC++ WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-01">C23</a>
+  <a href="/cpp/write/2026-10-01" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-10-01">Rust 2024</a>
+  <a href="/haskell/write/2026-10-01">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-01">READ</a>
+  <a href="/cpp/write/2026-10-01" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-10-01">DEBUG</a>
+</nav>
+
+<main
+  data-topic="多角形の面積の2倍"
+  data-tags="computational-geometry cross-product span"
+  data-concepts="靴紐公式, 多角形の面積, 頂点の向き, 符号付き面積, shoelace formula, polygon area, signed area"
+  data-level="peacock"
+>
+  <h2>2026-10-01</h2>
+  <div class="code-frame">
+    <p class="code-filename">polygon.cpp</p>
+    <pre class="code"><code><span class="kw">struct</span> <span class="ty">Point</span> {
+    <span class="ty">long</span> <span class="ty">long</span> x, y;
+};
+
+<span class="ty">long</span> <span class="ty">long</span> <span class="fn">doubled_area</span>(std::<span class="ty">span</span>&lt;<span class="kw">const</span> <span class="ty">Point</span>&gt; ps) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    境界に沿った順に頂点を並べた多角形を受け取り、その面積の2倍を返す <code>doubled_area</code> を書いてください。頂点の座標は整数で、並びは時計回りでも反時計回りでもかまいません。辺どうしは交わりません。頂点が2つ以下のときは <code>0</code> を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>doubled_area(std::vector&lt;Point&gt;{{0, 0}, {2, 0}, {2, 2}, {0, 2}})</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>8</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>doubled_area(std::vector&lt;Point&gt;{{0, 0}, {0, 3}, {1, 0}})</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>3</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>doubled_area(std::vector&lt;Point&gt;{{5, 5}})</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="ty">long</span> <span class="ty">long</span> <span class="fn">doubled_area</span>(std::<span class="ty">span</span>&lt;<span class="kw">const</span> <span class="ty">Point</span>&gt; ps) {
+    <span class="ty">long</span> <span class="ty">long</span> s = <span class="nu">0</span>;
+    <span class="kw">for</span> (std::<span class="ty">size_t</span> i = <span class="nu">0</span>; i &lt; ps.<span class="fn">size</span>(); ++i) {
+        <span class="kw">const</span> <span class="ty">Point</span>&amp; a = ps[i];
+        <span class="kw">const</span> <span class="ty">Point</span>&amp; b = ps[(i + <span class="nu">1</span>) % ps.<span class="fn">size</span>()];
+        s += a.x * b.y - b.x * a.y;
+    }
+    <span class="kw">return</span> s &lt; <span class="nu">0</span> ? -s : s;
+}
+</code></pre>
+      <p>
+        隣り合う2頂点 <code>a</code>、<code>b</code> ごとに <code>a.x * b.y - b.x * a.y</code> を足すと、和の絶対値が面積の2倍になります。和の符号は頂点の向きで決まり、反時計回りなら正、時計回りなら負です。例2の三角形は時計回りで、和は <code>-3</code> になるので、最後に絶対値を取ります。格子点の多角形の面積は <code>0.5</code> 刻みなので、2倍なら整数のまま返せます。
+      </p>
+      <p>
+        忘れやすいのは、最後の頂点から最初の頂点へ戻る組です。<code>b</code> の添字を <code>(i + 1) % ps.size()</code> にすると、<code>i</code> が最後の頂点を指すときに <code>b</code> が <code>ps[0]</code> になり、多角形が閉じます。この項を落とした和は、多角形を平行移動しただけで値が変わります。
+      </p>
+      <p>
+        頂点が2つ以下の場合を別に扱う必要はありません。1つなら <code>a</code> と <code>b</code> が同じ点で項が <code>0</code>、2つなら往復の2項が打ち消し合い、空ならループが一度も回らないので、どれも <code>0</code> が返ります。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。空のときに先に <code>0</code> を返しておけば、直前の頂点を <code>ps.back()</code> で初期化した変数に持ち、範囲 <code>for</code> で1つずつ進める書き方もできます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

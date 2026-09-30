@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="数字の列を int に変換する parse が途中で失敗したとき、呼び出し側の変数に何が残るかを追う。ポインタで受け取った出力引数には、失敗する前に書いた値がそのまま残る。2026-10-01のC READ。">
+<title>失敗しても残る書き込み</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-10-01">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-01" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-10-01",
+      "url": "https://namaran.jocarium.productions/c/read/2026-10-01",
+      "datePublished": "2026-10-01",
+      "dateModified": "2026-10-01",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "失敗しても残る書き込み" },
+      "keywords": "pointer, function-parameter, error-handling, side-effect",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "数字の列を int に変換する parse が途中で失敗したとき、呼び出し側の変数に何が残るかを追う。ポインタで受け取った出力引数には、失敗する前に書いた値がそのまま残る。2026-10-01のC READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-01" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-10-01">C++26</a>
+  <a href="/rust/read/2026-10-01">Rust 2024</a>
+  <a href="/haskell/read/2026-10-01">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-01" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-10-01">WRITE</a>
+  <a href="/c/debug/2026-10-01">DEBUG</a>
+</nav>
+
+<main
+  data-topic="失敗しても残る書き込み"
+  data-tags="pointer function-parameter error-handling side-effect"
+  data-concepts="出力引数, 途中までの書き込み, 失敗時の出力引数, out parameter, partial write on failure"
+  data-level="hedgehog"
+>
+  <h2>2026-10-01</h2>
+  <div class="code-frame">
+    <p class="code-filename">parse.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdbool.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">static</span> <span class="ty">bool</span> <span class="fn">parse</span>(<span class="kw">const</span> <span class="ty">char</span> *s, <span class="ty">int</span> *out) {
+    *out = <span class="nu">0</span>;
+    <span class="kw">for</span> (; *s != <span class="st">'\0'</span>; s++) {
+        <span class="kw">if</span> (*s &lt; <span class="st">'0'</span> || *s &gt; <span class="st">'9'</span>)
+            <span class="kw">return</span> <span class="nu">false</span>;
+        *out = *out * <span class="nu">10</span> + (*s - <span class="st">'0'</span>);
+    }
+    <span class="kw">return</span> <span class="nu">true</span>;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="ty">int</span> n = <span class="nu">99</span>;
+    <span class="ty">bool</span> ok = <span class="fn">parse</span>(<span class="st">"12x4"</span>, &amp;n);
+    <span class="fn">printf</span>(<span class="st">"%d %d\n"</span>, ok, n);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>0 12</code> です。
+      </p>
+      <p>
+        <code>parse</code> は最初に <code>*out = 0</code> と書き、数字を1文字読むたびに <code>*out</code> を更新します。<code>out</code> が指しているのは <code>main</code> の <code>n</code> そのものなので、<code>n</code> は <code>0</code>、<code>1</code>、<code>12</code> と順に書き換わっていきます。
+      </p>
+      <p>
+        3文字目の <code>'x'</code> で <code>parse</code> は <code>false</code> を返しますが、それまでに <code>n</code> へ書いた値を元に戻す処理はどこにもありません。失敗したのだから <code>n</code> は呼ぶ前の <code>99</code> のまま、と読むと <code>0 99</code> と答えてしまいます。実際の <code>n</code> は途中まで読んだ <code>12</code> で、<code>false</code> の <code>ok</code> は <code>printf</code> に <code>int</code> の <code>0</code> として渡ります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

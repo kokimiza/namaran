@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="同じ IORef が何度も入りうるリストを受け取り、各参照の中身をちょうど1回ずつ1増やす bumpOnce を書く。中身が等しいだけの別の参照と、同じ参照の重複をどう見分けるかを扱う。2026-10-01のHaskell WRITE。">
+<title>同じ箱は一度だけ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-10-01">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-01" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-10-01",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-10-01",
+      "datePublished": "2026-10-01",
+      "dateModified": "2026-10-01",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "同じ箱は一度だけ" },
+      "keywords": "ioref, reference, aliasing, deduplication",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "同じ IORef が何度も入りうるリストを受け取り、各参照の中身をちょうど1回ずつ1増やす bumpOnce を書く。中身が等しいだけの別の参照と、同じ参照の重複をどう見分けるかを扱う。2026-10-01のHaskell WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-01">C23</a>
+  <a href="/cpp/write/2026-10-01">C++26</a>
+  <a href="/rust/write/2026-10-01">Rust 2024</a>
+  <a href="/haskell/write/2026-10-01" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-01">READ</a>
+  <a href="/haskell/write/2026-10-01" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-10-01">DEBUG</a>
+</nav>
+
+<main
+  data-topic="同じ箱は一度だけ"
+  data-tags="ioref reference aliasing deduplication"
+  data-concepts="IORef の重複を除く, 参照の同一性, 同値と同一, 別名, nub, reference equality, aliasing, identity vs equality"
+  data-level="bison"
+>
+  <h2>2026-10-01</h2>
+  <div class="code-frame">
+    <p class="code-filename">Bump.hs</p>
+    <pre class="code"><code><span class="fn">bumpOnce</span> <span class="op">::</span> [<span class="ty">IORef</span> <span class="ty">Int</span>] <span class="op">-&gt;</span> <span class="ty">IO</span> ()
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>IORef Int</code> のリストを受け取り、リストに現れる参照の中身をそれぞれちょうど <code>1</code> だけ増やす <code>bumpOnce</code> を書いてください。同じ参照が何度現れても、増やすのは1回だけです。中身が同じ値でも、別々に作った参照はそれぞれ増やします。空のリストでは何もしません。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>do { a &lt;- newIORef 1; b &lt;- newIORef 1; bumpOnce [a, b, a]; mapM readIORef [a, b] }</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>[2,2]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>do { a &lt;- newIORef 5; bumpOnce [a, a, a]; readIORef a }</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>6</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>bumpOnce []</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>()</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">import</span> <span class="ty">Data.IORef</span>
+<span class="kw">import</span> <span class="ty">Data.List</span> (nub)
+
+<span class="fn">bumpOnce</span> <span class="op">::</span> [<span class="ty">IORef</span> <span class="ty">Int</span>] <span class="op">-&gt;</span> <span class="ty">IO</span> ()
+<span class="fn">bumpOnce</span> = mapM_ (\r <span class="op">-&gt;</span> modifyIORef r (+ <span class="nu">1</span>)) . nub
+</code></pre>
+      <p>
+        <code>IORef</code> の <code>==</code> は中身ではなく、同じ参照かどうかを比べます。<code>nub</code> は <code>==</code> で重複を除くので、同じ参照の2回目以降だけを取り除き、中身が等しい別の参照は残します。残った参照を <code>modifyIORef</code> で1回ずつ増やせば、条件どおりになります。
+      </p>
+      <p>
+        重複を除かずに <code>mapM_</code> で増やすと、例1の <code>a</code> は2回増えて <code>3</code> になります。一方、中身を読んでから値で重複を除くのも誤りです。例1の <code>a</code> と <code>b</code> はどちらも中身が <code>1</code> なので、値で比べると片方しか残らず、もう片方が増えません。除くべきなのは同じ値ではなく同じ参照で、その比べ方をしてくれるのが <code>IORef</code> の <code>==</code> です。
+      </p>
+      <p>
+        <code>nub</code> の比較回数はリストの長さの2乗に比例します。<code>IORef</code> には <code>Ord</code> のインスタンスがないので、<code>Data.Set</code> に入れて速く重複を除くことはできません。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。すでに増やした参照のリストを持ちながら先頭から進み、<code>elem</code> で調べてから増やす書き方もあります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
