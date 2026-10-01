@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「クロージャ」を扱ったNamaranのコーディングドリル5問。bool::then、bool::then_some、引数の正格評価、0 での割り算、整数の平均、eager argument evaluation。">
+<meta name="description" content="「クロージャ」を扱ったNamaranのコーディングドリル6問。経過時間の計測、Instant、単調増加時計、elapsed、measuring elapsed time、monotonic clock。">
 <title>クロージャ</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/closure">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>クロージャ</h2>
 
   <p class="lede">
-    「クロージャ」を扱った5問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「クロージャ」を扱った6問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/write/2026-10-02">Rust / WRITE · 2026-10-02</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">処理時間を測る</span> <span class="past-concepts">経過時間の計測, Instant, 単調増加時計, elapsed, measuring elapsed time, monotonic clock</span></li>
     <li><a href="/rust/write/2026-09-06">Rust / WRITE · 2026-09-06</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">空なら割らない平均</span> <span class="past-concepts">bool::then, bool::then_some, 引数の正格評価, 0 での割り算, 整数の平均, eager argument evaluation, divide by zero panic</span></li>
     <li><a href="/rust/read/2026-09-06">Rust / READ · 2026-09-06</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">mapはいつ呼ばれる</span> <span class="past-concepts">イテレータの遅延評価, Iterator::map, any, 短絡評価, クロージャの副作用, lazy iterator adaptor, short-circuiting any, closure side effect</span></li>
     <li><a href="/rust/debug/2026-09-06">Rust / DEBUG · 2026-09-06</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">or_insertの引数</span> <span class="past-concepts">or_insert と or_insert_with, entry API, 引数の正格評価, ブロック式, 文字列のインターン, eager evaluation of arguments, block expression, string interning</span></li>

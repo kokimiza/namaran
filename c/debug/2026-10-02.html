@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="日ごとに区切った気温の配列から最高気温を出すとき、記録の無い日に翌日の最初の値が出てしまうバグを直す。空の範囲にも添字 0 を返す argmax と、1つの配列を区切って使うときの境界を扱う。2026-10-02のC DEBUG。">
+<title>記録の無い日の最高気温</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-10-02">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-02" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-10-02",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-10-02",
+      "datePublished": "2026-10-02",
+      "dateModified": "2026-10-02",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "記録の無い日の最高気温" },
+      "keywords": "array, half-open-interval, boundary, pointer, sentinel",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "日ごとに区切った気温の配列から最高気温を出すとき、記録の無い日に翌日の最初の値が出てしまうバグを直す。空の範囲にも添字 0 を返す argmax と、1つの配列を区切って使うときの境界を扱う。2026-10-02のC DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-02" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-10-02">C++26</a>
+  <a href="/rust/debug/2026-10-02">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-02">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-02">READ</a>
+  <a href="/c/write/2026-10-02">WRITE</a>
+  <a href="/c/debug/2026-10-02" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="記録の無い日の最高気温"
+  data-tags="array half-open-interval boundary pointer sentinel"
+  data-concepts="空の範囲の最大値, 添字0の思い込み, 区切った配列, argmax of empty range, empty subrange, half-open interval"
+  data-level="whale"
+>
+  <h2>2026-10-02</h2>
+  <div class="code-frame">
+    <p class="code-filename">daily_max.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stddef.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">static</span> <span class="ty">size_t</span> <span class="fn">argmax</span>(<span class="kw">const</span> <span class="ty">int</span> *a, <span class="ty">size_t</span> n) {
+    <span class="ty">size_t</span> best = <span class="nu">0</span>;
+    <span class="kw">for</span> (<span class="ty">size_t</span> i = <span class="nu">1</span>; i &lt; n; i++)
+        <span class="kw">if</span> (a[i] &gt; a[best])
+            best = i;
+    <span class="kw">return</span> best;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="ty">int</span> temp[] = {<span class="nu">12</span>, <span class="nu">18</span>, <span class="nu">15</span>, <span class="nu">9</span>, <span class="nu">11</span>};
+    <span class="ty">size_t</span> start[] = {<span class="nu">0</span>, <span class="nu">3</span>, <span class="nu">3</span>, <span class="nu">5</span>};
+    <span class="kw">for</span> (<span class="ty">size_t</span> d = <span class="nu">0</span>; d &lt; <span class="nu">3</span>; d++) {
+        <span class="ty">size_t</span> len = start[d + <span class="nu">1</span>] - start[d];
+        <span class="ty">size_t</span> i = <span class="fn">argmax</span>(temp + start[d], len);
+        <span class="fn">printf</span>(<span class="st">"day %zu: %d\n"</span>, d, temp[start[d] + i]);
+    }
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>temp</code> は3日分の気温の記録を日付順に並べた配列で、<code>d</code> 日目の記録は <code>temp[start[d]]</code> から <code>temp[start[d + 1]]</code> の手前までです。このコードは日ごとの最高気温を出力するつもりで、記録の無い日には <code>-</code> と出すべきです。引数も標準入力も使いません。本来は <code>day 0: 18</code>、<code>day 1: -</code>、<code>day 2: 11</code> の3行が出力されるはずが、いまは <code>day 0: 18</code>、<code>day 1: 9</code>、<code>day 2: 11</code> と出力されます。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="ty">size_t</span> len = start[d + <span class="nu">1</span>] - start[d];
+<span class="ty">size_t</span> i = <span class="fn">argmax</span>(temp + start[d], len);
+<span class="fn">printf</span>(<span class="st">"day %zu: %d\n"</span>, d, temp[start[d] + i]);
+</code></pre>
+      <p>
+        1日目は <code>start[1]</code> と <code>start[2]</code> がどちらも <code>3</code> なので、<code>len</code> は <code>0</code> です。<code>argmax</code> は <code>best = 0</code> から始め、<code>i = 1</code> からのループは1回も回らないので、空の範囲にも添字 <code>0</code> を返します。この <code>0</code> は「先頭が最大」とも「要素が無い」とも読めますが、<code>main</code> は前者として扱います。
+      </p>
+      <p>
+        <code>main</code> が読むのは <code>temp[start[1] + 0]</code>、つまり <code>temp[3]</code> です。1日目の範囲は空でも、<code>start[1]</code> の位置には2日目の最初の記録 <code>9</code> が置かれています。配列の内側を読んでいるのでクラッシュもせず、サニタイザも何も報告しないまま、翌日の値が1日目の最高気温として出力されます<sup class="fn-ref">1</sup>。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="ty">size_t</span> len = start[d + <span class="nu">1</span>] - start[d];
+<span class="kw">if</span> (len == <span class="nu">0</span>) {
+    <span class="fn">printf</span>(<span class="st">"day %zu: -\n"</span>, d);
+    <span class="kw">continue</span>;
+}
+<span class="ty">size_t</span> i = <span class="fn">argmax</span>(temp + start[d], len);
+</code></pre>
+      <p>
+        <code>argmax</code> を呼ぶ前に長さを調べ、空の日はそこで <code>-</code> を出して次の日へ進みます。<code>argmax</code> に渡るのは要素が1つ以上ある範囲だけになるので、返ってくる添字は必ずその日の記録を指します<sup class="fn-ref">2</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>空の日が最終日だと <code>start[d]</code> は <code>5</code> になり、<code>temp[5]</code> は配列の外です。そのときは翌日の値ではなく未定義動作になります。同じ欠陥でも、空の範囲が配列のどこにあるかで症状が変わります。</li>
+        <li><code>argmax</code> の側で、空なら <code>n</code> を返すと決める方法もあります。C++ の <code>std::max_element</code> は空の範囲に終端を返し、呼び出し側は終端と比べて空かどうかを見分けます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

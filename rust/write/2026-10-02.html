@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="クロージャを1回呼び、その戻り値とかかった時間を返す time_it を書く。OS の時刻が途中で合わせ直されても狂わない Instant で経過時間を測ることを扱う。2026-10-02のRust WRITE。">
+<title>処理時間を測る</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-10-02">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-02" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-10-02",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-10-02",
+      "datePublished": "2026-10-02",
+      "dateModified": "2026-10-02",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "処理時間を測る" },
+      "keywords": "monotonic-clock, date-time, closure, fn-trait",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "クロージャを1回呼び、その戻り値とかかった時間を返す time_it を書く。OS の時刻が途中で合わせ直されても狂わない Instant で経過時間を測ることを扱う。2026-10-02のRust WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-02">C23</a>
+  <a href="/cpp/write/2026-10-02">C++26</a>
+  <a href="/rust/write/2026-10-02" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-10-02">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-02">READ</a>
+  <a href="/rust/write/2026-10-02" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-10-02">DEBUG</a>
+</nav>
+
+<main
+  data-topic="処理時間を測る"
+  data-tags="monotonic-clock date-time closure fn-trait"
+  data-concepts="経過時間の計測, Instant, 単調増加時計, elapsed, measuring elapsed time, monotonic clock"
+  data-level="hedgehog"
+>
+  <h2>2026-10-02</h2>
+  <div class="code-frame">
+    <p class="code-filename">time_it.rs</p>
+    <pre class="code"><code><span class="kw">use</span> std::time::<span class="ty">Duration</span>;
+
+<span class="kw">fn</span> <span class="fn">time_it</span>&lt;<span class="ty">T</span>&gt;(f: <span class="kw">impl</span> <span class="fn">FnOnce</span>() -&gt; <span class="ty">T</span>) -&gt; (<span class="ty">T</span>, <span class="ty">Duration</span>) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    引数のクロージャ <code>f</code> を1回だけ呼び、その戻り値と、呼び出しにかかった時間の組を返す <code>time_it</code> を書いてください。測っている途中で OS の時刻が NTP などで合わせ直されても、かかった時間が狂わないようにします。<code>f</code> がすぐに戻るときは、0 に近い時間を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>time_it(|| 6 * 7).0</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>42</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>time_it(|| std::thread::sleep(Duration::from_millis(50))).1 &gt;= Duration::from_millis(50)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>true</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>time_it(|| "done").0</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>"done"</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">use</span> std::time::<span class="ty">Duration</span>;
+<span class="kw">use</span> std::time::<span class="ty">Instant</span>;
+
+<span class="kw">fn</span> <span class="fn">time_it</span>&lt;<span class="ty">T</span>&gt;(f: <span class="kw">impl</span> <span class="fn">FnOnce</span>() -&gt; <span class="ty">T</span>) -&gt; (<span class="ty">T</span>, <span class="ty">Duration</span>) {
+    <span class="kw">let</span> start = <span class="ty">Instant</span>::<span class="fn">now</span>();
+    <span class="kw">let</span> value = <span class="fn">f</span>();
+    (value, start.<span class="fn">elapsed</span>())
+}
+</code></pre>
+      <p>
+        <code>f</code> を呼ぶ前に <code>Instant::now()</code> で時点を取り、呼んだあとで <code>elapsed()</code> を取ります。<code>Instant</code> は OS の単調増加時計を読むので、OS の時刻が合わせ直されても値は戻りません。<code>elapsed()</code> は、呼び出しにかかった時間そのものを返します。
+      </p>
+      <p>
+        同じことを <code>SystemTime::now()</code> で書くと、測っている間に時刻が戻ったときは <code>elapsed()</code> が <code>Err</code> を返し、進んだときは実際より長い時間が返ります。<code>SystemTime</code> は「いま何時か」を記録するための壁時計で、2つの時点の間隔を測るのには向きません。
+      </p>
+      <p>
+        <code>f</code> は <code>FnOnce</code> で受けるので、捕まえた値をムーブして消費するクロージャも渡せます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。戻り値を変数に受けずに <code>(f(), start.elapsed())</code> と書いても、タプルの要素は左から順に評価されるので、同じ結果になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

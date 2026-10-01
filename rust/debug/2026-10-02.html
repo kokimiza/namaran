@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="更新から1時間を過ぎたファイルを消すつもりの関数が、更新時刻が未来のファイルまで消してしまうバグを直す。SystemTime::elapsed が Err を返す場合と、そのときに使う既定値の選び方を扱う。2026-10-02のRust DEBUG。">
+<title>未来の更新時刻</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-10-02">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-02" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-10-02",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-10-02",
+      "datePublished": "2026-10-02",
+      "dateModified": "2026-10-02",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "未来の更新時刻" },
+      "keywords": "date-time, error-handling, default, file-system",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "更新から1時間を過ぎたファイルを消すつもりの関数が、更新時刻が未来のファイルまで消してしまうバグを直す。SystemTime::elapsed が Err を返す場合と、そのときに使う既定値の選び方を扱う。2026-10-02のRust DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-02">C23</a>
+  <a href="/cpp/debug/2026-10-02">C++26</a>
+  <a href="/rust/debug/2026-10-02" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-02">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-02">READ</a>
+  <a href="/rust/write/2026-10-02">WRITE</a>
+  <a href="/rust/debug/2026-10-02" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="未来の更新時刻"
+  data-tags="date-time error-handling default file-system"
+  data-concepts="時計のずれ, 未来の更新時刻, elapsed のエラー, 既定値の選び方, clock skew, file modification time, SystemTimeError"
+  data-level="bison"
+>
+  <h2>2026-10-02</h2>
+  <div class="code-frame">
+    <p class="code-filename">cleanup.rs</p>
+    <pre class="code"><code><span class="kw">use</span> std::time::{<span class="ty">Duration</span>, <span class="ty">SystemTime</span>};
+
+<span class="kw">fn</span> <span class="fn">expired</span>(modified: <span class="ty">SystemTime</span>, max_age: <span class="ty">Duration</span>) -&gt; <span class="ty">bool</span> {
+    modified.<span class="fn">elapsed</span>().<span class="fn">unwrap_or</span>(<span class="ty">Duration</span>::<span class="nu">MAX</span>) &gt; max_age
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> now = <span class="ty">SystemTime</span>::<span class="fn">now</span>();
+    <span class="kw">let</span> hour = <span class="ty">Duration</span>::<span class="fn">from_secs</span>(<span class="nu">3600</span>);
+    <span class="kw">let</span> files = [
+        (<span class="st">"a.log"</span>, now - <span class="nu">2</span> * hour),
+        (<span class="st">"b.log"</span>, now),
+        (<span class="st">"c.log"</span>, now + <span class="ty">Duration</span>::<span class="fn">from_secs</span>(<span class="nu">90</span>)),
+    ];
+    <span class="kw">for</span> (name, modified) <span class="kw">in</span> files {
+        <span class="kw">if</span> <span class="fn">expired</span>(modified, hour) {
+            <span class="mc">println!</span>(<span class="st">"delete {name}"</span>);
+        }
+    }
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>expired</code> は、更新時刻 <code>modified</code> から <code>max_age</code> より長く経ったかどうかを返す関数で、<code>main</code> はそれが <code>true</code> になったファイルを消すつもりです。引数も標準入力も使いません。本来は <code>delete a.log</code> の1行だけが出力されるはずが、いまは <code>delete a.log</code> と <code>delete c.log</code> の2行が出力されます。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code>modified.<span class="fn">elapsed</span>().<span class="fn">unwrap_or</span>(<span class="ty">Duration</span>::<span class="nu">MAX</span>) &gt; max_age
+</code></pre>
+      <p>
+        <code>c.log</code> の更新時刻は、いまより90秒先です。<code>SystemTime::elapsed</code> は、いまの時刻が <code>modified</code> より前だと <code>Err</code> を返します。経過時間が負になり、<code>Duration</code> では表せないからです。<code>unwrap_or(Duration::MAX)</code> はこの <code>Err</code> を「この上なく古い」と読み替えるので、<code>Duration::MAX &gt; max_age</code> が <code>true</code> になり、書かれたばかりの <code>c.log</code> が消されます。
+      </p>
+      <p>
+        更新時刻が未来になることは珍しくありません。ファイルの更新時刻は壁時計の値なので、時計が進んでいる別のマシンで書かれたり、書いたあとで NTP が時計を戻したりすると、いまより先の時刻が残ります。消すかどうかを決める場面で、経過時間が分からないものを古い側に倒すと、データを失います。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code>modified.<span class="fn">elapsed</span>().<span class="fn">unwrap_or</span>(<span class="ty">Duration</span>::<span class="nu">ZERO</span>) &gt; max_age
+</code></pre>
+      <p>
+        <code>Err</code> のときの既定値を <code>Duration::ZERO</code> にすると、未来の更新時刻は「いま更新された」のと同じ扱いになり、<code>max_age</code> を超えないので消されません。時計が追いつけば <code>elapsed</code> は <code>Ok</code> を返すようになり、そこから経過時間が普通に数えられます<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>更新時刻はファイルシステムに残る壁時計の値なので、<code>Instant</code> では置き換えられません。<code>Instant</code> は1つのプロセスの中で2つの時点の間隔を測るためのもので、ファイルに保存したり、別のマシンの時刻と比べたりする手段を持たないからです。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

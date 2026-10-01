@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「エラー処理」を扱ったNamaranのコーディングドリル15問。出力引数、途中までの書き込み、失敗時の出力引数、out parameter、partial write on failure、途中で失敗した更新。">
+<meta name="description" content="「エラー処理」を扱ったNamaranのコーディングドリル18問。壁時計、単調増加時計、SystemTime の巻き戻り、duration_since のエラー、wall clock、monotonic clock。">
 <title>エラー処理</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/error-handling">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>エラー処理</h2>
 
   <p class="lede">
-    「エラー処理」を扱った15問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「エラー処理」を扱った18問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/read/2026-10-02">Rust / READ · 2026-10-02</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">巻き戻る時計のラップ</span> <span class="past-concepts">壁時計, 単調増加時計, SystemTime の巻き戻り, duration_since のエラー, wall clock, monotonic clock, SystemTimeError</span></li>
+    <li><a href="/rust/debug/2026-10-02">Rust / DEBUG · 2026-10-02</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">未来の更新時刻</span> <span class="past-concepts">時計のずれ, 未来の更新時刻, elapsed のエラー, 既定値の選び方, clock skew, file modification time, SystemTimeError</span></li>
+    <li><a href="/c/write/2026-10-02">C / WRITE · 2026-10-02</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">空なら最大値なし</span> <span class="past-concepts">空の配列の最大値, 出力引数, 失敗を返り値で知らせる, max of empty array, out parameter, NULL pointer</span></li>
     <li><a href="/c/read/2026-10-01">C / READ · 2026-10-01</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">失敗しても残る書き込み</span> <span class="past-concepts">出力引数, 途中までの書き込み, 失敗時の出力引数, out parameter, partial write on failure</span></li>
     <li><a href="/c/debug/2026-10-01">C / DEBUG · 2026-10-01</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">やり直すと二重に掛かる</span> <span class="past-concepts">途中で失敗した更新, 部分的な書き込み, 失敗後の再試行, 検証してから書き込む, partial update, retry after failure, validate then commit</span></li>
     <li><a href="/rust/write/2026-09-26">Rust / WRITE · 2026-09-26</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">確認せずに作る</span> <span class="past-concepts">ロックファイル, create_new, O_EXCL, 存在確認と作成の競合, lock file, atomic file creation, TOCTOU</span></li>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「再帰」を扱ったNamaranのコーディングドリル36問。TOCTOU、古い値での上書き、更新の消失、メモ化、IORef、再入。">
+<meta name="description" content="「再帰」を扱ったNamaranのコーディングドリル39問。unique_ptr のリストの解放、デストラクタの再帰、スタックオーバーフロー、recursive destructor、unique_ptr linked list、stack overflow。">
 <title>再帰</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/recursion">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>再帰</h2>
 
   <p class="lede">
-    「再帰」を扱った36問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「再帰」を扱った39問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/cpp/write/2026-10-02">C++ / WRITE · 2026-10-02</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">長いリストを再帰せず解放</span> <span class="past-concepts">unique_ptr のリストの解放, デストラクタの再帰, スタックオーバーフロー, recursive destructor, unique_ptr linked list, stack overflow</span></li>
+    <li><a href="/cpp/read/2026-10-02">C++ / READ · 2026-10-02</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">末尾に見えて末尾でない</span> <span class="past-concepts">末尾呼び出し, デストラクタの実行順, 再帰とスコープ, tail call, destructor order, automatic storage duration</span></li>
+    <li><a href="/cpp/debug/2026-10-02">C++ / DEBUG · 2026-10-02</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">100万段の再帰</span> <span class="past-concepts">スタックオーバーフロー, 再帰をループに直す, 末尾呼び出し最適化, stack overflow, tail call optimization, recursion to iteration</span></li>
     <li><a href="/haskell/debug/2026-09-29">Haskell / DEBUG · 2026-09-29</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">読んだ表で上書き</span> <span class="past-concepts">TOCTOU, 古い値での上書き, 更新の消失, メモ化, IORef, 再入, lost update, stale snapshot, memoization cache</span></li>
     <li><a href="/c/read/2026-09-28">C / READ · 2026-09-28</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">祖先だけ見る循環検出</span> <span class="past-concepts">シンボリックリンクの循環, ディレクトリ走査, stat, st_dev と st_ino, 祖先の判定, symlink loop, directory traversal, cycle detection</span></li>
     <li><a href="/c/debug/2026-09-28">C / DEBUG · 2026-09-28</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">リンク先を数える走査</span> <span class="past-concepts">lstat と stat, シンボリックリンクをたどる, ディレクトリ走査, ファイル数, follow symlinks, lstat vs stat, directory walk</span></li>

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Integer のリストの平均を、丸めずに Rational で返す average を書く。length が返す Int を % に渡せる型にそろえることと、空のリストで分母が 0 にならないよう Maybe で返すことを扱う。2026-10-02のHaskell WRITE。">
+<title>整数の平均を分数で</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-10-02">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-02" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-10-02",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-10-02",
+      "datePublished": "2026-10-02",
+      "dateModified": "2026-10-02",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "整数の平均を分数で" },
+      "keywords": "rational-number, type-conversion, maybe, division",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "Integer のリストの平均を、丸めずに Rational で返す average を書く。length が返す Int を % に渡せる型にそろえることと、空のリストで分母が 0 にならないよう Maybe で返すことを扱う。2026-10-02のHaskell WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-02">C23</a>
+  <a href="/cpp/write/2026-10-02">C++26</a>
+  <a href="/rust/write/2026-10-02">Rust 2024</a>
+  <a href="/haskell/write/2026-10-02" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-02">READ</a>
+  <a href="/haskell/write/2026-10-02" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-10-02">DEBUG</a>
+</nav>
+
+<main
+  data-topic="整数の平均を分数で"
+  data-tags="rational-number type-conversion maybe division"
+  data-concepts="整数の平均, 分数で正確に計算, Rational, %, 分母0, exact average, Data.Ratio"
+  data-level="peacock"
+>
+  <h2>2026-10-02</h2>
+  <div class="code-frame">
+    <p class="code-filename">Average.hs</p>
+    <pre class="code"><code><span class="fn">average</span> <span class="op">::</span> [<span class="ty">Integer</span>] <span class="op">-&gt;</span> <span class="ty">Maybe</span> <span class="ty">Rational</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>Integer</code> のリストの平均を、小数に丸めずに <code>Rational</code> で返す <code>average</code> を書いてください。リストが空のときは平均が定まらないので、<code>Nothing</code> を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>average [1, 2, 3, 4]</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>Just (5 % 2)</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>average [-1, 1]</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>Just (0 % 1)</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>average []</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>Nothing</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">import</span> <span class="ty">Data.Ratio</span> ((%))
+
+<span class="fn">average</span> <span class="op">::</span> [<span class="ty">Integer</span>] <span class="op">-&gt;</span> <span class="ty">Maybe</span> <span class="ty">Rational</span>
+<span class="fn">average</span> [] = <span class="ty">Nothing</span>
+<span class="fn">average</span> xs = <span class="ty">Just</span> (sum xs % toInteger (length xs))
+</code></pre>
+      <p>
+        <code>%</code> は、分子と分母に同じ <code>Integral</code> 型の値を取ります。<code>sum xs</code> は <code>Integer</code> ですが <code>length xs</code> は <code>Int</code> なので、<code>sum xs % length xs</code> は型が合わずにコンパイルできません。<code>toInteger</code> で分母を <code>Integer</code> にそろえれば、<code>Integer</code> どうしの <code>%</code> で <code>Rational</code> ができます。
+      </p>
+      <p>
+        空のリストを別の式で先に受けるのは、<code>%</code> が分母の <code>0</code> を受け付けないからです。<code>0 % 0</code> を評価すると、<code>NaN</code> のような値にはならず、<code>Ratio has zero denominator</code> という例外が起きます。<code>Maybe</code> で返せば、平均の無いリストを呼び出し側が型で見分けられます。
+      </p>
+      <p>
+        例2の <code>0 % 1</code> は、和が <code>0</code> になった <code>0 % 2</code> が約分された形です。掲載したのは参考実装で、唯一の正解ではありません。結果の型を <code>Rational</code> にしておけば、<code>fromIntegral (sum xs) / fromIntegral (length xs)</code> と書いても同じ値になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

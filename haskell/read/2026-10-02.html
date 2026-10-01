@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="n % 6 で作った Rational のリストについて、和と各要素の分子を読む。% で作った値は常に既約分数に正規化され、numerator も約分したあとの分子を返すことを扱う。2026-10-02のHaskell READ。">
+<title>6分のnの約分</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-10-02">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-02" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-10-02",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-10-02",
+      "datePublished": "2026-10-02",
+      "dateModified": "2026-10-02",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "6分のnの約分" },
+      "keywords": "rational-number, greatest-common-divisor, list-comprehension",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "n % 6 で作った Rational のリストについて、和と各要素の分子を読む。% で作った値は常に既約分数に正規化され、numerator も約分したあとの分子を返すことを扱う。2026-10-02のHaskell READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-02">C23</a>
+  <a href="/cpp/read/2026-10-02">C++26</a>
+  <a href="/rust/read/2026-10-02">Rust 2024</a>
+  <a href="/haskell/read/2026-10-02" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-02" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-10-02">WRITE</a>
+  <a href="/haskell/debug/2026-10-02">DEBUG</a>
+</nav>
+
+<main
+  data-topic="6分のnの約分"
+  data-tags="rational-number greatest-common-divisor list-comprehension"
+  data-concepts="Rational, 既約分数, 約分, numerator, reduced fraction, Data.Ratio"
+  data-level="hedgehog"
+>
+  <h2>2026-10-02</h2>
+  <div class="code-frame">
+    <p class="code-filename">Sixths.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Data.Ratio</span>
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = <span class="kw">do</span>
+  <span class="kw">let</span> xs = [n % <span class="nu">6</span> | n <span class="op">&lt;-</span> [<span class="nu">2</span>, <span class="nu">3</span>, <span class="nu">4</span>]] <span class="op">::</span> [<span class="ty">Rational</span>]
+  print (sum xs)
+  print (map numerator xs)
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>3 % 2</code> と <code>[1,1,2]</code> の2行です。
+      </p>
+      <p>
+        <code>%</code> は、分子と分母を最大公約数で割ってから値を作ります。<code>2 % 6</code>、<code>3 % 6</code>、<code>4 % 6</code> は作られた時点で <code>1 % 3</code>、<code>1 % 2</code>、<code>2 % 3</code> になり、分母が <code>6</code> の形はどこにも残りません。
+      </p>
+      <p>
+        <code>numerator</code> が返すのも約分したあとの分子なので、書いたときの <code>[2,3,4]</code> ではなく <code>[1,1,2]</code> になります。和の 9/6 も同じように約分され、<code>3 % 2</code> と表示されます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
