@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「ビット演算」を扱ったNamaranのコーディングドリル17問。部分集合の列挙、サブマスク、(sub - 1) &amp; mask、successors、then と then_some、submask enumeration。">
+<meta name="description" content="「ビット演算」を扱ったNamaranのコーディングドリル18問。UTF-8の切り詰め、継続バイト、文字境界、UTF-8 truncation、continuation byte、code point boundary。">
 <title>ビット演算</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/bit-operation">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>ビット演算</h2>
 
   <p class="lede">
-    「ビット演算」を扱った17問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「ビット演算」を扱った18問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/c/write/2026-10-03">C / WRITE · 2026-10-03</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">先頭n文字のバイト数</span> <span class="past-concepts">UTF-8の切り詰め, 継続バイト, 文字境界, UTF-8 truncation, continuation byte, code point boundary</span></li>
     <li><a href="/rust/write/2026-09-29">Rust / WRITE · 2026-09-29</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">部分集合を大きい順に</span> <span class="past-concepts">部分集合の列挙, サブマスク, (sub - 1) &amp; mask, successors, then と then_some, submask enumeration, subset enumeration, bitmask</span></li>
     <li><a href="/rust/read/2026-09-29">Rust / READ · 2026-09-29</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">負のi8で1を数える</span> <span class="past-concepts">最下位の1ビットを消す, x &amp; (x - 1), 2の補数, ビットの数え上げ, wrapping_sub, clear lowest set bit, two's complement, popcount</span></li>
     <li><a href="/rust/debug/2026-09-29">Rust / DEBUG · 2026-09-29</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">容量の2のべき判定</span> <span class="past-concepts">2のべき乗判定, x &amp; (x - 1), 減算のオーバーフロー, リングバッファの容量, power of two check, integer overflow panic, is_power_of_two</span></li>

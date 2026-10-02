@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="auto ports = {…} で作ったリストをそのまま返す関数が、呼び出し側にでたらめな値を読ませるC++26のドリル。std::initializer_listが指す背後の配列の寿命を扱う。">
+<title>連番のポートを返す</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-10-03">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-03" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-10-03",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-10-03",
+      "datePublished": "2026-10-03",
+      "dateModified": "2026-10-03",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "連番のポートを返す" },
+      "keywords": "type-deduction, list-initialization, lifetime, dangling-pointer, undefined-behavior",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "auto ports = {…} で作ったリストをそのまま返す関数が、呼び出し側にでたらめな値を読ませるC++26のドリル。std::initializer_listが指す背後の配列の寿命を扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-03">C23</a>
+  <a href="/cpp/debug/2026-10-03" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-10-03">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-03">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-03">READ</a>
+  <a href="/cpp/write/2026-10-03">WRITE</a>
+  <a href="/cpp/debug/2026-10-03" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="連番のポートを返す"
+  data-tags="type-deduction list-initialization lifetime dangling-pointer undefined-behavior"
+  data-concepts="initializer_listを返す, 背後の配列の寿命, auto x = {}, dangling initializer_list, backing array lifetime"
+  data-level="bison"
+>
+  <h2>2026-10-03</h2>
+  <div class="code-frame">
+    <p class="code-filename">ports.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;initializer_list&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+
+<span class="kw">auto</span> <span class="fn">ports_from</span>(<span class="ty">int</span> base) {
+    <span class="kw">auto</span> ports = {base, base + <span class="nu">1</span>, base + <span class="nu">2</span>};
+    <span class="kw">return</span> ports;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="kw">for</span> (<span class="ty">int</span> p : <span class="fn">ports_from</span>(<span class="nu">8080</span>))
+        std::cout &lt;&lt; p &lt;&lt; <span class="st">'\n'</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>ports_from</code> は、<code>base</code> から始まる連続した3つのポート番号を返す関数です。引数も標準入力も使わず、<code>ports_from(8080)</code> の結果を1行に1つずつ出力します。いまは <code>32764</code> や <code>-468173408</code> のような、実行環境によって変わるでたらめな数が出ます。本来は <code>8080</code>、<code>8081</code>、<code>8082</code> の3行が出力されるはずです。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">auto</span> ports = {base, base + <span class="nu">1</span>, base + <span class="nu">2</span>};
+<span class="kw">return</span> ports;
+</code></pre>
+      <p>
+        <code>=</code> と波括弧で初期化した <code>auto</code> は <code>std::initializer_list&lt;int&gt;</code> と推論されます。initializer_list は要素を自分では持たず、コンパイラが用意した配列(背後の配列)を指すだけの軽いビューで、コピーしても配列は複製されません。この配列の寿命は <code>ports</code> と同じなので、<code>ports_from</code> から戻った時点で尽きます。
+      </p>
+      <p>
+        戻り値の型も <code>auto</code> から <code>std::initializer_list&lt;int&gt;</code> に推論されるので、<code>main</code> が受け取るのは、もう存在しないスタック上の配列を指すビューです。range-for がそこを読むのは未定義動作で、手元では別の関数呼び出しに上書きされたスタックの値が出力されました。GCC はこの <code>return</code> に <code>-Winit-list-lifetime</code> の警告を出しますが、コンパイルは通ります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;array&gt;</span>
+
+std::<span class="ty">array</span> ports{base, base + <span class="nu">1</span>, base + <span class="nu">2</span>};
+<span class="kw">return</span> ports;
+</code></pre>
+      <p>
+        <code>&lt;array&gt;</code> を読み込み、<code>std::array</code> に要素を持たせます。<code>std::array</code> は要素を自分の中に持つ集成体なので、<code>return</code> で値ごと呼び出し側へ渡り、関数を出たあとも要素が残ります。型はクラステンプレートの実引数推論で <code>std::array&lt;int, 3&gt;</code> になり、<code>main</code> の range-for はそのまま使えます。
+      </p>
+      <p>
+        <code>auto ports{base, base + 1, base + 2};</code> と <code>=</code> を外すだけでは直りません。<code>=</code> の無い波括弧で <code>auto</code> を推論できるのは要素が1つのときだけで、3つではコンパイルエラーになります<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>C++26 では、要素がすべて定数式の initializer_list なら、背後の配列を静的記憶域に置いてもよいことになりました(P2752)。<code>{80, 443}</code> のような定数だけのリストは、関数を出たあとも読めてしまうことがあります。この問題では <code>base</code> が実行時の値なので、そうはなりません。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="UTF-8の文字数を数える関数でmallocの大きさを決め、sprintfがバイト単位で書き込んで確保した領域をはみ出すC23のドリル。文字数とバイト数の取り違えがヒープを壊す。">
+<title>文字列を角括弧で囲む</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-10-03">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-03" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-10-03",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-10-03",
+      "datePublished": "2026-10-03",
+      "dateModified": "2026-10-03",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "文字列を角括弧で囲む" },
+      "keywords": "utf-8, buffer-overflow, string, null-terminated-string, memory-management",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "UTF-8の文字数を数える関数でmallocの大きさを決め、sprintfがバイト単位で書き込んで確保した領域をはみ出すC23のドリル。文字数とバイト数の取り違えがヒープを壊す。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-03" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-10-03">C++26</a>
+  <a href="/rust/debug/2026-10-03">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-03">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-03">READ</a>
+  <a href="/c/write/2026-10-03">WRITE</a>
+  <a href="/c/debug/2026-10-03" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="文字列を角括弧で囲む"
+  data-tags="utf-8 buffer-overflow string null-terminated-string memory-management"
+  data-concepts="文字数とバイト数, mallocの大きさ, ヒープバッファオーバーフロー, heap buffer overflow, strlen vs character count"
+  data-level="peacock"
+>
+  <h2>2026-10-03</h2>
+  <div class="code-frame">
+    <p class="code-filename">bracket.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;stdlib.h&gt;</span>
+
+<span class="kw">static</span> <span class="ty">size_t</span> <span class="fn">utf8_len</span>(<span class="kw">const</span> <span class="ty">char</span> *s) {
+    <span class="ty">size_t</span> n = <span class="nu">0</span>;
+    <span class="kw">for</span> (; *s; s++)
+        n += (*s &amp; <span class="nu">0xC0</span>) != <span class="nu">0x80</span>;
+    <span class="kw">return</span> n;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="kw">const</span> <span class="ty">char</span> *s = <span class="st">"東京"</span>;
+    <span class="ty">char</span> *out = <span class="fn">malloc</span>(<span class="fn">utf8_len</span>(s) + <span class="nu">3</span>);
+    <span class="kw">if</span> (!out)
+        <span class="kw">return</span> <span class="nu">1</span>;
+    <span class="fn">sprintf</span>(out, <span class="st">"[%s]"</span>, s);
+    <span class="fn">puts</span>(out);
+    <span class="fn">free</span>(out);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    このプログラムは、文字列 <code>s</code> を角括弧で囲んだ文字列を新しく確保した領域に作り、出力します。引数も標準入力も使わず、<code>s</code> は <code>"東京"</code> です。いまは <code>[東京]</code> と出ることもありますが、AddressSanitizer を付けてビルドすると heap-buffer-overflow を報告して止まります。本来は、どうビルドしても <code>[東京]</code> と出て正常に終わるはずです。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="ty">char</span> *out = <span class="fn">malloc</span>(<span class="fn">utf8_len</span>(s) + <span class="nu">3</span>);
+<span class="kw">if</span> (!out)
+    <span class="kw">return</span> <span class="nu">1</span>;
+<span class="fn">sprintf</span>(out, <span class="st">"[%s]"</span>, s);
+</code></pre>
+      <p>
+        <code>utf8_len</code> は継続バイト(<code>10xxxxxx</code>)を数えないので、返すのはバイト数ではなく文字数です。<code>"東京"</code> は2文字なので、<code>malloc</code> が確保するのは <code>2 + 3</code> で5バイトです。一方、<code>sprintf</code> が書き込むのはバイト列で、<code>東</code> と <code>京</code> は UTF-8 でそれぞれ3バイトあります。角括弧2つと終端の <code>'\0'</code> を合わせた9バイトが、5バイトの領域に書き込まれます。
+      </p>
+      <p>
+        はみ出した4バイトは確保していないヒープの領域で、そこへの書き込みは未定義動作です。<code>malloc</code> は頼んだ大きさより少し大きい塊を返すことが多いので、何事もなく <code>[東京]</code> と出る場合もあります。AddressSanitizer は確保した大きさちょうどの外側を見張っているので、この書き込みを見つけて止めます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;string.h&gt;</span>
+
+<span class="ty">char</span> *out = <span class="fn">malloc</span>(<span class="fn">strlen</span>(s) + <span class="nu">3</span>);
+</code></pre>
+      <p>
+        <code>&lt;string.h&gt;</code> を読み込み、<code>strlen</code> で大きさを決めます。<code>strlen</code> は終端の手前までのバイト数を返すので、<code>"東京"</code> なら <code>6</code> です。<code>[</code>、6バイトの本体、<code>]</code>、<code>'\0'</code> の合計9バイトと、確保する大きさが一致します。確保する大きさは、そこへ書き込む <code>sprintf</code> と同じバイト単位で数える必要があります<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li><code>snprintf(NULL, 0, "[%s]", s)</code> は何も書き込まずに、書き込むはずのバイト数(終端を除く)を返します。これに1を足して確保すれば、書式を変えても大きさがずれません。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

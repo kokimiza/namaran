@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「所有権」を扱ったNamaranのコーディングドリル6問。セグメント木、Box、再帰的データ構造、recursive tree、所有権、参照で受ける。">
+<meta name="description" content="「所有権」を扱ったNamaranのコーディングドリル7問。derive(Clone)、Rcのclone、Cellの共有、浅いコピーと深いコピー、shared mutable state、Rc clone shares。">
 <title>所有権</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/ownership">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>所有権</h2>
 
   <p class="lede">
-    「所有権」を扱った6問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「所有権」を扱った7問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/read/2026-10-03">Rust / READ · 2026-10-03</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">複製した統計の行方</span> <span class="past-concepts">derive(Clone), Rcのclone, Cellの共有, 浅いコピーと深いコピー, shared mutable state, Rc clone shares</span></li>
     <li><a href="/rust/read/2026-09-23">Rust / READ · 2026-09-23</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">Boxで作る木</span> <span class="past-concepts">セグメント木, Box, 再帰的データ構造, recursive tree</span></li>
     <li><a href="/rust/debug/2026-09-16">Rust / DEBUG · 2026-09-16</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">引数で所有権を奪う</span> <span class="past-concepts">所有権, 参照で受ける, ムーブ, ownership</span></li>
     <li><a href="/rust/debug/2026-08-22">Rust / DEBUG · 2026-08-22</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">forで持っていかれる</span> <span class="past-concepts">ムーブ, into_iter, 所有権, move by iteration</span></li>

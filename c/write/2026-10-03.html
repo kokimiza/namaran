@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="UTF-8文字列の先頭n文字が何バイトを占めるかを返す関数を書く。継続バイトの見分け方、charの符号、どこで止めれば文字の途中で切らずに済むかを組み合わせるC23のドリル。">
+<title>先頭n文字のバイト数</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-10-03">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-03" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-10-03",
+      "url": "https://namaran.jocarium.productions/c/write/2026-10-03",
+      "datePublished": "2026-10-03",
+      "dateModified": "2026-10-03",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "先頭n文字のバイト数" },
+      "keywords": "utf-8, string, bit-operation, signed-unsigned, null-terminated-string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "UTF-8文字列の先頭n文字が何バイトを占めるかを返す関数を書く。継続バイトの見分け方、charの符号、どこで止めれば文字の途中で切らずに済むかを組み合わせるC23のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-03" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-10-03">C++26</a>
+  <a href="/rust/write/2026-10-03">Rust 2024</a>
+  <a href="/haskell/write/2026-10-03">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-03">READ</a>
+  <a href="/c/write/2026-10-03" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-10-03">DEBUG</a>
+</nav>
+
+<main
+  data-topic="先頭n文字のバイト数"
+  data-tags="utf-8 string bit-operation signed-unsigned null-terminated-string"
+  data-concepts="UTF-8の切り詰め, 継続バイト, 文字境界, UTF-8 truncation, continuation byte, code point boundary"
+  data-level="bison"
+>
+  <h2>2026-10-03</h2>
+  <div class="code-frame">
+    <p class="code-filename">utf8_prefix.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stddef.h&gt;</span>
+
+<span class="ty">size_t</span> <span class="fn">utf8_prefix</span>(<span class="kw">const</span> <span class="ty">char</span> *s, <span class="ty">size_t</span> n) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>s</code> は UTF-8 で符号化された正しい文字列です。その先頭 <code>n</code> 文字(コードポイント)が占めるバイト数を返す <code>utf8_prefix</code> を書いてください。<code>s</code> の文字数が <code>n</code> に満たないときは <code>s</code> 全体のバイト数を返し、<code>n</code> が <code>0</code> なら <code>0</code> を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>utf8_prefix("naïve", 3)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>4</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>utf8_prefix("東京", 1)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>3</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>utf8_prefix("abc", 5)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>3</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stddef.h&gt;</span>
+
+<span class="ty">size_t</span> <span class="fn">utf8_prefix</span>(<span class="kw">const</span> <span class="ty">char</span> *s, <span class="ty">size_t</span> n) {
+    <span class="ty">size_t</span> i = <span class="nu">0</span>;
+    <span class="kw">for</span> (; s[i] != <span class="st">'\0'</span>; i++) {
+        <span class="ty">bool</span> lead = ((<span class="ty">unsigned</span> <span class="ty">char</span>)s[i] &amp; <span class="nu">0xC0</span>) != <span class="nu">0x80</span>;
+        <span class="kw">if</span> (lead &amp;&amp; n-- == <span class="nu">0</span>)
+            <span class="kw">break</span>;
+    }
+    <span class="kw">return</span> i;
+}
+</code></pre>
+      <p>
+        UTF-8 では、文字の先頭のバイトと2バイト目以降の継続バイトを上位2ビットで見分けられます。継続バイトはどれも <code>10xxxxxx</code> の形なので、<code>0xC0</code> でマスクした結果が <code>0x80</code> になるのが継続バイトで、それ以外が文字の先頭です。参考実装はバイトを前から順に見て、文字の先頭に出会うたびに残りの文字数 <code>n</code> を1つ減らします。
+      </p>
+      <p>
+        止まる位置は、<code>n</code> 文字目の先頭ではなく <code>n + 1</code> 文字目の先頭です。<code>n</code> 文字目の先頭で止めると、その文字の継続バイトが勘定に入りません。<code>utf8_prefix("naïve", 3)</code> なら3文字目 <code>ï</code> の先頭 <code>0xC3</code> で止まって <code>3</code> を返し、2バイトある <code>ï</code> を途中で切ってしまいます。4文字目 <code>v</code> の先頭まで進めば、手前の <code>ï</code> の継続バイトは数え終わっており、<code>4</code> が返ります。<code>n + 1</code> 文字目より先に終端の <code>'\0'</code> に着いたときは、ループを抜けた <code>i</code> がそのまま全体のバイト数です。
+      </p>
+      <p>
+        <code>n-- == 0</code> は、減らす前の <code>n</code> を <code>0</code> と比べます。<code>n</code> が <code>0</code> のときに文字の先頭に着けばそこで抜けるので、<code>n</code> が <code>0</code> なら最初のバイトで止まって <code>0</code> を返します。このときにも減算は起きますが、<code>size_t</code> の減算は折り返すだけで未定義動作にはならず、減った値は使われません。
+      </p>
+      <p>
+        <code>char</code> が符号付きか符号なしかは処理系が決めます。符号付きの処理系では <code>0xC3</code> のようなバイトは負の値として読まれ、<code>s[i] &gt;= 0x80</code> のように大小で判定すると、先頭バイトも継続バイトもこの条件を満たしません。参考実装は <code>unsigned char</code> に変換してからマスクを掛けるので、どちらの処理系でも同じ値を見ます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。数えた先頭バイトの数を別の変数に持ち、<code>n</code> と比べる書き方でもかまいません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

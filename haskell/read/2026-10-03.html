@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="iterateで迷路の前線を1歩ずつ広げ、ゴールを含む前線が現れるまでにいくつの前線があるかを数えるHaskell 2010のドリル。訪問済みの集合を持たない探索が何を返すかを追う。">
+<title>迷路の前線を数える</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-10-03">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-03" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-10-03",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-10-03",
+      "datePublished": "2026-10-03",
+      "dateModified": "2026-10-03",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "迷路の前線を数える" },
+      "keywords": "breadth-first-search, shortest-path, infinite-list, laziness, list-comprehension",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "iterateで迷路の前線を1歩ずつ広げ、ゴールを含む前線が現れるまでにいくつの前線があるかを数えるHaskell 2010のドリル。訪問済みの集合を持たない探索が何を返すかを追う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-03">C23</a>
+  <a href="/cpp/read/2026-10-03">C++26</a>
+  <a href="/rust/read/2026-10-03">Rust 2024</a>
+  <a href="/haskell/read/2026-10-03" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-03" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-10-03">WRITE</a>
+  <a href="/haskell/debug/2026-10-03">DEBUG</a>
+</nav>
+
+<main
+  data-topic="迷路の前線を数える"
+  data-tags="breadth-first-search shortest-path infinite-list laziness list-comprehension"
+  data-concepts="幅優先探索, iterateとtakeWhile, 無限リスト, 訪問済み集合, BFS frontier, lazy infinite list"
+  data-level="peacock"
+>
+  <h2>2026-10-03</h2>
+  <div class="code-frame">
+    <p class="code-filename">Frontier.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Data.List</span> (nub)
+
+<span class="fn">maze</span> <span class="op">::</span> [<span class="ty">String</span>]
+<span class="fn">maze</span> = [ <span class="st">"..#"</span>
+       , <span class="st">"#.."</span>
+       , <span class="st">"..."</span> ]
+
+<span class="fn">open</span> <span class="op">::</span> (<span class="ty">Int</span>, <span class="ty">Int</span>) <span class="op">-&gt;</span> <span class="ty">Bool</span>
+<span class="fn">open</span> (r, c) = r &gt;= <span class="nu">0</span> &amp;&amp; r &lt; <span class="nu">3</span> &amp;&amp; c &gt;= <span class="nu">0</span> &amp;&amp; c &lt; <span class="nu">3</span> &amp;&amp; maze !! r !! c == <span class="st">'.'</span>
+
+<span class="fn">step</span> <span class="op">::</span> [(<span class="ty">Int</span>, <span class="ty">Int</span>)] <span class="op">-&gt;</span> [(<span class="ty">Int</span>, <span class="ty">Int</span>)]
+<span class="fn">step</span> ps = nub [ q | (r, c) <span class="op">&lt;-</span> ps
+               , q <span class="op">&lt;-</span> [(r + <span class="nu">1</span>, c), (r - <span class="nu">1</span>, c), (r, c + <span class="nu">1</span>), (r, c - <span class="nu">1</span>)]
+               , open q ]
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (length (takeWhile (notElem (<span class="nu">2</span>, <span class="nu">0</span>)) (iterate step [(<span class="nu">0</span>, <span class="nu">0</span>)])))
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>4</code> です。
+      </p>
+      <p>
+        <code>iterate step [(0, 0)]</code> は、<code>[(0, 0)]</code>、それに <code>step</code> を1回適用したもの、2回適用したもの、と続く無限リストです。<code>step</code> は前線のどのマスからも上下左右の通れるマスへ1歩ずつ進めるので、<code>k</code> 番目の要素は、スタートからちょうど <code>k</code> 歩でいられるマスの集まりです。リストは無限でも、<code>takeWhile</code> は条件が初めて偽になった要素で止まり、その先は評価されません。
+      </p>
+      <p>
+        <code>length</code> が数えるのは、<code>(2, 0)</code> を含まない前線が先頭から何個続くかです。この数は <code>(2, 0)</code> を初めて含む前線の番号と等しく、その番号はゴールにちょうど着ける最小の歩数、すなわち最短距離です。
+      </p>
+      <p>
+        訪問済みのマスを記録していないので、前線には一度通ったマスへ戻る道も混ざります。それでも答えは変わりません。戻り道は前線に余計なマスを足すだけで、<code>(2, 0)</code> が初めて現れる番号を早めも遅らせもしないからです。訪問済みが無ければ正しく数えられない、と考えるとここで迷います。
+      </p>
+      <p>
+        迷路では <code>(1, 0)</code> が壁なので、スタートから真下へは進めません。<code>(0, 0)</code>、<code>(0, 1)</code>、<code>(1, 1)</code>、<code>(2, 1)</code>、<code>(2, 0)</code> と回り込む4歩が最短で、ゴールを含まない前線は0番から3番までの4個です。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

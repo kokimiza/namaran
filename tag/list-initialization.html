@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「リスト初期化」を扱ったNamaranのコーディングドリル1問。最も厄介な構文解析、丸括弧による集成体初期化、値初期化、関数宣言と変数定義、most vexing parse、value initialization。">
+<meta name="description" content="「リスト初期化」を扱ったNamaranのコーディングドリル4問。std::eraseと参照、auto{x}、値のコピー、decay-copy、std::erase with element reference、auto(x) prvalue copy。">
 <title>リスト初期化</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/list-initialization">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>リスト初期化</h2>
 
   <p class="lede">
-    「リスト初期化」を扱った1問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「リスト初期化」を扱った4問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/cpp/write/2026-10-03">C++ / WRITE · 2026-10-03</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">先頭と等しい値を消す</span> <span class="past-concepts">std::eraseと参照, auto{x}, 値のコピー, decay-copy, std::erase with element reference, auto(x) prvalue copy</span></li>
+    <li><a href="/cpp/read/2026-10-03">C++ / READ · 2026-10-03</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">autoと波括弧とvector</span> <span class="past-concepts">auto x = {3}, auto y{3}, initializer_listの推論, vectorの丸括弧と波括弧, auto deduction from braced-init-list, std::initializer_list constructor</span></li>
+    <li><a href="/cpp/debug/2026-10-03">C++ / DEBUG · 2026-10-03</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">連番のポートを返す</span> <span class="past-concepts">initializer_listを返す, 背後の配列の寿命, auto x = {}, dangling initializer_list, backing array lifetime</span></li>
     <li><a href="/cpp/debug/2026-09-08">C++ / DEBUG · 2026-09-08</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">空の丸括弧で初期化</span> <span class="past-concepts">最も厄介な構文解析, 丸括弧による集成体初期化, 値初期化, 関数宣言と変数定義, most vexing parse, value initialization</span></li>
   </ul>
 

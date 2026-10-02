@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="vectorから先頭の要素と等しい値をすべて取り除く関数を書く。比べる値を参照のまま渡すと何が起きるか、auto{x}が何の型を作るかを組み合わせるC++26のドリル。">
+<title>先頭と等しい値を消す</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-10-03">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-03" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-10-03",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-10-03",
+      "datePublished": "2026-10-03",
+      "dateModified": "2026-10-03",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "先頭と等しい値を消す" },
+      "keywords": "reference, aliasing, vector, type-deduction, list-initialization",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "vectorから先頭の要素と等しい値をすべて取り除く関数を書く。比べる値を参照のまま渡すと何が起きるか、auto{x}が何の型を作るかを組み合わせるC++26のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-03">C23</a>
+  <a href="/cpp/write/2026-10-03" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-10-03">Rust 2024</a>
+  <a href="/haskell/write/2026-10-03">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-03">READ</a>
+  <a href="/cpp/write/2026-10-03" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-10-03">DEBUG</a>
+</nav>
+
+<main
+  data-topic="先頭と等しい値を消す"
+  data-tags="reference aliasing vector type-deduction list-initialization"
+  data-concepts="std::eraseと参照, auto{x}, 値のコピー, decay-copy, std::erase with element reference, auto(x) prvalue copy"
+  data-level="whale"
+>
+  <h2>2026-10-03</h2>
+  <div class="code-frame">
+    <p class="code-filename">erase_first.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+
+<span class="ty">void</span> <span class="fn">erase_first_value</span>(std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt;&amp; v) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>v</code> から、先頭の要素と等しい値をすべて取り除く <code>erase_first_value</code> を書いてください。残る要素の順序は元のままにします。<code>v</code> が空なら何もしません。出力例は、呼び出したあとの <code>v</code> の中身です。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>std::vector v{1, 2, 1, 3, 1}; erase_first_value(v);</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>{2, 3}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>std::vector v{5, 5}; erase_first_value(v);</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>{}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>std::vector&lt;int&gt; v; erase_first_value(v);</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>{}</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+
+<span class="ty">void</span> <span class="fn">erase_first_value</span>(std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt;&amp; v) {
+    <span class="kw">if</span> (!v.<span class="fn">empty</span>())
+        std::<span class="fn">erase</span>(v, <span class="kw">auto</span>{v.<span class="fn">front</span>()});
+}
+</code></pre>
+      <p>
+        素直に書けば <code>std::erase(v, v.front());</code> の1行ですが、手元の libstdc++ では、入力例1の <code>v</code> がこれで <code>{2, 1, 3, 1}</code> になりました。<code>std::erase</code> は比べる値を <code>const U&amp;</code> の参照で受け取るので、渡っているのは値の <code>1</code> ではなく、要素 <code>v[0]</code> そのものです。
+      </p>
+      <p>
+        <code>std::erase</code> は <code>std::remove</code> と同じく、残す要素を前へ詰めていきます。入力例1では先頭の <code>1</code> が消す対象と分かり、次の <code>2</code> がその位置、つまり <code>v[0]</code> へ移されます。その時点から参照の先は <code>2</code> になり、残りの要素は <code>2</code> と等しいかどうかで選り分けられます。後ろの <code>1</code> は消されずに残ります。
+      </p>
+      <p>
+        参考実装は、<code>auto{v.front()}</code> で先頭の値をコピーしてから渡します。C++23 から使える書き方で、<code>auto{x}</code> は <code>x</code> の値をコピーした一時オブジェクトを作り、その型は <code>auto t{x};</code> と同じ規則で推論されます。<code>auto x{1}</code> が <code>int</code> になるのと同じで、ここでも <code>int</code> になり、<code>auto x = {1}</code> のような <code>std::initializer_list&lt;int&gt;</code> にはなりません。この一時オブジェクトは <code>v</code> の要素とは別の場所にあるので、要素がどう動いても比べる値は <code>1</code> のままです<sup class="fn-ref">1</sup>。
+      </p>
+      <p>
+        空の <code>v</code> で <code>v.front()</code> を呼ぶのは未定義動作なので、先に <code>empty()</code> を確かめます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>int first = v.front();</code> と名前の付いた変数にコピーしてから <code>std::erase(v, first);</code> と渡しても、同じように動きます。
+      </p>
+      <ol class="footnotes">
+        <li><code>auto(x)</code> と <code>auto{x}</code> を導入した提案 P0849 も、動機の例に <code>erase</code> へ <code>front()</code> を渡す同じ形のコードを挙げています。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

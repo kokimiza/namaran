@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="幅優先探索のつもりで書いた迷路の探索が、最短より長い歩数を返すHaskell 2010のドリル。次に調べるマスをリストのどちら側に足すかで、探索の順序が変わる。">
+<title>迷路の最短距離</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-10-03">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-03" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-10-03",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-10-03",
+      "datePublished": "2026-10-03",
+      "dateModified": "2026-10-03",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "迷路の最短距離" },
+      "keywords": "breadth-first-search, queue, shortest-path, depth-first-search, list",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "幅優先探索のつもりで書いた迷路の探索が、最短より長い歩数を返すHaskell 2010のドリル。次に調べるマスをリストのどちら側に足すかで、探索の順序が変わる。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-03">C23</a>
+  <a href="/cpp/debug/2026-10-03">C++26</a>
+  <a href="/rust/debug/2026-10-03">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-03" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-03">READ</a>
+  <a href="/haskell/write/2026-10-03">WRITE</a>
+  <a href="/haskell/debug/2026-10-03" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="迷路の最短距離"
+  data-tags="breadth-first-search queue shortest-path depth-first-search list"
+  data-concepts="幅優先探索のキュー, FIFOとLIFO, 深さ優先になる, BFS queue order, shortest path in grid"
+  data-level="hedgehog"
+>
+  <h2>2026-10-03</h2>
+  <div class="code-frame">
+    <p class="code-filename">Maze.hs</p>
+    <pre class="code"><code><span class="kw">type</span> <span class="ty">Pos</span> = (<span class="ty">Int</span>, <span class="ty">Int</span>)
+
+<span class="fn">maze</span> <span class="op">::</span> [<span class="ty">String</span>]
+<span class="fn">maze</span> = [<span class="st">"..."</span>, <span class="st">".#."</span>, <span class="st">"..."</span>]
+
+<span class="fn">open</span> <span class="op">::</span> <span class="ty">Pos</span> <span class="op">-&gt;</span> <span class="ty">Bool</span>
+<span class="fn">open</span> (r, c) = r &gt;= <span class="nu">0</span> &amp;&amp; r &lt; <span class="nu">3</span> &amp;&amp; c &gt;= <span class="nu">0</span> &amp;&amp; c &lt; <span class="nu">3</span> &amp;&amp; maze !! r !! c == <span class="st">'.'</span>
+
+<span class="fn">bfs</span> <span class="op">::</span> <span class="ty">Pos</span> <span class="op">-&gt;</span> [(<span class="ty">Pos</span>, <span class="ty">Int</span>)] <span class="op">-&gt;</span> [<span class="ty">Pos</span>] <span class="op">-&gt;</span> <span class="ty">Maybe</span> <span class="ty">Int</span>
+<span class="fn">bfs</span> _ [] _ = <span class="ty">Nothing</span>
+<span class="fn">bfs</span> goal ((p@(r, c), d) : rest) seen
+  | p == goal = <span class="ty">Just</span> d
+  | otherwise = bfs goal (next ++ rest) (map fst next ++ seen)
+  <span class="kw">where</span>
+    next = [ (q, d + <span class="nu">1</span>) | q <span class="op">&lt;-</span> [(r + <span class="nu">1</span>, c), (r, c + <span class="nu">1</span>), (r - <span class="nu">1</span>, c), (r, c - <span class="nu">1</span>)]
+                        , open q, q `notElem` seen ]
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (bfs (<span class="nu">0</span>, <span class="nu">2</span>) [((<span class="nu">0</span>, <span class="nu">0</span>), <span class="nu">0</span>)] [(<span class="nu">0</span>, <span class="nu">0</span>)])
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>bfs</code> は、迷路 <code>maze</code> のマス <code>(行, 列)</code> を上下左右に1歩ずつ進み、スタートからゴールまでの最短の歩数を返す関数です。引数も標準入力も使わず、<code>(0, 0)</code> から <code>(0, 2)</code> までの歩数を出力します。いまは <code>Just 6</code> が出力されます。本来の出力は <code>Just 2</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code>| otherwise = bfs goal (next ++ rest) (map fst next ++ seen)
+</code></pre>
+      <p>
+        <code>next ++ rest</code> は、新しく見つけたマスをリストの先頭に置きます。次に取り出されるのは今いるマスの隣なので、待ち行列のつもりのリストが、後から入れたものを先に出すスタックとして働き、探索は深さ優先になります。
+      </p>
+      <p>
+        <code>(0, 0)</code> の隣は下の <code>(1, 0)</code>、右の <code>(0, 1)</code> の順に見つかり、先頭の <code>(1, 0)</code> が先に調べられます。そこから <code>(2, 0)</code>、<code>(2, 1)</code>、<code>(2, 2)</code>、<code>(1, 2)</code> と壁を回り込み、6歩目で <code>(0, 2)</code> に着きます。<code>(0, 1)</code> は1歩目でリストに入ったのに、後ろに残されたままです。深さ優先では、ゴールに最初に着いた道が最短とは限りません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code>| otherwise = bfs goal (rest ++ next) (map fst next ++ seen)
+</code></pre>
+      <p>
+        新しいマスを末尾に足せば、リストは先に入れたものから出す待ち行列になります。歩数 <code>d</code> のマスをすべて取り出し終えるまで歩数 <code>d + 1</code> のマスは出てこないので、ゴールを初めて取り出したときの歩数が最短です。この迷路では <code>(0, 1)</code> から <code>(0, 2)</code> へ進み、<code>Just 2</code> になります<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li><code>rest ++ next</code> は <code>rest</code> の長さに比例する時間がかかります。大きな迷路では、両端への追加が償却定数時間で済む <code>Data.Sequence</code> を使うのが普通です。これは containers パッケージのモジュールで、Haskell 2010 の標準ライブラリには含まれません。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

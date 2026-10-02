@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「未定義動作」を扱ったNamaranのコーディングドリル9問。atexit、mainからのreturn、自動変数の寿命、ダングリングポインタ、return from main、automatic storage duration。">
+<meta name="description" content="「未定義動作」を扱ったNamaranのコーディングドリル10問。initializer_listを返す、背後の配列の寿命、auto x = {}、dangling initializer_list、backing array lifetime、atexit。">
 <title>未定義動作</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/undefined-behavior">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>未定義動作</h2>
 
   <p class="lede">
-    「未定義動作」を扱った9問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「未定義動作」を扱った10問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/cpp/debug/2026-10-03">C++ / DEBUG · 2026-10-03</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">連番のポートを返す</span> <span class="past-concepts">initializer_listを返す, 背後の配列の寿命, auto x = {}, dangling initializer_list, backing array lifetime</span></li>
     <li><a href="/c/debug/2026-09-30">C / DEBUG · 2026-09-30</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">mainの変数と終了処理</span> <span class="past-concepts">atexit, mainからのreturn, 自動変数の寿命, ダングリングポインタ, return from main, automatic storage duration, exit handler</span></li>
     <li><a href="/c/debug/2026-09-29">C / DEBUG · 2026-09-29</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">ポインタ加算の単位</span> <span class="past-concepts">ポインタ演算, 要素の大きさ, sizeofの二重掛け, 範囲外アクセス, pointer arithmetic, scaled by sizeof, out of bounds read</span></li>
     <li><a href="/c/debug/2026-09-27">C / DEBUG · 2026-09-27</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">qsortに渡る行の型</span> <span class="past-concepts">qsortの比較関数, 2次元配列の並べ替え, ポインタのポインタ, qsort comparator, sort 2D array, void pointer cast</span></li>
