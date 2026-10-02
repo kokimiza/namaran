@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="上ってから下る整数の関数について、区間の中で値が最大になる位置を三分探索で返す関数を書く。区間の捨て方と、区間が狭くなったときの終了条件を扱う。2026-09-03のHaskell WRITE。">
+<title>整数の三分探索</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-09-03">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-03" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-09-03",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-09-03",
+      "datePublished": "2026-09-03",
+      "dateModified": "2026-09-03",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "整数の三分探索" },
+      "keywords": "ternary-search, unimodal-function, recursion, guard, infinite-loop",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "上ってから下る整数の関数について、区間の中で値が最大になる位置を三分探索で返す関数を書く。区間の捨て方と、区間が狭くなったときの終了条件を扱う。2026-09-03のHaskell WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-03">C23</a>
+  <a href="/cpp/write/2026-09-03">C++26</a>
+  <a href="/rust/write/2026-09-03">Rust 2024</a>
+  <a href="/haskell/write/2026-09-03" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-09-03">READ</a>
+  <a href="/haskell/write/2026-09-03" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-09-03">DEBUG</a>
+</nav>
+
+<main
+  data-topic="整数の三分探索"
+  data-tags="ternary-search unimodal-function recursion guard infinite-loop"
+  data-concepts="三分探索, 単峰関数の最大値, 整数の区間, 終了条件, ternary search, unimodal function, argmax"
+  data-level="peacock"
+>
+  <h2>2026-09-03</h2>
+  <div class="code-frame">
+    <p class="code-filename">TernaryMax.hs</p>
+    <pre class="code"><code><span class="fn">ternaryMax</span> <span class="op">::</span> (<span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Int</span>) <span class="op">-&gt;</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Int</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>f</code> は区間 <code>[lo, hi]</code> の上で、ある <code>p</code> までは狭義に増加し、<code>p</code> からは狭義に減少する関数です(<code>p</code> が区間の端でもかまいません)。区間を3つに分けて片側を捨てることを繰り返し、<code>f x</code> が最大になる <code>x</code>、つまり <code>p</code> を返す <code>ternaryMax f lo hi</code> を書いてください。<code>lo</code> は <code>hi</code> 以下で、<code>lo == hi</code> のときは <code>lo</code> を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>ternaryMax (\x -&gt; negate (abs (x - 7))) 0 20</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>7</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>ternaryMax id 0 9</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>9</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>ternaryMax (\x -&gt; x * (10 - x)) 5 5</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>5</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="fn">ternaryMax</span> <span class="op">::</span> (<span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Int</span>) <span class="op">-&gt;</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Int</span>
+<span class="fn">ternaryMax</span> f lo hi
+  | hi - lo &lt; <span class="nu">3</span> = snd (maximum [(f x, x) | x <span class="op">&lt;-</span> [lo .. hi]])
+  | f m1 &lt; f m2 = ternaryMax f (m1 + <span class="nu">1</span>) hi
+  | otherwise = ternaryMax f lo (m2 - <span class="nu">1</span>)
+  <span class="kw">where</span>
+    m1 = lo + (hi - lo) `div` <span class="nu">3</span>
+    m2 = hi - (hi - lo) `div` <span class="nu">3</span>
+</code></pre>
+      <p>
+        <code>m1</code> と <code>m2</code> で区間を3つに分けます。<code>f m1 &lt; f m2</code> なら、<code>p</code> は <code>m1</code> より右にあります。<code>p</code> が <code>m1</code> 以下なら <code>m1</code> から <code>m2</code> までは下り坂で、<code>f m1</code> の方が大きくなるはずだからです。そこで <code>m1</code> までを捨てます。<code>f m1 &gt;= f m2</code> なら、同じ理由で <code>p</code> は <code>m2</code> より左にあるので、<code>m2</code> から先を捨てます。
+      </p>
+      <p>
+        幅が3未満になったら分けるのをやめ、残った高々3点を直接比べます。この終了条件がないと、幅が <code>0</code> の区間では <code>m1</code> も <code>m2</code> も <code>lo</code> になり、<code>m2 - 1</code> で区間が空になります。捨てる側を <code>ternaryMax f lo m2</code> のように <code>m2</code> 自身を残す形で書いた場合は、幅が <code>2</code> のとき <code>(hi - lo) `div` 3</code> が <code>0</code> で <code>m2 = hi</code> となり、<code>f m1 &gt;= f m2</code> なら区間が縮まずに同じ呼び出しを繰り返します。
+      </p>
+      <p>
+        <code>snd (maximum [(f x, x) | ...])</code> は、<code>(値, 位置)</code> の組を値で比べ、最大の組から位置を取り出します。掲載したのは参考実装で、唯一の正解ではありません。<code>Data.List</code> の <code>maximumBy</code> と <code>Data.Ord</code> の <code>comparing</code> を使い、<code>maximumBy (comparing f) [lo .. hi]</code> と書いても同じ位置が返ります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

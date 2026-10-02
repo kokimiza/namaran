@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="最大値の9を含む数列に三分探索をかけ、区間の縮み方を追う。山が1つという前提を満たさない入力では、最初の比較で捨てた3分の1に最大値が残ることを扱う。2026-09-03のHaskell READ。">
+<title>三分探索が選ぶ山</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-09-03">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-03" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-09-03",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-09-03",
+      "datePublished": "2026-09-03",
+      "dateModified": "2026-09-03",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "三分探索が選ぶ山" },
+      "keywords": "ternary-search, unimodal-function, recursion, guard",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "最大値の9を含む数列に三分探索をかけ、区間の縮み方を追う。山が1つという前提を満たさない入力では、最初の比較で捨てた3分の1に最大値が残ることを扱う。2026-09-03のHaskell READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-03">C23</a>
+  <a href="/cpp/read/2026-09-03">C++26</a>
+  <a href="/rust/read/2026-09-03">Rust 2024</a>
+  <a href="/haskell/read/2026-09-03" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-09-03" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-09-03">WRITE</a>
+  <a href="/haskell/debug/2026-09-03">DEBUG</a>
+</nav>
+
+<main
+  data-topic="三分探索が選ぶ山"
+  data-tags="ternary-search unimodal-function recursion guard"
+  data-concepts="三分探索, 単峰でない数列, 局所的な最大値, ternary search, unimodal, local maximum"
+  data-level="hedgehog"
+>
+  <h2>2026-09-03</h2>
+  <div class="code-frame">
+    <p class="code-filename">Peak.hs</p>
+    <pre class="code"><code><span class="fn">peak</span> <span class="op">::</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> <span class="ty">Int</span>
+<span class="fn">peak</span> xs = go <span class="nu">0</span> (length xs - <span class="nu">1</span>)
+  <span class="kw">where</span>
+    f = (xs !!)
+    go lo hi
+      | hi - lo &lt; <span class="nu">3</span> = maximum (map f [lo .. hi])
+      | f m1 &lt; f m2 = go (m1 + <span class="nu">1</span>) hi
+      | otherwise = go lo m2
+      <span class="kw">where</span>
+        m1 = lo + (hi - lo) `div` <span class="nu">3</span>
+        m2 = hi - (hi - lo) `div` <span class="nu">3</span>
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (peak [<span class="nu">1</span>, <span class="nu">9</span>, <span class="nu">2</span>, <span class="nu">3</span>, <span class="nu">4</span>, <span class="nu">5</span>, <span class="nu">6</span>, <span class="nu">7</span>, <span class="nu">3</span>])
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>7</code> です。
+      </p>
+      <p>
+        区間は添字の <code>(0, 8)</code> から始まり、<code>m1 = 2</code>、<code>m2 = 6</code> です。<code>f 2</code> は <code>2</code>、<code>f 6</code> は <code>6</code> で、<code>2 &lt; 6</code> なので <code>go 3 8</code> に進み、添字 <code>0</code> から <code>2</code> までが捨てられます。<code>9</code> は添字 <code>1</code> にあるので、この時点で候補から外れます。
+      </p>
+      <p>
+        そのあと <code>(3, 8)</code> では <code>m1 = 4</code>、<code>m2 = 7</code> で <code>4 &lt; 7</code> なので <code>(5, 8)</code> に、<code>(5, 8)</code> では <code>m1 = 6</code>、<code>m2 = 7</code> で <code>6 &lt; 7</code> なので <code>(7, 8)</code> に進みます。幅が3未満になったので、残った <code>[7, 3]</code> の最大値 <code>7</code> を返します。
+      </p>
+      <p>
+        <code>f m1 &lt; f m2</code> だけを見て左の3分の1を捨ててよいのは、値が上がってから下がるだけ、つまり山が1つしかない場合です。そのときは <code>f m1 &lt; f m2</code> なら頂上が <code>m1</code> より右にあります。この数列は <code>1, 9, 2</code> で一度山を作ってからもう一度上るので前提が成り立たず、最初の比較で本当の最大値を捨ててしまいます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Option で与えた検索条件から WHERE 句を組み立てる。値は ?1 ?2 の番号付きプレースホルダーにして別の Vec に積み、連結するのは列名だけにしたとき、できあがる SQL とパラメータの組を読む。2026-09-03のRust READ。">
+<title>条件を足していくWHERE句</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-09-03">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / READ", "item": "https://namaran.jocarium.productions/rust/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-03" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / READ — 2026-09-03",
+      "url": "https://namaran.jocarium.productions/rust/read/2026-09-03",
+      "datePublished": "2026-09-03",
+      "dateModified": "2026-09-03",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "条件を足していくWHERE句" },
+      "keywords": "prepared-statement, sql-injection, format-string, string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "Option で与えた検索条件から WHERE 句を組み立てる。値は ?1 ?2 の番号付きプレースホルダーにして別の Vec に積み、連結するのは列名だけにしたとき、できあがる SQL とパラメータの組を読む。2026-09-03のRust READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-03">C23</a>
+  <a href="/cpp/read/2026-09-03">C++26</a>
+  <a href="/rust/read/2026-09-03" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/read/2026-09-03">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-09-03" class="active" aria-current="page">READ</a>
+  <a href="/rust/write/2026-09-03">WRITE</a>
+  <a href="/rust/debug/2026-09-03">DEBUG</a>
+</nav>
+
+<main
+  data-topic="条件を足していくWHERE句"
+  data-tags="prepared-statement sql-injection format-string string"
+  data-concepts="プレースホルダー, 番号付きパラメータ, 動的なWHERE句, SQLを文字列連結しない, placeholder, bind parameter, query parameter"
+  data-level="peacock"
+>
+  <h2>2026-09-03</h2>
+  <div class="code-frame">
+    <p class="code-filename">where_builder.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> filters = [(<span class="st">"name"</span>, <span class="fn">Some</span>(<span class="st">"O'Brien"</span>)), (<span class="st">"city"</span>, <span class="ty">None</span>), (<span class="st">"role"</span>, <span class="fn">Some</span>(<span class="st">"admin"</span>))];
+    <span class="kw">let</span> <span class="kw">mut</span> sql = <span class="ty">String</span>::<span class="fn">from</span>(<span class="st">"SELECT id FROM users WHERE true"</span>);
+    <span class="kw">let</span> <span class="kw">mut</span> params = <span class="ty">Vec</span>::<span class="fn">new</span>();
+    <span class="kw">for</span> (column, value) <span class="kw">in</span> filters {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="fn">Some</span>(v) = value {
+            params.<span class="fn">push</span>(v);
+            sql += &amp;<span class="mc">format!</span>(<span class="st">" AND {column} = ?{}"</span>, params.<span class="fn">len</span>());
+        }
+    }
+    <span class="mc">println!</span>(<span class="st">"{sql}"</span>);
+    <span class="mc">println!</span>(<span class="st">"{params:?}"</span>);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>SELECT id FROM users WHERE true AND name = ?1 AND role = ?2</code> と <code>["O'Brien", "admin"]</code> の2行です。
+      </p>
+      <p>
+        <code>filters</code> の3組のうち、<code>city</code> の値は <code>None</code> なので <code>if let Some(v)</code> に合わず、SQL にも <code>params</code> にも何も足されません。条件になるのは <code>name</code> と <code>role</code> の2つだけです。
+      </p>
+      <p>
+        番号は <code>push</code> したあとの <code>params.len()</code> から作るので、<code>name</code> の値を積んだ時点で <code>1</code>、<code>role</code> の値を積んだ時点で <code>2</code> です。<code>role</code> は <code>filters</code> の3番目にありますが、番号を決めるのは積んだ値の数なので <code>?3</code> にはなりません。<code>?N</code> は <code>params</code> の N 番目の値を指すので、この付け方なら SQL と値の対応はずれません。
+      </p>
+      <p>
+        <code>O'Brien</code> の <code>'</code> は SQL のどこにも現れず、<code>params</code> の中にそのまま残ります。2行目の <code>"</code> は、<code>{params:?}</code> の <code>Debug</code> 書式が文字列を囲んだもので、<code>'</code> はエスケープされません。値が SQL の文字列に入らないので、値の中の引用符で文の形が変わることもありません。連結しているのは、コードに書いた列名の <code>column</code> だけです<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>プレースホルダーにできるのは値だけで、列名やテーブル名には使えません。利用者の入力から列名を選ぶときは、許可した名前の一覧と照らしてから連結します。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/read">Today</a></li>
+    <li><a href="/rust/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

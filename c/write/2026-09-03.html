@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="右の子の方向に100万段つながる二分木のノード数を数える関数を書く。右の子への末尾呼び出しをループに置き換え、スタックの深さが左方向の深さだけで決まるようにする。2026-09-03のC WRITE。">
+<title>右の子へは再帰しない</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-09-03">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-03" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-09-03",
+      "url": "https://namaran.jocarium.productions/c/write/2026-09-03",
+      "datePublished": "2026-09-03",
+      "dateModified": "2026-09-03",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "右の子へは再帰しない" },
+      "keywords": "tail-call, recursion, tree, call-stack, loop",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "右の子の方向に100万段つながる二分木のノード数を数える関数を書く。右の子への末尾呼び出しをループに置き換え、スタックの深さが左方向の深さだけで決まるようにする。2026-09-03のC WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-03" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-09-03">C++26</a>
+  <a href="/rust/write/2026-09-03">Rust 2024</a>
+  <a href="/haskell/write/2026-09-03">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-09-03">READ</a>
+  <a href="/c/write/2026-09-03" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-09-03">DEBUG</a>
+</nav>
+
+<main
+  data-topic="右の子へは再帰しない"
+  data-tags="tail-call recursion tree call-stack loop"
+  data-concepts="末尾呼び出しをループに, 片側だけ再帰, 二分木のノード数, スタックの深さ, tail call elimination, recursion depth, binary tree size"
+  data-level="bison"
+>
+  <h2>2026-09-03</h2>
+  <div class="code-frame">
+    <p class="code-filename">tree_count.c</p>
+    <pre class="code"><code><span class="kw">struct</span> <span class="ty">tree</span> {
+    <span class="kw">struct</span> <span class="ty">tree</span> *left, *right;
+};
+
+<span class="ty">size_t</span> <span class="fn">count</span>(<span class="kw">const</span> <span class="kw">struct</span> <span class="ty">tree</span> *t) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    二分木のノード数を返す <code>count</code> を書いてください。<code>t</code> が <code>NULL</code> なら <code>0</code> です。渡される木は、右の子をたどる方向に100万段つながっていることがあります。左の子をたどる方向は浅いものとして、呼び出しの深さが右方向の段数に比例しない書き方にしてください。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>count(NULL)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>count(&amp;(struct tree){})</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>1</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>count(&amp;(struct tree){&amp;(struct tree){}, &amp;(struct tree){}})</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>3</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="ty">size_t</span> <span class="fn">count</span>(<span class="kw">const</span> <span class="kw">struct</span> <span class="ty">tree</span> *t) {
+    <span class="ty">size_t</span> n = <span class="nu">0</span>;
+    <span class="kw">for</span> (; t != <span class="nu">NULL</span>; t = t-&gt;right)
+        n += <span class="nu">1</span> + <span class="fn">count</span>(t-&gt;left);
+    <span class="kw">return</span> n;
+}
+</code></pre>
+      <p>
+        素直に再帰で書くと <code>return 1 + count(t-&gt;left) + count(t-&gt;right);</code> です。右の子への呼び出しは足し算の途中にあり、戻ってきた値に足す仕事が残るので末尾呼び出しではありません。右方向に100万段あれば、100万個のフレームが同時に積まれます。
+      </p>
+      <p>
+        足し算を累積値 <code>n</code> に移すと、右の子へ進むことが各段の最後の仕事になります。この末尾呼び出しを、引数を書き換えて先頭に戻るループにしたのが参考実装です。<code>t = t-&gt;right</code> で右へ進む間はフレームが増えず、再帰するのは左の子だけなので、スタックの深さは左方向の深さで決まります。
+      </p>
+      <p>
+        末尾呼び出しの形の再帰関数にしただけでは足りません。C の規格は末尾呼び出しの最適化を求めておらず、最適化なしのビルドでは末尾呼び出しでもフレームを積みます<sup class="fn-ref">1</sup>。ループにしておけば、どのビルドでも深さは変わりません。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。左右どちらの方向にも深くなる木を扱うなら、配列などで自前のスタックを持ち、再帰をなくす書き方になります。
+      </p>
+      <ol class="footnotes">
+        <li>GCC と Clang は <code>-O2</code> などの最適化で末尾呼び出しをジャンプに置き換えますが、これは処理系の最適化であって保証ではありません。C23 の規格には、末尾呼び出しを強制する構文はありません。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

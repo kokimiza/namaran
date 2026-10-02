@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="std::vector に reserve と resize を交互に呼んだあとの要素と size を追う。reserve は容量だけを変えて要素を作らず縮めもしないこと、resize の第2引数が新しく増えた要素にだけ使われることを扱う。2026-09-03のC++ READ。">
+<title>容量と要素数</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-09-03">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-03" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-09-03",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-09-03",
+      "datePublished": "2026-09-03",
+      "dateModified": "2026-09-03",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "容量と要素数" },
+      "keywords": "vector, capacity",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "std::vector に reserve と resize を交互に呼んだあとの要素と size を追う。reserve は容量だけを変えて要素を作らず縮めもしないこと、resize の第2引数が新しく増えた要素にだけ使われることを扱う。2026-09-03のC++ READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-03">C23</a>
+  <a href="/cpp/read/2026-09-03" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-09-03">Rust 2024</a>
+  <a href="/haskell/read/2026-09-03">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-03" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-09-03">WRITE</a>
+  <a href="/cpp/debug/2026-09-03">DEBUG</a>
+</nav>
+
+<main
+  data-topic="容量と要素数"
+  data-tags="vector capacity"
+  data-concepts="reserveとresizeの違い, 容量と要素数, resizeの第2引数, reserveは縮めない, reserve vs resize, capacity vs size"
+  data-level="bison"
+>
+  <h2>2026-09-03</h2>
+  <div class="code-frame">
+    <p class="code-filename">reserve_resize.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;print&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt; v;
+    v.<span class="fn">reserve</span>(<span class="nu">4</span>);
+    v.<span class="fn">resize</span>(<span class="nu">2</span>, <span class="nu">7</span>);
+    v.<span class="fn">push_back</span>(<span class="nu">1</span>);
+    v.<span class="fn">resize</span>(<span class="nu">5</span>, <span class="nu">9</span>);
+    v.<span class="fn">reserve</span>(<span class="nu">1</span>);
+    v.<span class="fn">resize</span>(<span class="nu">4</span>);
+    <span class="kw">for</span> (<span class="ty">int</span> x : v)
+        std::<span class="fn">print</span>(<span class="st">"{} "</span>, x);
+    std::<span class="fn">println</span>(<span class="st">"| {}"</span>, v.<span class="fn">size</span>());
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>7 7 1 9 | 4</code> です。
+      </p>
+      <p>
+        <code>reserve</code> が変えるのは容量、つまり再確保せずに置ける要素の数だけで、要素は作りません。最初の <code>reserve(4)</code> のあとも <code>v</code> は空です。そこへ <code>resize(2, 7)</code> が <code>7</code> を2つ作り、<code>push_back(1)</code> がその後ろに <code>1</code> を足します。
+      </p>
+      <p>
+        <code>resize(5, 9)</code> の <code>9</code> は、増えた2つの要素の初期値です。すでにある <code>7 7 1</code> は書き換えられないので、<code>v</code> は <code>7 7 1 9 9</code> になります。
+      </p>
+      <p>
+        続く <code>reserve(1)</code> は、いまの容量より小さい値を渡されたので何もしません。<code>reserve</code> は容量を増やすことはあっても、要素も容量も減らさないからです。ここで要素が1つに切り詰められたと読むと、最後の <code>resize(4)</code> で <code>0</code> が3つ足されて <code>7 0 0 0</code> になったと考えてしまいます。実際の <code>resize(4)</code> は5個から4個への縮小で、末尾の <code>9</code> を1つ消すだけです<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>容量を減らしたいときは <code>shrink_to_fit</code> を呼びますが、これも要求にすぎず、実際に減るかどうかは実装が決めます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

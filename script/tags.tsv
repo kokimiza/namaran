@@ -41,6 +41,7 @@ buffering	バッファリング
 cache	キャッシュ
 cache-locality	キャッシュ局所性
 call-stack	コールスタック
+capacity	容量
 capture	キャプチャ
 case-mapping	大文字小文字変換
 channel	チャネル
@@ -289,6 +290,7 @@ pointer	ポインタ
 pointer-decay	配列のポインタ化
 precise-capturing	精密な捕捉
 prefix-sum	累積和
+prepared-statement	プリペアドステートメント
 preprocessor	プリプロセッサ
 primality-test	素数判定
 prime-factorization	素因数分解
@@ -376,6 +378,7 @@ symbolic-link	シンボリックリンク
 tail-call	末尾呼び出し
 template	テンプレート
 temporary	一時オブジェクト
+ternary-search	三分探索
 testing	テスト
 thread	スレッド
 thread-safety	スレッド安全性
@@ -407,6 +410,7 @@ typeclass-law	型クラスの法則
 undefined-behavior	未定義動作
 unicode	Unicode
 unification	単一化
+unimodal-function	単峰関数
 union	共用体
 union-find	Union-Find
 unix-time	Unix時間
@@ -421,6 +425,7 @@ variadic-function	可変長引数関数
 variadic-template	可変長テンプレート
 variance	変性
 variant	variant型
+vector	std::vector
 vector-bool	vector<bool>
 vector-clock	ベクトル時計
 virtual-function	仮想関数

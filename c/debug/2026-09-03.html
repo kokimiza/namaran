@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="末尾再帰で書いたユークリッドの互除法 gcd(b, a % b) をループに書き換えたとき、引数の更新を順に代入したせいで答えが壊れるバグを直す。2026-09-03のC DEBUG。">
+<title>ループにしたgcd</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-09-03">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-03" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-09-03",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-09-03",
+      "datePublished": "2026-09-03",
+      "dateModified": "2026-09-03",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "ループにしたgcd" },
+      "keywords": "tail-call, loop, greatest-common-divisor, swap",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "末尾再帰で書いたユークリッドの互除法 gcd(b, a % b) をループに書き換えたとき、引数の更新を順に代入したせいで答えが壊れるバグを直す。2026-09-03のC DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-03" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-09-03">C++26</a>
+  <a href="/rust/debug/2026-09-03">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-03">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-09-03">READ</a>
+  <a href="/c/write/2026-09-03">WRITE</a>
+  <a href="/c/debug/2026-09-03" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="ループにしたgcd"
+  data-tags="tail-call loop greatest-common-divisor swap"
+  data-concepts="末尾再帰をループに書き換える, 同時代入, ユークリッドの互除法, tail recursion to loop, simultaneous assignment, gcd"
+  data-level="hedgehog"
+>
+  <h2>2026-09-03</h2>
+  <div class="code-frame">
+    <p class="code-filename">gcd_loop.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">static</span> <span class="ty">unsigned</span> <span class="fn">gcd</span>(<span class="ty">unsigned</span> a, <span class="ty">unsigned</span> b) {
+    <span class="kw">while</span> (b != <span class="nu">0</span>) {
+        a = b;
+        b = a % b;
+    }
+    <span class="kw">return</span> a;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="fn">printf</span>(<span class="st">"%u\n"</span>, <span class="fn">gcd</span>(<span class="nu">12</span>, <span class="nu">18</span>));
+    <span class="fn">printf</span>(<span class="st">"%u\n"</span>, <span class="fn">gcd</span>(<span class="nu">35</span>, <span class="nu">21</span>));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>gcd</code> は、末尾再帰で書いたユークリッドの互除法 <code>return gcd(b, a % b);</code> を、スタックを積まないようにループへ書き換えたものです。引数も標準入力も使わず、<code>main</code> が <code>gcd(12, 18)</code> と <code>gcd(35, 21)</code> の結果を出力します。いまは <code>18</code> と <code>21</code> の2行が出力されますが、本来は <code>6</code> と <code>7</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">while</span> (b != <span class="nu">0</span>) {
+    a = b;
+    b = a % b;
+}
+</code></pre>
+      <p>
+        再帰版の <code>gcd(b, a % b)</code> では、2つの引数はどちらも呼び出す前の <code>a</code> と <code>b</code> から計算されます。ループ版は1行目で <code>a</code> を <code>b</code> で上書きするので、2行目の <code>a % b</code> は <code>b % b</code>、つまり常に <code>0</code> です。ループは1周で終わり、<code>gcd(12, 18)</code> は最初の <code>b</code> である <code>18</code> を、<code>gcd(35, 21)</code> は <code>21</code> を返します。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">while</span> (b != <span class="nu">0</span>) {
+    <span class="ty">unsigned</span> r = a % b;
+    a = b;
+    b = r;
+}
+</code></pre>
+      <p>
+        <code>a</code> を書き換える前に、<code>a % b</code> を <code>r</code> に取っておきます。新しい <code>a</code> と <code>b</code> がどちらも古い値から計算されるので、ループの1周が再帰版の1回の呼び出しと同じ意味になります。<code>gcd(12, 18)</code> は <code>(18, 12)</code>、<code>(12, 6)</code>、<code>(6, 0)</code> と進んで <code>6</code> を返します<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>C の規格は末尾呼び出しの最適化を保証しないので、深い末尾再帰はループに直しておくのが確実です。ただし互除法の再帰は高々数十段なので、<code>gcd</code> に限ればスタックが足りなくなる心配はほとんどありません。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
