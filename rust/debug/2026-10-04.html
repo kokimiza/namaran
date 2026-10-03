@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="レプリカごとの回数を持つG-Counterの統合を entry(id).or_insert(n) で書いたため、すでに持っているレプリカの回数が新しくならず、統合し合っても合計が揃わないRust 2024のドリル。">
+<title>統合しても揃わない回数</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-10-04">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-04" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-10-04",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-10-04",
+      "datePublished": "2026-10-04",
+      "dateModified": "2026-10-04",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "統合しても揃わない回数" },
+      "keywords": "crdt, entry-api, hash-table, merge",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "レプリカごとの回数を持つG-Counterの統合を entry(id).or_insert(n) で書いたため、すでに持っているレプリカの回数が新しくならず、統合し合っても合計が揃わないRust 2024のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-04">C23</a>
+  <a href="/cpp/debug/2026-10-04">C++26</a>
+  <a href="/rust/debug/2026-10-04" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-04">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-04">READ</a>
+  <a href="/rust/write/2026-10-04">WRITE</a>
+  <a href="/rust/debug/2026-10-04" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="統合しても揃わない回数"
+  data-tags="crdt entry-api hash-table merge"
+  data-concepts="G-Counter, or_insertの挙動, 統合の取りこぼし, Entry API, grow-only counter merge"
+  data-level="peacock"
+>
+  <h2>2026-10-04</h2>
+  <div class="code-frame">
+    <p class="code-filename">g_counter.rs</p>
+    <pre class="code"><code><span class="kw">use</span> std::collections::<span class="ty">HashMap</span>;
+
+<span class="kw">fn</span> <span class="fn">merge</span>(dst: &amp;<span class="kw">mut</span> <span class="ty">HashMap</span>&lt;<span class="ty">char</span>, <span class="ty">u64</span>&gt;, src: &amp;<span class="ty">HashMap</span>&lt;<span class="ty">char</span>, <span class="ty">u64</span>&gt;) {
+    <span class="kw">for</span> (&amp;id, &amp;n) <span class="kw">in</span> src {
+        dst.<span class="fn">entry</span>(id).<span class="fn">or_insert</span>(n);
+    }
+}
+
+<span class="kw">fn</span> <span class="fn">total</span>(c: &amp;<span class="ty">HashMap</span>&lt;<span class="ty">char</span>, <span class="ty">u64</span>&gt;) -&gt; <span class="ty">u64</span> {
+    c.<span class="fn">values</span>().<span class="fn">sum</span>()
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> <span class="kw">mut</span> a = <span class="ty">HashMap</span>::<span class="fn">from</span>([(<span class="st">'a'</span>, <span class="nu">1</span>)]);
+    <span class="kw">let</span> <span class="kw">mut</span> b = <span class="ty">HashMap</span>::<span class="fn">from</span>([(<span class="st">'b'</span>, <span class="nu">1</span>)]);
+    <span class="fn">merge</span>(&amp;<span class="kw">mut</span> b, &amp;a);
+    *a.<span class="fn">entry</span>(<span class="st">'a'</span>).<span class="fn">or_insert</span>(<span class="nu">0</span>) += <span class="nu">1</span>;
+    <span class="fn">merge</span>(&amp;<span class="kw">mut</span> b, &amp;a);
+    <span class="fn">merge</span>(&amp;<span class="kw">mut</span> a, &amp;b);
+    <span class="mc">println!</span>(<span class="st">"{} {}"</span>, <span class="fn">total</span>(&amp;a), <span class="fn">total</span>(&amp;b));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    レプリカ <code>a</code> と <code>b</code> は、それぞれ自分の名前のキーに自分が数えた回数を持つカウンタです。<code>merge</code> は <code>src</code> の内容を <code>dst</code> に取り込み、互いに統合し合えばどちらの合計も同じ値に揃うようにするつもりの関数です。引数も標準入力も使いません。いまの出力は <code>3 2</code> で、<code>b</code> の合計が <code>a</code> に追いつきません。本来の出力は <code>3 3</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">for</span> (&amp;id, &amp;n) <span class="kw">in</span> src {
+    dst.<span class="fn">entry</span>(id).<span class="fn">or_insert</span>(n);
+}
+</code></pre>
+      <p>
+        <code>or_insert(n)</code> は、キーが無いときだけ <code>n</code> を入れます。キーがすでにあるときは今の値への参照を返すだけで、値は書き換えません。1回目の <code>merge(&amp;mut b, &amp;a)</code> で、<code>b</code> は <code>'a'</code> の回数 <code>1</code> を受け取ります。そのあと <code>a</code> が <code>'a'</code> を <code>2</code> に増やして2回目の統合をしても、<code>b</code> にはもう <code>'a'</code> のキーがあるので <code>1</code> のまま残ります。
+      </p>
+      <p>
+        最後に <code>b</code> を <code>a</code> へ統合すると、<code>a</code> は持っていなかった <code>'b'</code> の <code>1</code> を受け取り、合計は <code>2 + 1</code> で <code>3</code> です。<code>b</code> の合計は古い <code>'a'</code> のまま <code>1 + 1</code> で <code>2</code> になり、何度統合し合っても <code>'a'</code> は追いつきません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">for</span> (&amp;id, &amp;n) <span class="kw">in</span> src {
+    <span class="kw">let</span> mine = dst.<span class="fn">entry</span>(id).<span class="fn">or_insert</span>(<span class="nu">0</span>);
+    *mine = (*mine).<span class="fn">max</span>(n);
+}
+</code></pre>
+      <p>
+        同じキーがあるときは、2つの回数の大きい方を残します。各レプリカの回数は増える一方なので、大きい方が新しい値です。足すのではなく大きい方を取るので、同じ内容を何度統合しても回数は増えず、統合する順番にも左右されません。<code>b</code> の <code>'a'</code> は2回目の統合で <code>2</code> になり、どちらの合計も <code>3</code> に揃います<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>統合が結合的・可換的・冪等なので、状態を受け取る順番や回数によらず、すべてのレプリカが同じ状態に収束します。このように状態どうしを統合するデータ型を、状態ベースの CRDT と呼びます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

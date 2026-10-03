@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「CRDT」を扱ったNamaranのコーディングドリル3問。2P-Set、CRDT、追加集合と削除集合、墓石、tombstone、two-phase set。">
+<meta name="description" content="「CRDT」を扱ったNamaranのコーディングドリル6問。バージョンベクトル、ベクトル時計の比較、取り込み済みの判定、version vector、happened-before、dominates。">
 <title>CRDT</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/crdt">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>CRDT</h2>
 
   <p class="lede">
-    「CRDT」を扱った3問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「CRDT」を扱った6問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/write/2026-10-04">Rust / WRITE · 2026-10-04</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">更新を取り込み済みか</span> <span class="past-concepts">バージョンベクトル, ベクトル時計の比較, 取り込み済みの判定, version vector, happened-before, dominates</span></li>
+    <li><a href="/rust/read/2026-10-04">Rust / READ · 2026-10-04</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">同じ時刻の書き込み</span> <span class="past-concepts">LWWレジスタ, 導出されたOrd, フィールド順の辞書式比較, 統合の可換性, last-writer-wins register, derive Ord</span></li>
+    <li><a href="/rust/debug/2026-10-04">Rust / DEBUG · 2026-10-04</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">統合しても揃わない回数</span> <span class="past-concepts">G-Counter, or_insertの挙動, 統合の取りこぼし, Entry API, grow-only counter merge</span></li>
     <li><a href="/cpp/write/2026-09-26">C++ / WRITE · 2026-09-26</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">削除が勝つ集合の統合</span> <span class="past-concepts">2P-Set, CRDT, 追加集合と削除集合, 墓石, tombstone, two-phase set, set union</span></li>
     <li><a href="/cpp/read/2026-09-26">C++ / READ · 2026-09-26</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">最後の書き込みが勝つ</span> <span class="past-concepts">LWWレジスタ, 最終書き込み勝ち, std::tie, 辞書順比較, タイムスタンプの同着, last-writer-wins, LWW register, lexicographic comparison</span></li>
     <li><a href="/cpp/debug/2026-09-26">C++ / DEBUG · 2026-09-26</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">2回届くと増える</span> <span class="past-concepts">G-Counter, CRDT, 冪等性, 状態の統合, 二重計上, idempotence, grow-only counter, state-based merge</span></li>

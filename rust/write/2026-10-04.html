@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="レプリカごとの更新回数を BTreeMap&lt;char, u32&gt; で持つバージョンベクトルを2つ比べ、一方がもう一方の更新をすべて取り込んでいるかを返す dominates を書くRust 2024のドリル。表に無いレプリカは0回として扱う。">
+<title>更新を取り込み済みか</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-10-04">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-04" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-10-04",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-10-04",
+      "datePublished": "2026-10-04",
+      "dateModified": "2026-10-04",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "更新を取り込み済みか" },
+      "keywords": "crdt, vector-clock, ordered-map, iterator",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "レプリカごとの更新回数を BTreeMap<char, u32> で持つバージョンベクトルを2つ比べ、一方がもう一方の更新をすべて取り込んでいるかを返す dominates を書くRust 2024のドリル。表に無いレプリカは0回として扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-04">C23</a>
+  <a href="/cpp/write/2026-10-04">C++26</a>
+  <a href="/rust/write/2026-10-04" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-10-04">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-04">READ</a>
+  <a href="/rust/write/2026-10-04" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-10-04">DEBUG</a>
+</nav>
+
+<main
+  data-topic="更新を取り込み済みか"
+  data-tags="crdt vector-clock ordered-map iterator"
+  data-concepts="バージョンベクトル, ベクトル時計の比較, 取り込み済みの判定, version vector, happened-before, dominates"
+  data-level="hedgehog"
+>
+  <h2>2026-10-04</h2>
+  <div class="code-frame">
+    <p class="code-filename">version_vector.rs</p>
+    <pre class="code"><code><span class="kw">use</span> std::collections::<span class="ty">BTreeMap</span>;
+
+<span class="kw">fn</span> <span class="fn">dominates</span>(a: &amp;<span class="ty">BTreeMap</span>&lt;<span class="ty">char</span>, <span class="ty">u32</span>&gt;, b: &amp;<span class="ty">BTreeMap</span>&lt;<span class="ty">char</span>, <span class="ty">u32</span>&gt;) -&gt; <span class="ty">bool</span> {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    各レプリカから受け取った更新の回数を、レプリカ名をキーにした <code>BTreeMap</code> で持っています。<code>a</code> が <code>b</code> の知っている更新をすべて取り込んでいるか、つまりどのレプリカについても <code>a</code> の回数が <code>b</code> の回数以上かを返す <code>dominates</code> を書いてください。表に無いレプリカの回数は <code>0</code> とみなします。<code>b</code> が空なら <code>true</code> です。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>dominates(&amp;BTreeMap::from([('a', 3), ('b', 1)]), &amp;BTreeMap::from([('a', 2)]))</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>true</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>dominates(&amp;BTreeMap::from([('a', 3)]), &amp;BTreeMap::from([('a', 2), ('b', 1)]))</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>false</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>dominates(&amp;BTreeMap::new(), &amp;BTreeMap::new())</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>true</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">dominates</span>(a: &amp;<span class="ty">BTreeMap</span>&lt;<span class="ty">char</span>, <span class="ty">u32</span>&gt;, b: &amp;<span class="ty">BTreeMap</span>&lt;<span class="ty">char</span>, <span class="ty">u32</span>&gt;) -&gt; <span class="ty">bool</span> {
+    b.<span class="fn">iter</span>().<span class="fn">all</span>(|(k, &amp;n)| a.<span class="fn">get</span>(k).<span class="fn">copied</span>().<span class="fn">unwrap_or</span>(<span class="nu">0</span>) &gt;= n)
+}
+</code></pre>
+      <p>
+        調べるのは <code>b</code> に載っているレプリカだけで足ります。<code>a</code> にしか無いレプリカは <code>b</code> 側の回数が <code>0</code> なので、<code>a</code> の回数がいくつでも条件を満たすからです。参考実装は <code>b</code> の各項目について <code>a</code> の回数を引き、<code>all</code> ですべてが <code>b</code> の回数以上かを確かめます。<code>b</code> が空なら、<code>all</code> は調べる項目が無いので <code>true</code> を返します。
+      </p>
+      <p>
+        <code>a</code> に無いレプリカでは <code>a.get(k)</code> が <code>None</code> になるので、<code>unwrap_or(0)</code> で <code>0</code> 回として比べます。入力例2では <code>'b'</code> が <code>a</code> に無く、<code>0 &gt;= 1</code> が成り立たないので <code>false</code> です。この判定が <code>true</code> なら、レプリカごとに大きい方の回数を残す統合で <code>a</code> に <code>b</code> を取り込んでも何も変わらないので、統合を省けます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>for</code> で回し、足りない項目を見つけた時点で <code>false</code> を返してもかまいません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

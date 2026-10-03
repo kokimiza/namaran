@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="x &amp;= x - 1 を while の条件に置き、最下位の1ビットを消すたびに数えるC23のドリル。代入式の値がそのまま条件になることと、ループの本体が何回実行されるかを追う。">
+<title>ビットを消すwhileの回数</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-10-04">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-04" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-10-04",
+      "url": "https://namaran.jocarium.productions/c/read/2026-10-04",
+      "datePublished": "2026-10-04",
+      "dateModified": "2026-10-04",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "ビットを消すwhileの回数" },
+      "keywords": "bit-operation, bitmask, loop, expression",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "x &= x - 1 を while の条件に置き、最下位の1ビットを消すたびに数えるC23のドリル。代入式の値がそのまま条件になることと、ループの本体が何回実行されるかを追う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-04" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-10-04">C++26</a>
+  <a href="/rust/read/2026-10-04">Rust 2024</a>
+  <a href="/haskell/read/2026-10-04">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-04" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-10-04">WRITE</a>
+  <a href="/c/debug/2026-10-04">DEBUG</a>
+</nav>
+
+<main
+  data-topic="ビットを消すwhileの回数"
+  data-tags="bit-operation bitmask loop expression"
+  data-concepts="最下位ビットを消す, x &amp; (x - 1), 代入式の値, ビットの数え上げ, clear lowest set bit, assignment as condition"
+  data-level="peacock"
+>
+  <h2>2026-10-04</h2>
+  <div class="code-frame">
+    <p class="code-filename">clear_bits.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="ty">unsigned</span> x = <span class="nu">0b101100</span>;
+    <span class="ty">int</span> n = <span class="nu">0</span>;
+    <span class="kw">while</span> (x &amp;= x - <span class="nu">1</span>)
+        n++;
+    <span class="fn">printf</span>(<span class="st">"%d\n"</span>, n);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>2</code> です。
+      </p>
+      <p>
+        <code>x &amp; (x - 1)</code> は、<code>x</code> の最下位の1ビットを0にした値です。<code>x - 1</code> では最下位の1ビットが0になり、その下の0がすべて1に変わるので、<code>x</code> との論理積を取るとそのビットから下がすべて0になります。<code>0b101100</code> には1が3つあるので、このループは1の数を数えているように見え、<code>3</code> と答えたくなります。
+      </p>
+      <p>
+        ところが、条件に書いてあるのは代入式 <code>x &amp;= x - 1</code> そのもので、代入式の値は代入した後の <code>x</code> です。<code>x</code> は1回目の評価で <code>0b101000</code>、2回目で <code>0b100000</code>、3回目で <code>0</code> になります。条件を評価した時点でビットはもう消えているので、<code>n++</code> が実行されるのは結果が0でない最初の2回だけです。最後のビットを消した3回目は、数える前にループを抜けます<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>1の数を数えるなら、<code>while (x) { x &amp;= x - 1; n++; }</code> のように、0かどうかを判定してから消します。C23 では <code>&lt;stdbit.h&gt;</code> の <code>stdc_count_ones</code> でも数えられます。<code>0b101100</code> のような2進数の整数リテラルも、C23 で標準になりました。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
