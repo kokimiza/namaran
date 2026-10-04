@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「借用」を扱ったNamaranのコーディングドリル5問。RefCellの二重借用、Rc::ptr_eq、一時値の寿命、already borrowed、BorrowMutError、Rc aliasing。">
+<meta name="description" content="「借用」を扱ったNamaranのコーディングドリル6問。二部マッチング、最大マッチング、増加路、Kuhnの方法、bipartite matching、augmenting path。">
 <title>借用</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/borrow">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>借用</h2>
 
   <p class="lede">
-    「借用」を扱った5問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「借用」を扱った6問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/write/2026-10-05">Rust / WRITE · 2026-10-05</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">人と仕事の最大マッチング</span> <span class="past-concepts">二部マッチング, 最大マッチング, 増加路, Kuhnの方法, bipartite matching, augmenting path, maximum matching</span></li>
     <li><a href="/rust/write/2026-10-03">Rust / WRITE · 2026-10-03</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">共有されたVecを併合</span> <span class="past-concepts">RefCellの二重借用, Rc::ptr_eq, 一時値の寿命, already borrowed, BorrowMutError, Rc aliasing</span></li>
     <li><a href="/rust/debug/2026-10-03">Rust / DEBUG · 2026-10-03</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">在庫を足して合計</span> <span class="past-concepts">RefCellの借用ガード, already mutably borrowed, RefMutの寿命, BorrowError, borrow guard scope</span></li>
     <li><a href="/rust/debug/2026-09-07">Rust / DEBUG · 2026-09-07</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">局所変数を返す</span> <span class="past-concepts">ライフタイム, 局所変数, ダングリング, dangling reference</span></li>

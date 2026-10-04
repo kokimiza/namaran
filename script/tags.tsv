@@ -25,6 +25,7 @@ binary-search	二分探索
 binary-search-tree	二分探索木
 binding	束縛
 binding-mode	束縛モード
+bipartite-matching	二部マッチング
 bit-field	ビットフィールド
 bit-operation	ビット演算
 bit-precise-integer	_BitInt

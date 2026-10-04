@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="大域定数の初期化子から呼んだ関数が、後ろで定義された const std::string をまだ初期化されないうちに読んでしまうC++26のドリル。長い文字列の std::string は動的初期化になるので、constexpr で定数初期化にする。">
+<title>URLの前半が消える</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-10-05">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-05" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-10-05",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-10-05",
+      "datePublished": "2026-10-05",
+      "dateModified": "2026-10-05",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "URLの前半が消える" },
+      "keywords": "initialization-order, static-storage, constexpr, string, undefined-behavior",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "大域定数の初期化子から呼んだ関数が、後ろで定義された const std::string をまだ初期化されないうちに読んでしまうC++26のドリル。長い文字列の std::string は動的初期化になるので、constexpr で定数初期化にする。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-05">C23</a>
+  <a href="/cpp/debug/2026-10-05" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-10-05">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-05">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-05">READ</a>
+  <a href="/cpp/write/2026-10-05">WRITE</a>
+  <a href="/cpp/debug/2026-10-05" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="URLの前半が消える"
+  data-tags="initialization-order static-storage constexpr string undefined-behavior"
+  data-concepts="静的初期化順序の問題, 動的初期化, 定数初期化, ゼロ初期化, static initialization order fiasco, constant initialization"
+  data-level="bison"
+>
+  <h2>2026-10-05</h2>
+  <div class="code-frame">
+    <p class="code-filename">endpoint.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+
+std::<span class="ty">string</span> <span class="fn">endpoint</span>(<span class="kw">const</span> std::<span class="ty">string</span>&amp; path);
+
+<span class="kw">const</span> std::<span class="ty">string</span> health_url = <span class="fn">endpoint</span>(<span class="st">"health"</span>);
+<span class="kw">const</span> std::<span class="ty">string</span> base_url = <span class="st">"https://example.com/api/"</span>;
+
+std::<span class="ty">string</span> <span class="fn">endpoint</span>(<span class="kw">const</span> std::<span class="ty">string</span>&amp; path) {
+    <span class="kw">return</span> base_url + path;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    std::cout &lt;&lt; health_url &lt;&lt; <span class="st">'\n'</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>endpoint</code> は、API の URL の前半 <code>base_url</code> にパスをつなげて返す関数で、<code>health_url</code> はそれで作った大域定数です。引数も標準入力も使いません。g++ 14 でビルドして動かすと、いまは <code>health</code> とだけ出ます。環境によっては別の結果になったり落ちたりすることもあります。本来は <code>https://example.com/api/health</code> が出るはずです。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">const</span> std::<span class="ty">string</span> health_url = <span class="fn">endpoint</span>(<span class="st">"health"</span>);
+<span class="kw">const</span> std::<span class="ty">string</span> base_url = <span class="st">"https://example.com/api/"</span>;
+</code></pre>
+      <p>
+        名前空間スコープの変数は、同じ翻訳単位の中では定義の順に初期化されます。<code>health_url</code> の初期化子が <code>endpoint</code> を呼んだ時点で、<code>base_url</code> はまだ初期化されていません。24文字の文字列で <code>std::string</code> を作るにはメモリの確保が要るので、この初期化は定数式にならず、実行時の動的初期化として順番を待つからです。
+      </p>
+      <p>
+        生存期間が始まっていないオブジェクトを読むのは未定義動作です。g++ 14 で <code>health</code> だけが出るのは、動的初期化の前に静的記憶域が0で埋められていて、全ビットが0の <code>std::string</code> がたまたま空文字列として読めたからです。その後で <code>base_url</code> は正しく初期化されますが、<code>health_url</code> はもう作り終わっています<sup class="fn-ref">1</sup>。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">constexpr</span> <span class="kw">const</span> <span class="ty">char</span>* base_url = <span class="st">"https://example.com/api/"</span>;
+</code></pre>
+      <p>
+        <code>constexpr</code> の変数は定数初期化され、どの動的初期化よりも前に値が入っています。<code>health_url</code> の初期化中に <code>endpoint</code> が読んでも、<code>base_url</code> はもう文字列リテラルを指しています。<code>base_url + path</code> は <code>const char*</code> と <code>std::string</code> をつなぐ <code>operator+</code> になり、結果は同じ文字列です。
+      </p>
+      <p>
+        2行を入れ替えても、このファイルの中では直ります。ただ、定義の順に頼る直し方は、2つの変数が別のファイルに分かれた時点で効かなくなります。翻訳単位をまたぐ動的初期化の順序は決まっていないので、そもそも動的初期化をしない形にしておくほうが確実です。
+      </p>
+      <ol class="footnotes">
+        <li>短い文字列なら事情が変わります。libstdc++ の <code>std::string</code> は15文字までをオブジェクトの中に持つので、<code>"Hello, "</code> のような初期化はメモリを確保せず定数式になり、定数初期化されます。変数に <code>constinit</code> を付けると、定数初期化できない初期化はコンパイルエラーになるので、どちらになるかをコンパイラに確かめさせられます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="ほかの翻訳単位の静的変数がコンストラクタからもデストラクタからも使う表を、初期化順序にも破棄順序にも左右されずに返す関数を書くC++26のドリル。関数内 static のポインタに new した表を持たせ、解放しない。">
+<title>初期化順に依らない表</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-10-05">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-05" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-10-05",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-10-05",
+      "datePublished": "2026-10-05",
+      "dateModified": "2026-10-05",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "初期化順に依らない表" },
+      "keywords": "initialization-order, static-storage, lazy-initialization, destructor",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "ほかの翻訳単位の静的変数がコンストラクタからもデストラクタからも使う表を、初期化順序にも破棄順序にも左右されずに返す関数を書くC++26のドリル。関数内 static のポインタに new した表を持たせ、解放しない。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-05">C23</a>
+  <a href="/cpp/write/2026-10-05" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-10-05">Rust 2024</a>
+  <a href="/haskell/write/2026-10-05">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-05">READ</a>
+  <a href="/cpp/write/2026-10-05" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-10-05">DEBUG</a>
+</nav>
+
+<main
+  data-topic="初期化順に依らない表"
+  data-tags="initialization-order static-storage lazy-initialization destructor"
+  data-concepts="静的初期化順序の問題, 破棄順序, 初回使用時の構築, static initialization order fiasco, construct on first use, destruction order"
+  data-level="bison"
+>
+  <h2>2026-10-05</h2>
+  <div class="code-frame">
+    <p class="code-filename">registry.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;map&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+
+std::<span class="ty">map</span>&lt;std::<span class="ty">string</span>, <span class="ty">int</span>&gt;&amp; <span class="fn">registry</span>() {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    名前から番号を引く表 <code>std::map&lt;std::string, int&gt;</code> を1つだけ持ち、その参照を返す <code>registry</code> を書いてください。表は最初に呼ばれたとき空の状態で用意し、以後はいつも同じ表を返します。別のファイルで定義された静的変数が、コンストラクタの中でもデストラクタの中でも <code>registry()</code> を呼ぶので、プログラムの開始前から終了処理の最後まで、どの時点で呼ばれても使える表を返してください。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>registry().size()</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>registry()["x"] = 7; registry()["x"]</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>7</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>&amp;registry() == &amp;registry()</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>true</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;map&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+
+std::<span class="ty">map</span>&lt;std::<span class="ty">string</span>, <span class="ty">int</span>&gt;&amp; <span class="fn">registry</span>() {
+    <span class="kw">static</span> <span class="kw">auto</span>* table = <span class="kw">new</span> std::<span class="ty">map</span>&lt;std::<span class="ty">string</span>, <span class="ty">int</span>&gt;;
+    <span class="kw">return</span> *table;
+}
+</code></pre>
+      <p>
+        参考実装は、関数内の static なポインタに <code>new</code> で作った表を1回だけ入れ、その表を最後まで解放しません。
+      </p>
+      <p>
+        表を大域変数 <code>std::map&lt;std::string, int&gt; table;</code> にすると、ほかのファイルの静的変数より先に構築される保証がありません。翻訳単位をまたぐ動的初期化の順序を規格は決めていないので、ほかのファイルのコンストラクタが、まだ構築されていない表に書き込むことがあります。関数内の static 変数は制御が初めて宣言を通ったときに構築されるので、誰が最初に呼んでも、返るのは構築済みの表です。
+      </p>
+      <p>
+        ただし <code>static std::map&lt;std::string, int&gt; table;</code> と値で持つと、今度は破棄の順序で壊れます。静的記憶域のオブジェクトは、構築が完了したのと逆の順に破棄されます。表より先に構築を終えたほかのファイルの変数が、あとから初めて <code>registry()</code> を呼んだ場合、表はその変数より後に構築されたことになり、先に破棄されます。その変数のデストラクタが <code>registry()</code> を呼ぶと、破棄済みの表を触ります。
+      </p>
+      <p>
+        <code>new</code> で作った表はデストラクタが呼ばれないので、終了処理のどの時点で呼ばれても生きています。メモリはプログラムが終わるときに OS が回収するので、解放しないことの実害はありません<sup class="fn-ref">1</sup>。関数内 static の初期化はスレッドセーフなので、複数のスレッドが同時に最初の呼び出しをしても、作られる表は1つです。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>static auto&amp; table = *new std::map&lt;std::string, int&gt;;</code> と参照で持っても同じです。
+      </p>
+      <ol class="footnotes">
+        <li>静的変数から辿れるメモリは、LeakSanitizer もリークとして報告しません。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

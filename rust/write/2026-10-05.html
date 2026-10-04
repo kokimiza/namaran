@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="人ごとにこなせる仕事の一覧から、できるだけ多くの人に別々の仕事を割り当てる関数を書くRust 2024のドリル。増加路を再帰で探し、探索ごとの訪問済みの印と、クロージャでは書けない再帰を関数と &amp;mut で組み立てる。">
+<title>人と仕事の最大マッチング</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-10-05">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-05" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-10-05",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-10-05",
+      "datePublished": "2026-10-05",
+      "dateModified": "2026-10-05",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "人と仕事の最大マッチング" },
+      "keywords": "bipartite-matching, depth-first-search, recursion, greedy-algorithm, borrow",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "人ごとにこなせる仕事の一覧から、できるだけ多くの人に別々の仕事を割り当てる関数を書くRust 2024のドリル。増加路を再帰で探し、探索ごとの訪問済みの印と、クロージャでは書けない再帰を関数と &mut で組み立てる。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-05">C23</a>
+  <a href="/cpp/write/2026-10-05">C++26</a>
+  <a href="/rust/write/2026-10-05" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-10-05">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-05">READ</a>
+  <a href="/rust/write/2026-10-05" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-10-05">DEBUG</a>
+</nav>
+
+<main
+  data-topic="人と仕事の最大マッチング"
+  data-tags="bipartite-matching depth-first-search recursion greedy-algorithm borrow"
+  data-concepts="二部マッチング, 最大マッチング, 増加路, Kuhnの方法, bipartite matching, augmenting path, maximum matching"
+  data-level="whale"
+>
+  <h2>2026-10-05</h2>
+  <div class="code-frame">
+    <p class="code-filename">assign.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">assign</span>(can_do: &amp;[<span class="ty">Vec</span>&lt;<span class="ty">usize</span>&gt;], jobs: <span class="ty">usize</span>) -&gt; <span class="ty">Vec</span>&lt;<span class="ty">Option</span>&lt;<span class="ty">usize</span>&gt;&gt; {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    人 <code>p</code> がこなせる仕事の番号の一覧 <code>can_do[p]</code> と、仕事の数 <code>jobs</code> を受け取る <code>assign</code> を書いてください。1つの仕事は1人にしか割り当てず、仕事を割り当てられる人ができるだけ多くなるようにして、人ごとの仕事の番号を返します。仕事のない人は <code>None</code> で、人が0人なら空の <code>Vec</code> です。人数が最大になる割り当て方が何通りもあるときは、どれを返してもかまいません。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>assign(&amp;[vec![0, 1], vec![0]], 2)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>[Some(1), Some(0)]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>assign(&amp;[vec![1], vec![], vec![0, 1]], 2)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>[Some(1), None, Some(0)]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>assign(&amp;[], 3)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>[]</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">augment</span>(p: <span class="ty">usize</span>, can_do: &amp;[<span class="ty">Vec</span>&lt;<span class="ty">usize</span>&gt;], seen: &amp;<span class="kw">mut</span> [<span class="ty">bool</span>], owner: &amp;<span class="kw">mut</span> [<span class="ty">Option</span>&lt;<span class="ty">usize</span>&gt;]) -&gt; <span class="ty">bool</span> {
+    <span class="kw">for</span> &amp;job <span class="kw">in</span> &amp;can_do[p] {
+        <span class="kw">if</span> std::mem::<span class="fn">replace</span>(&amp;<span class="kw">mut</span> seen[job], <span class="nu">true</span>) {
+            <span class="kw">continue</span>;
+        }
+        <span class="kw">if</span> owner[job].<span class="fn">is_none_or</span>(|q| <span class="fn">augment</span>(q, can_do, seen, owner)) {
+            owner[job] = <span class="fn">Some</span>(p);
+            <span class="kw">return</span> <span class="nu">true</span>;
+        }
+    }
+    <span class="nu">false</span>
+}
+
+<span class="kw">fn</span> <span class="fn">assign</span>(can_do: &amp;[<span class="ty">Vec</span>&lt;<span class="ty">usize</span>&gt;], jobs: <span class="ty">usize</span>) -&gt; <span class="ty">Vec</span>&lt;<span class="ty">Option</span>&lt;<span class="ty">usize</span>&gt;&gt; {
+    <span class="kw">let</span> <span class="kw">mut</span> owner = <span class="mc">vec!</span>[<span class="ty">None</span>; jobs];
+    <span class="kw">for</span> p <span class="kw">in</span> <span class="nu">0</span>..can_do.<span class="fn">len</span>() {
+        <span class="fn">augment</span>(p, can_do, &amp;<span class="kw">mut</span> <span class="mc">vec!</span>[<span class="nu">false</span>; jobs], &amp;<span class="kw">mut</span> owner);
+    }
+    <span class="kw">let</span> <span class="kw">mut</span> job_of = <span class="mc">vec!</span>[<span class="ty">None</span>; can_do.<span class="fn">len</span>()];
+    <span class="kw">for</span> (job, p) <span class="kw">in</span> owner.<span class="fn">into_iter</span>().<span class="fn">enumerate</span>() {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="fn">Some</span>(p) = p {
+            job_of[p] = <span class="fn">Some</span>(job);
+        }
+    }
+    job_of
+}
+</code></pre>
+      <p>
+        参考実装は、人を1人ずつ加え、そのたびに <code>augment</code> で仕事を探します。空いている仕事があればそれを取ります。埋まっていれば、その持ち主に別の仕事へ移れないかを再帰で尋ね、移れた分だけ割り当てを1つずつずらします。こうして1人増やせる経路を増加路と呼び、人を加えるたびに増加路を探せば、最後には人数が最大の割り当てになります<sup class="fn-ref">1</sup>。
+      </p>
+      <p>
+        早い者勝ちでは足りません。入力例1で人0が先に仕事0を取ると、人1は何も取れません。人0を仕事1へ移せば2人とも仕事に就けるので、すでに決めた割り当てを組み替える探索が要ります。
+      </p>
+      <p>
+        <code>seen</code> は、1回の探索の中で同じ仕事を2度尋ねないための印です。これが無いと、2人が互いに相手へ譲ろうとして再帰が終わりません。逆に人をまたいで使い回すと、前の人の探索で付いた印のせいで、まだ譲ってもらえるはずの持ち主に尋ねないまま諦めてしまいます。そのため人ごとに新しい <code>&amp;mut vec![false; jobs]</code> を渡しています。<code>std::mem::replace</code> は、印を <code>true</code> にしながら前の値を返します。
+      </p>
+      <p>
+        Rust ではクロージャから自分自身を呼べないので、再帰する部分は関数 <code>augment</code> に分け、<code>seen</code> と <code>owner</code> を <code>&amp;mut</code> で渡します。<code>is_none_or</code> に渡すクロージャはこの2つを可変で借用しますが、<code>owner[job]</code> は <code>Option&lt;usize&gt;</code> の値としてコピーされた後なので、借用はぶつかりません。最後に、仕事から人を引く <code>owner</code> を、人から仕事を引く <code>job_of</code> に裏返して返します。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。仕事を1つずつ加えて人を探す向きに書いても、仕事から人を引く表と人から仕事を引く表を両方持って一緒に更新しても、割り当てられる人数の最大値は同じです。
+      </p>
+      <ol class="footnotes">
+        <li>人を1人ずつ加えて増加路を探すこの方法は Kuhn の方法と呼ばれます。増加路が見つからなくなった割り当ては最大である、という Berge の定理がその正しさを支えています。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

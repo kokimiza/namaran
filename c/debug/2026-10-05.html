@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="パケット先頭のビッグエンディアンの長さを、共用体と memcpy でそのまま uint32_t として読んでしまうC23のドリル。共用体による読み替えは処理系のバイト順で解釈されるので、シフトで組み立て直す。">
+<title>共用体でパケット長を読む</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-10-05">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-05" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-10-05",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-10-05",
+      "datePublished": "2026-10-05",
+      "dateModified": "2026-10-05",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "共用体でパケット長を読む" },
+      "keywords": "union, endianness, type-punning, bit-operation, integer-promotion",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "パケット先頭のビッグエンディアンの長さを、共用体と memcpy でそのまま uint32_t として読んでしまうC23のドリル。共用体による読み替えは処理系のバイト順で解釈されるので、シフトで組み立て直す。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-05" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-10-05">C++26</a>
+  <a href="/rust/debug/2026-10-05">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-05">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-05">READ</a>
+  <a href="/c/write/2026-10-05">WRITE</a>
+  <a href="/c/debug/2026-10-05" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="共用体でパケット長を読む"
+  data-tags="union endianness type-punning bit-operation integer-promotion"
+  data-concepts="バイトオーダー, ビッグエンディアン, ネットワークバイトオーダー, 共用体による読み替え, byte order, big-endian decoding"
+  data-level="peacock"
+>
+  <h2>2026-10-05</h2>
+  <div class="code-frame">
+    <p class="code-filename">packet.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdint.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string.h&gt;</span>
+
+<span class="kw">union</span> <span class="ty">word</span> {
+    <span class="ty">unsigned</span> <span class="ty">char</span> bytes[<span class="nu">4</span>];
+    <span class="ty">uint32_t</span> value;
+};
+
+<span class="kw">static</span> <span class="ty">uint32_t</span> <span class="fn">read_length</span>(<span class="kw">const</span> <span class="ty">unsigned</span> <span class="ty">char</span> *packet) {
+    <span class="kw">union</span> <span class="ty">word</span> w;
+    <span class="fn">memcpy</span>(w.bytes, packet, <span class="nu">4</span>);
+    <span class="kw">return</span> w.value;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="kw">const</span> <span class="ty">unsigned</span> <span class="ty">char</span> packet[] = { <span class="nu">0x00</span>, <span class="nu">0x00</span>, <span class="nu">0x01</span>, <span class="nu">0x2C</span>, <span class="st">'h'</span>, <span class="st">'i'</span> };
+    <span class="fn">printf</span>(<span class="st">"%lu\n"</span>, (<span class="ty">unsigned</span> <span class="ty">long</span>)<span class="fn">read_length</span>(packet));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>read_length</code> は、パケットの先頭4バイトに上位バイトから順に(ビッグエンディアンで)入っている長さを読むつもりの関数です。引数も標準入力も使わず、パケットの先頭4バイトは <code>00 00 01 2C</code> です。x86-64 の機械で動かすと、いまは <code>738263040</code> が出ます。本来は <code>300</code> が出るはずです。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">static</span> <span class="ty">uint32_t</span> <span class="fn">read_length</span>(<span class="kw">const</span> <span class="ty">unsigned</span> <span class="ty">char</span> *packet) {
+    <span class="kw">union</span> <span class="ty">word</span> w;
+    <span class="fn">memcpy</span>(w.bytes, packet, <span class="nu">4</span>);
+    <span class="kw">return</span> w.value;
+}
+</code></pre>
+      <p>
+        <code>w.bytes</code> に写した4バイトを <code>w.value</code> から読むと、その4バイトは、この機械が <code>uint32_t</code> を記憶域に置く順序で解釈されます。x86-64 は下位のバイトを先頭に置くリトルエンディアンなので、<code>00 00 01 2C</code> は <code>0x2C010000</code>、つまり <code>738263040</code> として読まれます。
+      </p>
+      <p>
+        共用体による読み替えは、処理系のバイト順をそのまま持ち込むだけで、パケットがどのバイト順で書かれているかは見ていません。上位バイトを先頭に置くビッグエンディアンの機械でだけ、たまたま <code>300</code> になります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">static</span> <span class="ty">uint32_t</span> <span class="fn">read_length</span>(<span class="kw">const</span> <span class="ty">unsigned</span> <span class="ty">char</span> *packet) {
+    <span class="kw">return</span> (<span class="ty">uint32_t</span>)packet[<span class="nu">0</span>] &lt;&lt; <span class="nu">24</span> | (<span class="ty">uint32_t</span>)packet[<span class="nu">1</span>] &lt;&lt; <span class="nu">16</span>
+         | (<span class="ty">uint32_t</span>)packet[<span class="nu">2</span>] &lt;&lt; <span class="nu">8</span> | packet[<span class="nu">3</span>];
+}
+</code></pre>
+      <p>
+        シフトと論理和は記憶域の並びではなく値に対する演算なので、<code>packet[0]</code> を最上位の8ビットに置く、という意味がどの機械でも変わりません。バイト順を決めるのが機械ではなくコードになり、<code>0x0000012C</code> の <code>300</code> が返ります<sup class="fn-ref">1</sup>。
+      </p>
+      <p>
+        <code>(uint32_t)</code> のキャストも外せません。<code>unsigned char</code> は演算の前に <code>int</code> へ昇格するので、キャストなしの <code>packet[0] &lt;&lt; 24</code> は <code>int</code> のシフトになり、<code>packet[0]</code> が <code>0x80</code> 以上だと結果が <code>int</code> で表せず、未定義動作になります。
+      </p>
+      <ol class="footnotes">
+        <li>POSIX の <code>ntohl</code> も同じ目的の関数ですが、C の標準ライブラリにはありません。C23 の <code>&lt;stdbit.h&gt;</code> には処理系のバイト順を表す <code>__STDC_ENDIAN_NATIVE__</code> が加わりましたが、バイト順を調べて分岐するより、シフトで組み立てるほうが短く書けます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

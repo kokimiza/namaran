@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「配列」を扱ったNamaranのコーディングドリル30問。空の配列の最大値、出力引数、失敗を返り値で知らせる、max of empty array、out parameter、NULL pointer。">
+<meta name="description" content="「配列」を扱ったNamaranのコーディングドリル33問。リングバッファ、循環バッファ、固定容量のキュー、cycle、無限リスト、ring buffer。">
 <title>配列</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/array">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>配列</h2>
 
   <p class="lede">
-    「配列」を扱った30問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「配列」を扱った33問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/haskell/write/2026-10-05">Haskell / WRITE · 2026-10-05</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">リングの中身を古い順に</span> <span class="past-concepts">リングバッファ, 循環バッファ, 固定容量のキュー, cycle, 無限リスト, ring buffer, circular buffer</span></li>
+    <li><a href="/haskell/read/2026-10-05">Haskell / READ · 2026-10-05</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">満杯のリングに書き足す</span> <span class="past-concepts">リングバッファ, 循環バッファ, 固定容量のキュー, 上書き, ring buffer, circular buffer, Data.Array</span></li>
+    <li><a href="/haskell/debug/2026-10-05">Haskell / DEBUG · 2026-10-05</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">容量2のキューに3つ目</span> <span class="past-concepts">リングバッファ, 満杯と空の区別, 読み位置と書き位置, 剰余, ring buffer full vs empty, read and write index</span></li>
     <li><a href="/c/write/2026-10-02">C / WRITE · 2026-10-02</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">空なら最大値なし</span> <span class="past-concepts">空の配列の最大値, 出力引数, 失敗を返り値で知らせる, max of empty array, out parameter, NULL pointer</span></li>
     <li><a href="/c/read/2026-10-02">C / READ · 2026-10-02</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">初期値0の最大値</span> <span class="past-concepts">最大値の初期値, 空の配列の最大値, 負の数だけの配列, initial value of max, max of empty array</span></li>
     <li><a href="/c/debug/2026-10-02">C / DEBUG · 2026-10-02</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">記録の無い日の最高気温</span> <span class="past-concepts">空の範囲の最大値, 添字0の思い込み, 区切った配列, argmax of empty range, empty subrange, half-open interval</span></li>

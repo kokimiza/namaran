@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="「遅延初期化」を扱ったNamaranのコーディングドリル2問。静的初期化順序の問題、破棄順序、初回使用時の構築、static initialization order fiasco、construct on first use、destruction order。">
+<title>遅延初期化</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/tag/lazy-initialization">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+    { "@type": "ListItem", "position": 2, "name": "お題から探す", "item": "https://namaran.jocarium.productions/topics" },
+    { "@type": "ListItem", "position": 3, "name": "遅延初期化" }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<main>
+  <h2>遅延初期化</h2>
+
+  <p class="lede">
+    「遅延初期化」を扱った2問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+  </p>
+
+  <ul class="past-list">
+    <li><a href="/cpp/write/2026-10-05">C++ / WRITE · 2026-10-05</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">初期化順に依らない表</span> <span class="past-concepts">静的初期化順序の問題, 破棄順序, 初回使用時の構築, static initialization order fiasco, construct on first use, destruction order</span></li>
+    <li><a href="/cpp/read/2026-10-05">C++ / READ · 2026-10-05</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">関数内staticの初期化</span> <span class="past-concepts">関数内static変数, 初回使用時の構築, 静的初期化の順序, function-local static, construct on first use, static initialization order</span></li>
+  </ul>
+
+  <p><a href="/topics">ほかのお題を見る</a></p>
+</main>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

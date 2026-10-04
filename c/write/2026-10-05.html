@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="float の値を、同じ32ビットの並びを持つ uint32_t として取り出す関数を書くC23のドリル。ポインタのキャストは厳密な別名規則に反するので、memcpy でバイト列を写し、static_assert で大きさを確かめる。">
+<title>floatのビット列を取り出す</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-10-05">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-05" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-10-05",
+      "url": "https://namaran.jocarium.productions/c/write/2026-10-05",
+      "datePublished": "2026-10-05",
+      "dateModified": "2026-10-05",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "floatのビット列を取り出す" },
+      "keywords": "type-punning, strict-aliasing, floating-point, undefined-behavior",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "float の値を、同じ32ビットの並びを持つ uint32_t として取り出す関数を書くC23のドリル。ポインタのキャストは厳密な別名規則に反するので、memcpy でバイト列を写し、static_assert で大きさを確かめる。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-05" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-10-05">C++26</a>
+  <a href="/rust/write/2026-10-05">Rust 2024</a>
+  <a href="/haskell/write/2026-10-05">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-05">READ</a>
+  <a href="/c/write/2026-10-05" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-10-05">DEBUG</a>
+</nav>
+
+<main
+  data-topic="floatのビット列を取り出す"
+  data-tags="type-punning strict-aliasing floating-point undefined-behavior"
+  data-concepts="memcpyによる型の読み替え, 厳密な別名規則, floatのビット表現, IEEE 754, type punning with memcpy, strict aliasing"
+  data-level="hedgehog"
+>
+  <h2>2026-10-05</h2>
+  <div class="code-frame">
+    <p class="code-filename">float_bits.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdint.h&gt;</span>
+
+<span class="ty">uint32_t</span> <span class="fn">float_bits</span>(<span class="ty">float</span> f) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>float</code> の値 <code>f</code> を、同じ32ビットの並びを持つ <code>uint32_t</code> として返す <code>float_bits</code> を書いてください。数値の変換ではなくビット列をそのまま取り出すので、<code>1.0f</code> を渡しても <code>1</code> にはなりません。<code>float</code> は IEEE 754 の単精度で <code>uint32_t</code> と同じ大きさとし、出力例は返り値を16進で書いています。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>float_bits(1.0f)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>0x3f800000</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>float_bits(-0.0f)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>0x80000000</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>float_bits(0.0f)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>0x00000000</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdint.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string.h&gt;</span>
+
+<span class="kw">static_assert</span>(<span class="kw">sizeof</span>(<span class="ty">float</span>) == <span class="kw">sizeof</span>(<span class="ty">uint32_t</span>));
+
+<span class="ty">uint32_t</span> <span class="fn">float_bits</span>(<span class="ty">float</span> f) {
+    <span class="ty">uint32_t</span> u;
+    <span class="fn">memcpy</span>(&amp;u, &amp;f, <span class="kw">sizeof</span> u);
+    <span class="kw">return</span> u;
+}
+</code></pre>
+      <p>
+        参考実装は、<code>memcpy</code> で <code>f</code> のバイト列を <code>u</code> へそのまま写して返します。その前の <code>static_assert</code> は、<code>float</code> と <code>uint32_t</code> の大きさが違う環境ならコンパイルを止めます。C23 で <code>static_assert</code> はキーワードになり、メッセージも省けるようになりました。
+      </p>
+      <p>
+        <code>return *(uint32_t *)&amp;f;</code> と書きたくなりますが、<code>float</code> のオブジェクトを <code>uint32_t</code> 型の左辺値で読むのは、厳密な別名規則に反する未定義動作です。コンパイラは <code>uint32_t *</code> が <code>float</code> を指すことはないと仮定して最適化してよいので、前後の書き込みと読み出しの順序が入れ替わることがあります。<code>memcpy</code> はバイト単位のコピーなのでこの規則に掛からず、GCC や Clang は最適化で1回のレジスタ間の移動に置き換えます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。C では、<code>union { float f; uint32_t u; }</code> の <code>f</code> に書いて <code>u</code> から読む方法も規格で認められています<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>共用体で読み替える方法は C++ では未定義動作です。C++20 からは <code>std::bit_cast&lt;std::uint32_t&gt;(f)</code> が同じことをし、<code>memcpy</code> と違って定数式の中でも使えます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「未定義動作」を扱ったNamaranのコーディングドリル11問。符号付き整数のオーバーフロー、INT_MIN - 1、2の補数、ビットの数え上げ、signed integer overflow、popcount of negative int。">
+<meta name="description" content="「未定義動作」を扱ったNamaranのコーディングドリル13問。静的初期化順序の問題、動的初期化、定数初期化、ゼロ初期化、static initialization order fiasco、constant initialization。">
 <title>未定義動作</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/undefined-behavior">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,12 @@
   <h2>未定義動作</h2>
 
   <p class="lede">
-    「未定義動作」を扱った11問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「未定義動作」を扱った13問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/cpp/debug/2026-10-05">C++ / DEBUG · 2026-10-05</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">URLの前半が消える</span> <span class="past-concepts">静的初期化順序の問題, 動的初期化, 定数初期化, ゼロ初期化, static initialization order fiasco, constant initialization</span></li>
+    <li><a href="/c/write/2026-10-05">C / WRITE · 2026-10-05</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">floatのビット列を取り出す</span> <span class="past-concepts">memcpyによる型の読み替え, 厳密な別名規則, floatのビット表現, IEEE 754, type punning with memcpy, strict aliasing</span></li>
     <li><a href="/c/debug/2026-10-04">C / DEBUG · 2026-10-04</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">負のintの1を数える</span> <span class="past-concepts">符号付き整数のオーバーフロー, INT_MIN - 1, 2の補数, ビットの数え上げ, signed integer overflow, popcount of negative int</span></li>
     <li><a href="/cpp/debug/2026-10-03">C++ / DEBUG · 2026-10-03</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">連番のポートを返す</span> <span class="past-concepts">initializer_listを返す, 背後の配列の寿命, auto x = {}, dangling initializer_list, backing array lifetime</span></li>
     <li><a href="/c/debug/2026-09-30">C / DEBUG · 2026-09-30</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">mainの変数と終了処理</span> <span class="past-concepts">atexit, mainからのreturn, 自動変数の寿命, ダングリングポインタ, return from main, automatic storage duration, exit handler</span></li>

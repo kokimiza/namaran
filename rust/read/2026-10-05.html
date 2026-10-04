@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="人と仕事の割り当てを、空いていなければ持ち主に別の仕事へ移ってもらう再帰で探すコードを追うRust 2024のドリル。is_none_or は Some のときだけクロージャを呼び、その再帰が前の割り当てを組み替える。">
+<title>仕事を譲ってもらう再帰</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-10-05">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / READ", "item": "https://namaran.jocarium.productions/rust/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-05" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / READ — 2026-10-05",
+      "url": "https://namaran.jocarium.productions/rust/read/2026-10-05",
+      "datePublished": "2026-10-05",
+      "dateModified": "2026-10-05",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "仕事を譲ってもらう再帰" },
+      "keywords": "bipartite-matching, depth-first-search, recursion, closure, optional",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "人と仕事の割り当てを、空いていなければ持ち主に別の仕事へ移ってもらう再帰で探すコードを追うRust 2024のドリル。is_none_or は Some のときだけクロージャを呼び、その再帰が前の割り当てを組み替える。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-05">C23</a>
+  <a href="/cpp/read/2026-10-05">C++26</a>
+  <a href="/rust/read/2026-10-05" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/read/2026-10-05">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-05" class="active" aria-current="page">READ</a>
+  <a href="/rust/write/2026-10-05">WRITE</a>
+  <a href="/rust/debug/2026-10-05">DEBUG</a>
+</nav>
+
+<main
+  data-topic="仕事を譲ってもらう再帰"
+  data-tags="bipartite-matching depth-first-search recursion closure optional"
+  data-concepts="二部マッチング, 増加路, is_none_or, Option, bipartite matching, augmenting path"
+  data-level="peacock"
+>
+  <h2>2026-10-05</h2>
+  <div class="code-frame">
+    <p class="code-filename">kuhn.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">try_assign</span>(p: <span class="ty">usize</span>, can_do: &amp;[<span class="ty">Vec</span>&lt;<span class="ty">usize</span>&gt;], seen: &amp;<span class="kw">mut</span> [<span class="ty">bool</span>], owner: &amp;<span class="kw">mut</span> [<span class="ty">Option</span>&lt;<span class="ty">usize</span>&gt;]) -&gt; <span class="ty">bool</span> {
+    <span class="kw">for</span> &amp;job <span class="kw">in</span> &amp;can_do[p] {
+        <span class="kw">if</span> std::mem::<span class="fn">replace</span>(&amp;<span class="kw">mut</span> seen[job], <span class="nu">true</span>) {
+            <span class="kw">continue</span>;
+        }
+        <span class="kw">if</span> owner[job].<span class="fn">is_none_or</span>(|q| <span class="fn">try_assign</span>(q, can_do, seen, owner)) {
+            owner[job] = <span class="fn">Some</span>(p);
+            <span class="kw">return</span> <span class="nu">true</span>;
+        }
+    }
+    <span class="nu">false</span>
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> can_do = [<span class="mc">vec!</span>[<span class="nu">0</span>, <span class="nu">1</span>], <span class="mc">vec!</span>[<span class="nu">0</span>], <span class="mc">vec!</span>[<span class="nu">1</span>, <span class="nu">2</span>]];
+    <span class="kw">let</span> <span class="kw">mut</span> owner = <span class="mc">vec!</span>[<span class="ty">None</span>; <span class="nu">3</span>];
+    <span class="kw">for</span> p <span class="kw">in</span> <span class="nu">0</span>..<span class="nu">3</span> {
+        <span class="fn">try_assign</span>(p, &amp;can_do, &amp;<span class="kw">mut</span> [<span class="nu">false</span>; <span class="nu">3</span>], &amp;<span class="kw">mut</span> owner);
+    }
+    <span class="mc">println!</span>(<span class="st">"{owner:?}"</span>);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>[Some(1), Some(0), Some(2)]</code> です。
+      </p>
+      <p>
+        <code>owner[job]</code> は仕事 <code>job</code> を受け持つ人です。<code>is_none_or</code> は、<code>None</code> ならクロージャを呼ばずに <code>true</code> を返し、<code>Some(q)</code> のときだけクロージャに <code>q</code> を渡して、その結果を返します。その前の <code>std::mem::replace</code> は <code>seen[job]</code> を <code>true</code> にしながら前の値を返すので、1回の探索で尋ねた仕事は2度目から飛ばされます。人0は空いている仕事0を取り、<code>owner[0]</code> は <code>Some(0)</code> になります。
+      </p>
+      <p>
+        人1がこなせるのは仕事0だけで、そこには人0がいます。早い者勝ちなら人1は何も取れないところですが、ここでクロージャが <code>try_assign(0, ...)</code> を呼び、人0に別の仕事を探させます。仕事0にはこの探索で印が付いているので、人0はそれを飛ばして仕事1へ移り、<code>owner[1] = Some(0)</code> として <code>true</code> を返します。これを受けて、仕事0は人1のものになります。
+      </p>
+      <p>
+        人2は仕事1から試し、その持ち主の人0にまた移れないかを尋ねます。人0の候補のうち、仕事1にはこの探索で印が付いています。仕事0は人1が持っていますが、人1の候補は仕事0しかなく、それにも印が付いています。譲ってもらえなかったので人2は仕事2を取り、<code>owner[2]</code> は <code>Some(2)</code> になります。
+      </p>
+      <ol class="footnotes">
+        <li><code>Option::is_none_or</code> は Rust 1.82 で安定化しました。それより前は <code>owner[job].map_or(true, |q| ...)</code> と書いていました。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/read">Today</a></li>
+    <li><a href="/rust/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

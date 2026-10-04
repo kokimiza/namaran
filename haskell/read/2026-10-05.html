@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="容量3の配列を輪のように使い、満杯なら一番古い要素に上書きするリングバッファへ5文字を入れたあとの状態を読むHaskell 2010のドリル。配列の位置の順と古い順は、先頭の位置 start の分だけずれる。">
+<title>満杯のリングに書き足す</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-10-05">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-05" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-10-05",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-10-05",
+      "datePublished": "2026-10-05",
+      "dateModified": "2026-10-05",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "満杯のリングに書き足す" },
+      "keywords": "ring-buffer, queue, array, modular-arithmetic",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "容量3の配列を輪のように使い、満杯なら一番古い要素に上書きするリングバッファへ5文字を入れたあとの状態を読むHaskell 2010のドリル。配列の位置の順と古い順は、先頭の位置 start の分だけずれる。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-05">C23</a>
+  <a href="/cpp/read/2026-10-05">C++26</a>
+  <a href="/rust/read/2026-10-05">Rust 2024</a>
+  <a href="/haskell/read/2026-10-05" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-05" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-10-05">WRITE</a>
+  <a href="/haskell/debug/2026-10-05">DEBUG</a>
+</nav>
+
+<main
+  data-topic="満杯のリングに書き足す"
+  data-tags="ring-buffer queue array modular-arithmetic"
+  data-concepts="リングバッファ, 循環バッファ, 固定容量のキュー, 上書き, ring buffer, circular buffer, Data.Array"
+  data-level="hedgehog"
+>
+  <h2>2026-10-05</h2>
+  <div class="code-frame">
+    <p class="code-filename">Ring.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Data.Array</span>
+
+<span class="kw">data</span> <span class="ty">Ring</span> = <span class="ty">Ring</span> <span class="ty">Int</span> <span class="ty">Int</span> (<span class="ty">Array</span> <span class="ty">Int</span> <span class="ty">Char</span>)
+
+<span class="fn">push</span> <span class="op">::</span> <span class="ty">Char</span> <span class="op">-&gt;</span> <span class="ty">Ring</span> <span class="op">-&gt;</span> <span class="ty">Ring</span>
+<span class="fn">push</span> c (<span class="ty">Ring</span> start size buf)
+  | size &lt; cap = <span class="ty">Ring</span> start (size + <span class="nu">1</span>) (buf // [((start + size) `mod` cap, c)])
+  | otherwise = <span class="ty">Ring</span> ((start + <span class="nu">1</span>) `mod` cap) size (buf // [(start, c)])
+  <span class="kw">where</span>
+    cap = rangeSize (bounds buf)
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = <span class="kw">do</span>
+  <span class="kw">let</span> <span class="ty">Ring</span> start _ buf = foldl (flip push) (<span class="ty">Ring</span> <span class="nu">0</span> <span class="nu">0</span> (listArray (<span class="nu">0</span>, <span class="nu">2</span>) <span class="st">"..."</span>)) <span class="st">"abcde"</span>
+  print (start, elems buf)
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>(2,"dec")</code> です。
+      </p>
+      <p>
+        <code>Ring start size buf</code> の <code>start</code> は一番古い要素の位置、<code>size</code> は入っている要素の数で、容量 <code>cap</code> は配列の大きさの3です。<code>push</code> は、満杯でなければ <code>start + size</code> を <code>cap</code> で割った余りの位置に書きます。満杯なら一番古い要素がある <code>start</code> に上書きし、<code>start</code> を1つ進めます。
+      </p>
+      <p>
+        <code>foldl (flip push)</code> は文字列の先頭から順に <code>push</code> するので、<code>a</code> <code>b</code> <code>c</code> は位置0, 1, 2に入って満杯になります。続く <code>d</code> は最古の <code>a</code> がある位置0に書かれて <code>start</code> が1になり、<code>e</code> は位置1の <code>b</code> に上書きされて <code>start</code> が2になります。
+      </p>
+      <p>
+        <code>elems</code> は配列を位置の順に並べるので <code>"dec"</code> です。古い順に読むなら、<code>start</code> の位置2から <code>c</code> <code>d</code> <code>e</code> の順になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
