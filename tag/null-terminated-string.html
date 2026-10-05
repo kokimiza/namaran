@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「ヌル終端文字列」を扱ったNamaranのコーディングドリル4問。UTF-8の切り詰め、継続バイト、文字境界、UTF-8 truncation、continuation byte、code point boundary。">
+<meta name="description" content="「ヌル終端文字列」を扱ったNamaranのコーディングドリル5問。冪等性キー、重複リクエストの検出、ポインタの保存、文字列のコピー、idempotency key、storing a pointer instead of copying a string。">
 <title>ヌル終端文字列</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/null-terminated-string">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>ヌル終端文字列</h2>
 
   <p class="lede">
-    「ヌル終端文字列」を扱った4問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「ヌル終端文字列」を扱った5問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/c/read/2026-10-06">C / READ · 2026-10-06</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">冪等キーの重複判定</span> <span class="past-concepts">冪等性キー, 重複リクエストの検出, ポインタの保存, 文字列のコピー, idempotency key, storing a pointer instead of copying a string</span></li>
     <li><a href="/c/write/2026-10-03">C / WRITE · 2026-10-03</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">先頭n文字のバイト数</span> <span class="past-concepts">UTF-8の切り詰め, 継続バイト, 文字境界, UTF-8 truncation, continuation byte, code point boundary</span></li>
     <li><a href="/c/read/2026-10-03">C / READ · 2026-10-03</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">naïveの長さを数える</span> <span class="past-concepts">UTF-8のバイト数, 文字数とバイト数, u8文字列リテラル, char8_t, UTF-8 byte length, string length in bytes</span></li>
     <li><a href="/c/debug/2026-10-03">C / DEBUG · 2026-10-03</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">文字列を角括弧で囲む</span> <span class="past-concepts">文字数とバイト数, mallocの大きさ, ヒープバッファオーバーフロー, heap buffer overflow, strlen vs character count</span></li>

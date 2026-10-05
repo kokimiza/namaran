@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="CSVを lines で行ごとに分けてから引用符を見て解析したため、引用符の中の改行で1行が2行に割れるRust 2024のドリル。改行が行の区切りかどうかは、引用符の中にいるかを知らないと決められない。">
+<title>行ごとに読むCSV</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-10-06">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-06" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-10-06",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-10-06",
+      "datePublished": "2026-10-06",
+      "dateModified": "2026-10-06",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "行ごとに読むCSV" },
+      "keywords": "csv, parsing, iterator, string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "CSVを lines で行ごとに分けてから引用符を見て解析したため、引用符の中の改行で1行が2行に割れるRust 2024のドリル。改行が行の区切りかどうかは、引用符の中にいるかを知らないと決められない。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-06">C23</a>
+  <a href="/cpp/debug/2026-10-06">C++26</a>
+  <a href="/rust/debug/2026-10-06" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-06">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-06">READ</a>
+  <a href="/rust/write/2026-10-06">WRITE</a>
+  <a href="/rust/debug/2026-10-06" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="行ごとに読むCSV"
+  data-tags="csv parsing iterator string"
+  data-concepts="CSVのフィールド内改行, 行単位の分割, lines, 引用符の状態, CSV embedded newline, splitting by lines"
+  data-level="peacock"
+>
+  <h2>2026-10-06</h2>
+  <div class="code-frame">
+    <p class="code-filename">rows.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">parse</span>(csv: &amp;<span class="ty">str</span>) -&gt; <span class="ty">Vec</span>&lt;<span class="ty">Vec</span>&lt;<span class="ty">String</span>&gt;&gt; {
+    csv.<span class="fn">lines</span>()
+        .<span class="fn">map</span>(|line| {
+            <span class="kw">let</span> (<span class="kw">mut</span> row, <span class="kw">mut</span> field, <span class="kw">mut</span> quoted) = (<span class="mc">vec!</span>[], <span class="ty">String</span>::<span class="fn">new</span>(), <span class="nu">false</span>);
+            <span class="kw">for</span> c <span class="kw">in</span> line.<span class="fn">chars</span>() {
+                <span class="kw">match</span> c {
+                    <span class="st">'"'</span> =&gt; quoted = !quoted,
+                    <span class="st">','</span> <span class="kw">if</span> !quoted =&gt; row.<span class="fn">push</span>(std::mem::<span class="fn">take</span>(&amp;<span class="kw">mut</span> field)),
+                    _ =&gt; field.<span class="fn">push</span>(c),
+                }
+            }
+            row.<span class="fn">push</span>(field);
+            row
+        })
+        .<span class="fn">collect</span>()
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> csv = <span class="st">"id,memo\n1,\"line1\nline2\"\n"</span>;
+    <span class="kw">for</span> row <span class="kw">in</span> <span class="fn">parse</span>(csv) { <span class="mc">println!</span>(<span class="st">"{row:?}"</span>); }
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>parse</code> は、引用符で囲んだフィールドの中のカンマと改行を区切りと見なさずに、CSVを行とフィールドに分けるつもりの関数です。各行は改行で終わります。入力は <code>main</code> の <code>csv</code> で、2行目の2つ目のフィールドは引用符の中で改行しています。いまは <code>["id", "memo"]</code>、<code>["1", "line1"]</code>、<code>["line2"]</code> の3行が出ます。本来は <code>["id", "memo"]</code> と <code>["1", "line1\nline2"]</code> の2行が出るはずです。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code>    csv.<span class="fn">lines</span>()
+        .<span class="fn">map</span>(|line| {
+            <span class="kw">let</span> (<span class="kw">mut</span> row, <span class="kw">mut</span> field, <span class="kw">mut</span> quoted) = (<span class="mc">vec!</span>[], <span class="ty">String</span>::<span class="fn">new</span>(), <span class="nu">false</span>);
+            <span class="kw">for</span> c <span class="kw">in</span> line.<span class="fn">chars</span>() {
+</code></pre>
+      <p>
+        <code>lines</code> は引用符を見ずに、すべての改行で文字列を切ります。<code>"line1\nline2"</code> の中の改行もここで切られ、<code>1,"line1</code> と <code>line2"</code> が別々の行としてクロージャに渡ります。
+      </p>
+      <p>
+        <code>quoted</code> はクロージャの中で行ごとに <code>false</code> から作り直されるので、引用符の中にいるという状態も次の行へ引き継がれません。<code>1,"line1</code> は開いた引用符を閉じないまま <code>["1", "line1"]</code> になり、<code>line2"</code> は閉じるための引用符を開く引用符として読んで <code>["line2"]</code> になります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">parse</span>(csv: &amp;<span class="ty">str</span>) -&gt; <span class="ty">Vec</span>&lt;<span class="ty">Vec</span>&lt;<span class="ty">String</span>&gt;&gt; {
+    <span class="kw">let</span> (<span class="kw">mut</span> rows, <span class="kw">mut</span> row, <span class="kw">mut</span> field, <span class="kw">mut</span> quoted) = (<span class="mc">vec!</span>[], <span class="mc">vec!</span>[], <span class="ty">String</span>::<span class="fn">new</span>(), <span class="nu">false</span>);
+    <span class="kw">for</span> c <span class="kw">in</span> csv.<span class="fn">chars</span>() {
+        <span class="kw">match</span> c {
+            <span class="st">'"'</span> =&gt; quoted = !quoted,
+            <span class="st">','</span> <span class="kw">if</span> !quoted =&gt; row.<span class="fn">push</span>(std::mem::<span class="fn">take</span>(&amp;<span class="kw">mut</span> field)),
+            <span class="st">'\n'</span> <span class="kw">if</span> !quoted =&gt; {
+                row.<span class="fn">push</span>(std::mem::<span class="fn">take</span>(&amp;<span class="kw">mut</span> field));
+                rows.<span class="fn">push</span>(std::mem::<span class="fn">take</span>(&amp;<span class="kw">mut</span> row));
+            }
+            _ =&gt; field.<span class="fn">push</span>(c),
+        }
+    }
+    rows
+}
+</code></pre>
+      <p>
+        文字列全体を1つのループで読み、<code>quoted</code> を行をまたいで持ち続けます。改行は引用符の外にあるときだけ行の区切りになり、中にある改行は <code>_</code> の腕でフィールドに入ります。<code>"line1\nline2"</code> は1つのフィールドのまま残り、2行目は <code>["1", "line1\nline2"]</code> になります<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>直した <code>parse</code> は各行が改行で終わる前提で、最後の行に改行がなければその行を返しません。ループのあとに残ったフィールドと行を足せば、改行で終わらない入力も読めます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

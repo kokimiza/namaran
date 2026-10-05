@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="accumArray で最小素因数の表を作るつもりが、上書きする関数を渡したために、どの数も自分自身を最小素因数として持ってしまうHaskell 2010のドリル。同じ添字に集まった値は、リストの順に結合関数でまとめられる。">
+<title>最小素因数の表を作る</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-10-06">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-06" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-10-06",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-10-06",
+      "datePublished": "2026-10-06",
+      "dateModified": "2026-10-06",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "最小素因数の表を作る" },
+      "keywords": "prime-factorization, array, sieve-of-eratosthenes",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "accumArray で最小素因数の表を作るつもりが、上書きする関数を渡したために、どの数も自分自身を最小素因数として持ってしまうHaskell 2010のドリル。同じ添字に集まった値は、リストの順に結合関数でまとめられる。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-06">C23</a>
+  <a href="/cpp/debug/2026-10-06">C++26</a>
+  <a href="/rust/debug/2026-10-06">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-06" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-06">READ</a>
+  <a href="/haskell/write/2026-10-06">WRITE</a>
+  <a href="/haskell/debug/2026-10-06" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="最小素因数の表を作る"
+  data-tags="prime-factorization array sieve-of-eratosthenes"
+  data-concepts="最小素因数の表, エラトステネスの篩, accumArray, 結合関数, smallest prime factor sieve, accumArray combining function"
+  data-level="hedgehog"
+>
+  <h2>2026-10-06</h2>
+  <div class="code-frame">
+    <p class="code-filename">Factor.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Data.Array</span>
+
+<span class="fn">limit</span> <span class="op">::</span> <span class="ty">Int</span>
+<span class="fn">limit</span> = <span class="nu">100</span>
+
+<span class="fn">spf</span> <span class="op">::</span> <span class="ty">Array</span> <span class="ty">Int</span> <span class="ty">Int</span>
+<span class="fn">spf</span> = accumArray (\_ p <span class="op">-&gt;</span> p) <span class="nu">0</span> (<span class="nu">2</span>, limit) [(m, p) | p <span class="op">&lt;-</span> [<span class="nu">2</span> .. limit], m <span class="op">&lt;-</span> [p, <span class="nu">2</span> * p .. limit]]
+
+<span class="fn">factor</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> [<span class="ty">Int</span>]
+<span class="fn">factor</span> <span class="nu">1</span> = []
+<span class="fn">factor</span> n = p : factor (n `div` p) <span class="kw">where</span> p = spf ! n
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (map factor [<span class="nu">12</span>, <span class="nu">30</span>, <span class="nu">49</span>])
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>spf</code> は2から100までの各数の最小素因数の表、<code>factor</code> はその表を引いて素因数を小さい順に並べるつもりの関数です。引数も標準入力も使わず、<code>main</code> が <code>12</code>、<code>30</code>、<code>49</code> を分解します。いまは <code>[[12],[30],[49]]</code> が出ます。本来は <code>[[2,2,3],[2,3,5],[7,7]]</code> が出るはずです。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="fn">spf</span> = accumArray (\_ p <span class="op">-&gt;</span> p) <span class="nu">0</span> (<span class="nu">2</span>, limit) [(m, p) | p <span class="op">&lt;-</span> [<span class="nu">2</span> .. limit], m <span class="op">&lt;-</span> [p, <span class="nu">2</span> * p .. limit]]
+</code></pre>
+      <p>
+        <code>accumArray f z</code> は各添字の値を <code>z</code> から始め、その添字に集まった値をリストの順に <code>f</code> で結合します。<code>\_ p -&gt; p</code> は前の値を捨てて新しい値を取るので、表に残るのはリストで最後に現れた値です。
+      </p>
+      <p>
+        リストは <code>p</code> の小さい順に作られるので、添字 <code>12</code> には 2, 3, 4, 6, 12 の順に値が集まり、最後の <code>12</code> が残ります。どの添字でも最後に来るのは <code>p = m</code> の組なので、表のすべての数が自分自身を最小素因数として持ちます。<code>factor 12</code> は <code>12 : factor 1</code> となり、<code>[12]</code> です。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="fn">spf</span> = accumArray min limit (<span class="nu">2</span>, limit) [(m, p) | p <span class="op">&lt;-</span> [<span class="nu">2</span> .. limit], m <span class="op">&lt;-</span> [p, <span class="nu">2</span> * p .. limit]]
+</code></pre>
+      <p>
+        <code>min</code> で結合すれば、値が集まる順番に関係なく一番小さい約数が残ります。<code>m</code> の1より大きい最小の約数は必ず素数なので、表の値が最小素因数になります。初期値の <code>limit</code> は、どの添字 <code>m</code> にも <code>limit</code> 以下の <code>p = m</code> が集まるので、結果には残りません<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>手続き型の言語では、配列の要素がまだ0のときだけ <code>p</code> を書き込む形で同じ表を作ります。結合関数を <code>\old p -&gt; if old == 0 then p else old</code> にすれば、<code>accumArray</code> でも同じ書き方になります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

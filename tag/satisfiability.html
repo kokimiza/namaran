@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「充足可能性問題」を扱ったNamaranのコーディングドリル6問。SAT、全探索、impl Trait、戻り値のimpl Iterator、ライフタイムのキャプチャ、Rust 2024。">
+<meta name="description" content="「充足可能性問題」を扱ったNamaranのコーディングドリル9問。CNFの簡約、部分割り当て、DPLL、単位伝播、CNF simplification、assigning a literal。">
 <title>充足可能性問題</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/satisfiability">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>充足可能性問題</h2>
 
   <p class="lede">
-    「充足可能性問題」を扱った6問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「充足可能性問題」を扱った9問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/cpp/write/2026-10-06">C++ / WRITE · 2026-10-06</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">変数を決めて式を縮める</span> <span class="past-concepts">CNFの簡約, 部分割り当て, DPLL, 単位伝播, CNF simplification, assigning a literal</span></li>
+    <li><a href="/cpp/read/2026-10-06">C++ / READ · 2026-10-06</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">ビットで総当たりするSAT</span> <span class="past-concepts">SAT, 充足可能性問題, CNF, 連言標準形, ビット全探索, boolean satisfiability, brute force over bitmasks</span></li>
+    <li><a href="/cpp/debug/2026-10-06">C++ / DEBUG · 2026-10-06</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">再帰で探すSATソルバ</span> <span class="past-concepts">SATソルバ, バックトラック, 割り当ての巻き戻し, 枝刈り, backtracking SAT solver, undo on backtrack</span></li>
     <li><a href="/rust/write/2026-09-28">Rust / WRITE · 2026-09-28</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">充足割当を返すイテレータ</span> <span class="past-concepts">SAT, 全探索, impl Trait, 戻り値のimpl Iterator, ライフタイムのキャプチャ, Rust 2024, return position impl trait, lifetime capture, lazy iterator</span></li>
     <li><a href="/rust/read/2026-09-28">Rust / READ · 2026-09-28</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">最初に見つかる充足割当</span> <span class="past-concepts">SAT, 充足可能性, CNF, 全探索, ビットマスク, 2進数の書式, brute-force SAT, bitmask assignment, binary format</span></li>
     <li><a href="/rust/debug/2026-09-28">Rust / DEBUG · 2026-09-28</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">解の個数を数えるSAT</span> <span class="past-concepts">SAT, CNF, 充足する割り当ての数, any と all, モデル数え上げ, model counting, conjunctive normal form, Iterator::any</span></li>

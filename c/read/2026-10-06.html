@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="受信バッファに入れた冪等性キーを、ポインタのまま表に記録して重複を判定するC23のドリル。表に残るのは文字列の中身ではなくバッファの位置なので、次のキーを受け取ると記録の中身も変わる。">
+<title>冪等キーの重複判定</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-10-06">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-06" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-10-06",
+      "url": "https://namaran.jocarium.productions/c/read/2026-10-06",
+      "datePublished": "2026-10-06",
+      "dateModified": "2026-10-06",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "冪等キーの重複判定" },
+      "keywords": "idempotency, deduplication, pointer, null-terminated-string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "受信バッファに入れた冪等性キーを、ポインタのまま表に記録して重複を判定するC23のドリル。表に残るのは文字列の中身ではなくバッファの位置なので、次のキーを受け取ると記録の中身も変わる。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-06" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-10-06">C++26</a>
+  <a href="/rust/read/2026-10-06">Rust 2024</a>
+  <a href="/haskell/read/2026-10-06">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-06" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-10-06">WRITE</a>
+  <a href="/c/debug/2026-10-06">DEBUG</a>
+</nav>
+
+<main
+  data-topic="冪等キーの重複判定"
+  data-tags="idempotency deduplication pointer null-terminated-string"
+  data-concepts="冪等性キー, 重複リクエストの検出, ポインタの保存, 文字列のコピー, idempotency key, storing a pointer instead of copying a string"
+  data-level="bison"
+>
+  <h2>2026-10-06</h2>
+  <div class="code-frame">
+    <p class="code-filename">dedup.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string.h&gt;</span>
+
+<span class="kw">static</span> <span class="kw">const</span> <span class="ty">char</span> *seen[<span class="nu">8</span>];
+<span class="kw">static</span> <span class="ty">int</span> nseen;
+
+<span class="kw">static</span> <span class="ty">int</span> <span class="fn">is_new</span>(<span class="kw">const</span> <span class="ty">char</span> *key) {
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; nseen; i++)
+        <span class="kw">if</span> (<span class="fn">strcmp</span>(seen[i], key) == <span class="nu">0</span>) <span class="kw">return</span> <span class="nu">0</span>;
+    seen[nseen++] = key;
+    <span class="kw">return</span> <span class="nu">1</span>;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="kw">const</span> <span class="ty">char</span> *incoming[] = { <span class="st">"a1"</span>, <span class="st">"b2"</span>, <span class="st">"a1"</span>, <span class="st">"c3"</span> };
+    <span class="ty">char</span> buf[<span class="nu">8</span>];
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; <span class="nu">4</span>; i++) {
+        <span class="fn">strcpy</span>(buf, incoming[i]);
+        <span class="fn">puts</span>(<span class="fn">is_new</span>(buf) ? buf : <span class="st">"-"</span>);
+    }
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>a1</code>、<code>-</code>、<code>-</code>、<code>-</code> の4行です。
+      </p>
+      <p>
+        <code>is_new</code> は新しいキーを <code>seen[nseen++] = key;</code> で記録しますが、写しているのは <code>key</code> というポインタの値、つまり <code>main</code> の <code>buf</code> の先頭アドレスです。文字列の中身は写していません。1回目の呼び出しで <code>seen[0]</code> が <code>buf</code> を指すようになり、<code>a1</code> は新しいキーとして出力されます。
+      </p>
+      <p>
+        2回目は、<code>strcpy</code> が <code>buf</code> を <code>b2</code> で上書きしてから <code>is_new(buf)</code> を呼びます。<code>seen[0]</code> も同じ <code>buf</code> を指しているので、<code>strcmp(seen[0], key)</code> は <code>b2</code> と <code>b2</code> を比べて0を返し、<code>b2</code> は処理済みと判定されます。3回目の <code>a1</code> と4回目の <code>c3</code> も、表にある唯一の記録が常にいま受け取ったキーそのものなので、どちらも <code>-</code> になります。
+      </p>
+      <p>
+        この表は、一度記録が入るとそれ以降のキーをすべて重複として扱い、再送だけでなく新しい要求まで捨ててしまいます。キーの中身を残すには、<code>seen</code> を <code>char seen[8][8]</code> にして <code>strcpy(seen[nseen++], key)</code> で写すか、<code>strdup</code> で複製します<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li><code>strdup</code> は長く POSIX の関数でしたが、C23 で標準ライブラリに加わりました。複製した文字列は、使い終わったら <code>free</code> で解放します。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

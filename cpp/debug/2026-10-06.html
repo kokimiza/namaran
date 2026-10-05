@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="変数に真と偽を順に割り当てて論理式を満たす組を探す再帰のSATソルバが、満たせる式を満たせないと答えるC++26のドリル。後戻りするときに割り当てを未定に戻さないと、次の枝の枝刈りが前の枝の値を読む。">
+<title>再帰で探すSATソルバ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-10-06">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-06" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-10-06",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-10-06",
+      "datePublished": "2026-10-06",
+      "dateModified": "2026-10-06",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "再帰で探すSATソルバ" },
+      "keywords": "satisfiability, backtracking, recursion, reference",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "変数に真と偽を順に割り当てて論理式を満たす組を探す再帰のSATソルバが、満たせる式を満たせないと答えるC++26のドリル。後戻りするときに割り当てを未定に戻さないと、次の枝の枝刈りが前の枝の値を読む。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-06">C23</a>
+  <a href="/cpp/debug/2026-10-06" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-10-06">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-06">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-06">READ</a>
+  <a href="/cpp/write/2026-10-06">WRITE</a>
+  <a href="/cpp/debug/2026-10-06" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="再帰で探すSATソルバ"
+  data-tags="satisfiability backtracking recursion reference"
+  data-concepts="SATソルバ, バックトラック, 割り当ての巻き戻し, 枝刈り, backtracking SAT solver, undo on backtrack"
+  data-level="bison"
+>
+  <h2>2026-10-06</h2>
+  <div class="code-frame">
+    <p class="code-filename">solver.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;algorithm&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;cstdlib&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;print&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+
+<span class="ty">bool</span> <span class="fn">solve</span>(<span class="kw">const</span> std::<span class="ty">vector</span>&lt;std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt;&gt;&amp; cnf, std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt;&amp; val, <span class="ty">int</span> var) {
+    <span class="kw">for</span> (<span class="kw">const</span> <span class="kw">auto</span>&amp; clause : cnf)
+        <span class="kw">if</span> (std::ranges::<span class="fn">all_of</span>(clause, [&amp;](<span class="ty">int</span> lit) { <span class="kw">return</span> val[std::<span class="fn">abs</span>(lit)] * lit &lt; <span class="nu">0</span>; }))
+            <span class="kw">return</span> <span class="nu">false</span>;
+    <span class="kw">if</span> (var == std::<span class="fn">ssize</span>(val)) <span class="kw">return</span> <span class="nu">true</span>;
+    <span class="kw">for</span> (<span class="ty">int</span> v : {<span class="nu">1</span>, -<span class="nu">1</span>}) {
+        val[var] = v;
+        <span class="kw">if</span> (<span class="fn">solve</span>(cnf, val, var + <span class="nu">1</span>)) <span class="kw">return</span> <span class="nu">true</span>;
+    }
+    <span class="kw">return</span> <span class="nu">false</span>;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt; <span class="fn">val</span>(<span class="nu">3</span>);
+    std::<span class="fn">println</span>(<span class="st">"{}"</span>, <span class="fn">solve</span>({{<span class="nu">1</span>, <span class="nu">2</span>}, {-<span class="nu">1</span>, -<span class="nu">2</span>}, {-<span class="nu">1</span>, <span class="nu">2</span>}}, val, <span class="nu">1</span>));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>solve</code> は、変数 x1, x2, … に真(<code>1</code>)と偽(<code>-1</code>)を順に割り当て、CNFの論理式を満たす組を探すつもりの関数です。<code>val</code> の添字は変数の番号で、まだ決めていない変数の値は <code>0</code> です。どれかの節のリテラルがすべて偽になった時点で、その枝を打ち切ります。引数も標準入力も使わず、式は (x1 ∨ x2) ∧ (¬x1 ∨ ¬x2) ∧ (¬x1 ∨ x2) です。いまは <code>false</code> が出ます。x1 を偽、x2 を真にすれば満たせるので、本来は <code>true</code> が出るはずです。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code>    <span class="kw">for</span> (<span class="ty">int</span> v : {<span class="nu">1</span>, -<span class="nu">1</span>}) {
+        val[var] = v;
+        <span class="kw">if</span> (<span class="fn">solve</span>(cnf, val, var + <span class="nu">1</span>)) <span class="kw">return</span> <span class="nu">true</span>;
+    }
+    <span class="kw">return</span> <span class="nu">false</span>;
+</code></pre>
+      <p>
+        x1 を真にした枝では、x2 を真にすると (¬x1 ∨ ¬x2) が、偽にすると (¬x1 ∨ x2) が偽になり、どちらも打ち切られます。この <code>solve(cnf, val, 2)</code> は <code>false</code> を返しますが、<code>val[2]</code> は最後に試した <code>-1</code> のまま残ります。
+      </p>
+      <p>
+        呼び出し元に戻って x1 を偽にし、<code>solve(cnf, val, 2)</code> を呼び直すと、関数の先頭の枝刈りが、まだ決めていないはずの x2 を読みます。<code>val</code> は参照で共有されているので、そこには前の枝の <code>-1</code> が残っています。x1 も x2 も偽と見なされて (x1 ∨ x2) が偽になり、x2 を試す前にこの枝も打ち切られます。満たせる式なのに、<code>false</code> が返ります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code>    <span class="kw">for</span> (<span class="ty">int</span> v : {<span class="nu">1</span>, -<span class="nu">1</span>}) {
+        val[var] = v;
+        <span class="kw">if</span> (<span class="fn">solve</span>(cnf, val, var + <span class="nu">1</span>)) <span class="kw">return</span> <span class="nu">true</span>;
+    }
+    val[var] = <span class="nu">0</span>;
+    <span class="kw">return</span> <span class="nu">false</span>;
+</code></pre>
+      <p>
+        どちらの値でも失敗したら、戻る前に <code>val[var]</code> を <code>0</code> に戻します。これで <code>solve(cnf, val, var)</code> が呼ばれた時点では、<code>var</code> 以降の変数が必ず未定になり、枝刈りが読むのはいまの枝で決めた値だけです。x1 を偽にした枝で x2 を真にした割り当てまで進み、<code>true</code> が返ります<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li><code>val</code> を値渡しにして枝ごとに複製しても直りますが、呼び出しのたびに配列を写すことになります。共有した状態を、戻るときに元に戻すのがバックトラックでよく使う形です。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

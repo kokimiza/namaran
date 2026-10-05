@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="CNFの論理式で1つのリテラルを真に決めたとき、満たされた節を取り除き、偽になったリテラルを各節から消す関数を書くC++26のドリル。DPLL法のSATソルバが変数を決めるたびに行う簡約である。">
+<title>変数を決めて式を縮める</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-10-06">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-06" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-10-06",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-10-06",
+      "datePublished": "2026-10-06",
+      "dateModified": "2026-10-06",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "変数を決めて式を縮める" },
+      "keywords": "satisfiability, vector, boolean-algebra",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "CNFの論理式で1つのリテラルを真に決めたとき、満たされた節を取り除き、偽になったリテラルを各節から消す関数を書くC++26のドリル。DPLL法のSATソルバが変数を決めるたびに行う簡約である。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-06">C23</a>
+  <a href="/cpp/write/2026-10-06" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-10-06">Rust 2024</a>
+  <a href="/haskell/write/2026-10-06">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-06">READ</a>
+  <a href="/cpp/write/2026-10-06" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-10-06">DEBUG</a>
+</nav>
+
+<main
+  data-topic="変数を決めて式を縮める"
+  data-tags="satisfiability vector boolean-algebra"
+  data-concepts="CNFの簡約, 部分割り当て, DPLL, 単位伝播, CNF simplification, assigning a literal"
+  data-level="hedgehog"
+>
+  <h2>2026-10-06</h2>
+  <div class="code-frame">
+    <p class="code-filename">assign.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+
+<span class="kw">using</span> <span class="ty">Clause</span> = std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt;;
+
+std::<span class="ty">vector</span>&lt;<span class="ty">Clause</span>&gt; <span class="fn">assign</span>(<span class="kw">const</span> std::<span class="ty">vector</span>&lt;<span class="ty">Clause</span>&gt;&amp; cnf, <span class="ty">int</span> lit) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    論理式はCNFで、<code>std::vector&lt;Clause&gt;</code> の各要素が節、節の中の整数がリテラルです。<code>3</code> は変数 x3 を、<code>-3</code> はその否定を表します。リテラル <code>lit</code> を真に決めたあとの式を返す <code>assign</code> を書いてください。<code>lit</code> を含む節は満たされたので取り除き、<code>-lit</code> は偽になったので各節から消します。節の順番と節の中のリテラルの順番は変えず、リテラルがすべて消えた節は空の節として残します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>assign({{1, 2}, {-1, 3}, {-2}}, 1)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>{{3}, {-2}}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>assign({{1, -2}, {2, 3}}, -2)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>{{3}}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>assign({{-1}, {2}}, 1)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>{{}, {2}}</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;algorithm&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;iterator&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+
+<span class="kw">using</span> <span class="ty">Clause</span> = std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt;;
+
+std::<span class="ty">vector</span>&lt;<span class="ty">Clause</span>&gt; <span class="fn">assign</span>(<span class="kw">const</span> std::<span class="ty">vector</span>&lt;<span class="ty">Clause</span>&gt;&amp; cnf, <span class="ty">int</span> lit) {
+    std::<span class="ty">vector</span>&lt;<span class="ty">Clause</span>&gt; out;
+    <span class="kw">for</span> (<span class="kw">const</span> <span class="kw">auto</span>&amp; clause : cnf) {
+        <span class="kw">if</span> (std::ranges::<span class="fn">contains</span>(clause, lit)) <span class="kw">continue</span>;
+        <span class="ty">Clause</span> rest;
+        std::ranges::<span class="fn">remove_copy</span>(clause, std::<span class="fn">back_inserter</span>(rest), -lit);
+        out.<span class="fn">push_back</span>(rest);
+    }
+    <span class="kw">return</span> out;
+}
+</code></pre>
+      <p>
+        参考実装は節ごとに2通りに分けます。<code>lit</code> を含む節は <code>std::ranges::contains</code> で見つけて飛ばし、それ以外の節は <code>std::ranges::remove_copy</code> で <code>-lit</code> だけを除いて写します。入力例3では、<code>{-1}</code> から <code>-1</code> を除くと何も残らず、空の節 <code>{}</code> になります。空の節はどんな割り当てでも満たせないので、ソルバはこれを見て、<code>lit</code> を真にした選択が矛盾したと判断できます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>std::ranges::contains</code> は C++23 で加わった関数で、それより前の規格では <code>std::ranges::find(clause, lit) != clause.end()</code> と書きます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

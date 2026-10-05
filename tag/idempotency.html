@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「冪等性」を扱ったNamaranのコーディングドリル1問。途中で失敗した更新、部分的な書き込み、失敗後の再試行、検証してから書き込む、partial update、retry after failure。">
+<meta name="description" content="「冪等性」を扱ったNamaranのコーディングドリル4問。冪等性キー、重複リクエストの検出、二重処理の防止、idempotency key、duplicate request detection、ポインタの保存。">
 <title>冪等性</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/idempotency">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>冪等性</h2>
 
   <p class="lede">
-    「冪等性」を扱った1問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「冪等性」を扱った4問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/c/write/2026-10-06">C / WRITE · 2026-10-06</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">初めてのキーだけ通す</span> <span class="past-concepts">冪等性キー, 重複リクエストの検出, 二重処理の防止, idempotency key, duplicate request detection</span></li>
+    <li><a href="/c/read/2026-10-06">C / READ · 2026-10-06</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">冪等キーの重複判定</span> <span class="past-concepts">冪等性キー, 重複リクエストの検出, ポインタの保存, 文字列のコピー, idempotency key, storing a pointer instead of copying a string</span></li>
+    <li><a href="/c/debug/2026-10-06">C / DEBUG · 2026-10-06</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">失敗した決済の再送</span> <span class="past-concepts">冪等性キー, 再送, リトライ, 二重決済の防止, idempotency key, retry after failure</span></li>
     <li><a href="/c/debug/2026-10-01">C / DEBUG · 2026-10-01</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">やり直すと二重に掛かる</span> <span class="past-concepts">途中で失敗した更新, 部分的な書き込み, 失敗後の再試行, 検証してから書き込む, partial update, retry after failure, validate then commit</span></li>
   </ul>
 

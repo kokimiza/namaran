@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「構造体」を扱ったNamaranのコーディングドリル8問。LWWレジスタ、導出されたOrd、フィールド順の辞書式比較、統合の可換性、last-writer-wins register、derive Ord。">
+<meta name="description" content="「構造体」を扱ったNamaranのコーディングドリル9問。冪等性キー、重複リクエストの検出、二重処理の防止、idempotency key、duplicate request detection、LWWレジスタ。">
 <title>構造体</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/struct">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>構造体</h2>
 
   <p class="lede">
-    「構造体」を扱った8問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「構造体」を扱った9問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/c/write/2026-10-06">C / WRITE · 2026-10-06</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">初めてのキーだけ通す</span> <span class="past-concepts">冪等性キー, 重複リクエストの検出, 二重処理の防止, idempotency key, duplicate request detection</span></li>
     <li><a href="/rust/read/2026-10-04">Rust / READ · 2026-10-04</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">同じ時刻の書き込み</span> <span class="past-concepts">LWWレジスタ, 導出されたOrd, フィールド順の辞書式比較, 統合の可換性, last-writer-wins register, derive Ord</span></li>
     <li><a href="/cpp/write/2026-09-30">C++ / WRITE · 2026-09-30</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">同時刻の予定を残す比較</span> <span class="past-concepts">std::set, 比較関数, std::tie, 辞書式比較, 同じ時刻の予定, comparator, lexicographic comparison, tie-breaker</span></li>
     <li><a href="/c/write/2026-09-28">C / WRITE · 2026-09-28</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">devとinoで同一判定</span> <span class="past-concepts">ファイルの同一性, 訪問済みの記録, st_dev と st_ino, inode番号, file identity, visited set, device and inode</span></li>
