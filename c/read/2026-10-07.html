@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="XORで2文字を入れ替える関数を使い、文字列をその場で2回反転するC23のドリル。奇数長の文字列では中央の文字が自分自身と交換されて0になり、その0が文字列の終わりとして2回目の反転とputsに効いてくる。">
+<title>2回反転した文字列</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-10-07">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-07" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-10-07",
+      "url": "https://namaran.jocarium.productions/c/read/2026-10-07",
+      "datePublished": "2026-10-07",
+      "dateModified": "2026-10-07",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "2回反転した文字列" },
+      "keywords": "swap, bit-operation, aliasing, null-terminated-string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "XORで2文字を入れ替える関数を使い、文字列をその場で2回反転するC23のドリル。奇数長の文字列では中央の文字が自分自身と交換されて0になり、その0が文字列の終わりとして2回目の反転とputsに効いてくる。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-07" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-10-07">C++26</a>
+  <a href="/rust/read/2026-10-07">Rust 2024</a>
+  <a href="/haskell/read/2026-10-07">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-07" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-10-07">WRITE</a>
+  <a href="/c/debug/2026-10-07">DEBUG</a>
+</nav>
+
+<main
+  data-topic="2回反転した文字列"
+  data-tags="swap bit-operation aliasing null-terminated-string"
+  data-concepts="XORによる値の交換, 自分自身との交換, 文字列の反転, ヌル終端, XOR swap, self swap, reverse a string in place"
+  data-level="whale"
+>
+  <h2>2026-10-07</h2>
+  <div class="code-frame">
+    <p class="code-filename">reverse.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string.h&gt;</span>
+
+<span class="kw">static</span> <span class="ty">void</span> <span class="fn">xor_swap</span>(<span class="ty">char</span> *a, <span class="ty">char</span> *b) {
+    *a ^= *b;
+    *b ^= *a;
+    *a ^= *b;
+}
+
+<span class="kw">static</span> <span class="ty">void</span> <span class="fn">reverse</span>(<span class="ty">char</span> *s) {
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>, j = (<span class="ty">int</span>)<span class="fn">strlen</span>(s) - <span class="nu">1</span>; i &lt;= j; i++, j--)
+        <span class="fn">xor_swap</span>(&amp;s[i], &amp;s[j]);
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="ty">char</span> s[] = <span class="st">"abcde"</span>;
+    <span class="fn">reverse</span>(s);
+    <span class="fn">reverse</span>(s);
+    <span class="fn">puts</span>(s);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>de</code> です。
+      </p>
+      <p>
+        1回目の <code>reverse</code> では <code>strlen(s)</code> が5なので、<code>(i, j)</code> は <code>(0, 4)</code>、<code>(1, 3)</code>、<code>(2, 2)</code> と進みます。最初の2組で両端の文字が入れ替わり、3組目では <code>xor_swap</code> が同じ <code>s[2]</code> を指すポインタを2つ受け取ります。すると1行目の <code>*a ^= *b</code> は <code>s[2] ^= s[2]</code> になり、同じ値どうしのXORで <code>s[2]</code> は0になります。残りの2行も0と0のXORなので0のままで、<code>s</code> の中身は <code>'e' 'd' '\0' 'b' 'a' '\0'</code> になります。
+      </p>
+      <p>
+        2回目の <code>reverse</code> が呼ぶ <code>strlen(s)</code> は、最初の <code>'\0'</code> までの文字数を数えるので2を返します。入れ替えるのは <code>(0, 1)</code> の1組だけで、先頭の2文字が <code>'d' 'e'</code> に戻ったところでループは終わります。長さが偶数なので <code>i</code> と <code>j</code> は重ならず、今度は文字が消えません。
+      </p>
+      <p>
+        <code>puts</code> も <code>'\0'</code> の手前までを出力するので、表示されるのは <code>de</code> だけです。配列の後ろには <code>ba</code> が残っていますが、<code>'\0'</code> より後ろは文字列として扱われません。
+      </p>
+      <p>
+        条件を <code>i &lt; j</code> にすれば中央の文字は交換されず、2回の反転で <code>abcde</code> に戻ります。一時変数を使う交換なら、同じ場所どうしを交換しても値は変わりません<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>XORによる交換は、一時変数のためのレジスタやメモリを惜しんだ時代の技法です。今のコンパイラは一時変数を使った交換をレジスタだけで済ませるので、XORで書いても速くはなりません。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="同じメールアドレスの二重登録を断り、先に登録した方を残す関数を、foldr で申し込みの一覧に順に適用するHaskell 2010のドリル。foldr はリストの右端の要素から順に関数を適用する。">
+<title>右から届く申し込み</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-10-07">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-07" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-10-07",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-10-07",
+      "datePublished": "2026-10-07",
+      "dateModified": "2026-10-07",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "右から届く申し込み" },
+      "keywords": "fold, ordered-map, deduplication",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "同じメールアドレスの二重登録を断り、先に登録した方を残す関数を、foldr で申し込みの一覧に順に適用するHaskell 2010のドリル。foldr はリストの右端の要素から順に関数を適用する。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-07">C23</a>
+  <a href="/cpp/read/2026-10-07">C++26</a>
+  <a href="/rust/read/2026-10-07">Rust 2024</a>
+  <a href="/haskell/read/2026-10-07" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-07" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-10-07">WRITE</a>
+  <a href="/haskell/debug/2026-10-07">DEBUG</a>
+</nav>
+
+<main
+  data-topic="右から届く申し込み"
+  data-tags="fold ordered-map deduplication"
+  data-concepts="foldrの適用順, 先着順の一意制約, Data.Map, 二重登録の防止, foldr evaluation order, unique constraint, first registration wins"
+  data-level="bison"
+>
+  <h2>2026-10-07</h2>
+  <div class="code-frame">
+    <p class="code-filename">Signup.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="kw">qualified</span> <span class="ty">Data.Map</span> <span class="kw">as</span> <span class="ty">Map</span>
+
+<span class="fn">register</span> <span class="op">::</span> (<span class="ty">String</span>, <span class="ty">Int</span>) <span class="op">-&gt;</span> <span class="ty">Map.Map</span> <span class="ty">String</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Map.Map</span> <span class="ty">String</span> <span class="ty">Int</span>
+<span class="fn">register</span> (email, uid) db
+  | <span class="ty">Map</span>.member email db = db
+  | otherwise = <span class="ty">Map</span>.insert email uid db
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (<span class="ty">Map</span>.toList (foldr register <span class="ty">Map</span>.empty signups))
+  <span class="kw">where</span> signups = [(<span class="st">"bob"</span>, <span class="nu">1</span>), (<span class="st">"ann"</span>, <span class="nu">2</span>), (<span class="st">"bob"</span>, <span class="nu">3</span>), (<span class="st">"ann"</span>, <span class="nu">4</span>)]
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>[("ann",4),("bob",3)]</code> です。
+      </p>
+      <p>
+        <code>register</code> は、同じアドレスがすでに <code>db</code> にあれば <code>db</code> をそのまま返し、なければ登録します。どのアドレスについても、先に <code>register</code> された申し込みが残り、あとから来たものは断られます。
+      </p>
+      <p>
+        どの申し込みが先に <code>register</code> されるかは、<code>foldr</code> の展開で決まります。<code>foldr register Map.empty signups</code> を展開すると <code>register ("bob",1) (register ("ann",2) (register ("bob",3) (register ("ann",4) Map.empty)))</code> になります。空の <code>Map</code> に最初に適用されるのは、一番内側にあるリストの最後の <code>("ann",4)</code> で、そのあと <code>("bob",3)</code> が登録されます。<code>("ann",2)</code> と <code>("bob",1)</code> が来た時点では、どちらのアドレスも登録済みなので断られます。リストを左から読んで、<code>1</code> と <code>2</code> が残ると考えると間違えます。
+      </p>
+      <p>
+        最後に <code>Map.toList</code> は、登録した順ではなくキーの昇順に並べるので、<code>"ann"</code> が <code>"bob"</code> より前に来ます。リストの先頭から順に登録したいなら、<code>foldl (flip register) Map.empty signups</code> のように左から畳み込みます。こうすると <code>[("ann",2),("bob",1)]</code> になります<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>実際に畳み込むなら、<code>Data.List</code> の <code>foldl'</code> を使います。<code>foldl</code> は途中の <code>Map</code> を作る計算を評価せずに積み上げるので、長いリストではメモリを無駄に使います。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

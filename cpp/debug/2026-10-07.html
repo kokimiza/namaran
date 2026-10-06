@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="大域変数のデストラクタが、関数内 static の監査ログに記録を足すC++26のドリル。関数内 static は初めて呼ばれたときに構築されるので、大域変数より後に構築され、先に破棄される。">
+<title>先に消える監査ログ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-10-07">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-07" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-10-07",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-10-07",
+      "datePublished": "2026-10-07",
+      "dateModified": "2026-10-07",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "先に消える監査ログ" },
+      "keywords": "static-storage, destructor, lifetime, initialization-order",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "大域変数のデストラクタが、関数内 static の監査ログに記録を足すC++26のドリル。関数内 static は初めて呼ばれたときに構築されるので、大域変数より後に構築され、先に破棄される。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-07">C23</a>
+  <a href="/cpp/debug/2026-10-07" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-10-07">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-07">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-07">READ</a>
+  <a href="/cpp/write/2026-10-07">WRITE</a>
+  <a href="/cpp/debug/2026-10-07" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="先に消える監査ログ"
+  data-tags="static-storage destructor lifetime initialization-order"
+  data-concepts="静的変数の破棄順序, 関数内static, Construct On First Use, 寿命の尽きたオブジェクト, static destruction order, function-local static"
+  data-level="peacock"
+>
+  <h2>2026-10-07</h2>
+  <div class="code-frame">
+    <p class="code-filename">audit.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+
+<span class="kw">struct</span> <span class="ty">Audit</span> {
+    <span class="ty">int</span> events = <span class="nu">0</span>;
+    ~<span class="fn">Audit</span>() { std::cout &lt;&lt; <span class="st">"events: "</span> &lt;&lt; events &lt;&lt; <span class="st">'\n'</span>; }
+};
+
+<span class="ty">Audit</span>&amp; <span class="fn">audit</span>() {
+    <span class="kw">static</span> <span class="ty">Audit</span> a;
+    <span class="kw">return</span> a;
+}
+
+<span class="kw">struct</span> <span class="ty">Session</span> {
+    ~<span class="fn">Session</span>() { ++<span class="fn">audit</span>().events; }
+};
+
+<span class="ty">Session</span> session;
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    ++<span class="fn">audit</span>().events;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>audit</code> は、記録した件数をプログラムの終了時に出力する監査ログ <code>Audit</code> を返す関数です。<code>main</code> がログインを1件、大域変数 <code>session</code> のデストラクタがログアウトを1件記録するつもりです。引数も標準入力も使いません。いまは <code>events: 1</code> が出ます。本来は <code>events: 2</code> が出るはずです。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="ty">Audit</span>&amp; <span class="fn">audit</span>() {
+    <span class="kw">static</span> <span class="ty">Audit</span> a;
+    <span class="kw">return</span> a;
+}
+
+<span class="kw">struct</span> <span class="ty">Session</span> {
+    ~<span class="fn">Session</span>() { ++<span class="fn">audit</span>().events; }
+};
+</code></pre>
+      <p>
+        <code>session</code> は <code>main</code> より前に構築されますが、関数内 static の <code>a</code> が構築されるのは、<code>main</code> が初めて <code>audit()</code> を呼んだときです。静的記憶域期間のオブジェクトは構築を終えたのと逆の順に破棄されるので、後から構築された <code>a</code> が先に破棄されます。
+      </p>
+      <p>
+        <code>a</code> のデストラクタが <code>events: 1</code> を出力した時点では、ログアウトはまだ記録されていません。そのあと <code>session</code> のデストラクタが <code>audit()</code> を呼びますが、返ってくるのは寿命の尽きた <code>a</code> への参照です。その <code>events</code> を増やすのは未定義動作で、増やした件数が出力されることもありません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">struct</span> <span class="ty">Session</span> {
+    <span class="fn">Session</span>() { <span class="fn">audit</span>(); }
+    ~<span class="fn">Session</span>() { ++<span class="fn">audit</span>().events; }
+};
+</code></pre>
+      <p>
+        <code>session</code> のコンストラクタで <code>audit()</code> を呼ぶと、<code>a</code> の構築は <code>session</code> の構築の途中で終わります。構築を先に終えた <code>a</code> は <code>session</code> より後に破棄されるので、ログアウトが記録されてから <code>events: 2</code> が出力されます。
+      </p>
+      <p>
+        関数内 static は、使う前に必ず構築されるので初期化順序の問題は避けられますが、破棄の順序は構築の順序で決まります。デストラクタから使うオブジェクトは、自分のコンストラクタで一度触って先に構築させておきます<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>直す前の <code>Session</code> はコンストラクタが自明なので、<code>session</code> は静的に初期化されます。規格は、静的に初期化されたオブジェクトも、動的に初期化された場合と同じ順序で破棄すると定めています。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

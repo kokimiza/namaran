@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="整数と引き算からなる式の木の値を、再帰呼び出しを使わずに求める関数を書くRust 2024のドリル。呼び出しスタックが覚えていた「次にすること」と「途中の値」を、自分で用意したスタックに移す。">
+<title>再帰しない式の評価</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-10-07">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-07" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-10-07",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-10-07",
+      "datePublished": "2026-10-07",
+      "dateModified": "2026-10-07",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "再帰しない式の評価" },
+      "keywords": "call-stack, stack, recursion, pattern-matching",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "整数と引き算からなる式の木の値を、再帰呼び出しを使わずに求める関数を書くRust 2024のドリル。呼び出しスタックが覚えていた「次にすること」と「途中の値」を、自分で用意したスタックに移す。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-07">C23</a>
+  <a href="/cpp/write/2026-10-07">C++26</a>
+  <a href="/rust/write/2026-10-07" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-10-07">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-07">READ</a>
+  <a href="/rust/write/2026-10-07" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-10-07">DEBUG</a>
+</nav>
+
+<main
+  data-topic="再帰しない式の評価"
+  data-tags="call-stack stack recursion pattern-matching"
+  data-concepts="再帰をスタックに置き換える, 明示的なスタック, 式の木の評価, 後順の走査, explicit stack, recursion to iteration, expression tree evaluation"
+  data-level="whale"
+>
+  <h2>2026-10-07</h2>
+  <div class="code-frame">
+    <p class="code-filename">eval.rs</p>
+    <pre class="code"><code><span class="kw">pub</span> <span class="kw">enum</span> <span class="ty">Expr</span> {
+    <span class="fn">Num</span>(<span class="ty">i64</span>),
+    <span class="fn">Sub</span>(<span class="ty">Box</span>&lt;<span class="ty">Expr</span>&gt;, <span class="ty">Box</span>&lt;<span class="ty">Expr</span>&gt;),
+}
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">eval</span>(e: &amp;<span class="ty">Expr</span>) -&gt; <span class="ty">i64</span> {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>Expr</code> は、整数と引き算からなる式の木です。<code>Num(n)</code> の値は <code>n</code>、<code>Sub(a, b)</code> の値は <code>a</code> の値から <code>b</code> の値を引いたものです。式がどれだけ深くても <code>eval</code> の呼び出しが深くならないように、再帰呼び出しを使わずに式の値を返す <code>eval</code> を書いてください。入力例は、<code>Expr</code> が表す式を括弧付きの数式で書いたものです。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>10 - (4 - 1)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>7</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>(10 - 4) - 1</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>5</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>42</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>42</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">eval</span>(e: &amp;<span class="ty">Expr</span>) -&gt; <span class="ty">i64</span> {
+    <span class="kw">enum</span> <span class="ty">Task</span>&lt;<span class="lt">'a</span>&gt; {
+        <span class="fn">Visit</span>(&amp;<span class="lt">'a</span> <span class="ty">Expr</span>),
+        <span class="ty">Sub</span>,
+    }
+    <span class="kw">let</span> <span class="kw">mut</span> tasks = <span class="mc">vec!</span>[<span class="ty">Task</span>::<span class="fn">Visit</span>(e)];
+    <span class="kw">let</span> <span class="kw">mut</span> values = <span class="ty">Vec</span>::<span class="fn">new</span>();
+    <span class="kw">while</span> <span class="kw">let</span> <span class="fn">Some</span>(task) = tasks.<span class="fn">pop</span>() {
+        <span class="kw">match</span> task {
+            <span class="ty">Task</span>::<span class="fn">Visit</span>(<span class="ty">Expr</span>::<span class="fn">Num</span>(n)) =&gt; values.<span class="fn">push</span>(*n),
+            <span class="ty">Task</span>::<span class="fn">Visit</span>(<span class="ty">Expr</span>::<span class="fn">Sub</span>(a, b)) =&gt; {
+                tasks.<span class="fn">extend</span>([<span class="ty">Task</span>::<span class="ty">Sub</span>, <span class="ty">Task</span>::<span class="fn">Visit</span>(b), <span class="ty">Task</span>::<span class="fn">Visit</span>(a)]);
+            }
+            <span class="ty">Task</span>::<span class="ty">Sub</span> =&gt; {
+                <span class="kw">let</span> r = values.<span class="fn">pop</span>().<span class="fn">unwrap</span>();
+                <span class="kw">let</span> l = values.<span class="fn">pop</span>().<span class="fn">unwrap</span>();
+                values.<span class="fn">push</span>(l - r);
+            }
+        }
+    }
+    values.<span class="fn">pop</span>().<span class="fn">unwrap</span>()
+}
+</code></pre>
+      <p>
+        再帰で書けば <code>Sub(a, b) =&gt; eval(a) - eval(b)</code> の1行で済みます。このとき呼び出しスタックは、<code>eval(a)</code> から戻ったら次に <code>eval(b)</code> を呼び、そのあと引き算する、という残りの仕事と、計算済みの <code>a</code> の値を覚えています。参考実装は、この2つを <code>tasks</code> と <code>values</code> という2本の <code>Vec</code> に移します。
+      </p>
+      <p>
+        <code>tasks</code> に積む <code>Task::Visit</code> は「この部分式を計算する」、<code>Task::Sub</code> は「<code>values</code> の上2つを取り出して引き算する」という仕事です。<code>Sub(a, b)</code> を見たら、<code>Task::Sub</code>、<code>b</code>、<code>a</code> の順に積みます。スタックは後から積んだものを先に取り出すので、実際の処理は <code>a</code>、<code>b</code>、引き算の順になり、<code>Task::Sub</code> を取り出した時点の <code>values</code> は <code>a</code> の値の上に <code>b</code> の値が載った形です。だから先に取り出す <code>r</code> が引く数、次の <code>l</code> が引かれる数です。<code>a</code> と <code>b</code> の順や <code>l</code> と <code>r</code> の順を取り違えると、入力例1と入力例2の答えが入れ替わります。
+      </p>
+      <p>
+        <code>Task</code> が持つのは部分式への参照 <code>&amp;'a Expr</code> なので、木を複製せずに済みます。<code>Task::Visit(b)</code> の <code>b</code> は <code>&amp;Box&lt;Expr&gt;</code> ですが、関数の引数と同じように参照外しの型強制で <code>&amp;Expr</code> になります。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。木を一度たどって逆ポーランド記法の列に直してから、値のスタックだけで計算する書き方もあります<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li><code>eval</code> を再帰なしにしても、深い <code>Expr</code> を捨てるときには <code>Box</code> のドロップが子の <code>Box</code> を順にドロップしていくので、そこで呼び出しが式の深さだけ積み重なります。何十万段もの式を扱うなら、<code>Expr</code> の <code>Drop</code> も同じようにスタックを使って書きます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

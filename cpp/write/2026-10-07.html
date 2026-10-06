@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="どの翻訳単位の静的変数のコンストラクタやデストラクタからでも使える共有の文字列を、各翻訳単位に1つずつできるオブジェクトのコンストラクタとデストラクタで管理するC++26のドリル。初期化の順序にも破棄の順序にも左右されないようにする。">
+<title>最初に作り最後に壊す</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-10-07">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-07" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-10-07",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-10-07",
+      "datePublished": "2026-10-07",
+      "dateModified": "2026-10-07",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "最初に作り最後に壊す" },
+      "keywords": "initialization-order, static-storage, constructor, destructor",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "どの翻訳単位の静的変数のコンストラクタやデストラクタからでも使える共有の文字列を、各翻訳単位に1つずつできるオブジェクトのコンストラクタとデストラクタで管理するC++26のドリル。初期化の順序にも破棄の順序にも左右されないようにする。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-07">C23</a>
+  <a href="/cpp/write/2026-10-07" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-10-07">Rust 2024</a>
+  <a href="/haskell/write/2026-10-07">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-07">READ</a>
+  <a href="/cpp/write/2026-10-07" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-10-07">DEBUG</a>
+</nav>
+
+<main
+  data-topic="最初に作り最後に壊す"
+  data-tags="initialization-order static-storage constructor destructor"
+  data-concepts="Nifty Counter, Schwarz Counter, 静的初期化順序, 静的変数の破棄順序, ゼロ初期化, static initialization order fiasco, std::ios_base::Init"
+  data-level="whale"
+>
+  <h2>2026-10-07</h2>
+  <div class="code-frame">
+    <p class="code-filename">log.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+
+std::<span class="ty">string</span>* prefix;
+
+<span class="kw">struct</span> <span class="ty">LogInit</span> {
+    <span class="fn">LogInit</span>();
+    ~<span class="fn">LogInit</span>();
+};
+
+<span class="ty">LogInit</span>::<span class="fn">LogInit</span>() {
+}
+
+<span class="ty">LogInit</span>::~<span class="fn">LogInit</span>() {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    ヘッダ log.h には <code>extern std::string* prefix;</code> と上の <code>LogInit</code> の定義、それに <code>static LogInit log_init;</code> が書かれています。log.h は各翻訳単位の先頭でインクルードされるので、翻訳単位ごとに <code>log_init</code> が1つずつでき、その翻訳単位のほかの静的変数より先に構築されます。どの翻訳単位の静的変数も、コンストラクタとデストラクタの中で <code>*prefix</code> を使えるように、log.cpp に置く <code>LogInit</code> のコンストラクタとデストラクタを書いてください。<code>*prefix</code> の中身は <code>"[app] "</code> で、<code>LogInit</code> が1つでも生きている間は有効にし、すべて破棄されたら解放します。入出力例は、<code>LogInit</code> が1つもない状態から実行したときの標準出力です。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>{ LogInit a, b; std::cout &lt;&lt; *prefix &lt;&lt; "start"; }</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>[app] start</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>{ LogInit a; { LogInit b; } std::cout &lt;&lt; *prefix &lt;&lt; "still"; }</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>[app] still</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>{ LogInit a; } LogInit b; std::cout &lt;&lt; *prefix &lt;&lt; "again";</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>[app] again</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+
+std::<span class="ty">string</span>* prefix;
+<span class="kw">static</span> <span class="ty">int</span> users;
+
+<span class="kw">struct</span> <span class="ty">LogInit</span> {
+    <span class="fn">LogInit</span>();
+    ~<span class="fn">LogInit</span>();
+};
+
+<span class="ty">LogInit</span>::<span class="fn">LogInit</span>() {
+    <span class="kw">if</span> (users++ == <span class="nu">0</span>) prefix = <span class="kw">new</span> std::<span class="ty">string</span>(<span class="st">"[app] "</span>);
+}
+
+<span class="ty">LogInit</span>::~<span class="fn">LogInit</span>() {
+    <span class="kw">if</span> (--users == <span class="nu">0</span>) <span class="kw">delete</span> prefix;
+}
+</code></pre>
+      <p>
+        参考実装は、生きている <code>LogInit</code> の数を <code>users</code> で数えます。数が0から1になるコンストラクタで <code>*prefix</code> を作り、1から0になるデストラクタで解放するので、入力例2のように内側の <code>b</code> が先に消えても、<code>a</code> が生きている限り <code>*prefix</code> は残ります。
+      </p>
+      <p>
+        <code>users</code> と <code>prefix</code> に初期化子を付けていないのは、どの <code>log_init</code> のコンストラクタより先に値が決まっている必要があるからです。初期化子のない静的変数はゼロ初期化され、これはどの翻訳単位の動的初期化よりも前に済みます。どの翻訳単位の <code>log_init</code> が最初に構築されても、そのコンストラクタは <code>users == 0</code> を見て <code>*prefix</code> を作ります。<code>std::string prefix = "[app] ";</code> のように文字列そのものを大域変数にすると、その動的初期化と、ほかの翻訳単位の静的変数の初期化のどちらが先になるかは決まりません。
+      </p>
+      <p>
+        破棄の側は、静的変数が構築と逆の順に破棄されることを使います。各翻訳単位では <code>log_init</code> がほかの静的変数より先に構築されるので、破棄はそれらより後になります。<code>*prefix</code> を解放するのは、すべての <code>log_init</code> のうち最後に破棄されるものなので、その時点では <code>*prefix</code> を使う静的変数はどの翻訳単位にも残っていません。デストラクタのたびに解放すると、最初に破棄された <code>log_init</code> が、ほかの翻訳単位がまだ使う <code>*prefix</code> を消してしまいます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>new</code> の代わりに、適切に整列した静的な領域へ placement new で構築する書き方もあり、<code>std::cout</code> はこの仕組みで使えるようになっています<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>この手法は Nifty Counter や Schwarz Counter と呼ばれます。<code>&lt;iostream&gt;</code> をインクルードすると、標準ライブラリによっては翻訳単位ごとに <code>std::ios_base::Init</code> のオブジェクトができ、その数を数えて <code>std::cout</code> などを構築・後始末します。C++11 からは、<code>&lt;iostream&gt;</code> をインクルードした翻訳単位の静的変数が <code>std::cout</code> を使えることを規格が保証しています。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

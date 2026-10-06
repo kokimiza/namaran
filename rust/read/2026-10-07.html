@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="再帰呼び出しの各段で、変数に束縛した値と let _ に渡した値がそれぞれいつドロップされるかを追うRust 2024のドリル。束縛した値は呼び出しが戻るときに、深い段から順にドロップされる。">
+<title>再帰の帰りに落ちる値</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-10-07">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / READ", "item": "https://namaran.jocarium.productions/rust/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-07" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / READ — 2026-10-07",
+      "url": "https://namaran.jocarium.productions/rust/read/2026-10-07",
+      "datePublished": "2026-10-07",
+      "dateModified": "2026-10-07",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "再帰の帰りに落ちる値" },
+      "keywords": "drop-scope, recursion, call-stack, binding",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "再帰呼び出しの各段で、変数に束縛した値と let _ に渡した値がそれぞれいつドロップされるかを追うRust 2024のドリル。束縛した値は呼び出しが戻るときに、深い段から順にドロップされる。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-07">C23</a>
+  <a href="/cpp/read/2026-10-07">C++26</a>
+  <a href="/rust/read/2026-10-07" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/read/2026-10-07">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-07" class="active" aria-current="page">READ</a>
+  <a href="/rust/write/2026-10-07">WRITE</a>
+  <a href="/rust/debug/2026-10-07">DEBUG</a>
+</nav>
+
+<main
+  data-topic="再帰の帰りに落ちる値"
+  data-tags="drop-scope recursion call-stack binding"
+  data-concepts="ドロップの順序, 再帰とスタックフレーム, let _ と let _x の違い, ワイルドカードパターン, drop order, wildcard pattern, stack frame"
+  data-level="peacock"
+>
+  <h2>2026-10-07</h2>
+  <div class="code-frame">
+    <p class="code-filename">frames.rs</p>
+    <pre class="code"><code><span class="kw">struct</span> <span class="fn">Frame</span>(<span class="ty">u32</span>);
+
+<span class="kw">impl</span> <span class="ty">Drop</span> <span class="kw">for</span> <span class="ty">Frame</span> {
+    <span class="kw">fn</span> <span class="fn">drop</span>(&amp;<span class="kw">mut</span> <span class="kw">self</span>) {
+        <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="kw">self</span>.<span class="nu">0</span>);
+    }
+}
+
+<span class="kw">fn</span> <span class="fn">walk</span>(n: <span class="ty">u32</span>) {
+    <span class="kw">let</span> _f = <span class="fn">Frame</span>(n);
+    <span class="kw">if</span> n &lt; <span class="nu">3</span> {
+        <span class="kw">let</span> _ = <span class="fn">Frame</span>(n * <span class="nu">10</span>);
+        <span class="fn">walk</span>(n + <span class="nu">1</span>);
+    }
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="fn">walk</span>(<span class="nu">1</span>);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>10</code>、<code>20</code>、<code>3</code>、<code>2</code>、<code>1</code> の5行です。
+      </p>
+      <p>
+        <code>let _f = Frame(n);</code> は値を変数 <code>_f</code> に束縛するので、<code>Frame(n)</code> はその呼び出しから戻るときまで生きます。一方、<code>let _ = Frame(n * 10);</code> の <code>_</code> は何も束縛しないワイルドカードパターンです。どの変数にも入らなかった <code>Frame(n * 10)</code> は一時的な値として文の終わりで捨てられるので、次の行の <code>walk(n + 1)</code> を呼ぶ前にドロップされます。
+      </p>
+      <p>
+        そのため <code>walk(1)</code> は <code>10</code> を、<code>walk(2)</code> は <code>20</code> を出力してから次の段を呼びます。<code>walk(3)</code> は <code>if</code> に入らずに戻り、そこで <code>_f</code> の <code>3</code> が出ます。各段の <code>_f</code> はそれぞれの呼び出しの中で生きているので、戻るたびに <code>walk(2)</code> の <code>2</code>、<code>walk(1)</code> の <code>1</code> の順でドロップされます。呼び出しとは逆の順です。
+      </p>
+      <p>
+        <code>_</code> も <code>_f</code> のように値を持ち続けると読むと、<code>Frame(n * 10)</code> は <code>if</code> のブロックを抜けるときにドロップされることになり、<code>3</code>、<code>20</code>、<code>2</code>、<code>10</code>、<code>1</code> と答えてしまいます<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li><code>_f</code> のように <code>_</code> で始まる名前は、使わなくても警告が出ないだけの普通の変数です。ロックのガードを <code>let _ = m.lock();</code> と書くとその場でロックが外れてしまうので、ガードは <code>let _guard = …</code> のように名前を付けて持ちます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/read">Today</a></li>
+    <li><a href="/rust/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

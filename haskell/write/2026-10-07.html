@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="届いた順の申し込みを、初めての値なら受け付け、同じ値が受け付け済みなら断って、受け付けたものと断ったものの組で返す関数を書くHaskell 2010のドリル。">
+<title>受け付けと二重登録</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-10-07">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-07" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-10-07",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-10-07",
+      "datePublished": "2026-10-07",
+      "dateModified": "2026-10-07",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "受け付けと二重登録" },
+      "keywords": "deduplication, set, recursion",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "届いた順の申し込みを、初めての値なら受け付け、同じ値が受け付け済みなら断って、受け付けたものと断ったものの組で返す関数を書くHaskell 2010のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-07">C23</a>
+  <a href="/cpp/write/2026-10-07">C++26</a>
+  <a href="/rust/write/2026-10-07">Rust 2024</a>
+  <a href="/haskell/write/2026-10-07" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-07">READ</a>
+  <a href="/haskell/write/2026-10-07" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-10-07">DEBUG</a>
+</nav>
+
+<main
+  data-topic="受け付けと二重登録"
+  data-tags="deduplication set recursion"
+  data-concepts="一意制約, 二重登録の防止, 重複の検出, Data.Set, unique constraint, duplicate detection"
+  data-level="hedgehog"
+>
+  <h2>2026-10-07</h2>
+  <div class="code-frame">
+    <p class="code-filename">Register.hs</p>
+    <pre class="code"><code><span class="fn">registerAll</span> <span class="op">::</span> <span class="ty">Ord</span> a <span class="op">=&gt;</span> [a] <span class="op">-&gt;</span> ([a], [a])
+</code></pre>
+  </div>
+
+  <p class="question">
+    届いた順に並んだ申し込みのリストを受け取り、同じ値を二度受け付けないように振り分ける <code>registerAll</code> を書いてください。返すのは、受け付けた値と断った値をそれぞれ届いた順に並べた2つのリストの組です。初めて届いた値は受け付け、すでに受け付けた値と等しいものは断ります。空のリストなら、どちらも空のリストです。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>registerAll [3, 1, 3, 2, 1]</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>([3,1,2],[3,1])</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>registerAll ([] :: [Int])</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>([],[])</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>registerAll "aaa"</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>("a","aa")</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">import</span> <span class="kw">qualified</span> <span class="ty">Data.Set</span> <span class="kw">as</span> <span class="ty">Set</span>
+
+<span class="fn">registerAll</span> <span class="op">::</span> <span class="ty">Ord</span> a <span class="op">=&gt;</span> [a] <span class="op">-&gt;</span> ([a], [a])
+<span class="fn">registerAll</span> = go <span class="ty">Set</span>.empty
+  <span class="kw">where</span>
+    go _ [] = ([], [])
+    go seen (x:xs)
+      | x `<span class="ty">Set</span>.member` seen = (ok, x : ng)
+      | otherwise = (x : ok, ng)
+      <span class="kw">where</span> (ok, ng) = go (<span class="ty">Set</span>.insert x seen) xs
+</code></pre>
+      <p>
+        参考実装は、受け付け済みの値を集合 <code>seen</code> に入れて持ち回ります。値 <code>x</code> が <code>seen</code> にあれば断った側に、なければ受け付けた側に足し、残りのリストは <code>x</code> を加えた <code>seen</code> で振り分けます。受け付け済みかどうかを決めるのは、それまでに届いた値だけなので、入力例1では2つ目の <code>3</code> と <code>1</code> が断られます。
+      </p>
+      <p>
+        集合に <code>Data.Set</code> を使うので、型には <code>Eq</code> ではなく <code>Ord</code> を求めています。<code>Ord</code> があれば1回の検索は要素数の対数の時間で済み、受け付け済みの値をリストに入れて <code>elem</code> で調べるよりも、申し込みが多いときに速くなります。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>foldl</code> で2つのリストを逆順に積み、最後に <code>reverse</code> する書き方もあります。受け付けた側だけが欲しいなら <code>Data.List</code> の <code>nub</code> でも求まりますが、<code>nub</code> は全体で要素数の2乗の時間がかかり、断った値も返しません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

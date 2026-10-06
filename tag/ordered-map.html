@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「順序付きマップ」を扱ったNamaranのコーディングドリル8問。バージョンベクトル、ベクトル時計の比較、取り込み済みの判定、version vector、happened-before、dominates。">
+<meta name="description" content="「順序付きマップ」を扱ったNamaranのコーディングドリル10問。foldrの適用順、先着順の一意制約、Data.Map、二重登録の防止、foldr evaluation order、unique constraint。">
 <title>順序付きマップ</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/ordered-map">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,12 @@
   <h2>順序付きマップ</h2>
 
   <p class="lede">
-    「順序付きマップ」を扱った8問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「順序付きマップ」を扱った10問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/haskell/read/2026-10-07">Haskell / READ · 2026-10-07</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">右から届く申し込み</span> <span class="past-concepts">foldrの適用順, 先着順の一意制約, Data.Map, 二重登録の防止, foldr evaluation order, unique constraint, first registration wins</span></li>
+    <li><a href="/haskell/debug/2026-10-07">Haskell / DEBUG · 2026-10-07</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">大文字違いの二重登録</span> <span class="past-concepts">一意制約, 二重登録, メールアドレスの正規化, 大文字小文字を区別しない比較, unique constraint, case-insensitive key, normalization</span></li>
     <li><a href="/rust/write/2026-10-04">Rust / WRITE · 2026-10-04</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">更新を取り込み済みか</span> <span class="past-concepts">バージョンベクトル, ベクトル時計の比較, 取り込み済みの判定, version vector, happened-before, dominates</span></li>
     <li><a href="/haskell/write/2026-10-04">Haskell / WRITE · 2026-10-04</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">キーごとの平均を一度で</span> <span class="past-concepts">キーごとの平均, insertWith, 弱頭部正規形, 組の中のサンク, seq, Data.Map.Strict, space leak in tuple accumulator</span></li>
     <li><a href="/haskell/read/2026-10-04">Haskell / READ · 2026-10-04</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">errorを足し込んだ表</span> <span class="past-concepts">insertWith, 遅延評価, Data.Map.Lazy, 未評価の値, lazy map values, thunk</span></li>

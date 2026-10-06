@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="RefCell に入れたメモを引きながら再帰する関数が、match の条件式で借りた Ref を再帰呼び出しの間も持ち続けて panic するRust 2024のドリル。match の条件式の一時値は match 全体が終わるまで生きる。">
+<title>借りたまま再帰する</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-10-07">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-07" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-10-07",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-10-07",
+      "datePublished": "2026-10-07",
+      "dateModified": "2026-10-07",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "借りたまま再帰する" },
+      "keywords": "interior-mutability, memoization, recursion, temporary",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "RefCell に入れたメモを引きながら再帰する関数が、match の条件式で借りた Ref を再帰呼び出しの間も持ち続けて panic するRust 2024のドリル。match の条件式の一時値は match 全体が終わるまで生きる。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-07">C23</a>
+  <a href="/cpp/debug/2026-10-07">C++26</a>
+  <a href="/rust/debug/2026-10-07" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-07">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-07">READ</a>
+  <a href="/rust/write/2026-10-07">WRITE</a>
+  <a href="/rust/debug/2026-10-07" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="借りたまま再帰する"
+  data-tags="interior-mutability memoization recursion temporary"
+  data-concepts="RefCellの二重借用, matchの一時値の寿命, メモ化再帰, BorrowMutError, RefCell already borrowed, temporary lifetime in match"
+  data-level="peacock"
+>
+  <h2>2026-10-07</h2>
+  <div class="code-frame">
+    <p class="code-filename">collatz.rs</p>
+    <pre class="code"><code><span class="kw">use</span> std::cell::<span class="ty">RefCell</span>;
+<span class="kw">use</span> std::collections::<span class="ty">HashMap</span>;
+
+<span class="kw">fn</span> <span class="fn">steps</span>(memo: &amp;<span class="ty">RefCell</span>&lt;<span class="ty">HashMap</span>&lt;<span class="ty">u64</span>, <span class="ty">u32</span>&gt;&gt;, n: <span class="ty">u64</span>) -&gt; <span class="ty">u32</span> {
+    <span class="kw">match</span> memo.<span class="fn">borrow</span>().<span class="fn">get</span>(&amp;n) {
+        <span class="fn">Some</span>(&amp;s) =&gt; s,
+        <span class="ty">None</span> =&gt; {
+            <span class="kw">let</span> next = <span class="kw">if</span> n.<span class="fn">is_multiple_of</span>(<span class="nu">2</span>) { n / <span class="nu">2</span> } <span class="kw">else</span> { <span class="nu">3</span> * n + <span class="nu">1</span> };
+            <span class="kw">let</span> s = <span class="fn">steps</span>(memo, next) + <span class="nu">1</span>;
+            memo.<span class="fn">borrow_mut</span>().<span class="fn">insert</span>(n, s);
+            s
+        }
+    }
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> memo = <span class="ty">RefCell</span>::<span class="fn">new</span>(<span class="ty">HashMap</span>::<span class="fn">from</span>([(<span class="nu">1</span>, <span class="nu">0</span>)]));
+    <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="fn">steps</span>(&amp;memo, <span class="nu">6</span>));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>steps</code> は、<code>n</code> が偶数なら2で割り、奇数なら3倍して1を足す、という操作を何回繰り返すと1になるかを、求めた回数を <code>memo</code> に覚えながら再帰で求めるつもりの関数です。<code>main</code> は <code>n = 6</code> について求めます。引数も標準入力も使いません。いまは何も出力されず、<code>RefCell already borrowed</code> というメッセージで panic します。本来は <code>8</code> が出るはずです。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">match</span> memo.<span class="fn">borrow</span>().<span class="fn">get</span>(&amp;n) {
+    <span class="fn">Some</span>(&amp;s) =&gt; s,
+    <span class="ty">None</span> =&gt; {
+        <span class="kw">let</span> next = <span class="kw">if</span> n.<span class="fn">is_multiple_of</span>(<span class="nu">2</span>) { n / <span class="nu">2</span> } <span class="kw">else</span> { <span class="nu">3</span> * n + <span class="nu">1</span> };
+        <span class="kw">let</span> s = <span class="fn">steps</span>(memo, next) + <span class="nu">1</span>;
+        memo.<span class="fn">borrow_mut</span>().<span class="fn">insert</span>(n, s);
+</code></pre>
+      <p>
+        <code>memo.borrow()</code> が返す <code>Ref</code> は、ドロップされるまで <code>RefCell</code> を共有で借りたままにします。この <code>Ref</code> は <code>match</code> の条件式の中で作った一時値で、条件式の一時値は <code>match</code> 全体が終わるまで生きます。そのため <code>None</code> の腕で再帰呼び出ししている間も、呼び出し元の <code>steps</code> は <code>memo</code> を借りたままです。
+      </p>
+      <p>
+        <code>steps(6)</code> から <code>steps(3)</code>、<code>steps(10)</code> と降りていく間は、共有の借用どうしは重なってよいので何も起きません。<code>steps(1)</code> がメモにある <code>0</code> を返し、<code>steps(2)</code> に戻って <code>borrow_mut()</code> を呼んだところで、<code>steps(2)</code> 自身とその呼び出し元すべてがまだ借りているので panic します。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">let</span> cached = memo.<span class="fn">borrow</span>().<span class="fn">get</span>(&amp;n).<span class="fn">copied</span>();
+<span class="kw">match</span> cached {
+    <span class="fn">Some</span>(s) =&gt; s,
+</code></pre>
+      <p>
+        <code>let</code> 文の中の一時値は、その文の終わりでドロップされます。<code>copied()</code> で <code>Option&lt;&amp;u32&gt;</code> を <code>Option&lt;u32&gt;</code> にしておけば、<code>cached</code> はメモへの参照を持たないので、<code>Ref</code> は次の行に進む前に返されます。再帰呼び出しの間はだれも <code>memo</code> を借りていないので、<code>borrow_mut()</code> が通り、<code>8</code> が出ます。
+      </p>
+      <p>
+        <code>match memo.borrow().get(&amp;n).copied()</code> のように条件式の中で <code>copied()</code> を付けるだけでは直りません。値は複製されても、<code>Ref</code> そのものが条件式の一時値として <code>match</code> の終わりまで残るからです<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li><code>memo</code> が <code>&amp;mut HashMap</code> なら、元の <code>match</code> の形のままでもコンパイルが通り、正しく動きます。コンパイラの借用検査は参照が最後に使われた所で借用を終わらせますが、<code>RefCell</code> の借用は <code>Ref</code> がドロップされるまで終わらないからです。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

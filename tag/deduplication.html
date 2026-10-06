@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「重複除去」を扱ったNamaranのコーディングドリル5問。冪等性キー、重複リクエストの検出、二重処理の防止、idempotency key、duplicate request detection、ポインタの保存。">
+<meta name="description" content="「重複除去」を扱ったNamaranのコーディングドリル8問。一意制約、二重登録の防止、重複の検出、Data.Set、unique constraint、duplicate detection。">
 <title>重複除去</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/deduplication">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>重複除去</h2>
 
   <p class="lede">
-    「重複除去」を扱った5問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「重複除去」を扱った8問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/haskell/write/2026-10-07">Haskell / WRITE · 2026-10-07</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">受け付けと二重登録</span> <span class="past-concepts">一意制約, 二重登録の防止, 重複の検出, Data.Set, unique constraint, duplicate detection</span></li>
+    <li><a href="/haskell/read/2026-10-07">Haskell / READ · 2026-10-07</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">右から届く申し込み</span> <span class="past-concepts">foldrの適用順, 先着順の一意制約, Data.Map, 二重登録の防止, foldr evaluation order, unique constraint, first registration wins</span></li>
+    <li><a href="/haskell/debug/2026-10-07">Haskell / DEBUG · 2026-10-07</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">大文字違いの二重登録</span> <span class="past-concepts">一意制約, 二重登録, メールアドレスの正規化, 大文字小文字を区別しない比較, unique constraint, case-insensitive key, normalization</span></li>
     <li><a href="/c/write/2026-10-06">C / WRITE · 2026-10-06</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">初めてのキーだけ通す</span> <span class="past-concepts">冪等性キー, 重複リクエストの検出, 二重処理の防止, idempotency key, duplicate request detection</span></li>
     <li><a href="/c/read/2026-10-06">C / READ · 2026-10-06</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">冪等キーの重複判定</span> <span class="past-concepts">冪等性キー, 重複リクエストの検出, ポインタの保存, 文字列のコピー, idempotency key, storing a pointer instead of copying a string</span></li>
     <li><a href="/haskell/write/2026-10-01">Haskell / WRITE · 2026-10-01</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">同じ箱は一度だけ</span> <span class="past-concepts">IORef の重複を除く, 参照の同一性, 同値と同一, 別名, nub, reference equality, aliasing, identity vs equality</span></li>

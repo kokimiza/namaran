@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="一時変数を使わず、XORだけで2つの変数の値を入れ替える関数を書くC23のドリル。2つのポインタが同じ変数を指していても、値を0にせずにそのまま残す。">
+<title>自分とも交換できるXOR</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-10-07">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-07" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-10-07",
+      "url": "https://namaran.jocarium.productions/c/write/2026-10-07",
+      "datePublished": "2026-10-07",
+      "dateModified": "2026-10-07",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "自分とも交換できるXOR" },
+      "keywords": "swap, bit-operation, aliasing, pointer",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "一時変数を使わず、XORだけで2つの変数の値を入れ替える関数を書くC23のドリル。2つのポインタが同じ変数を指していても、値を0にせずにそのまま残す。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-07" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-10-07">C++26</a>
+  <a href="/rust/write/2026-10-07">Rust 2024</a>
+  <a href="/haskell/write/2026-10-07">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-07">READ</a>
+  <a href="/c/write/2026-10-07" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-10-07">DEBUG</a>
+</nav>
+
+<main
+  data-topic="自分とも交換できるXOR"
+  data-tags="swap bit-operation aliasing pointer"
+  data-concepts="XORによる値の交換, 一時変数を使わない交換, 同じ変数との交換, XOR swap, swap without a temporary variable"
+  data-level="hedgehog"
+>
+  <h2>2026-10-07</h2>
+  <div class="code-frame">
+    <p class="code-filename">xor_swap.c</p>
+    <pre class="code"><code><span class="ty">void</span> <span class="fn">xor_swap</span>(<span class="ty">unsigned</span> *a, <span class="ty">unsigned</span> *b) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    一時変数を使わず、XOR演算子 <code>^</code> だけで <code>*a</code> と <code>*b</code> の値を入れ替える <code>xor_swap</code> を書いてください。<code>a</code> と <code>b</code> が同じ変数を指しているときは、その変数の値を変えずに残します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>unsigned x = 3, y = 5; xor_swap(&amp;x, &amp;y);</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>x == 5, y == 3</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>unsigned z = 7; xor_swap(&amp;z, &amp;z);</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>z == 7</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>unsigned p = 0, q = 9; xor_swap(&amp;p, &amp;q);</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>p == 9, q == 0</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="ty">void</span> <span class="fn">xor_swap</span>(<span class="ty">unsigned</span> *a, <span class="ty">unsigned</span> *b) {
+    <span class="kw">if</span> (a == b) <span class="kw">return</span>;
+    *a ^= *b;
+    *b ^= *a;
+    *a ^= *b;
+}
+</code></pre>
+      <p>
+        値が <code>x</code> と <code>y</code> なら、1行目で <code>*a</code> が <code>x ^ y</code> になり、2行目の <code>*b</code> は <code>y ^ x ^ y</code> で、同じ値どうしのXORが打ち消し合って <code>x</code> になります。3行目の <code>*a</code> も同じように <code>x ^ y ^ x</code> から <code>y</code> になり、入れ替えが済みます。
+      </p>
+      <p>
+        この計算は、<code>*a</code> と <code>*b</code> が別の場所にあることを前提にしています。同じ変数を指していると、1行目の <code>*a ^= *b</code> がその変数を自分自身とXORし、元の値を0で上書きしてしまいます。そこで最初にポインタどうしを比べ、同じ場所なら何もせずに戻ります。比べるのが値でなくポインタなのは、壊れるのが同じ場所を指すときだけだからです。別々の変数なら、値が等しくても3行の計算は正しく働きます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。たとえば <code>if (a != b) { … }</code> で3行を囲んでも同じです。実際のコードで交換が必要なら、一時変数を使う方が読みやすく、同じ場所どうしの交換でも壊れません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

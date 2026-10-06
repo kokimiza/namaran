@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「キャッシュ」を扱ったNamaranのコーディングドリル4問。N+1クエリ、キャッシュ、番兵値、未取得を0で表す、N+1 query、cache。">
+<meta name="description" content="「キャッシュ」を扱ったNamaranのコーディングドリル5問。XORによる値の交換、自分自身との交換、最近使った要素を先頭へ、XOR swap、self swap、move to front。">
 <title>キャッシュ</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/cache">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>キャッシュ</h2>
 
   <p class="lede">
-    「キャッシュ」を扱った4問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「キャッシュ」を扱った5問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/c/debug/2026-10-07">C / DEBUG · 2026-10-07</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">先頭を二度使うと0</span> <span class="past-concepts">XORによる値の交換, 自分自身との交換, 最近使った要素を先頭へ, XOR swap, self swap, move to front</span></li>
     <li><a href="/c/read/2026-09-08">C / READ · 2026-09-08</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">N+1を防ぐキャッシュ</span> <span class="past-concepts">N+1クエリ, キャッシュ, 番兵値, 未取得を0で表す, N+1 query, cache, sentinel value</span></li>
     <li><a href="/rust/write/2026-09-05">Rust / WRITE · 2026-09-05</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">期限切れを一掃する</span> <span class="past-concepts">TTLキャッシュ, 期限切れの削除, HashMap::retain, クロージャ, cache eviction, time to live, retain</span></li>
     <li><a href="/rust/read/2026-09-05">Rust / READ · 2026-09-05</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">or_insertと有効期限</span> <span class="past-concepts">TTLキャッシュ, 有効期限, or_insert, Entry API, HashMap, time to live, cache expiration</span></li>

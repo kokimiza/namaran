@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「寿命」を扱ったNamaranのコーディングドリル14問。initializer_listを返す、背後の配列の寿命、auto x = {}、dangling initializer_list、backing array lifetime、SAT。">
+<meta name="description" content="「寿命」を扱ったNamaranのコーディングドリル15問。静的変数の破棄順序、関数内static、Construct On First Use、寿命の尽きたオブジェクト、static destruction order、function-local stat。">
 <title>寿命</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/lifetime">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>寿命</h2>
 
   <p class="lede">
-    「寿命」を扱った14問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「寿命」を扱った15問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/cpp/debug/2026-10-07">C++ / DEBUG · 2026-10-07</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">先に消える監査ログ</span> <span class="past-concepts">静的変数の破棄順序, 関数内static, Construct On First Use, 寿命の尽きたオブジェクト, static destruction order, function-local static</span></li>
     <li><a href="/cpp/debug/2026-10-03">C++ / DEBUG · 2026-10-03</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">連番のポートを返す</span> <span class="past-concepts">initializer_listを返す, 背後の配列の寿命, auto x = {}, dangling initializer_list, backing array lifetime</span></li>
     <li><a href="/rust/write/2026-09-28">Rust / WRITE · 2026-09-28</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">充足割当を返すイテレータ</span> <span class="past-concepts">SAT, 全探索, impl Trait, 戻り値のimpl Iterator, ライフタイムのキャプチャ, Rust 2024, return position impl trait, lifetime capture, lazy iterator</span></li>
     <li><a href="/cpp/write/2026-09-27">C++ / WRITE · 2026-09-27</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">argv配列を組み立てる</span> <span class="past-concepts">argv配列, nullptr終端, execvp, posix_spawnp, std::string::data, argv array, null-terminated argv</span></li>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「エイリアシング」を扱ったNamaranのコーディングドリル9問。RefCellの二重借用、Rc::ptr_eq、一時値の寿命、already borrowed、BorrowMutError、Rc aliasing。">
+<meta name="description" content="「エイリアシング」を扱ったNamaranのコーディングドリル12問。XORによる値の交換、一時変数を使わない交換、同じ変数との交換、XOR swap、swap without a temporary variable、自分自身との交換。">
 <title>エイリアシング</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/aliasing">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>エイリアシング</h2>
 
   <p class="lede">
-    「エイリアシング」を扱った9問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「エイリアシング」を扱った12問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/c/write/2026-10-07">C / WRITE · 2026-10-07</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">自分とも交換できるXOR</span> <span class="past-concepts">XORによる値の交換, 一時変数を使わない交換, 同じ変数との交換, XOR swap, swap without a temporary variable</span></li>
+    <li><a href="/c/read/2026-10-07">C / READ · 2026-10-07</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">2回反転した文字列</span> <span class="past-concepts">XORによる値の交換, 自分自身との交換, 文字列の反転, ヌル終端, XOR swap, self swap, reverse a string in place</span></li>
+    <li><a href="/c/debug/2026-10-07">C / DEBUG · 2026-10-07</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">先頭を二度使うと0</span> <span class="past-concepts">XORによる値の交換, 自分自身との交換, 最近使った要素を先頭へ, XOR swap, self swap, move to front</span></li>
     <li><a href="/rust/write/2026-10-03">Rust / WRITE · 2026-10-03</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">共有されたVecを併合</span> <span class="past-concepts">RefCellの二重借用, Rc::ptr_eq, 一時値の寿命, already borrowed, BorrowMutError, Rc aliasing</span></li>
     <li><a href="/cpp/write/2026-10-03">C++ / WRITE · 2026-10-03</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">先頭と等しい値を消す</span> <span class="past-concepts">std::eraseと参照, auto{x}, 値のコピー, decay-copy, std::erase with element reference, auto(x) prvalue copy</span></li>
     <li><a href="/haskell/write/2026-10-01">Haskell / WRITE · 2026-10-01</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">同じ箱は一度だけ</span> <span class="past-concepts">IORef の重複を除く, 参照の同一性, 同値と同一, 別名, nub, reference equality, aliasing, identity vs equality</span></li>

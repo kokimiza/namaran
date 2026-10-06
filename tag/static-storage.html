@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「静的記憶域」を扱ったNamaranのコーディングドリル8問。静的初期化順序の問題、破棄順序、初回使用時の構築、static initialization order fiasco、construct on first use、destruction order。">
+<meta name="description" content="「静的記憶域」を扱ったNamaranのコーディングドリル11問。Nifty Counter、Schwarz Counter、静的初期化順序、静的変数の破棄順序、ゼロ初期化、static initialization order fiasco。">
 <title>静的記憶域</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/static-storage">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>静的記憶域</h2>
 
   <p class="lede">
-    「静的記憶域」を扱った8問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「静的記憶域」を扱った11問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/cpp/write/2026-10-07">C++ / WRITE · 2026-10-07</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">最初に作り最後に壊す</span> <span class="past-concepts">Nifty Counter, Schwarz Counter, 静的初期化順序, 静的変数の破棄順序, ゼロ初期化, static initialization order fiasco, std::ios_base::Init</span></li>
+    <li><a href="/cpp/read/2026-10-07">C++ / READ · 2026-10-07</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">後ろの定義を読む初期化</span> <span class="past-concepts">静的初期化, 定数初期化, 動的初期化, 大域変数の初期化順序, static initialization, constant initialization, dynamic initialization</span></li>
+    <li><a href="/cpp/debug/2026-10-07">C++ / DEBUG · 2026-10-07</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">先に消える監査ログ</span> <span class="past-concepts">静的変数の破棄順序, 関数内static, Construct On First Use, 寿命の尽きたオブジェクト, static destruction order, function-local static</span></li>
     <li><a href="/cpp/write/2026-10-05">C++ / WRITE · 2026-10-05</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">初期化順に依らない表</span> <span class="past-concepts">静的初期化順序の問題, 破棄順序, 初回使用時の構築, static initialization order fiasco, construct on first use, destruction order</span></li>
     <li><a href="/cpp/read/2026-10-05">C++ / READ · 2026-10-05</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">関数内staticの初期化</span> <span class="past-concepts">関数内static変数, 初回使用時の構築, 静的初期化の順序, function-local static, construct on first use, static initialization order</span></li>
     <li><a href="/cpp/debug/2026-10-05">C++ / DEBUG · 2026-10-05</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">URLの前半が消える</span> <span class="past-concepts">静的初期化順序の問題, 動的初期化, 定数初期化, ゼロ初期化, static initialization order fiasco, constant initialization</span></li>
