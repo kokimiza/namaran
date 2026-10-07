@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「EOF」を扱ったNamaranのコーディングドリル3問。std::getline、段落、空行区切り、最後の段落、入力の終わり、paragraphs separated by blank lines。">
+<meta name="description" content="「EOF」を扱ったNamaranのコーディングドリル6問。getc、EOF、ファイルの比較、cmp、一定のメモリで読む、compare two files。">
 <title>EOF</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/end-of-file">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>EOF</h2>
 
   <p class="lede">
-    「EOF」を扱った3問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「EOF」を扱った6問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/c/write/2026-10-08">C / WRITE · 2026-10-08</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">2つのファイルを比べる</span> <span class="past-concepts">getc, EOF, ファイルの比較, cmp, 一定のメモリで読む, compare two files, streaming comparison</span></li>
+    <li><a href="/c/read/2026-10-08">C / READ · 2026-10-08</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">4バイトずつ読む行</span> <span class="past-concepts">fgets, 固定長バッファで行を読む, 改行で終わらない最後の行, 行の長さを数える, read lines with a fixed buffer, missing trailing newline</span></li>
+    <li><a href="/c/debug/2026-10-08">C / DEBUG · 2026-10-08</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">8バイトずつ数える改行</span> <span class="past-concepts">freadの戻り値, feofによるループ, 前回のバッファの残り, 行数を数える, while (!feof), fread return value, stale buffer</span></li>
     <li><a href="/cpp/write/2026-09-06">C++ / WRITE · 2026-09-06</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">空行で区切る段落</span> <span class="past-concepts">std::getline, 段落, 空行区切り, 最後の段落, 入力の終わり, paragraphs separated by blank lines, end of input, flush last group</span></li>
     <li><a href="/cpp/read/2026-09-06">C++ / READ · 2026-09-06</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">空行と入力の終わり</span> <span class="past-concepts">std::getline, 空行, 入力の終わり, 末尾の改行, getline empty line, end of input, trailing newline</span></li>
     <li><a href="/cpp/debug/2026-09-06">C++ / DEBUG · 2026-09-06</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">eof()で回すと1周多い</span> <span class="past-concepts">while (!eof()), std::getline, 空行を数える, 最後の1周, eof loop, getline returns stream, extra iteration</span></li>

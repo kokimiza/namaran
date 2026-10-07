@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="END だけの行が来るまで行数を数えるつもりのプログラムが、Windows で保存した改行が CRLF の入力を std::getline で読むため、行末に \r が残って END と一致せず止まらないC++26のドリル。">
+<title>ENDで止まらない</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-10-08">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-08" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-10-08",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-10-08",
+      "datePublished": "2026-10-08",
+      "dateModified": "2026-10-08",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "ENDで止まらない" },
+      "keywords": "line-ending, string, comparison",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "END だけの行が来るまで行数を数えるつもりのプログラムが、Windows で保存した改行が CRLF の入力を std::getline で読むため、行末に \\r が残って END と一致せず止まらないC++26のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-08">C23</a>
+  <a href="/cpp/debug/2026-10-08" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-10-08">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-08">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-08">READ</a>
+  <a href="/cpp/write/2026-10-08">WRITE</a>
+  <a href="/cpp/debug/2026-10-08" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="ENDで止まらない"
+  data-tags="line-ending string comparison"
+  data-concepts="CRLF, 改行コード, std::getline, 行末の\r, 文字列の比較, carriage return, Windows line endings"
+  data-level="hedgehog"
+>
+  <h2>2026-10-08</h2>
+  <div class="code-frame">
+    <p class="code-filename">until_end.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;sstream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    std::<span class="ty">istringstream</span> <span class="fn">in</span>(<span class="st">"apple\r\nEND\r\nbanana\r\n"</span>);
+    <span class="ty">int</span> count = <span class="nu">0</span>;
+    <span class="kw">for</span> (std::<span class="ty">string</span> line; std::<span class="fn">getline</span>(in, line);) {
+        <span class="kw">if</span> (line == <span class="st">"END"</span>) <span class="kw">break</span>;
+        ++count;
+    }
+    std::cout &lt;&lt; count &lt;&lt; <span class="st">'\n'</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    このプログラムは、<code>END</code> だけの行が来るまでに何行あるかを数えるつもりのものです。<code>main</code> は、Windows で保存したファイルの中身を <code>std::istringstream</code> に入れて読むので、引数も標準入力も使いません。いまは <code>3</code> が出ますが、本来は <code>1</code> が出るはずです。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">for</span> (std::<span class="ty">string</span> line; std::<span class="fn">getline</span>(in, line);) {
+    <span class="kw">if</span> (line == <span class="st">"END"</span>) <span class="kw">break</span>;
+</code></pre>
+      <p>
+        <code>std::getline</code> が読み捨てるのは <code>\n</code> だけです。Windows で保存したファイルの行は <code>\r\n</code> で終わるので、2回目の <code>getline</code> で <code>line</code> に入るのは <code>END\r</code> の4文字で、<code>"END"</code> と等しくなりません。<code>break</code> しないまま3行すべてを数え、<code>3</code> を出力します。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">for</span> (std::<span class="ty">string</span> line; std::<span class="fn">getline</span>(in, line);) {
+    <span class="kw">if</span> (line.<span class="fn">ends_with</span>(<span class="st">'\r'</span>)) line.<span class="fn">pop_back</span>();
+    <span class="kw">if</span> (line == <span class="st">"END"</span>) <span class="kw">break</span>;
+</code></pre>
+      <p>
+        比べる前に、行末に残った <code>\r</code> を1文字だけ取り除きます。2回目の <code>line</code> は <code>END</code> になって <code>break</code> し、数えるのは <code>apple</code> の1行だけです。<code>\n</code> だけで終わる行には <code>\r</code> がないので何も起きず、どちらの改行のファイルも同じように読めます<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>Windows でファイルをテキストモードで開くと、読むときに <code>\r\n</code> が <code>\n</code> に変換されるので、この欠陥は表に出ません。同じファイルを Linux や macOS で読んだときや、ネットワークや文字列から読んだときに <code>\r</code> が残ります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

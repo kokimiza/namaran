@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Data.Set で出した値を覚えながら、リストの重複を元の順序のまま取り除く関数を、cycle で作った無限リストに使うHaskell 2010のドリル。出力の並び順と、無限リストでも結果が返る理由を追う。">
+<title>無限リストの重複除去</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-10-08">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-08" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-10-08",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-10-08",
+      "datePublished": "2026-10-08",
+      "dateModified": "2026-10-08",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "無限リストの重複除去" },
+      "keywords": "set, deduplication, laziness, infinite-list",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "Data.Set で出した値を覚えながら、リストの重複を元の順序のまま取り除く関数を、cycle で作った無限リストに使うHaskell 2010のドリル。出力の並び順と、無限リストでも結果が返る理由を追う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-08">C23</a>
+  <a href="/cpp/read/2026-10-08">C++26</a>
+  <a href="/rust/read/2026-10-08">Rust 2024</a>
+  <a href="/haskell/read/2026-10-08" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-08" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-10-08">WRITE</a>
+  <a href="/haskell/debug/2026-10-08">DEBUG</a>
+</nav>
+
+<main
+  data-topic="無限リストの重複除去"
+  data-tags="set deduplication laziness infinite-list"
+  data-concepts="Data.Set, 重複除去, 出現順を保つ, 遅延評価, 無限リスト, cycle, ordNub, remove duplicates preserving order"
+  data-level="peacock"
+>
+  <h2>2026-10-08</h2>
+  <div class="code-frame">
+    <p class="code-filename">Dedup.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="kw">qualified</span> <span class="ty">Data.Set</span> <span class="kw">as</span> <span class="ty">Set</span>
+
+<span class="fn">dedup</span> <span class="op">::</span> <span class="ty">Ord</span> a <span class="op">=&gt;</span> [a] <span class="op">-&gt;</span> [a]
+<span class="fn">dedup</span> = go <span class="ty">Set</span>.empty
+  <span class="kw">where</span>
+    go _ [] = []
+    go seen (x:xs)
+      | x `<span class="ty">Set</span>.member` seen = go seen xs
+      | otherwise = x : go (<span class="ty">Set</span>.insert x seen) xs
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (take <span class="nu">3</span> (dedup (cycle [<span class="nu">3</span>, <span class="nu">1</span>, <span class="nu">3</span>, <span class="nu">2</span> <span class="op">::</span> <span class="ty">Int</span>])))
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>[3,1,2]</code> です。
+      </p>
+      <p>
+        <code>go</code> はリストを先頭から見ていき、<code>seen</code> にまだない値なら結果に出して <code>seen</code> に加え、あれば読み飛ばします。<code>Set</code> は「もう出したか」を調べるためだけに使っていて、結果に並ぶのはリストに現れた順の値です。<code>Set</code> の中身は小さい順に並びますが、それは出力の順序には関係しないので、<code>[1,2,3]</code> にはなりません。
+      </p>
+      <p>
+        <code>cycle</code> が作るのは <code>3, 1, 3, 2</code> を繰り返す無限リストです。それでも <code>go</code> は、まだない値を見つけると <code>x : go ...</code> を返し、残りの計算は必要になるまで行いません。<code>take 3</code> が求めるのは先頭の3要素だけで、それは無限リストの最初の4要素 <code>3, 1, 3, 2</code> を見た時点でそろいます。<code>Set</code> を作るために無限リストを最後まで読もうとして終わらない、ということにはなりません。
+      </p>
+      <p>
+        <code>take 4</code> にすると話は変わります。4つ目の新しい値はいつまでも現れないので、<code>go</code> は既に見た値を読み飛ばし続け、プログラムは何も出力しないまま終わらなくなります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

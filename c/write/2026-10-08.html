@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="2つのストリームの中身が最後のバイトまで同じかどうかを、中身全体を読み込まずに一定のメモリで比べる関数を書くC23のドリル。長さだけが違うファイルは、ファイルの終わりを示す EOF どうしの比較で見分ける。">
+<title>2つのファイルを比べる</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-10-08">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-08" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-10-08",
+      "url": "https://namaran.jocarium.productions/c/write/2026-10-08",
+      "datePublished": "2026-10-08",
+      "dateModified": "2026-10-08",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "2つのファイルを比べる" },
+      "keywords": "stdio, end-of-file, comparison",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "2つのストリームの中身が最後のバイトまで同じかどうかを、中身全体を読み込まずに一定のメモリで比べる関数を書くC23のドリル。長さだけが違うファイルは、ファイルの終わりを示す EOF どうしの比較で見分ける。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-08" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-10-08">C++26</a>
+  <a href="/rust/write/2026-10-08">Rust 2024</a>
+  <a href="/haskell/write/2026-10-08">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-08">READ</a>
+  <a href="/c/write/2026-10-08" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-10-08">DEBUG</a>
+</nav>
+
+<main
+  data-topic="2つのファイルを比べる"
+  data-tags="stdio end-of-file comparison"
+  data-concepts="getc, EOF, ファイルの比較, cmp, 一定のメモリで読む, compare two files, streaming comparison"
+  data-level="hedgehog"
+>
+  <h2>2026-10-08</h2>
+  <div class="code-frame">
+    <p class="code-filename">same_contents.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="ty">bool</span> <span class="fn">same_contents</span>(<span class="ty">FILE</span> *a, <span class="ty">FILE</span> *b) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    読み込み用に開いた2つのストリーム <code>a</code> と <code>b</code> の中身が、最後のバイトまで同じかどうかを返す <code>same_contents</code> を書いてください。どちらもメモリに収まらないほど大きいことがあるので、中身全体を読み込まず、ファイルの大きさによらない一定のメモリで比べます。片方がもう片方の先頭部分と一致していても、長さが違えば <code>false</code> で、どちらも空なら <code>true</code> です。入力例は、<code>a</code> と <code>b</code> の中身をCの文字列リテラルで書いたものです。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>"abc", "abc"</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>true</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>"abc", "abcd"</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>false</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>"", ""</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>true</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="ty">bool</span> <span class="fn">same_contents</span>(<span class="ty">FILE</span> *a, <span class="ty">FILE</span> *b) {
+    <span class="ty">int</span> c;
+    <span class="kw">do</span> {
+        c = <span class="fn">getc</span>(a);
+        <span class="kw">if</span> (c != <span class="fn">getc</span>(b)) <span class="kw">return</span> <span class="nu">false</span>;
+    } <span class="kw">while</span> (c != <span class="nu">EOF</span>);
+    <span class="kw">return</span> <span class="nu">true</span>;
+}
+</code></pre>
+      <p>
+        参考実装は、<code>a</code> と <code>b</code> から1バイトずつ読んで比べます。手元に置くのは直前に読んだ1バイトだけなので、ファイルが何GBあっても使うメモリは変わりません。<code>getc</code> は1回ごとにファイルを読みに行くわけではなく、<code>FILE</code> が持つバッファから1バイトを取り出すだけなので、1バイトずつ呼んでも遅くはなりません。
+      </p>
+      <p>
+        長さの違いは <code>EOF</code> どうしの比較で見つかります。<code>getc</code> は読んだバイトを <code>unsigned char</code> の値として <code>int</code> で返し、ファイルの終わりではどのバイトとも違う負の値の <code>EOF</code> を返します。入力例2では、<code>a</code> が <code>EOF</code> を返したときに <code>b</code> はまだ <code>'d'</code> を返すので、そこで <code>false</code> になります。両方が同時に <code>EOF</code> を返したときだけ、ループを抜けて <code>true</code> を返します。<code>c</code> を <code>char</code> にすると、<code>char</code> が符号付きの処理系では値 <code>0xFF</code> のバイトと <code>EOF</code> を区別できなくなるので、<code>int</code> で受けます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>fread</code> で両方から決まった大きさずつ読み、読めたバイト数と中身を <code>memcmp</code> で比べる書き方でも、メモリは一定に保てます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

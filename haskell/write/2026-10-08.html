@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="リストの重複を Data.Set で取り除き、同じ値のうち最後に現れたものだけを、元のリストでの位置の順に残す関数を書くHaskell 2010のドリル。">
+<title>最後の1つを残す</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-10-08">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-08" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-10-08",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-10-08",
+      "datePublished": "2026-10-08",
+      "dateModified": "2026-10-08",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "最後の1つを残す" },
+      "keywords": "set, deduplication, list",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "リストの重複を Data.Set で取り除き、同じ値のうち最後に現れたものだけを、元のリストでの位置の順に残す関数を書くHaskell 2010のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-08">C23</a>
+  <a href="/cpp/write/2026-10-08">C++26</a>
+  <a href="/rust/write/2026-10-08">Rust 2024</a>
+  <a href="/haskell/write/2026-10-08" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-08">READ</a>
+  <a href="/haskell/write/2026-10-08" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-10-08">DEBUG</a>
+</nav>
+
+<main
+  data-topic="最後の1つを残す"
+  data-tags="set deduplication list"
+  data-concepts="Data.Set, 重複除去, 最後の出現を残す, 元の順序を保つ, reverse, keep last occurrence, remove duplicates"
+  data-level="peacock"
+>
+  <h2>2026-10-08</h2>
+  <div class="code-frame">
+    <p class="code-filename">KeepLast.hs</p>
+    <pre class="code"><code><span class="fn">keepLast</span> <span class="op">::</span> <span class="ty">Ord</span> a <span class="op">=&gt;</span> [a] <span class="op">-&gt;</span> [a]
+</code></pre>
+  </div>
+
+  <p class="question">
+    リストから重複を取り除き、同じ値のうち最後に現れたものだけを残す <code>keepLast</code> を書いてください。残った要素は元のリストでの位置の順に並べます。空のリストには空のリストを返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>keepLast [1,2,1,3,2]</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>[1,3,2]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>keepLast "banana"</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>"bna"</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>keepLast []</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>[]</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">import</span> <span class="kw">qualified</span> <span class="ty">Data.Set</span> <span class="kw">as</span> <span class="ty">Set</span>
+
+<span class="fn">keepLast</span> <span class="op">::</span> <span class="ty">Ord</span> a <span class="op">=&gt;</span> [a] <span class="op">-&gt;</span> [a]
+<span class="fn">keepLast</span> = reverse . go <span class="ty">Set</span>.empty . reverse
+  <span class="kw">where</span>
+    go _ [] = []
+    go seen (x:xs)
+      | <span class="ty">Set</span>.member x seen = go seen xs
+      | otherwise = x : go (<span class="ty">Set</span>.insert x seen) xs
+</code></pre>
+      <p>
+        参考実装の <code>go</code> は、先に現れたものを残す重複除去です。<code>seen</code> に出した値を覚えておき、2回目以降に現れた値を読み飛ばします。<code>Set</code> を使うので、値ごとの確認は <code>Set</code> の大きさの対数に比例する時間で済みます。
+      </p>
+      <p>
+        最後に現れたものを残すには、リストを裏返してから <code>go</code> に渡します。裏返したリストでは、元のリストで最後に現れたものが最初に来るので、<code>go</code> が残すのはちょうどそれです。入力例1の <code>[1,2,1,3,2]</code> は <code>[2,3,1,2,1]</code> になり、<code>go</code> は <code>[2,3,1]</code> を返します。これをもう一度裏返すと、元の位置の順の <code>[1,3,2]</code> に戻ります。最後の <code>reverse</code> を忘れると、並び順が逆になります。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>foldr</code> でリストの右から <code>Set</code> を育てながら結果を組み立てても、裏返しを使わずに書けます。<code>Data.List</code> の <code>nub</code> を裏返しと組み合わせても同じ結果になりますが、<code>nub</code> は出した値すべてと1つずつ比べるので、長いリストでは要素数の2乗に比例する時間がかかります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

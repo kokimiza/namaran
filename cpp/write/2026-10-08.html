@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="1行目の人数を &gt;&gt; で読み、続く行の名前を std::getline で読む関数を書くC++26のドリル。&gt;&gt; が残した改行を読み飛ばしつつ、名前の先頭の空白や空の行は消さない読み方を選ぶ。">
+<title>件数の行のあとの名前</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-10-08">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-08" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-10-08",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-10-08",
+      "datePublished": "2026-10-08",
+      "dateModified": "2026-10-08",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "件数の行のあとの名前" },
+      "keywords": "stdio, line-ending, parsing",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "1行目の人数を >> で読み、続く行の名前を std::getline で読む関数を書くC++26のドリル。>> が残した改行を読み飛ばしつつ、名前の先頭の空白や空の行は消さない読み方を選ぶ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-08">C23</a>
+  <a href="/cpp/write/2026-10-08" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-10-08">Rust 2024</a>
+  <a href="/haskell/write/2026-10-08">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-08">READ</a>
+  <a href="/cpp/write/2026-10-08" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-10-08">DEBUG</a>
+</nav>
+
+<main
+  data-topic="件数の行のあとの名前"
+  data-tags="stdio line-ending parsing"
+  data-concepts="std::getline, 抽出演算子のあとの改行, istream::ignore, std::ws, 数字のあとにgetline, getline after cin, leftover newline"
+  data-level="bison"
+>
+  <h2>2026-10-08</h2>
+  <div class="code-frame">
+    <p class="code-filename">read_names.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;istream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+
+std::<span class="ty">vector</span>&lt;std::<span class="ty">string</span>&gt; <span class="fn">read_names</span>(std::<span class="ty">istream</span>&amp; in) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    1行目に人数 <code>n</code> があり、続く <code>n</code> 行に1人ずつ名前が書かれた入力を <code>in</code> から読み、名前を順に並べた <code>std::vector</code> を返す <code>read_names</code> を書いてください。名前は行全体で、先頭や途中の空白も含み、空の行は空の名前として扱います。1行目の数字のあとに空白が続くこともあります。<code>n</code> が0なら空の <code>std::vector</code> を返します。入力例は、<code>in</code> の中身をC++の文字列リテラルで書いたものです。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>"2\nAnn Lee\nBob\n"</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>{"Ann Lee", "Bob"}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>"2\n  x\n\n"</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>{"  x", ""}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>"0\n"</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>{}</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;istream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;limits&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+
+std::<span class="ty">vector</span>&lt;std::<span class="ty">string</span>&gt; <span class="fn">read_names</span>(std::<span class="ty">istream</span>&amp; in) {
+    <span class="ty">int</span> n = <span class="nu">0</span>;
+    in &gt;&gt; n;
+    in.<span class="fn">ignore</span>(std::numeric_limits&lt;std::streamsize&gt;::<span class="fn">max</span>(), <span class="st">'\n'</span>);
+    std::<span class="ty">vector</span>&lt;std::<span class="ty">string</span>&gt; <span class="fn">names</span>(n);
+    <span class="kw">for</span> (<span class="kw">auto</span>&amp; s : names) std::<span class="fn">getline</span>(in, s);
+    <span class="kw">return</span> names;
+}
+</code></pre>
+      <p>
+        <code>in &gt;&gt; n</code> は数字を読んだところで止まり、そのあとの空白と改行はストリームに残します。ここですぐに <code>std::getline</code> を呼ぶと、1行目の残りの改行までを1人目の名前として読み、入力例1は <code>{"", "Ann Lee"}</code> になります。
+      </p>
+      <p>
+        残った改行を読み飛ばすのに <code>in &gt;&gt; std::ws</code> を使うと、今度は読み飛ばしすぎます。<code>std::ws</code> は改行も空白も区別せず、空白でない文字が来るまで読み捨てるので、入力例2では1人目の先頭の空白まで消え、<code>{"x", ""}</code> になります。1人目が空の名前なら、その空の行ごと消えてしまいます。参考実装の <code>ignore</code> は、最初の <code>'\n'</code> までを読み捨てたところで止まるので、数字のあとの空白と改行だけが消え、2行目は手つかずで残ります。そこから <code>getline</code> を <code>n</code> 回呼べば、改行を除いた各行がそのまま名前になります。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。1行目も <code>getline</code> で読んで <code>std::stoi</code> で数に直せば、改行が残る問題はそもそも起きません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

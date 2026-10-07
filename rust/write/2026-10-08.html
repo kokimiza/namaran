@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="各行の先頭に字下げを、行末に改行を付けてつないだ String を返す関数を書くRust 2024のドリル。かかる時間ができあがる文字列の長さに比例するように、それまでの結果を毎回コピーせずに末尾へ書き足す。">
+<title>行に字下げを足す</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-10-08">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-08" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-10-08",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-10-08",
+      "datePublished": "2026-10-08",
+      "dateModified": "2026-10-08",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "行に字下げを足す" },
+      "keywords": "string, performance, capacity",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "各行の先頭に字下げを、行末に改行を付けてつないだ String を返す関数を書くRust 2024のドリル。かかる時間ができあがる文字列の長さに比例するように、それまでの結果を毎回コピーせずに末尾へ書き足す。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-08">C23</a>
+  <a href="/cpp/write/2026-10-08">C++26</a>
+  <a href="/rust/write/2026-10-08" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-10-08">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-08">READ</a>
+  <a href="/rust/write/2026-10-08" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-10-08">DEBUG</a>
+</nav>
+
+<main
+  data-topic="行に字下げを足す"
+  data-tags="string performance capacity"
+  data-concepts="push_str, 文字列の連結, 字下げ, 償却定数時間, format!で毎回コピー, String building, linear time concatenation"
+  data-level="hedgehog"
+>
+  <h2>2026-10-08</h2>
+  <div class="code-frame">
+    <p class="code-filename">indent.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">indent</span>(lines: &amp;[&amp;<span class="ty">str</span>], depth: <span class="ty">usize</span>) -&gt; <span class="ty">String</span> {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>lines</code> の各行の先頭に <code>depth</code> 段分の字下げ(1段は空白2つ)を付け、行末に改行を付けて順につないだ <code>String</code> を返す <code>indent</code> を書いてください。かかる時間は、できあがる文字列の長さに比例するようにします。<code>lines</code> が空なら空の文字列を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>indent(&amp;["a", "b"], 1)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>"  a\n  b\n"</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>indent(&amp;[], 3)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>""</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>indent(&amp;["x", "  y"], 0)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>"x\n  y\n"</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">indent</span>(lines: &amp;[&amp;<span class="ty">str</span>], depth: <span class="ty">usize</span>) -&gt; <span class="ty">String</span> {
+    <span class="kw">let</span> pad = <span class="st">"  "</span>.<span class="fn">repeat</span>(depth);
+    <span class="kw">let</span> <span class="kw">mut</span> out = <span class="ty">String</span>::<span class="fn">new</span>();
+    <span class="kw">for</span> line <span class="kw">in</span> lines {
+        out.<span class="fn">push_str</span>(&amp;pad);
+        out.<span class="fn">push_str</span>(line);
+        out.<span class="fn">push</span>(<span class="st">'\n'</span>);
+    }
+    out
+}
+</code></pre>
+      <p>
+        参考実装は、字下げの文字列 <code>pad</code> を最初に1度だけ作り、<code>out</code> の末尾に字下げ、行、改行の順で書き足していきます。<code>push_str</code> は <code>out</code> のバッファの後ろに書き足すだけで、それまでの中身には触りません。容量が足りなくなったときは確保し直して中身を移しますが、そのたびに容量を大きく(今の実装ではおよそ倍に)広げるので移す回数は少なく、移すバイト数を合計してもできあがる長さに比例する量に収まります。
+      </p>
+      <p>
+        同じ処理を <code>out = format!("{out}{pad}{line}\n")</code> と書くと、<code>format!</code> は毎回新しい <code>String</code> を作り、それまでの <code>out</code> を丸ごとそこへコピーします。行が増えるほどコピーする量も増えるので、全体の時間は長さの2乗に比例します。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>lines.iter().map(|line| format!("{pad}{line}\n")).collect::&lt;String&gt;()</code> も、各行の文字列を1度ずつ末尾に足すだけなので、長さに比例する時間で済みます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

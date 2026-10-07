@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「容量」を扱ったNamaranのコーディングドリル3問。ヒストグラム、出現回数を数える、添字で書くには要素が要る、reserveとresize、histogram、count occurrences。">
+<meta name="description" content="「容量」を扱ったNamaranのコーディングドリル5問。push_str、文字列の連結、字下げ、償却定数時間、format!で毎回コピー、String building。">
 <title>容量</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/capacity">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,12 @@
   <h2>容量</h2>
 
   <p class="lede">
-    「容量」を扱った3問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「容量」を扱った5問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/write/2026-10-08">Rust / WRITE · 2026-10-08</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">行に字下げを足す</span> <span class="past-concepts">push_str, 文字列の連結, 字下げ, 償却定数時間, format!で毎回コピー, String building, linear time concatenation</span></li>
+    <li><a href="/rust/read/2026-10-08">Rust / READ · 2026-10-08</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">連結後の先頭アドレス</span> <span class="past-concepts">Stringの+演算子, 文字列連結, バッファの再利用, with_capacity, as_ptr, String concatenation, Add for String</span></li>
     <li><a href="/cpp/write/2026-09-03">C++ / WRITE · 2026-09-03</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">値ごとの出現回数</span> <span class="past-concepts">ヒストグラム, 出現回数を数える, 添字で書くには要素が要る, reserveとresize, histogram, count occurrences</span></li>
     <li><a href="/cpp/read/2026-09-03">C++ / READ · 2026-09-03</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">容量と要素数</span> <span class="past-concepts">reserveとresizeの違い, 容量と要素数, resizeの第2引数, reserveは縮めない, reserve vs resize, capacity vs size</span></li>
     <li><a href="/cpp/debug/2026-09-03">C++ / DEBUG · 2026-09-03</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">単語の長さの一覧</span> <span class="past-concepts">reserveのつもりでresize, 先頭に0が並ぶ, push_backの位置, reserve vs resize, std::vector size</span></li>
