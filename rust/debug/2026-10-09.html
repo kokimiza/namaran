@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="配列の口座に利息を足す for ループが、Copy を導出した構造体のために要素の写しを書き換えてしまい、合計だけが増えて残高は変わらないRust 2024のドリル。配列を値で回すときと &amp;mut で回すときの違いを扱う。">
+<title>利息がつかない口座</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-10-09">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-09" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-10-09",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-10-09",
+      "datePublished": "2026-10-09",
+      "dateModified": "2026-10-09",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "利息がつかない口座" },
+      "keywords": "copy-trait, iterator, mutability, array",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "配列の口座に利息を足す for ループが、Copy を導出した構造体のために要素の写しを書き換えてしまい、合計だけが増えて残高は変わらないRust 2024のドリル。配列を値で回すときと &mut で回すときの違いを扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-09">C23</a>
+  <a href="/cpp/debug/2026-10-09">C++26</a>
+  <a href="/rust/debug/2026-10-09" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-09">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-09">READ</a>
+  <a href="/rust/write/2026-10-09">WRITE</a>
+  <a href="/rust/debug/2026-10-09" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="利息がつかない口座"
+  data-tags="copy-trait iterator mutability array"
+  data-concepts="Copyトレイト, derive(Copy), for文で配列を値で回す, 可変参照で回す, 要素の写し, iterate by value, &mut array"
+  data-level="hedgehog"
+>
+  <h2>2026-10-09</h2>
+  <div class="code-frame">
+    <p class="code-filename">interest.rs</p>
+    <pre class="code"><code><span class="pp">#[derive(Clone, Copy)]</span>
+<span class="kw">struct</span> <span class="ty">Account</span> {
+    balance: <span class="ty">u64</span>,
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> accounts = [<span class="ty">Account</span> { balance: <span class="nu">100</span> }, <span class="ty">Account</span> { balance: <span class="nu">250</span> }];
+    <span class="kw">let</span> <span class="kw">mut</span> total = <span class="nu">0</span>;
+    <span class="kw">for</span> <span class="kw">mut</span> account <span class="kw">in</span> accounts {
+        account.balance += account.balance / <span class="nu">10</span>;
+        total += account.balance;
+    }
+    <span class="mc">println!</span>(<span class="st">"{total} {:?}"</span>, accounts.<span class="fn">map</span>(|a| a.balance));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    各口座の残高に利息として1割を足し、足したあとの合計と各口座の残高を出力するつもりのコードです。引数も標準入力も使いません。いまは <code>385 [100, 250]</code> が出ますが、本来は <code>385 [110, 275]</code> が出るはずです。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code>    <span class="kw">let</span> accounts = [<span class="ty">Account</span> { balance: <span class="nu">100</span> }, <span class="ty">Account</span> { balance: <span class="nu">250</span> }];
+    <span class="kw">let</span> <span class="kw">mut</span> total = <span class="nu">0</span>;
+    <span class="kw">for</span> <span class="kw">mut</span> account <span class="kw">in</span> accounts {
+        account.balance += account.balance / <span class="nu">10</span>;
+        total += account.balance;
+    }
+</code></pre>
+      <p>
+        <code>for</code> に配列を値のまま渡すと、<code>for</code> は配列を <code>IntoIterator</code> で消費し、要素を1つずつ値で取り出します。<code>Account</code> は <code>Copy</code> を導出しているので、このとき配列はコピーされ、<code>account</code> は元の要素の写しになります。<code>account.balance</code> に足した利息は写しに入るだけで、写しはループの1周ごとに捨てられます。<code>account</code> に <code>mut</code> が要ったのも、書き換えている相手が写しだからです。
+      </p>
+      <p>
+        写しの残高は110と275になるので、そこから足した <code>total</code> は正しく385になります。元の <code>accounts</code> は一度も書き換わらず、残高は100と250のままです。<code>Account</code> が <code>Copy</code> でなければ、<code>for</code> が配列を移動したあとで <code>accounts</code> を使う最後の行がコンパイルエラーになり、この取り違えに気付けたはずです。<code>Copy</code> を導出していたので、エラーが出ないまま写しを書き換えるコードになりました。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code>    <span class="kw">let</span> <span class="kw">mut</span> accounts = [<span class="ty">Account</span> { balance: <span class="nu">100</span> }, <span class="ty">Account</span> { balance: <span class="nu">250</span> }];
+    <span class="kw">let</span> <span class="kw">mut</span> total = <span class="nu">0</span>;
+    <span class="kw">for</span> account <span class="kw">in</span> &amp;<span class="kw">mut</span> accounts {
+        account.balance += account.balance / <span class="nu">10</span>;
+        total += account.balance;
+    }
+</code></pre>
+      <p>
+        <code>&amp;mut accounts</code> を回すと、<code>account</code> は各要素への可変参照 <code>&amp;mut Account</code> になり、<code>account.balance += …</code> は配列の中の要素そのものを書き換えます。配列を書き換えるので <code>accounts</code> には <code>mut</code> が要り、写しを書き換えるための <code>for mut account</code> の <code>mut</code> は要らなくなります<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>配列が値の <code>IntoIterator</code> を実装したのは Rust 1.53 からです。それより前は <code>for</code> に配列を値で渡せず、この書き方自体がコンパイルエラーでした。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

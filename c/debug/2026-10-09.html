@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="書き込みを優先するつもりの読み書きロックが、待っている書き込みをboolのフラグ1つで覚えているため、書き込みが2つ同時に待つと2つ目が読み取りに追い越され続けるC23のドリル。threads.h の mtx_t と cnd_t で組んだロックを扱う。">
+<title>入れない2つ目の書き込み</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-10-09">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-09" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-10-09",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-10-09",
+      "datePublished": "2026-10-09",
+      "dateModified": "2026-10-09",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "入れない2つ目の書き込み" },
+      "keywords": "read-write-lock, starvation, condition-variable, mutex",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "書き込みを優先するつもりの読み書きロックが、待っている書き込みをboolのフラグ1つで覚えているため、書き込みが2つ同時に待つと2つ目が読み取りに追い越され続けるC23のドリル。threads.h の mtx_t と cnd_t で組んだロックを扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-09" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-10-09">C++26</a>
+  <a href="/rust/debug/2026-10-09">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-09">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-09">READ</a>
+  <a href="/c/write/2026-10-09">WRITE</a>
+  <a href="/c/debug/2026-10-09" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="入れない2つ目の書き込み"
+  data-tags="read-write-lock starvation condition-variable mutex"
+  data-concepts="読み書きロック, 書き込み優先, 書き込みの飢餓, 待っている書き込みの数, cnd_wait, writer-preferring rwlock, writer starvation"
+  data-level="peacock"
+>
+  <h2>2026-10-09</h2>
+  <div class="code-frame">
+    <p class="code-filename">rwlock.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;threads.h&gt;</span>
+
+<span class="kw">struct</span> <span class="ty">rwlock</span> { <span class="ty">mtx_t</span> m; <span class="ty">cnd_t</span> cv; <span class="ty">int</span> readers; <span class="ty">bool</span> writing, writer_waiting; };
+
+<span class="ty">void</span> <span class="fn">read_lock</span>(<span class="kw">struct</span> <span class="ty">rwlock</span> *l) {
+    <span class="fn">mtx_lock</span>(&amp;l-&gt;m);
+    <span class="kw">while</span> (l-&gt;writing || l-&gt;writer_waiting) <span class="fn">cnd_wait</span>(&amp;l-&gt;cv, &amp;l-&gt;m);
+    l-&gt;readers++;
+    <span class="fn">mtx_unlock</span>(&amp;l-&gt;m);
+}
+
+<span class="ty">void</span> <span class="fn">write_lock</span>(<span class="kw">struct</span> <span class="ty">rwlock</span> *l) {
+    <span class="fn">mtx_lock</span>(&amp;l-&gt;m);
+    l-&gt;writer_waiting = <span class="nu">true</span>;
+    <span class="kw">while</span> (l-&gt;writing || l-&gt;readers &gt; <span class="nu">0</span>) <span class="fn">cnd_wait</span>(&amp;l-&gt;cv, &amp;l-&gt;m);
+    l-&gt;writer_waiting = <span class="nu">false</span>;
+    l-&gt;writing = <span class="nu">true</span>;
+    <span class="fn">mtx_unlock</span>(&amp;l-&gt;m);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>read_lock</code> と <code>write_lock</code> は、書き込みが待っている間は新しい読み取りを待たせ、書き込みを先に通すつもりの読み書きロックです。解除の関数は、カウンタとフラグを戻して <code>cnd_broadcast</code> で待っているスレッドを起こすだけなので省いています。読み取りスレッド4つが3ミリ秒の読み取りを休まず繰り返しているところへ書き込みスレッドを2つ同時に走らせ、500ミリ秒後に済んだ書き込みの数を出力します。手元で20回試すと、20回とも <code>1</code> で、2つ目の書き込みは読み取りスレッドを止めるまで入れませんでした。本来は、読み取りが続いていても2つとも済んで <code>2</code> になるはずです。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">struct</span> <span class="ty">rwlock</span> { <span class="ty">mtx_t</span> m; <span class="ty">cnd_t</span> cv; <span class="ty">int</span> readers; <span class="ty">bool</span> writing, writer_waiting; };
+
+<span class="cm">// read_lock</span>
+<span class="kw">while</span> (l-&gt;writing || l-&gt;writer_waiting) <span class="fn">cnd_wait</span>(&amp;l-&gt;cv, &amp;l-&gt;m);
+
+<span class="cm">// write_lock</span>
+l-&gt;writer_waiting = <span class="nu">true</span>;
+<span class="kw">while</span> (l-&gt;writing || l-&gt;readers &gt; <span class="nu">0</span>) <span class="fn">cnd_wait</span>(&amp;l-&gt;cv, &amp;l-&gt;m);
+l-&gt;writer_waiting = <span class="nu">false</span>;
+l-&gt;writing = <span class="nu">true</span>;
+</code></pre>
+      <p>
+        待っている書き込みを覚えているのは、<code>bool</code> の <code>writer_waiting</code> 1つだけです。書き込みが2つ同時に来ると、どちらも <code>writer_waiting</code> を <code>true</code> にして待ちに入り、新しい読み取りは止まります。読み取りが抜けきると1つ目の書き込みが入り、そこで <code>writer_waiting</code> を <code>false</code> に戻します。2つ目の書き込みはまだ <code>while</code> の中で待っているのに、フラグは待っている書き込みがないことを示しています。
+      </p>
+      <p>
+        1つ目の書き込みが終わって待っていたスレッドが一斉に起きたとき、読み取りが1つでも先に入ると、<code>read_lock</code> は <code>writer_waiting</code> が <code>false</code> なので後続の読み取りも次々に通します。読み取りスレッドが4つあれば、どれかが常に読んでいて <code>readers</code> は0に戻りません。2つ目の書き込みは <code>readers &gt; 0</code> で待ち続けるうえ、<code>writer_waiting = true</code> はループの前で1度しか実行しないので、フラグを立て直せません。こうして2つ目は、読み取りが止まるまで入れなくなります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">struct</span> <span class="ty">rwlock</span> { <span class="ty">mtx_t</span> m; <span class="ty">cnd_t</span> cv; <span class="ty">int</span> readers, waiting_writers; <span class="ty">bool</span> writing; };
+
+<span class="cm">// read_lock</span>
+<span class="kw">while</span> (l-&gt;writing || l-&gt;waiting_writers &gt; <span class="nu">0</span>) <span class="fn">cnd_wait</span>(&amp;l-&gt;cv, &amp;l-&gt;m);
+
+<span class="cm">// write_lock</span>
+l-&gt;waiting_writers++;
+<span class="kw">while</span> (l-&gt;writing || l-&gt;readers &gt; <span class="nu">0</span>) <span class="fn">cnd_wait</span>(&amp;l-&gt;cv, &amp;l-&gt;m);
+l-&gt;waiting_writers--;
+l-&gt;writing = <span class="nu">true</span>;
+</code></pre>
+      <p>
+        待っている書き込みを <code>int</code> の <code>waiting_writers</code> で数えれば、書き込みはそれぞれ自分の分だけを足し引きします。1つ目の書き込みが入って1を引いても2つ目の分が残るので、<code>read_lock</code> は新しい読み取りを待たせ続けます。読み取りが抜けきったところで2つ目も入り、500ミリ秒のうちに2つとも済みます<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>書き込みを優先しすぎると、今度は書き込みが途切れなく来たときに読み取りが入れなくなります。POSIX の <code>pthread_rwlock_rdlock</code> は、書き込みが待っているときに読み取りを入れるかどうかを実装に任せていて、glibc は既定で読み取りを優先します。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

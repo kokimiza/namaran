@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="整数の列のすべての部分集合について、要素の和を集合のビット表現の順に並べるC++26のドリル。一番下のビットを消した集合の和を使い回すビットDPで、部分集合の数に比例する時間で求める。">
+<title>すべての部分集合の和</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-10-09">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-09" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-10-09",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-10-09",
+      "datePublished": "2026-10-09",
+      "dateModified": "2026-10-09",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "すべての部分集合の和" },
+      "keywords": "bitmask-dp, subset-enumeration, bit-operation",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "整数の列のすべての部分集合について、要素の和を集合のビット表現の順に並べるC++26のドリル。一番下のビットを消した集合の和を使い回すビットDPで、部分集合の数に比例する時間で求める。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-09">C23</a>
+  <a href="/cpp/write/2026-10-09" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-10-09">Rust 2024</a>
+  <a href="/haskell/write/2026-10-09">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-09">READ</a>
+  <a href="/cpp/write/2026-10-09" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-10-09">DEBUG</a>
+</nav>
+
+<main
+  data-topic="すべての部分集合の和"
+  data-tags="bitmask-dp subset-enumeration bit-operation"
+  data-concepts="ビットDP, 部分集合の和, 最下位ビットを消す, countr_zero, subset sums, bitmask DP, lowest set bit"
+  data-level="hedgehog"
+>
+  <h2>2026-10-09</h2>
+  <div class="code-frame">
+    <p class="code-filename">subset_sums.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+
+std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt; <span class="fn">subset_sums</span>(<span class="kw">const</span> std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt;&amp; a) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    整数の列 <code>a</code> のすべての部分集合について要素の和を求め、<code>std::vector&lt;int&gt;</code> に並べて返す <code>subset_sums</code> を書いてください。添字 <code>mask</code> の位置には、<code>mask</code> のビット <code>i</code> が立っている <code>a[i]</code> の和を置きます。<code>a</code> が空なら、空集合の和 <code>0</code> だけを持つ列を返します。かかる時間は、部分集合の数に比例するようにします。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>subset_sums({3, 5})</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>{0, 3, 5, 8}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>subset_sums({1, 2, 4})</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>{0, 1, 2, 3, 4, 5, 6, 7}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>subset_sums({})</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>{0}</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;bit&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;cassert&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+
+std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt; <span class="fn">subset_sums</span>(<span class="kw">const</span> std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt;&amp; a) {
+    std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt; <span class="fn">sum</span>(<span class="nu">1u</span> &lt;&lt; a.<span class="fn">size</span>());
+    <span class="kw">for</span> (<span class="ty">unsigned</span> mask = <span class="nu">1</span>; mask &lt; sum.<span class="fn">size</span>(); ++mask)
+        sum[mask] = sum[mask &amp; (mask - <span class="nu">1</span>)] + a[std::<span class="fn">countr_zero</span>(mask)];
+    <span class="kw">return</span> sum;
+}
+</code></pre>
+      <p>
+        参考実装は、<code>mask</code> の和を、<code>mask</code> から要素を1つ除いた集合の和から求めます。<code>mask &amp; (mask - 1)</code> は <code>mask</code> の一番下の立っているビットを消した値で、消したビットの位置は <code>std::countr_zero(mask)</code> で分かります。<code>mask</code> が <code>0b110</code> なら、<code>0b100</code> の和に <code>a[1]</code> を足します。
+      </p>
+      <p>
+        <code>mask &amp; (mask - 1)</code> は <code>mask</code> より小さいので、<code>mask</code> を小さい順に回せば、使う和はいつも計算済みです。1つの <code>mask</code> につき足し算は1回なので、全体の時間は部分集合の数に比例します。部分集合ごとに全ビットを調べて足す書き方では、要素数の分だけ余計に時間がかかります。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>{0}</code> から始めて、要素を1つ加えるたびに、それまでの各和にその要素を足したものを後ろへ付け足していく書き方でも、同じ順番の列ができます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

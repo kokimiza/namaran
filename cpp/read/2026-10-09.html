@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="4つの作業に前提があるとき、終えた作業の集合をビットで表したDPで、全作業を終える順番が何通りあるかを数えるC++26のドリル。ビットDPで訪問済みの集合を状態として扱う。">
+<title>前提つき作業の順番</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-10-09">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-09" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-10-09",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-10-09",
+      "datePublished": "2026-10-09",
+      "dateModified": "2026-10-09",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "前提つき作業の順番" },
+      "keywords": "bitmask-dp, bitmask, topological-sort, combinatorics",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "4つの作業に前提があるとき、終えた作業の集合をビットで表したDPで、全作業を終える順番が何通りあるかを数えるC++26のドリル。ビットDPで訪問済みの集合を状態として扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-09">C23</a>
+  <a href="/cpp/read/2026-10-09" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-10-09">Rust 2024</a>
+  <a href="/haskell/read/2026-10-09">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-09" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-10-09">WRITE</a>
+  <a href="/cpp/debug/2026-10-09">DEBUG</a>
+</nav>
+
+<main
+  data-topic="前提つき作業の順番"
+  data-tags="bitmask-dp bitmask topological-sort combinatorics"
+  data-concepts="ビットDP, 部分集合DP, 終えた作業の集合, トポロジカル順序の数え上げ, bitmask DP, subset DP, counting topological orders"
+  data-level="hedgehog"
+>
+  <h2>2026-10-09</h2>
+  <div class="code-frame">
+    <p class="code-filename">task_orders.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;array&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;print&gt;</span>
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="kw">constexpr</span> std::<span class="ty">array</span> need{<span class="nu">0b0000</span>, <span class="nu">0b0001</span>, <span class="nu">0b0001</span>, <span class="nu">0b0010</span>};
+    <span class="kw">constexpr</span> <span class="ty">int</span> n = need.<span class="fn">size</span>();
+    std::<span class="ty">array</span>&lt;<span class="ty">int</span>, <span class="nu">1</span> &lt;&lt; n&gt; ways{};
+    ways[<span class="nu">0</span>] = <span class="nu">1</span>;
+    <span class="kw">for</span> (<span class="ty">int</span> mask = <span class="nu">0</span>; mask &lt; <span class="nu">1</span> &lt;&lt; n; ++mask)
+        <span class="kw">for</span> (<span class="ty">int</span> j = <span class="nu">0</span>; j &lt; n; ++j)
+            <span class="kw">if</span> (!(mask &gt;&gt; j &amp; <span class="nu">1</span>) &amp;&amp; (need[j] &amp; mask) == need[j])
+                ways[mask | <span class="nu">1</span> &lt;&lt; j] += ways[mask];
+    std::<span class="fn">println</span>(<span class="st">"{}"</span>, ways[(<span class="nu">1</span> &lt;&lt; n) - <span class="nu">1</span>]);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>3</code> です。
+      </p>
+      <p>
+        <code>ways[mask]</code> は、<code>mask</code> のビットが立っている作業を終えた状態へ、何通りの順番でたどり着けるかを表します。<code>mask</code> ごとに、まだ終えていない作業 <code>j</code> のうち、前提 <code>need[j]</code> のビットがすべて <code>mask</code> に含まれるものを次に終えられるとして、<code>ways[mask | 1 &lt;&lt; j]</code> に <code>ways[mask]</code> を足します。<code>mask | 1 &lt;&lt; j</code> は <code>mask</code> より大きいので、<code>mask</code> を小さい順に回せば、ある状態を読むときにはそこへの足し込みがすべて済んでいます。
+      </p>
+      <p>
+        <code>need</code> によると、作業0には前提がなく、1と2は0の後、3は1の後です。最初に終えられるのは0だけなので、残りは1、2、3を「1が3より前」という条件だけで並べる順番になります。3つの並べ方6通りのうち、1が3より前に来るのは1 2 3、1 3 2、2 1 3の3通りで、全作業を終えた <code>ways[0b1111]</code> は3です。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

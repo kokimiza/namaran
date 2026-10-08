@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「ミューテックス」を扱ったNamaranのコーディングドリル2問。MutexGuard、一時値の寿命、if letのスコープ、Rust 2024、確認と使用の間、temporary lifetime。">
+<meta name="description" content="「ミューテックス」を扱ったNamaranのコーディングドリル3問。読み書きロック、書き込み優先、書き込みの飢餓、待っている書き込みの数、cnd_wait、writer-preferring rwlock。">
 <title>ミューテックス</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/mutex">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>ミューテックス</h2>
 
   <p class="lede">
-    「ミューテックス」を扱った2問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「ミューテックス」を扱った3問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/c/debug/2026-10-09">C / DEBUG · 2026-10-09</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">入れない2つ目の書き込み</span> <span class="past-concepts">読み書きロック, 書き込み優先, 書き込みの飢餓, 待っている書き込みの数, cnd_wait, writer-preferring rwlock, writer starvation</span></li>
     <li><a href="/rust/read/2026-09-26">Rust / READ · 2026-09-26</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">ロックはいつ外れるか</span> <span class="past-concepts">MutexGuard, 一時値の寿命, if letのスコープ, Rust 2024, 確認と使用の間, temporary lifetime, if let rescope, TOCTOU</span></li>
     <li><a href="/rust/debug/2026-09-26">Rust / DEBUG · 2026-09-26</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">確認と引き出しの間</span> <span class="past-concepts">残高の二重引き出し, Mutexのロック範囲, check-then-act, 競合状態, race condition, TOCTOU</span></li>
   </ul>

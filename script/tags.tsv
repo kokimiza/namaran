@@ -44,6 +44,7 @@ cache-locality	キャッシュ局所性
 call-stack	コールスタック
 capacity	容量
 capture	キャプチャ
+cartesian-product	直積
 case-mapping	大文字小文字変換
 channel	チャネル
 character-encoding	文字コード
@@ -51,6 +52,7 @@ check-digit	チェックディジット
 checked-arithmetic	検査付き演算
 checksum	チェックサム
 church-encoding	Church符号化
+clone-trait	Cloneトレイト
 closure	クロージャ
 combinatorics	組み合わせ論
 command-injection	コマンドインジェクション
@@ -74,6 +76,7 @@ control-flow	制御の流れ
 convex-hull	凸包
 copy-assignment	コピー代入
 copy-elision	コピー省略
+copy-trait	Copyトレイト
 coroutine	コルーチン
 counting-sort	計数ソート
 crdt	CRDT
@@ -312,6 +315,7 @@ range-adaptor	レンジアダプタ
 range-for	範囲for
 rate-limiting	流量制限
 rational-number	有理数
+read-write-lock	読み書きロック
 reborrow	再借用
 record-syntax	レコード構文
 recursion	再帰
@@ -358,6 +362,7 @@ sqrt-decomposition	平方分割
 ssa-form	SSA形式
 stability	安定性
 stack	スタック
+starvation	飢餓状態
 state-machine	状態機械
 static-dispatch	静的ディスパッチ
 static-storage	静的記憶域

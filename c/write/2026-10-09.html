@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="読み取りRと書き込みWの要求が到着順に並んだ文字列から、到着順を守る読み書きロックが何回に分けて許可を出すかを数えるC23のドリル。後から来た読み取りに待っている書き込みを追い越させないことで、書き込み側の飢餓を防ぐ考え方を扱う。">
+<title>到着順に通す読み書き</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-10-09">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-09" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-10-09",
+      "url": "https://namaran.jocarium.productions/c/write/2026-10-09",
+      "datePublished": "2026-10-09",
+      "dateModified": "2026-10-09",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "到着順に通す読み書き" },
+      "keywords": "read-write-lock, starvation, queue, string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "読み取りRと書き込みWの要求が到着順に並んだ文字列から、到着順を守る読み書きロックが何回に分けて許可を出すかを数えるC23のドリル。後から来た読み取りに待っている書き込みを追い越させないことで、書き込み側の飢餓を防ぐ考え方を扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-09" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-10-09">C++26</a>
+  <a href="/rust/write/2026-10-09">Rust 2024</a>
+  <a href="/haskell/write/2026-10-09">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-09">READ</a>
+  <a href="/c/write/2026-10-09" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-10-09">DEBUG</a>
+</nav>
+
+<main
+  data-topic="到着順に通す読み書き"
+  data-tags="read-write-lock starvation queue string"
+  data-concepts="到着順の読み書きロック, 公平なロック, 書き込みの飢餓を防ぐ, 読み取りをまとめて通す, fair readers-writer lock, FIFO lock, writer starvation"
+  data-level="hedgehog"
+>
+  <h2>2026-10-09</h2>
+  <div class="code-frame">
+    <p class="code-filename">count_phases.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stddef.h&gt;</span>
+
+<span class="ty">size_t</span> <span class="fn">count_phases</span>(<span class="kw">const</span> <span class="ty">char</span> *queue) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    読み書きロックへの要求を到着順に並べた文字列 <code>queue</code> を受け取り、ロックが何回に分けて許可を出すかを返す <code>count_phases</code> を書いてください。<code>'R'</code> は読み取り、<code>'W'</code> は書き込みの要求です。ロックは到着順を守り、続けて並んだ読み取りは1回でまとめて通し、書き込みは1つずつ通します。書き込みより後に来た読み取りが、その書き込みを追い越すことはありません。<code>queue</code> が空なら <code>0</code> を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>count_phases("RRWRR")</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>3</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>count_phases("RWWRRR")</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>4</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>count_phases("")</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;assert.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;stddef.h&gt;</span>
+
+<span class="ty">size_t</span> <span class="fn">count_phases</span>(<span class="kw">const</span> <span class="ty">char</span> *queue) {
+    <span class="ty">size_t</span> phases = <span class="nu">0</span>;
+    <span class="kw">for</span> (<span class="ty">size_t</span> i = <span class="nu">0</span>; queue[i]; i++)
+        <span class="kw">if</span> (queue[i] == <span class="st">'W'</span> || i == <span class="nu">0</span> || queue[i - <span class="nu">1</span>] == <span class="st">'W'</span>)
+            phases++;
+    <span class="kw">return</span> phases;
+}
+</code></pre>
+      <p>
+        参考実装は <code>queue</code> を先頭から1文字ずつ見て、新しい許可が始まる文字を数えます。新しい許可が始まるのは、書き込みの要求か、先頭にある読み取りか、書き込みの直後に来た読み取りです。読み取りの直後の読み取りは前と同じ回に通るので、数えません。
+      </p>
+      <p>
+        <code>"RRWRR"</code> では、先頭の <code>R</code>、真ん中の <code>W</code>、その直後の <code>R</code> の3か所で新しい許可が始まります。最後の2つの読み取りは、先頭の2つとの間に書き込みがあるので、同じ回には入れません。もし後の2つを先頭の回に混ぜて読み取りを優先すれば2回で済みますが、その分だけ書き込みは後回しになり、読み取りが途切れなく来る限り入れなくなります。到着順を守れば、書き込みは自分より前の要求が済んだ時点で必ず順番が来ます。
+      </p>
+      <p>
+        <code>||</code> は左から順に評価し、真になった時点で残りを評価しないので、<code>i == 0</code> のときに <code>queue[i - 1]</code> を読むことはありません。掲載したのは参考実装で、唯一の正解ではありません。直前の要求の種類を変数に覚えておき、書き込みのときと、読み取りが書き込みの後に来たときに数える書き方でも同じ結果になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

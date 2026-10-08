@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="人の一覧から k 人のチームをすべて列挙するつもりの関数が、replicateM で作った並びから nub で重複のないものを残すだけなので、同じ顔ぶれを並び順違いで何度も返すHaskell 2010のドリル。直積と組み合わせの違いを扱う。">
+<title>同じ顔ぶれのチーム</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-10-09">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-09" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-10-09",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-10-09",
+      "datePublished": "2026-10-09",
+      "dateModified": "2026-10-09",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "同じ顔ぶれのチーム" },
+      "keywords": "list-monad, cartesian-product, combinatorics, deduplication",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "人の一覧から k 人のチームをすべて列挙するつもりの関数が、replicateM で作った並びから nub で重複のないものを残すだけなので、同じ顔ぶれを並び順違いで何度も返すHaskell 2010のドリル。直積と組み合わせの違いを扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-09">C23</a>
+  <a href="/cpp/debug/2026-10-09">C++26</a>
+  <a href="/rust/debug/2026-10-09">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-09" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-09">READ</a>
+  <a href="/haskell/write/2026-10-09">WRITE</a>
+  <a href="/haskell/debug/2026-10-09" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="同じ顔ぶれのチーム"
+  data-tags="list-monad cartesian-product combinatorics deduplication"
+  data-concepts="replicateM, 直積, 組み合わせ, 順列, nub, 重複を除く, combinations, k-subsets, cartesian product"
+  data-level="bison"
+>
+  <h2>2026-10-09</h2>
+  <div class="code-frame">
+    <p class="code-filename">Teams.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Control.Monad</span> (replicateM)
+<span class="kw">import</span> <span class="ty">Data.List</span> (nub)
+
+<span class="fn">teams</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">String</span> <span class="op">-&gt;</span> [<span class="ty">String</span>]
+<span class="fn">teams</span> k people = [t | t <span class="op">&lt;-</span> replicateM k people, nub t == t]
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (teams <span class="nu">2</span> <span class="st">"abc"</span>)
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>teams k people</code> は、<code>people</code> の1文字を1人として、<code>k</code> 人のチームをすべて、同じ顔ぶれは1回ずつ返すつもりの関数です。<code>main</code> は <code>teams 2 "abc"</code> を出力するので、引数も標準入力も使いません。いまは <code>["ab","ac","ba","bc","ca","cb"]</code> が出ますが、本来は <code>["ab","ac","bc"]</code> が出るはずです。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="fn">teams</span> k people = [t | t <span class="op">&lt;-</span> replicateM k people, nub t == t]
+</code></pre>
+      <p>
+        <code>replicateM 2 "abc"</code> は、<code>"abc"</code> から1文字選ぶことを2回繰り返した直積で、<code>"aa"</code> から <code>"cc"</code> までの9通りを並べます。直積では1人目と2人目が区別されるので、同じ人を2回選んだ <code>"aa"</code> も、選んだ順だけが違う <code>"ab"</code> と <code>"ba"</code> も、別々の要素です。
+      </p>
+      <p>
+        <code>nub t == t</code> で落ちるのは、1つの並びの中に同じ人が2回いる <code>"aa"</code>、<code>"bb"</code>、<code>"cc"</code> だけです。<code>"ab"</code> と <code>"ba"</code> はどちらも中に重複がないので両方残り、同じチームが並び順違いで2回ずつ出てきます。<code>k</code> 人なら、同じ顔ぶれが <code>k</code> の階乗の回数ずつ出ます。結果のリスト全体に <code>nub</code> をかけても、<code>"ab"</code> と <code>"ba"</code> は違う文字列なので消えません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="fn">teams</span> k people = [t | t <span class="op">&lt;-</span> replicateM k people, and (zipWith (&lt;) t (drop <span class="nu">1</span> t))]
+</code></pre>
+      <p>
+        チームは顔ぶれだけで決まるので、同じ顔ぶれの並びの中から代表を1つだけ選びます。<code>zipWith (&lt;) t (drop 1 t)</code> は隣り合う2人を比べた結果のリストで、<code>and</code> で全部が真のもの、つまり厳密に増えていく並びだけが残ります。1つの顔ぶれを厳密に増える順に並べる方法は1通りしかないので、各チームはちょうど1回現れます。厳密に増える並びには同じ人が2回入れないので、<code>nub</code> の条件も要らなくなります<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li><code>Data.List</code> の <code>subsequences</code> で部分列をすべて作り、長さが <code>k</code> のものだけを残しても、同じチームの一覧が得られます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
