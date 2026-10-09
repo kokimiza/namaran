@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="仮想基底クラスの仮想関数を左右の両方が上書きした菱形継承で、最派生クラスに一意の最終オーバーライダを書くC++26のドリル。基底クラス名で修飾した呼び出しで両方の実装を使う書き方を扱う。">
+<title>菱形の最終オーバーライダ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-10-10">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-10" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-10-10",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-10-10",
+      "datePublished": "2026-10-10",
+      "dateModified": "2026-10-10",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "菱形の最終オーバーライダ" },
+      "keywords": "virtual-inheritance, virtual-function, multiple-inheritance",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "仮想基底クラスの仮想関数を左右の両方が上書きした菱形継承で、最派生クラスに一意の最終オーバーライダを書くC++26のドリル。基底クラス名で修飾した呼び出しで両方の実装を使う書き方を扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-10">C23</a>
+  <a href="/cpp/write/2026-10-10" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-10-10">Rust 2024</a>
+  <a href="/haskell/write/2026-10-10">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-10">READ</a>
+  <a href="/cpp/write/2026-10-10" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-10-10">DEBUG</a>
+</nav>
+
+<main
+  data-topic="菱形の最終オーバーライダ"
+  data-tags="virtual-inheritance virtual-function multiple-inheritance"
+  data-concepts="最終オーバーライダ, 菱形継承, 仮想基底クラス, 修飾付きの呼び出し, final overrider, diamond inheritance, qualified name call"
+  data-level="peacock"
+>
+  <h2>2026-10-10</h2>
+  <div class="code-frame">
+    <p class="code-filename">port_name.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+
+<span class="kw">struct</span> <span class="ty">Device</span> {
+    <span class="kw">virtual</span> ~<span class="fn">Device</span>() = <span class="kw">default</span>;
+    <span class="kw">virtual</span> std::<span class="ty">string</span> <span class="fn">name</span>() <span class="kw">const</span> { <span class="kw">return</span> <span class="st">"device"</span>; }
+};
+
+<span class="kw">struct</span> <span class="ty">Reader</span> : <span class="kw">virtual</span> <span class="ty">Device</span> {
+    std::<span class="ty">string</span> <span class="fn">name</span>() <span class="kw">const</span> <span class="kw">override</span> { <span class="kw">return</span> <span class="st">"reader"</span>; }
+};
+
+<span class="kw">struct</span> <span class="ty">Writer</span> : <span class="kw">virtual</span> <span class="ty">Device</span> {
+    std::<span class="ty">string</span> <span class="fn">name</span>() <span class="kw">const</span> <span class="kw">override</span> { <span class="kw">return</span> <span class="st">"writer"</span>; }
+};
+
+<span class="kw">struct</span> <span class="ty">Port</span> : <span class="ty">Reader</span>, <span class="ty">Writer</span> {
+    std::<span class="ty">string</span> <span class="fn">name</span>() <span class="kw">const</span> <span class="kw">override</span> {
+    }
+};
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>Port</code> は読み取りと書き込みの両方の役目を持つ装置で、<code>Reader</code> と <code>Writer</code> が1つの <code>Device</code> を共有しています。<code>Port</code> の <code>name()</code> を書いてください。<code>Reader</code> の名前と <code>Writer</code> の名前を <code>+</code> でつないだ <code>"reader+writer"</code> を返し、<code>Port</code> を <code>Device</code> や <code>Reader</code> の参照を通して呼んだときも同じ文字列を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>Port p; p.name()</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>"reader+writer"</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>Port p; const Device&amp; d = p; d.name()</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>"reader+writer"</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>Reader r; r.name()</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>"reader"</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code>std::<span class="ty">string</span> <span class="fn">name</span>() <span class="kw">const</span> <span class="kw">override</span> {
+    <span class="kw">return</span> <span class="ty">Reader</span>::<span class="fn">name</span>() + <span class="st">"+"</span> + <span class="ty">Writer</span>::<span class="fn">name</span>();
+}
+</code></pre>
+      <p>
+        <code>Reader::name()</code> のように基底クラスの名前で修飾して呼ぶと、仮想関数でも動的な型による振り分けは起きず、<code>Reader</code> が定義した <code>name</code> がそのまま呼ばれます。修飾せずに <code>name()</code> と書けば <code>Port::name</code> 自身が呼ばれ、再帰が止まりません。
+      </p>
+      <p>
+        <code>Port</code> の <code>name</code> は省けません。<code>Device</code> は仮想基底クラスなので <code>Port</code> の中に1つしかなく、その <code>name</code> を <code>Reader</code> と <code>Writer</code> がそれぞれ上書きしています。<code>Port</code> が何も書かなければ、<code>Device</code> の参照から呼んだ <code>name</code> を <code>Reader</code> 版と <code>Writer</code> 版のどちらへ振り分けるかが決まらず、最終オーバーライダが一意でないとしてコンパイルエラーになります。<code>Port::name</code> を書くとそれが唯一の最終オーバーライダになり、入力例2のように <code>Device</code> の参照から呼んでも <code>"reader+writer"</code> が返ります。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>std::format("{}+{}", Reader::name(), Writer::name())</code> のように書いても同じ文字列を返せます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

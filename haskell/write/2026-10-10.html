@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="1回ごとのタイムアウトと処理全体の期限から、再試行ごとに渡すタイムアウトの列を求める関数を書くHaskell 2010のドリル。最後の試行には残り時間だけを与えて全体の期限を守る考え方を扱う。">
+<title>残り時間で区切る</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-10-10">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-10" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-10-10",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-10-10",
+      "datePublished": "2026-10-10",
+      "dateModified": "2026-10-10",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "残り時間で区切る" },
+      "keywords": "timeout, retry, recursion",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "1回ごとのタイムアウトと処理全体の期限から、再試行ごとに渡すタイムアウトの列を求める関数を書くHaskell 2010のドリル。最後の試行には残り時間だけを与えて全体の期限を守る考え方を扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-10">C23</a>
+  <a href="/cpp/write/2026-10-10">C++26</a>
+  <a href="/rust/write/2026-10-10">Rust 2024</a>
+  <a href="/haskell/write/2026-10-10" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-10">READ</a>
+  <a href="/haskell/write/2026-10-10" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-10-10">DEBUG</a>
+</nav>
+
+<main
+  data-topic="残り時間で区切る"
+  data-tags="timeout retry recursion"
+  data-concepts="試行ごとのタイムアウト, 全体の期限, 残り時間, 再試行の予算, per-attempt timeout, overall deadline, retry budget"
+  data-level="hedgehog"
+>
+  <h2>2026-10-10</h2>
+  <div class="code-frame">
+    <p class="code-filename">RetryBudgets.hs</p>
+    <pre class="code"><code><span class="fn">retryBudgets</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Int</span> <span class="op">-&gt;</span> [<span class="ty">Int</span>]
+</code></pre>
+  </div>
+
+  <p class="question">
+    失敗した通信を再試行するときに、各試行へ渡すタイムアウトをミリ秒で順に並べたリストを返す <code>retryBudgets</code> を書いてください。1回の試行には最大で <code>perTry</code> ミリ秒を与えますが、合計は処理全体の期限 <code>deadline</code> ミリ秒を超えてはいけません。どの試行も与えられた時間を使い切って失敗するものとし、残り時間が <code>perTry</code> に満たなくなったら、最後の試行には残り時間だけを与えます。<code>deadline</code> が0以下なら空リストを返します。<code>perTry</code> は正の数とします。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>retryBudgets 300 1000</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>[300,300,300,100]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>retryBudgets 500 1000</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>[500,500]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>retryBudgets 300 0</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>[]</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="fn">retryBudgets</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Int</span> <span class="op">-&gt;</span> [<span class="ty">Int</span>]
+<span class="fn">retryBudgets</span> perTry deadline
+  | deadline &lt;= <span class="nu">0</span> = []
+  | otherwise = t : retryBudgets perTry (deadline - t)
+  <span class="kw">where</span>
+    t = min perTry deadline
+</code></pre>
+      <p>
+        参考実装は、残り時間 <code>deadline</code> から1回分の時間 <code>t</code> を引いて再帰します。<code>t</code> は <code>perTry</code> と残り時間の小さいほうなので、残りが <code>perTry</code> に満たない最後の1回は残り時間だけを受け取ります。そこで残りがちょうど0になり、再帰が止まります。
+      </p>
+      <p>
+        毎回 <code>perTry</code> をそのまま渡すと、入力例1では4回目も300ミリ秒を受け取り、全体で1200ミリ秒かかります。試行ごとのタイムアウトが止めるのは1回の通信の長引きだけなので、処理全体の期限は、残り時間として試行から試行へ持ち回る必要があります。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>Data.List</code> の <code>unfoldr</code> を使い、残り時間を状態にして書くこともできます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

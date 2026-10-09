@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="菱形継承で仮想基底クラスを共有するとき、途中のクラスのメンバ初期化子が使われず、最派生クラスが仮想基底クラスを初期化することを読むC++26のドリル。">
+<title>仮想基底は誰が作る</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-10-10">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-10" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-10-10",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-10-10",
+      "datePublished": "2026-10-10",
+      "dateModified": "2026-10-10",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "仮想基底は誰が作る" },
+      "keywords": "virtual-inheritance, multiple-inheritance, constructor",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "菱形継承で仮想基底クラスを共有するとき、途中のクラスのメンバ初期化子が使われず、最派生クラスが仮想基底クラスを初期化することを読むC++26のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-10">C23</a>
+  <a href="/cpp/read/2026-10-10" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-10-10">Rust 2024</a>
+  <a href="/haskell/read/2026-10-10">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-10" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-10-10">WRITE</a>
+  <a href="/cpp/debug/2026-10-10">DEBUG</a>
+</nav>
+
+<main
+  data-topic="仮想基底は誰が作る"
+  data-tags="virtual-inheritance multiple-inheritance constructor"
+  data-concepts="仮想基底クラスの初期化, 最派生クラス, 菱形継承, メンバ初期化子の無視, virtual base initialization, most derived class, diamond inheritance"
+  data-level="hedgehog"
+>
+  <h2>2026-10-10</h2>
+  <div class="code-frame">
+    <p class="code-filename">port_id.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+
+<span class="kw">struct</span> <span class="ty">Device</span> {
+    <span class="ty">int</span> id;
+    <span class="kw">explicit</span> <span class="fn">Device</span>(<span class="ty">int</span> i = <span class="nu">0</span>) : <span class="fn">id</span>(i) {}
+};
+
+<span class="kw">struct</span> <span class="ty">Reader</span> : <span class="kw">virtual</span> <span class="ty">Device</span> {
+    <span class="fn">Reader</span>() : <span class="fn">Device</span>(<span class="nu">1</span>) {}
+};
+
+<span class="kw">struct</span> <span class="ty">Writer</span> : <span class="kw">virtual</span> <span class="ty">Device</span> {
+    <span class="fn">Writer</span>() : <span class="fn">Device</span>(<span class="nu">2</span>) {}
+};
+
+<span class="kw">struct</span> <span class="ty">Port</span> : <span class="ty">Reader</span>, <span class="ty">Writer</span> {};
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="ty">Port</span> p;
+    std::cout &lt;&lt; p.id &lt;&lt; <span class="st">'\n'</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>0</code> です。
+      </p>
+      <p>
+        <code>Reader</code> と <code>Writer</code> はどちらも <code>Device</code> を <code>virtual</code> で継承しているので、<code>Port</code> の中の <code>Device</code> は2つではなく1つです。<code>p.id</code> が曖昧にならないのもこのためです。1つしかない <code>Device</code> を <code>Reader</code> と <code>Writer</code> の両方が初期化しようとすると、<code>1</code> と <code>2</code> のどちらを使うかが決まりません。
+      </p>
+      <p>
+        そこで C++ は、仮想基底クラスを初期化する役目を、実際に作られるオブジェクトの型、つまり最派生クラスに負わせています。<code>Port p;</code> で作られるのは <code>Port</code> なので、<code>Device</code> を初期化するのは <code>Port</code> です。<code>Reader()</code> と <code>Writer()</code> も呼ばれはしますが、そのメンバ初期化子にある <code>Device(1)</code> と <code>Device(2)</code> は、<code>Port</code> の一部として作られるときには使われません。<code>Port</code> は <code>Device</code> について何も書いていないので、<code>Device</code> は既定のコンストラクタで作られ、<code>id</code> は既定の引数の <code>0</code> になります。
+      </p>
+      <p>
+        同じ <code>Reader()</code> でも、<code>Reader r;</code> のように <code>Reader</code> 自身が最派生クラスになるときは <code>Device(1)</code> が使われ、<code>r.id</code> は <code>1</code> です。<code>Port</code> の <code>id</code> を決めたいなら、<code>Port() : Device(3) {}</code> のように <code>Port</code> 自身が <code>Device</code> を初期化します。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

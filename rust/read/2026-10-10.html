@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="先頭や途中で空白が続く行を split(' ') と split_whitespace で分けたときの要素数を比べるRust 2024のドリル。区切りが続くところや両端に空文字列の要素ができる規則を扱う。">
+<title>空白で切ると何個</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-10-10">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / READ", "item": "https://namaran.jocarium.productions/rust/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-10" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / READ — 2026-10-10",
+      "url": "https://namaran.jocarium.productions/rust/read/2026-10-10",
+      "datePublished": "2026-10-10",
+      "dateModified": "2026-10-10",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "空白で切ると何個" },
+      "keywords": "string, iterator",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "先頭や途中で空白が続く行を split(' ') と split_whitespace で分けたときの要素数を比べるRust 2024のドリル。区切りが続くところや両端に空文字列の要素ができる規則を扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-10">C23</a>
+  <a href="/cpp/read/2026-10-10">C++26</a>
+  <a href="/rust/read/2026-10-10" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/read/2026-10-10">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-10" class="active" aria-current="page">READ</a>
+  <a href="/rust/write/2026-10-10">WRITE</a>
+  <a href="/rust/debug/2026-10-10">DEBUG</a>
+</nav>
+
+<main
+  data-topic="空白で切ると何個"
+  data-tags="string iterator"
+  data-concepts="split, split_whitespace, 空の要素, 連続する区切り文字, 先頭と末尾の空白, empty substrings, consecutive delimiters"
+  data-level="hedgehog"
+>
+  <h2>2026-10-10</h2>
+  <div class="code-frame">
+    <p class="code-filename">count_words.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> line = <span class="st">"  cargo  build --release "</span>;
+    <span class="kw">let</span> a = line.<span class="fn">split</span>(<span class="st">' '</span>).<span class="fn">count</span>();
+    <span class="kw">let</span> b = line.<span class="fn">split_whitespace</span>().<span class="fn">count</span>();
+    <span class="mc">println!</span>(<span class="st">"{a} {b}"</span>);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>7 3</code> です。
+      </p>
+      <p>
+        <code>split(' ')</code> は、空白1文字を見つけるたびにそこで切り、区切りと区切りの間にあるものを、空であってもそのまま1つの要素として返します。<code>line</code> の空白は、先頭に2つ、<code>cargo</code> と <code>build</code> の間に2つ、<code>build</code> と <code>--release</code> の間に1つ、末尾に1つの、合わせて6つです。6か所で切れば7つに分かれるので、要素は <code>""</code>、<code>""</code>、<code>"cargo"</code>、<code>""</code>、<code>"build"</code>、<code>"--release"</code>、<code>""</code> の7つになります。先頭の空白の前と、続いた空白の間と、末尾の空白の後に、それぞれ空文字列が入ります。
+      </p>
+      <p>
+        <code>split_whitespace</code> は空白の並びをひとまとまりの区切りとして扱い、空の要素を返しません。残るのは <code>cargo</code>、<code>build</code>、<code>--release</code> の3つです。人が打ったコマンド行のように空白の数がそろわない入力を単語に分けるなら <code>split_whitespace</code>、CSV の空欄のように空の要素にも意味がある入力なら <code>split</code> を使います。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/read">Today</a></li>
+    <li><a href="/rust/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

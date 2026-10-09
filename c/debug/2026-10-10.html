@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="引き出し前の残高と比べるつもりの事後条件が、口座へのポインタを取っておいただけなので更新後の値と比べてしまい、assert が毎回失敗するC23のドリル。事後条件で変更前の値を保存する方法を扱う。">
+<title>引き出す前の残高</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-10-10">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-10" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-10-10",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-10-10",
+      "datePublished": "2026-10-10",
+      "dateModified": "2026-10-10",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "引き出す前の残高" },
+      "keywords": "design-by-contract, assertion, pointer",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "引き出し前の残高と比べるつもりの事後条件が、口座へのポインタを取っておいただけなので更新後の値と比べてしまい、assert が毎回失敗するC23のドリル。事後条件で変更前の値を保存する方法を扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-10" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-10-10">C++26</a>
+  <a href="/rust/debug/2026-10-10">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-10">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-10">READ</a>
+  <a href="/c/write/2026-10-10">WRITE</a>
+  <a href="/c/debug/2026-10-10" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="引き出す前の残高"
+  data-tags="design-by-contract assertion pointer"
+  data-concepts="事後条件, 変更前の値, ポインタの別名, 構造体のコピー, postcondition, old value, aliasing, assert"
+  data-level="peacock"
+>
+  <h2>2026-10-10</h2>
+  <div class="code-frame">
+    <p class="code-filename">withdraw.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;assert.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">struct</span> <span class="ty">account</span> { <span class="ty">long</span> balance; };
+
+<span class="kw">static</span> <span class="ty">void</span> <span class="fn">withdraw</span>(<span class="kw">struct</span> <span class="ty">account</span> *a, <span class="ty">long</span> amount) {
+    <span class="fn">assert</span>(<span class="nu">0</span> &lt; amount &amp;&amp; amount &lt;= a-&gt;balance);      <span class="cm">// precondition</span>
+    <span class="kw">const</span> <span class="kw">struct</span> <span class="ty">account</span> *before = a;
+    a-&gt;balance -= amount;
+    <span class="fn">assert</span>(a-&gt;balance == before-&gt;balance - amount);  <span class="cm">// postcondition</span>
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="kw">struct</span> <span class="ty">account</span> acc = {<span class="nu">100</span>};
+    <span class="fn">withdraw</span>(&amp;acc, <span class="nu">30</span>);
+    <span class="fn">withdraw</span>(&amp;acc, <span class="nu">50</span>);
+    <span class="fn">printf</span>(<span class="st">"%ld\n"</span>, acc.balance);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>withdraw</code> は口座から <code>amount</code> を引き出す関数で、事前条件と事後条件を <code>assert</code> で表明しています。残高 <code>100</code> の口座から <code>30</code> と <code>50</code> を引き出すこのプログラムは、本来なら <code>20</code> を出力します。いまは最初の <code>withdraw(&amp;acc, 30)</code> で事後条件の <code>assert</code> が失敗し、何も出力せずに異常終了します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">const</span> <span class="kw">struct</span> <span class="ty">account</span> *before = a;
+a-&gt;balance -= amount;
+<span class="fn">assert</span>(a-&gt;balance == before-&gt;balance - amount);  <span class="cm">// postcondition</span>
+</code></pre>
+      <p>
+        <code>before</code> は <code>a</code> と同じ口座を指すポインタで、引き出す前の残高を写し取ってはいません。<code>a-&gt;balance -= amount</code> のあとで <code>before-&gt;balance</code> を読むと、返ってくるのはすでに <code>70</code> になった残高です。事後条件は <code>70 == 70 - 30</code> を確かめることになり、事前条件で <code>amount</code> が正だと分かっている以上、この比較は必ず偽です。そのため <code>assert</code> は <code>withdraw</code> を呼ぶたびに失敗し、<code>abort</code> でプログラムを止めます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">const</span> <span class="kw">struct</span> <span class="ty">account</span> before = *a;
+a-&gt;balance -= amount;
+<span class="fn">assert</span>(a-&gt;balance == before.balance - amount);   <span class="cm">// postcondition</span>
+</code></pre>
+      <p>
+        <code>before</code> を構造体の値として宣言すると、初期化の時点で <code>*a</code> の中身がコピーされます。その後に <code>a-&gt;balance</code> を変えても <code>before.balance</code> は <code>100</code> のままなので、事後条件は <code>70 == 100 - 30</code> を確かめて通ります。2回目も <code>20 == 70 - 50</code> で通り、<code>20</code> が出力されます。事後条件で変更前の値と比べるには、ポインタではなく値そのものを取っておく必要があります<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>Eiffel では事後条件の中に <code>old balance</code> と書くと、呼び出し前の値を言語が取っておいてくれます。C にはこの仕組みがないので、ここのように自分でコピーを取ります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

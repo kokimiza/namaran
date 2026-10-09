@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「再試行」を扱ったNamaranのコーディングドリル2問。冪等性キー、再送、リトライ、二重決済の防止、idempotency key、retry after failure。">
+<meta name="description" content="「再試行」を扱ったNamaranのコーディングドリル3問。試行ごとのタイムアウト、全体の期限、残り時間、再試行の予算、per-attempt timeout、overall deadline。">
 <title>再試行</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/retry">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>再試行</h2>
 
   <p class="lede">
-    「再試行」を扱った2問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「再試行」を扱った3問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/haskell/write/2026-10-10">Haskell / WRITE · 2026-10-10</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">残り時間で区切る</span> <span class="past-concepts">試行ごとのタイムアウト, 全体の期限, 残り時間, 再試行の予算, per-attempt timeout, overall deadline, retry budget</span></li>
     <li><a href="/c/debug/2026-10-06">C / DEBUG · 2026-10-06</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">失敗した決済の再送</span> <span class="past-concepts">冪等性キー, 再送, リトライ, 二重決済の防止, idempotency key, retry after failure</span></li>
     <li><a href="/c/debug/2026-10-01">C / DEBUG · 2026-10-01</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">やり直すと二重に掛かる</span> <span class="past-concepts">途中で失敗した更新, 部分的な書き込み, 失敗後の再試行, 検証してから書き込む, partial update, retry after failure, validate then commit</span></li>
   </ul>

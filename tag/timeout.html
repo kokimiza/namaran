@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「タイムアウト」を扱ったNamaranのコーディングドリル3問。TTLキャッシュ、期限切れの削除、HashMap::retain、クロージャ、cache eviction、time to live。">
+<meta name="description" content="「タイムアウト」を扱ったNamaranのコーディングドリル6問。試行ごとのタイムアウト、全体の期限、残り時間、再試行の予算、per-attempt timeout、overall deadline。">
 <title>タイムアウト</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/timeout">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>タイムアウト</h2>
 
   <p class="lede">
-    「タイムアウト」を扱った3問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「タイムアウト」を扱った6問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/haskell/write/2026-10-10">Haskell / WRITE · 2026-10-10</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">残り時間で区切る</span> <span class="past-concepts">試行ごとのタイムアウト, 全体の期限, 残り時間, 再試行の予算, per-attempt timeout, overall deadline, retry budget</span></li>
+    <li><a href="/haskell/read/2026-10-10">Haskell / READ · 2026-10-10</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">期限の外で解析する</span> <span class="past-concepts">System.Timeout, timeout と遅延評価, return は評価しない, 期限の外での計算, evaluate, timeout and laziness, thunk</span></li>
+    <li><a href="/haskell/debug/2026-10-10">Haskell / DEBUG · 2026-10-10</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">1件ずつ守る期限</span> <span class="past-concepts">全体の期限, 1件ごとのタイムアウト, timeout の範囲, mapM, overall deadline, per-request timeout, System.Timeout</span></li>
     <li><a href="/rust/write/2026-09-05">Rust / WRITE · 2026-09-05</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">期限切れを一掃する</span> <span class="past-concepts">TTLキャッシュ, 期限切れの削除, HashMap::retain, クロージャ, cache eviction, time to live, retain</span></li>
     <li><a href="/rust/read/2026-09-05">Rust / READ · 2026-09-05</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">or_insertと有効期限</span> <span class="past-concepts">TTLキャッシュ, 有効期限, or_insert, Entry API, HashMap, time to live, cache expiration</span></li>
     <li><a href="/rust/debug/2026-09-05">Rust / DEBUG · 2026-09-05</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">延長前の期限で消える</span> <span class="past-concepts">TTLキャッシュ, 有効期限の延長, BinaryHeap, Reverse, 遅延削除, lazy deletion, min-heap, cache expiration</span></li>

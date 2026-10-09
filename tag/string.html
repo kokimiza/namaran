@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「文字列」を扱ったNamaranのコーディングドリル53問。到着順の読み書きロック、公平なロック、書き込みの飢餓を防ぐ、読み取りをまとめて通す、fair readers-writer lock、FIFO lock。">
+<meta name="description" content="「文字列」を扱ったNamaranのコーディングドリル56問。split と join の往復、空の要素、空のリスト、区切りと終端、エスケープ、round trip。">
 <title>文字列</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/string">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>文字列</h2>
 
   <p class="lede">
-    「文字列」を扱った53問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「文字列」を扱った56問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/write/2026-10-10">Rust / WRITE · 2026-10-10</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">空の要素まで戻す</span> <span class="past-concepts">split と join の往復, 空の要素, 空のリスト, 区切りと終端, エスケープ, round trip, empty field, terminator vs separator</span></li>
+    <li><a href="/rust/read/2026-10-10">Rust / READ · 2026-10-10</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">空白で切ると何個</span> <span class="past-concepts">split, split_whitespace, 空の要素, 連続する区切り文字, 先頭と末尾の空白, empty substrings, consecutive delimiters</span></li>
+    <li><a href="/rust/debug/2026-10-10">Rust / DEBUG · 2026-10-10</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">空欄で曜日がずれる</span> <span class="past-concepts">空の欄, 列のずれ, flat_map と Result, zip の打ち切り, empty field, column misalignment, silently dropped errors</span></li>
     <li><a href="/c/write/2026-10-09">C / WRITE · 2026-10-09</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">到着順に通す読み書き</span> <span class="past-concepts">到着順の読み書きロック, 公平なロック, 書き込みの飢餓を防ぐ, 読み取りをまとめて通す, fair readers-writer lock, FIFO lock, writer starvation</span></li>
     <li><a href="/rust/write/2026-10-08">Rust / WRITE · 2026-10-08</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">行に字下げを足す</span> <span class="past-concepts">push_str, 文字列の連結, 字下げ, 償却定数時間, format!で毎回コピー, String building, linear time concatenation</span></li>
     <li><a href="/rust/read/2026-10-08">Rust / READ · 2026-10-08</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">連結後の先頭アドレス</span> <span class="past-concepts">Stringの+演算子, 文字列連結, バッファの再利用, with_capacity, as_ptr, String concatenation, Add for String</span></li>

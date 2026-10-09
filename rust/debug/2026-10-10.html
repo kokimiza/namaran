@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="CSV の空の欄を flat_map で数値に変えると Err が黙って捨てられ、zip で曜日と組にしたときに後ろの列が前へずれるRust 2024のドリル。空の要素を捨てる前に位置との対応を決める直し方を扱う。">
+<title>空欄で曜日がずれる</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-10-10">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-10" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-10-10",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-10-10",
+      "datePublished": "2026-10-10",
+      "dateModified": "2026-10-10",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "空欄で曜日がずれる" },
+      "keywords": "string, iterator, csv",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "CSV の空の欄を flat_map で数値に変えると Err が黙って捨てられ、zip で曜日と組にしたときに後ろの列が前へずれるRust 2024のドリル。空の要素を捨てる前に位置との対応を決める直し方を扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-10">C23</a>
+  <a href="/cpp/debug/2026-10-10">C++26</a>
+  <a href="/rust/debug/2026-10-10" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-10">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-10">READ</a>
+  <a href="/rust/write/2026-10-10">WRITE</a>
+  <a href="/rust/debug/2026-10-10" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="空欄で曜日がずれる"
+  data-tags="string iterator csv"
+  data-concepts="空の欄, 列のずれ, flat_map と Result, zip の打ち切り, empty field, column misalignment, silently dropped errors"
+  data-level="whale"
+>
+  <h2>2026-10-10</h2>
+  <div class="code-frame">
+    <p class="code-filename">weekly.rs</p>
+    <pre class="code"><code><span class="kw">use</span> std::collections::<span class="ty">BTreeMap</span>;
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> header = <span class="st">"mon,tue,wed"</span>;
+    <span class="kw">let</span> rows = [<span class="st">"3,,5"</span>, <span class="st">"4,1,2"</span>];
+    <span class="kw">let</span> <span class="kw">mut</span> total = <span class="ty">BTreeMap</span>::<span class="fn">new</span>();
+    <span class="kw">for</span> row <span class="kw">in</span> rows {
+        <span class="kw">let</span> values = row.<span class="fn">split</span>(<span class="st">','</span>).<span class="fn">flat_map</span>(<span class="ty">str</span>::<span class="fn">parse</span>::&lt;<span class="ty">u32</span>&gt;);
+        <span class="kw">for</span> (day, n) <span class="kw">in</span> header.<span class="fn">split</span>(<span class="st">','</span>).<span class="fn">zip</span>(values) {
+            *total.<span class="fn">entry</span>(day).<span class="fn">or_insert</span>(<span class="nu">0</span>) += n;
+        }
+    }
+    <span class="mc">println!</span>(<span class="st">"{total:?}"</span>);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    CSV の行を読み、<code>header</code> の曜日ごとに値を合計するコードです。空の欄は、その曜日に記録がなかったことを表します。<code>rows</code> の2行を集計すると、本来は <code>{"mon": 7, "tue": 1, "wed": 7}</code> が出力されるはずが、いまは <code>{"mon": 7, "tue": 6, "wed": 2}</code> が出力されます。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">let</span> values = row.<span class="fn">split</span>(<span class="st">','</span>).<span class="fn">flat_map</span>(<span class="ty">str</span>::<span class="fn">parse</span>::&lt;<span class="ty">u32</span>&gt;);
+<span class="kw">for</span> (day, n) <span class="kw">in</span> header.<span class="fn">split</span>(<span class="st">','</span>).<span class="fn">zip</span>(values) {
+    *total.<span class="fn">entry</span>(day).<span class="fn">or_insert</span>(<span class="nu">0</span>) += n;
+}
+</code></pre>
+      <p>
+        1行目の <code>"3,,5"</code> を <code>split(',')</code> で切ると、<code>"3"</code>、<code>""</code>、<code>"5"</code> の3つになり、空の欄は空文字列として残ります。空文字列は数ではないので <code>"".parse::&lt;u32&gt;()</code> は <code>Err</code> を返しますが、パニックも <code>0</code> への読み替えも起きません。<code>Result</code> は <code>Ok</code> なら1個、<code>Err</code> なら0個の要素を持つ並びとして <code>IntoIterator</code> を実装しているので、<code>flat_map</code> はこの <code>Err</code> を黙って捨てます。<code>values</code> が返すのは <code>3</code> と <code>5</code> の2つだけです。
+      </p>
+      <p>
+        <code>zip</code> は2つの並びを先頭から順に組にし、短いほうが尽きたところで止まります。曜日は3つ、値は2つなので、<code>mon</code> と <code>3</code>、<code>tue</code> と <code>5</code> が組になり、<code>wed</code> は相手のないまま終わります。エラーもパニックもなく、水曜の <code>5</code> が火曜に入るわけです。2行目の <code>"4,1,2"</code> には空の欄がないので正しく組になり、合計は <code>tue</code> が <code>5 + 1 = 6</code>、<code>wed</code> が <code>2</code> になります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">let</span> values = row.<span class="fn">split</span>(<span class="st">','</span>).<span class="fn">map</span>(<span class="ty">str</span>::<span class="fn">parse</span>::&lt;<span class="ty">u32</span>&gt;);
+<span class="kw">for</span> (day, n) <span class="kw">in</span> header.<span class="fn">split</span>(<span class="st">','</span>).<span class="fn">zip</span>(values) {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="fn">Ok</span>(n) = n {
+        *total.<span class="fn">entry</span>(day).<span class="fn">or_insert</span>(<span class="nu">0</span>) += n;
+    }
+}
+</code></pre>
+      <p>
+        <code>map</code> にすると、<code>values</code> は空の欄にも <code>Err</code> を1つ返すので、値の並びは曜日の並びと同じ長さを保ちます。<code>zip</code> で曜日と組にしたあとで <code>if let Ok(n)</code> によって空の欄を飛ばせば、捨てるのは火曜の欄だけで、水曜の <code>5</code> は水曜に足されます。空の欄を読み飛ばすかどうかは、どの列の値かが決まってから判断します<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>空の欄を <code>0</code> として数えてよいなら、<code>map(|f| f.parse::&lt;u32&gt;().unwrap_or(0))</code> でも列はずれません。ただしその書き方では、<code>"x"</code> のような壊れた欄も黙って <code>0</code> になります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

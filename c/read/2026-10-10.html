@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="lo &lt;= hi の不変条件を代入のたびに確かめるセッターで範囲を右へずらすと、途中の状態で更新が拒まれて幅が変わるC23のドリル。不変条件をどの時点で表明するかを扱う。">
+<title>1つずつ守る不変条件</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-10-10">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-10" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-10-10",
+      "url": "https://namaran.jocarium.productions/c/read/2026-10-10",
+      "datePublished": "2026-10-10",
+      "dateModified": "2026-10-10",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "1つずつ守る不変条件" },
+      "keywords": "invariant, design-by-contract, encapsulation",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "lo <= hi の不変条件を代入のたびに確かめるセッターで範囲を右へずらすと、途中の状態で更新が拒まれて幅が変わるC23のドリル。不変条件をどの時点で表明するかを扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-10" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-10-10">C++26</a>
+  <a href="/rust/read/2026-10-10">Rust 2024</a>
+  <a href="/haskell/read/2026-10-10">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-10" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-10-10">WRITE</a>
+  <a href="/c/debug/2026-10-10">DEBUG</a>
+</nav>
+
+<main
+  data-topic="1つずつ守る不変条件"
+  data-tags="invariant design-by-contract encapsulation"
+  data-concepts="不変条件, セッターでの検査, 途中の状態, 更新の順序, class invariant, setter validation, intermediate state"
+  data-level="peacock"
+>
+  <h2>2026-10-10</h2>
+  <div class="code-frame">
+    <p class="code-filename">range_shift.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">struct</span> <span class="ty">range</span> { <span class="ty">int</span> lo, hi; };  <span class="cm">// invariant: lo &lt;= hi</span>
+
+<span class="kw">static</span> <span class="ty">void</span> <span class="fn">set_lo</span>(<span class="kw">struct</span> <span class="ty">range</span> *r, <span class="ty">int</span> lo) {
+    <span class="kw">if</span> (lo &lt;= r-&gt;hi) r-&gt;lo = lo;  <span class="cm">// refuse to break the invariant</span>
+}
+
+<span class="kw">static</span> <span class="ty">void</span> <span class="fn">set_hi</span>(<span class="kw">struct</span> <span class="ty">range</span> *r, <span class="ty">int</span> hi) {
+    <span class="kw">if</span> (hi &gt;= r-&gt;lo) r-&gt;hi = hi;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="kw">struct</span> <span class="ty">range</span> r = {<span class="nu">0</span>, <span class="nu">3</span>};
+    <span class="kw">for</span> (<span class="ty">int</span> d = <span class="nu">2</span>; d &lt;= <span class="nu">8</span>; d += <span class="nu">3</span>) {  <span class="cm">// shift right by 2, 5, 8</span>
+        <span class="fn">set_lo</span>(&amp;r, r.lo + d);
+        <span class="fn">set_hi</span>(&amp;r, r.hi + d);
+    }
+    <span class="fn">printf</span>(<span class="st">"%d %d\n"</span>, r.lo, r.hi);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>10 18</code> です。
+      </p>
+      <p>
+        <code>set_lo</code> と <code>set_hi</code> は、代入する前に新しい値で <code>lo &lt;= hi</code> が成り立つかを確かめ、成り立たなければ何もせずに戻ります。片方の端を動かすとき、比べる相手はまだ動いていないもう片方の端です。
+      </p>
+      <p>
+        <code>d = 2</code> では、<code>set_lo</code> が <code>lo</code> を <code>2</code> にしようとし、まだ <code>3</code> のままの <code>hi</code> 以下なので通ります。続いて <code>hi</code> が <code>5</code> になり、範囲は <code>{2, 5}</code> です。<code>d = 5</code> では <code>lo</code> を <code>7</code> にしようとしますが、<code>hi</code> はまだ <code>5</code> なので <code>7 &lt;= 5</code> が偽になり、<code>set_lo</code> は代入しません。<code>hi</code> だけが <code>10</code> に動いて、範囲は <code>{2, 10}</code> に広がります。<code>d = 8</code> では <code>lo</code> を <code>10</code> にしようとし、<code>10 &lt;= 10</code> は真なので通ります。<code>hi</code> は <code>18</code> になり、<code>10 18</code> が出力されます。セッターが毎回両端を動かすと考えると、合計 <code>15</code> ずれて <code>15 18</code> になりそうですが、<code>d = 5</code> の <code>lo</code> が置き去りになった分だけ食い違います。
+      </p>
+      <p>
+        範囲を右へずらす操作の前と後では、どちらも <code>lo &lt;= hi</code> が成り立ちます。破れるのは <code>lo</code> だけを先に動かした途中の状態で、ずらす量が幅より大きいときに限られます。セッターが呼ばれるたびに不変条件を確かめると、この途中の状態で更新が拒まれ、幅3の範囲が黙って幅8に変わります。不変条件が成り立つべきなのは操作のまとまりの前後なので、右へずらすなら <code>hi</code> を先に動かすか、両端をまとめて設定する関数を用意して、そこで1回だけ確かめます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

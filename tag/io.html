@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「IOアクション」を扱ったNamaranのコーディングドリル13問。forM_、until、forループ、whileループ、for loop in Haskell、while loop in Haskell。">
+<meta name="description" content="「IOアクション」を扱ったNamaranのコーディングドリル15問。System.Timeout、timeout と遅延評価、return は評価しない、期限の外での計算、evaluate、timeout and laziness。">
 <title>IOアクション</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/io">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,12 @@
   <h2>IOアクション</h2>
 
   <p class="lede">
-    「IOアクション」を扱った13問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「IOアクション」を扱った15問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/haskell/read/2026-10-10">Haskell / READ · 2026-10-10</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">期限の外で解析する</span> <span class="past-concepts">System.Timeout, timeout と遅延評価, return は評価しない, 期限の外での計算, evaluate, timeout and laziness, thunk</span></li>
+    <li><a href="/haskell/debug/2026-10-10">Haskell / DEBUG · 2026-10-10</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">1件ずつ守る期限</span> <span class="past-concepts">全体の期限, 1件ごとのタイムアウト, timeout の範囲, mapM, overall deadline, per-request timeout, System.Timeout</span></li>
     <li><a href="/haskell/read/2026-09-27">Haskell / READ · 2026-09-27</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">forM_とuntil</span> <span class="past-concepts">forM_, until, forループ, whileループ, for loop in Haskell, while loop in Haskell</span></li>
     <li><a href="/haskell/debug/2026-09-27">Haskell / DEBUG · 2026-09-27</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">下り方向の範囲</span> <span class="past-concepts">範囲表記, 数え下げ, forM_, 空のリスト, countdown range, enumFromThenTo</span></li>
     <li><a href="/haskell/debug/2026-09-26">Haskell / DEBUG · 2026-09-26</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">読み終わらないファイル</span> <span class="past-concepts">遅延IO, readFile, hGetContents, ファイルのロック, resource busy, lazy I/O, readIO</span></li>
