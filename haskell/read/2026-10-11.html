@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="0 での割り算を要素に含む無限リストを zip でたどり、ガードで選んだ添字を先頭から4つ取り出すHaskell 2010のドリル。リストの要素は使われるまで計算されないこと、|| が右辺を必要なときだけ評価すること、take が必要な分だけ要求することを組み合わせて読む。">
+<title>割り算を含む無限リスト</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-10-11">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-11" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-10-11",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-10-11",
+      "datePublished": "2026-10-11",
+      "dateModified": "2026-10-11",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "割り算を含む無限リスト" },
+      "keywords": "laziness, infinite-list, list-comprehension, short-circuit",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "0 での割り算を要素に含む無限リストを zip でたどり、ガードで選んだ添字を先頭から4つ取り出すHaskell 2010のドリル。リストの要素は使われるまで計算されないこと、|| が右辺を必要なときだけ評価すること、take が必要な分だけ要求することを組み合わせて読む。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-11">C23</a>
+  <a href="/cpp/read/2026-10-11">C++26</a>
+  <a href="/rust/read/2026-10-11">Rust 2024</a>
+  <a href="/haskell/read/2026-10-11" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-11" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-10-11">WRITE</a>
+  <a href="/haskell/debug/2026-10-11">DEBUG</a>
+</nav>
+
+<main
+  data-topic="割り算を含む無限リスト"
+  data-tags="laziness infinite-list list-comprehension short-circuit"
+  data-concepts="遅延評価, 無限リスト, 要素の評価, 短絡評価, ゼロ除算, lazy evaluation, infinite list, short-circuit evaluation, division by zero"
+  data-level="whale"
+>
+  <h2>2026-10-11</h2>
+  <div class="code-frame">
+    <p class="code-filename">Shares.hs</p>
+    <pre class="code"><code><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = <span class="kw">do</span>
+  <span class="kw">let</span> shares = [<span class="nu">12</span> `div` d | d <span class="op">&lt;-</span> [<span class="nu">3</span>, <span class="nu">2</span> ..]] <span class="op">::</span> [<span class="ty">Int</span>]
+      picked = [i | (i, s) <span class="op">&lt;-</span> zip [<span class="nu">0</span> <span class="op">::</span> <span class="ty">Int</span> ..] shares, odd i || s &gt; <span class="nu">5</span>]
+  print (take <span class="nu">4</span> picked)
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>[1,2,3,5]</code> です。
+      </p>
+      <p>
+        <code>[3, 2 ..]</code> は <code>3, 2, 1, 0, -1, ...</code> と下がり続ける無限リストで、<code>shares</code> の要素は順に <code>4, 6, 12</code>、次が <code>12 `div` 0</code>、そのあと <code>-12, -6, ...</code> です。4番目の要素はゼロ除算なので、評価すればプログラムは例外で止まります。ただし、リストの要素は値が必要になるまで計算されないまま並んでいます。
+      </p>
+      <p>
+        <code>zip [0 ..] shares</code> は要素を評価せずに組を作り、パターン <code>(i, s)</code> も <code>s</code> に名前を付けるだけで計算はしません。<code>s</code> が計算されるのはガード <code>odd i || s &gt; 5</code> の右辺が評価されたときだけで、<code>||</code> は左辺が <code>True</code> なら右辺を評価しません。
+      </p>
+      <p>
+        添字ごとに見ると、<code>i = 0</code> は偶数なので <code>s &gt; 5</code> を調べ、<code>4 &gt; 5</code> は偽なので選ばれません。<code>i = 1</code> は奇数なので選ばれ、<code>i = 2</code> は <code>12 &gt; 5</code> で選ばれます。<code>i = 3</code> はゼロ除算の要素ですが、奇数なので <code>||</code> の右辺が評価されず、そのまま選ばれます。<code>i = 4</code> は <code>-12 &gt; 5</code> が偽で選ばれず、<code>i = 5</code> が奇数で選ばれたところで4つそろいます。
+      </p>
+      <p>
+        <code>picked</code> 自体も無限リストですが、<code>take 4</code> が要求するのは先頭の4つだけなので、<code>[3, 2 ..]</code> をそれ以上たどらずに終わります。ガードを <code>s &gt; 5 || odd i</code> と逆に書いていたら、<code>i = 3</code> で <code>s</code> が評価され、<code>divide by zero</code> の例外で止まります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

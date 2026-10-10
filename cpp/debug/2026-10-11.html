@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="関数内の static な std::vector でコラッツの歩数をメモ化すると、再帰の途中で vector が伸びたとき、先に取っておいた要素への参照が解放済みの領域を指すC++26のドリル。C++17 以降の代入の評価順序を使った最小の直し方を扱う。">
+<title>メモ化したコラッツの歩数</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-10-11">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-11" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-10-11",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-10-11",
+      "datePublished": "2026-10-11",
+      "dateModified": "2026-10-11",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "メモ化したコラッツの歩数" },
+      "keywords": "memoization, static-storage, reentrancy, iterator-invalidation, dangling-pointer, evaluation-order",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "関数内の static な std::vector でコラッツの歩数をメモ化すると、再帰の途中で vector が伸びたとき、先に取っておいた要素への参照が解放済みの領域を指すC++26のドリル。C++17 以降の代入の評価順序を使った最小の直し方を扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-11">C23</a>
+  <a href="/cpp/debug/2026-10-11" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-10-11">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-11">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-11">READ</a>
+  <a href="/cpp/write/2026-10-11">WRITE</a>
+  <a href="/cpp/debug/2026-10-11" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="メモ化したコラッツの歩数"
+  data-tags="memoization static-storage reentrancy iterator-invalidation dangling-pointer evaluation-order"
+  data-concepts="参照の無効化, vector の再確保, 再帰とメモ化, 代入の評価順序, reference invalidation, vector reallocation, recursive memoization, use after free"
+  data-level="whale"
+>
+  <h2>2026-10-11</h2>
+  <div class="code-frame">
+    <p class="code-filename">collatz.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+
+<span class="ty">int</span> <span class="fn">collatz_steps</span>(<span class="ty">long</span> n) {
+    <span class="kw">static</span> std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt; memo{-<span class="nu">1</span>, <span class="nu">0</span>};  <span class="cm">// memo[n] &lt; 0: not computed yet</span>
+    <span class="kw">if</span> (n &gt;= std::<span class="fn">ssize</span>(memo))
+        memo.<span class="fn">resize</span>(n + <span class="nu">1</span>, -<span class="nu">1</span>);
+    <span class="ty">int</span>&amp; known = memo[n];
+    <span class="kw">if</span> (known &lt; <span class="nu">0</span>)
+        known = <span class="nu">1</span> + <span class="fn">collatz_steps</span>(n % <span class="nu">2</span> ? <span class="nu">3</span> * n + <span class="nu">1</span> : n / <span class="nu">2</span>);
+    <span class="kw">return</span> known;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    std::cout &lt;&lt; <span class="fn">collatz_steps</span>(<span class="nu">6</span>) &lt;&lt; <span class="st">' '</span> &lt;&lt; <span class="fn">collatz_steps</span>(<span class="nu">7</span>) &lt;&lt; <span class="st">'\n'</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>collatz_steps</code> は、<code>n</code> にコラッツの操作（偶数なら2で割り、奇数なら3倍して1を足す）を何回繰り返すと <code>1</code> になるかを、関数の中の <code>static</code> な表にメモしながら求める関数です。このプログラムは本来 <code>8 16</code> を出力します。いまも通常のビルドでは <code>8 16</code> が出ますが、AddressSanitizer を有効にしてビルドすると、最初の <code>collatz_steps(6)</code> の途中で heap-use-after-free を報告して異常終了します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="ty">int</span>&amp; known = memo[n];
+<span class="kw">if</span> (known &lt; <span class="nu">0</span>)
+    known = <span class="nu">1</span> + <span class="fn">collatz_steps</span>(n % <span class="nu">2</span> ? <span class="nu">3</span> * n + <span class="nu">1</span> : n / <span class="nu">2</span>);
+<span class="kw">return</span> known;
+</code></pre>
+      <p>
+        関数の中の <code>static</code> な <code>memo</code> は、再帰で入れ子になったすべての呼び出しが共有する1つの表です。<code>known</code> はその要素を指す参照で、再帰呼び出しの前に作られます。再帰した先で <code>memo</code> が伸びると、<code>std::vector</code> は大きな領域を新しく確保して要素を移し、古い領域を解放します。呼び出し元に戻ってから <code>known</code> に代入すると、解放済みの領域に書き込むことになり、これは未定義動作です。
+      </p>
+      <p>
+        コラッツの操作は数を小さくするとは限らないので、再帰の先で表が伸びることがあります。<code>collatz_steps(6)</code> は <code>memo</code> を7要素に広げてから <code>6</code>、<code>3</code> の順に参照を作り、<code>3</code> の次の <code>10</code> で <code>memo</code> を11要素に伸ばします。このとき <code>6</code> と <code>3</code> の参照は古い領域に取り残されます。通常のビルドで <code>8 16</code> が出るのは、解放したばかりの領域に書いた値を同じ参照からすぐ読み返しているからで、計算した値は新しい表には残りません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">if</span> (memo[n] &lt; <span class="nu">0</span>)
+    memo[n] = <span class="nu">1</span> + <span class="fn">collatz_steps</span>(n % <span class="nu">2</span> ? <span class="nu">3</span> * n + <span class="nu">1</span> : n / <span class="nu">2</span>);
+<span class="kw">return</span> memo[n];
+</code></pre>
+      <p>
+        参照を取っておかずに毎回 <code>memo[n]</code> と書けば、そのときの <code>memo</code> の領域から要素を探し直します。代入 <code>memo[n] = 1 + collatz_steps(...)</code> では、右辺の評価が左辺より先に済むと C++17 から決まっているので<sup class="fn-ref">1</sup>、左辺の <code>memo[n]</code> は再帰が表を伸ばし終えたあとに評価されます。<code>return memo[n]</code> も同じく新しい領域を読むので、計算した値は表に残り、2回目以降の呼び出しで使われます。
+      </p>
+      <ol class="footnotes">
+        <li>C++14 までは代入の両辺のどちらを先に評価するかが決まっておらず、<code>memo[n] = 1 + collatz_steps(...)</code> でも左辺が先に評価され、同じ問題が起きることがありました。</li>
+        <li><code>std::map</code> や <code>std::unordered_map</code> は要素を別々のノードに持つので、挿入しても既存の要素への参照は無効になりません。<code>unordered_map</code> の再ハッシュで無効になるのはイテレータだけです。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

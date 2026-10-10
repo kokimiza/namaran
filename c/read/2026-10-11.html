@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="while の条件に書いた代入 (n = n / 3) が、比較ではなく代入した値そのもので続けるかを決めることを読むC23のドリル。ループを抜けたときに変数に残る値を扱う。">
+<title>代入式の値で回すwhile</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-10-11">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-11" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-10-11",
+      "url": "https://namaran.jocarium.productions/c/read/2026-10-11",
+      "datePublished": "2026-10-11",
+      "dateModified": "2026-10-11",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "代入式の値で回すwhile" },
+      "keywords": "expression, loop, division",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "while の条件に書いた代入 (n = n / 3) が、比較ではなく代入した値そのもので続けるかを決めることを読むC23のドリル。ループを抜けたときに変数に残る値を扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-11" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-10-11">C++26</a>
+  <a href="/rust/read/2026-10-11">Rust 2024</a>
+  <a href="/haskell/read/2026-10-11">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-11" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-10-11">WRITE</a>
+  <a href="/c/debug/2026-10-11">DEBUG</a>
+</nav>
+
+<main
+  data-topic="代入式の値で回すwhile"
+  data-tags="expression loop division"
+  data-concepts="代入式の値, 条件の中の代入, 整数除算, assignment expression, assignment in condition"
+  data-level="hedgehog"
+>
+  <h2>2026-10-11</h2>
+  <div class="code-frame">
+    <p class="code-filename">thirds.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="ty">int</span> n = <span class="nu">37</span>, steps = <span class="nu">0</span>;
+    <span class="kw">while</span> ((n = n / <span class="nu">3</span>))
+        steps++;
+    <span class="fn">printf</span>(<span class="st">"%d %d\n"</span>, n, steps);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>0 3</code> です。
+      </p>
+      <p>
+        <code>(n = n / 3)</code> は比較ではなく代入です。代入式は、左辺に代入したあとの値を式の値として持つので、<code>while</code> はこの代入で書き換わった <code>n</code> が <code>0</code> かどうかで続けるかを決めます。括弧が二重になっているのは、<code>==</code> の書き間違いではなく、代入した値を条件に使うつもりだと示す慣用です<sup class="fn-ref">1</sup>。
+      </p>
+      <p>
+        <code>n</code> は <code>37</code> から <code>12</code>、<code>4</code>、<code>1</code> と変わり、どれも <code>0</code> ではないので、そのたびに <code>steps</code> が増えて <code>3</code> になります。次の判定では <code>1 / 3</code> の <code>0</code> が <code>n</code> に入り、その <code>0</code> が条件の値になってループを抜けます。判定のたびに代入も済んでいるので、ループのあとの <code>n</code> は最後に条件を通った <code>1</code> ではなく、偽と判定された <code>0</code> です。
+      </p>
+      <ol class="footnotes">
+        <li>GCC と Clang は <code>-Wall</code> で、括弧が1組だけの <code>while (n = n / 3)</code> に「真偽値として使われている代入を括弧で囲め」という警告を出します。括弧を二重にすると、意図した代入とみなして警告を出しません。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

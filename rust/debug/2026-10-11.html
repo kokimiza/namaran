@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="訪問済みの都市の集合だけを鍵にしてメモ化した経路探索が、3都市までは正しく、4都市になると別の現在地で計算した値を使い回して誤った最小費用を返すRust 2024のドリル。DPの状態に何を含めるべきかを扱う。">
+<title>4都市で狂う最短経路</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-10-11">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-11" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-10-11",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-10-11",
+      "datePublished": "2026-10-11",
+      "dateModified": "2026-10-11",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "4都市で狂う最短経路" },
+      "keywords": "bitmask-dp, memoization, dynamic-programming, hash-table",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "訪問済みの都市の集合だけを鍵にしてメモ化した経路探索が、3都市までは正しく、4都市になると別の現在地で計算した値を使い回して誤った最小費用を返すRust 2024のドリル。DPの状態に何を含めるべきかを扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-11">C23</a>
+  <a href="/cpp/debug/2026-10-11">C++26</a>
+  <a href="/rust/debug/2026-10-11" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-11">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-11">READ</a>
+  <a href="/rust/write/2026-10-11">WRITE</a>
+  <a href="/rust/debug/2026-10-11" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="4都市で狂う最短経路"
+  data-tags="bitmask-dp memoization dynamic-programming hash-table"
+  data-concepts="メモ化の鍵, 訪問済みの集合と現在地, DPの状態, 巡回セールスマン問題, memoization key, visited set and current city, traveling salesman, Held-Karp"
+  data-level="whale"
+>
+  <h2>2026-10-11</h2>
+  <div class="code-frame">
+    <p class="code-filename">route.rs</p>
+    <pre class="code"><code><span class="kw">use</span> std::collections::<span class="ty">HashMap</span>;
+
+<span class="cm">// cheapest way to visit every city not yet in `seen`, starting from `at`</span>
+<span class="kw">fn</span> <span class="fn">rest</span>(at: <span class="ty">usize</span>, seen: <span class="ty">u32</span>, dist: &amp;[<span class="ty">Vec</span>&lt;<span class="ty">u32</span>&gt;], memo: &amp;<span class="kw">mut</span> <span class="ty">HashMap</span>&lt;<span class="ty">u32</span>, <span class="ty">u32</span>&gt;) -&gt; <span class="ty">u32</span> {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="fn">Some</span>(&amp;cost) = memo.<span class="fn">get</span>(&amp;seen) {
+        <span class="kw">return</span> cost;
+    }
+    <span class="kw">let</span> cost = (<span class="nu">0</span>..dist.<span class="fn">len</span>())
+        .<span class="fn">filter</span>(|&amp;next| seen &amp; (<span class="nu">1</span> &lt;&lt; next) == <span class="nu">0</span>)
+        .<span class="fn">map</span>(|next| dist[at][next] + <span class="fn">rest</span>(next, seen | <span class="nu">1</span> &lt;&lt; next, dist, memo))
+        .<span class="fn">min</span>()
+        .<span class="fn">unwrap_or</span>(<span class="nu">0</span>);
+    memo.<span class="fn">insert</span>(seen, cost);
+    cost
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> dist = <span class="mc">vec!</span>[<span class="mc">vec!</span>[<span class="nu">0</span>, <span class="nu">2</span>, <span class="nu">1</span>, <span class="nu">9</span>], <span class="mc">vec!</span>[<span class="nu">2</span>, <span class="nu">0</span>, <span class="nu">1</span>, <span class="nu">1</span>], <span class="mc">vec!</span>[<span class="nu">1</span>, <span class="nu">1</span>, <span class="nu">0</span>, <span class="nu">9</span>], <span class="mc">vec!</span>[<span class="nu">9</span>, <span class="nu">1</span>, <span class="nu">9</span>, <span class="nu">0</span>]];
+    <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="fn">rest</span>(<span class="nu">0</span>, <span class="nu">1</span>, &amp;dist, &amp;<span class="kw">mut</span> <span class="ty">HashMap</span>::<span class="fn">new</span>()));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>rest(at, seen, ...)</code> は、都市 <code>at</code> にいて集合 <code>seen</code> の都市を訪れ終えたとき、残りの都市をすべて回る最小の移動費用を返すつもりの関数で、同じ計算を繰り返さないよう結果を <code>memo</code> に覚えます。都市 <code>0</code> から出発する <code>main</code> の4都市では、<code>0 → 2 → 1 → 3</code> と回る費用 <code>3</code> が本来の答えですが、いまは <code>11</code> を出力します。都市が3つまでの入力では正しい答えが出ます。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">rest</span>(at: <span class="ty">usize</span>, seen: <span class="ty">u32</span>, dist: &amp;[<span class="ty">Vec</span>&lt;<span class="ty">u32</span>&gt;], memo: &amp;<span class="kw">mut</span> <span class="ty">HashMap</span>&lt;<span class="ty">u32</span>, <span class="ty">u32</span>&gt;) -&gt; <span class="ty">u32</span> {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="fn">Some</span>(&amp;cost) = memo.<span class="fn">get</span>(&amp;seen) {
+        <span class="kw">return</span> cost;
+    }
+    <span class="cm">// ...</span>
+    memo.<span class="fn">insert</span>(seen, cost);
+</code></pre>
+      <p>
+        <code>rest</code> の答えは、訪れた集合 <code>seen</code> だけでなく、いまどこにいるかを表す <code>at</code> にも依存します。同じ <code>seen</code> でも、<code>at</code> が違えば次の都市までの距離が違うからです。ところが <code>memo</code> の鍵は <code>seen</code> だけなので、ある <code>at</code> で計算した費用が、別の <code>at</code> から同じ <code>seen</code> に来たときにもそのまま返されます。
+      </p>
+      <p>
+        探索は番号の小さい都市から試すので、集合 {0, 1, 2} に最初に着くのは <code>0 → 1 → 2</code> の経路です。このとき覚えられるのは、<code>at = 2</code> から残りの都市 <code>3</code> へ行く費用 <code>9</code> です。次に <code>0 → 2 → 1</code> で同じ {0, 1, 2} に着くと、本当は <code>1</code> から <code>3</code> への <code>1</code> で済むのに <code>9</code> が返り、最適な経路が <code>1 + 1 + 9 = 11</code> と見積もられます。<code>0 → 1</code> で始まる経路は正しく <code>12</code> と求まり、<code>0 → 3</code> で始まる経路も覚えた値に引きずられて <code>19</code> になるので、最小値として <code>11</code> が出ます。都市が3つなら、出発点を含む2都市の集合 {0, j} に着いたときの現在地は必ず <code>j</code> で、全部を訪れた集合の答えは現在地によらず <code>0</code> です。そのため鍵が衝突しても値が食い違わず、誤りが表に出ません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">rest</span>(at: <span class="ty">usize</span>, seen: <span class="ty">u32</span>, dist: &amp;[<span class="ty">Vec</span>&lt;<span class="ty">u32</span>&gt;], memo: &amp;<span class="kw">mut</span> <span class="ty">HashMap</span>&lt;(<span class="ty">usize</span>, <span class="ty">u32</span>), <span class="ty">u32</span>&gt;) -&gt; <span class="ty">u32</span> {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="fn">Some</span>(&amp;cost) = memo.<span class="fn">get</span>(&amp;(at, seen)) {
+        <span class="kw">return</span> cost;
+    }
+    <span class="cm">// ...</span>
+    memo.<span class="fn">insert</span>((at, seen), cost);
+</code></pre>
+      <p>
+        鍵を <code>(at, seen)</code> の組にすると、答えを決める情報がすべて鍵に入ります。<code>0 → 2 → 1</code> で着いた {0, 1, 2} は <code>at = 1</code> の状態として別に計算され、<code>1</code> から <code>3</code> への費用 <code>1</code> が使われて <code>3</code> が出ます。状態の数は都市数 n に対して n × 2<sup>n</sup> 個で、訪問済みの集合と最後にいる都市を状態にするこの形は、巡回セールスマン問題の標準的な動的計画法と同じです<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>この動的計画法は、1962年に Held と Karp が、同じ年に Bellman が独立に発表したもので、Held-Karp アルゴリズムと呼ばれます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

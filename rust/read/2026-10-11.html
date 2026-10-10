@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="訪問済みの要素の集合をビットマスクで表し、集合ごとにそこへ至る並べ方の数を足し込むRust 2024のドリル。集合1つに対して、そこへ至る順番が何通りもあることを扱う。">
+<title>集合ごとに数える並べ方</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-10-11">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / READ", "item": "https://namaran.jocarium.productions/rust/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-11" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / READ — 2026-10-11",
+      "url": "https://namaran.jocarium.productions/rust/read/2026-10-11",
+      "datePublished": "2026-10-11",
+      "dateModified": "2026-10-11",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "集合ごとに数える並べ方" },
+      "keywords": "bitmask-dp, bitmask, permutation, dynamic-programming",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "訪問済みの要素の集合をビットマスクで表し、集合ごとにそこへ至る並べ方の数を足し込むRust 2024のドリル。集合1つに対して、そこへ至る順番が何通りもあることを扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-11">C23</a>
+  <a href="/cpp/read/2026-10-11">C++26</a>
+  <a href="/rust/read/2026-10-11" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/read/2026-10-11">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-11" class="active" aria-current="page">READ</a>
+  <a href="/rust/write/2026-10-11">WRITE</a>
+  <a href="/rust/debug/2026-10-11">DEBUG</a>
+</nav>
+
+<main
+  data-topic="集合ごとに数える並べ方"
+  data-tags="bitmask-dp bitmask permutation dynamic-programming"
+  data-concepts="訪問済みの集合, ビットマスクで集合を表す, 並べ方の数, visited set, bitmask DP, number of orderings"
+  data-level="hedgehog"
+>
+  <h2>2026-10-11</h2>
+  <div class="code-frame">
+    <p class="code-filename">orders.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> n = <span class="nu">3</span>;
+    <span class="kw">let</span> <span class="kw">mut</span> ways = <span class="mc">vec!</span>[<span class="nu">0u32</span>; <span class="nu">1</span> &lt;&lt; n];
+    ways[<span class="nu">0</span>] = <span class="nu">1</span>;
+    <span class="kw">for</span> mask <span class="kw">in</span> <span class="nu">0</span>..<span class="nu">1usize</span> &lt;&lt; n {
+        <span class="kw">for</span> v <span class="kw">in</span> <span class="nu">0</span>..n {
+            <span class="kw">if</span> mask &amp; (<span class="nu">1</span> &lt;&lt; v) == <span class="nu">0</span> {
+                ways[mask | <span class="nu">1</span> &lt;&lt; v] += ways[mask];
+            }
+        }
+    }
+    <span class="mc">println!</span>(<span class="st">"{} {}"</span>, ways[<span class="nu">0b110</span>], ways[<span class="nu">0b111</span>]);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>2 6</code> です。
+      </p>
+      <p>
+        <code>ways[mask]</code> は、<code>mask</code> のビットが立っている要素を1つずつ選んでいく順番が何通りあるかを数えます。外側のループで <code>mask</code> を取り、まだ選んでいない <code>v</code> ごとに <code>ways[mask | 1 &lt;&lt; v]</code> へ <code>ways[mask]</code> を足します。<code>mask | 1 &lt;&lt; v</code> は必ず <code>mask</code> より大きいので、<code>mask</code> を小さい順に回せば、どの集合も、そこから先へ足し込む前に自分への足し込みを受け終わっています。
+      </p>
+      <p>
+        <code>0b110</code> は要素1と要素2の集合です。<code>ways[0b010]</code> と <code>ways[0b100]</code> は空集合から <code>1</code> ずつ受け取り、<code>0b110</code> にはその両方から <code>1</code> ずつ届くので <code>2</code> になります。集合 {1, 2} は1つでも、そこへ至る順番は「1のあと2」と「2のあと1」の2通りあるからです。<code>0b111</code> には <code>0b011</code>、<code>0b101</code>、<code>0b110</code> から <code>2</code> ずつ届いて <code>6</code> になり、3要素の並べ方 3! と一致します。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/read">Today</a></li>
+    <li><a href="/rust/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

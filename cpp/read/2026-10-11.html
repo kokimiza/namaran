@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="関数内の static 配列を指すポインタを返す関数を3回呼び、std::string と auto で受けた結果を出力するC++26のドリル。auto がポインタを推論して文字列をコピーしないことと、隠れた静的状態が後の呼び出しで上書きされることを扱う。">
+<title>静的バッファを返す関数</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-10-11">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-11" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-10-11",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-10-11",
+      "datePublished": "2026-10-11",
+      "dateModified": "2026-10-11",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "静的バッファを返す関数" },
+      "keywords": "static-storage, reentrancy, type-deduction, pointer, string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "関数内の static 配列を指すポインタを返す関数を3回呼び、std::string と auto で受けた結果を出力するC++26のドリル。auto がポインタを推論して文字列をコピーしないことと、隠れた静的状態が後の呼び出しで上書きされることを扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-11">C23</a>
+  <a href="/cpp/read/2026-10-11" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-10-11">Rust 2024</a>
+  <a href="/haskell/read/2026-10-11">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-11" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-10-11">WRITE</a>
+  <a href="/cpp/debug/2026-10-11">DEBUG</a>
+</nav>
+
+<main
+  data-topic="静的バッファを返す関数"
+  data-tags="static-storage reentrancy type-deduction pointer string"
+  data-concepts="静的バッファ, 再入不可能な関数, auto の型推論, const char* と std::string, static buffer, non-reentrant function, auto type deduction"
+  data-level="bison"
+>
+  <h2>2026-10-11</h2>
+  <div class="code-frame">
+    <p class="code-filename">label.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;cstdio&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+
+<span class="kw">const</span> <span class="ty">char</span>* <span class="fn">label</span>(<span class="ty">int</span> id) {
+    <span class="kw">static</span> <span class="ty">char</span> buf[<span class="nu">16</span>];
+    std::<span class="fn">snprintf</span>(buf, <span class="kw">sizeof</span> buf, <span class="st">"item-%d"</span>, id);
+    <span class="kw">return</span> buf;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    std::<span class="ty">string</span> first = <span class="fn">label</span>(<span class="nu">1</span>);
+    <span class="kw">auto</span> second = <span class="fn">label</span>(<span class="nu">2</span>);
+    <span class="kw">auto</span> third = <span class="fn">label</span>(<span class="nu">3</span>);
+    std::cout &lt;&lt; first &lt;&lt; <span class="st">' '</span> &lt;&lt; second &lt;&lt; <span class="st">' '</span> &lt;&lt; third &lt;&lt; <span class="st">'\n'</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>item-1 item-3 item-3</code> です。
+      </p>
+      <p>
+        <code>label</code> は毎回同じ <code>static</code> 配列 <code>buf</code> に書き込み、その先頭を指すポインタを返します。呼び出すたびに新しい文字列ができるのではなく、1つしかない <code>buf</code> の中身が書き換わります。
+      </p>
+      <p>
+        <code>first</code> は <code>std::string</code> なので、初期化の時点で <code>buf</code> の中身 <code>"item-1"</code> が <code>first</code> 自身の領域にコピーされます。<code>second</code> と <code>third</code> は <code>auto</code> で宣言されていて、<code>label</code> の戻り値の型 <code>const char*</code> がそのまま推論されます。コピーされるのはポインタだけなので、<code>second</code> と <code>third</code> はどちらも同じ <code>buf</code> を指します。
+      </p>
+      <p>
+        出力するのは、3回の呼び出しがすべて終わったあとです。その時点の <code>buf</code> には最後に書いた <code>"item-3"</code> が入っているので、<code>second</code> も <code>third</code> も <code>item-3</code> を出力し、コピーを持つ <code>first</code> だけが <code>item-1</code> のまま残ります。<code>auto</code> を <code>std::string</code> に書き換えれば、出力は <code>item-1 item-2 item-3</code> になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

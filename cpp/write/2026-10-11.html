@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="strtok が関数内の静的変数に隠している「どこまで読んだか」を呼び出し側の std::string_view に持たせ、区切り文字で1語ずつ切り出す関数を書くC++26のドリル。2つの文字列を交互に分割しても位置が混ざらない書き方を扱う。">
+<title>読んだ位置を呼び出し側に</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-10-11">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-11" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-10-11",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-10-11",
+      "datePublished": "2026-10-11",
+      "dateModified": "2026-10-11",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "読んだ位置を呼び出し側に" },
+      "keywords": "reentrancy, string, parsing",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "strtok が関数内の静的変数に隠している「どこまで読んだか」を呼び出し側の std::string_view に持たせ、区切り文字で1語ずつ切り出す関数を書くC++26のドリル。2つの文字列を交互に分割しても位置が混ざらない書き方を扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-11">C23</a>
+  <a href="/cpp/write/2026-10-11" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-10-11">Rust 2024</a>
+  <a href="/haskell/write/2026-10-11">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-11">READ</a>
+  <a href="/cpp/write/2026-10-11" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-10-11">DEBUG</a>
+</nav>
+
+<main
+  data-topic="読んだ位置を呼び出し側に"
+  data-tags="reentrancy string parsing"
+  data-concepts="再入可能な字句分割, strtok の代わり, string_view, 区切り文字で分割, reentrant tokenizer, strtok_r, split by delimiter"
+  data-level="hedgehog"
+>
+  <h2>2026-10-11</h2>
+  <div class="code-frame">
+    <p class="code-filename">next_token.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;string_view&gt;</span>
+
+std::<span class="ty">string_view</span> <span class="fn">next_token</span>(std::<span class="ty">string_view</span>&amp; rest, <span class="ty">char</span> delim) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>rest</code> の先頭から区切り文字 <code>delim</code> の手前までを1語として返し、<code>rest</code> をその区切り文字の直後から始まるように縮める <code>next_token</code> を書いてください。<code>rest</code> に <code>delim</code> がなければ <code>rest</code> 全体を返して <code>rest</code> を空にし、<code>rest</code> が空なら空の語を返します。区切り文字が連続している所では、間の空の語を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>rest = "a,b,c"; next_token(rest, ',')</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>"a" (rest = "b,c")</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>rest = "abc"; next_token(rest, ',')</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>"abc" (rest = "")</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>rest = "a,,b"; next_token(rest, ',')</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>"a" (rest = ",b")</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;string_view&gt;</span>
+
+std::<span class="ty">string_view</span> <span class="fn">next_token</span>(std::<span class="ty">string_view</span>&amp; rest, <span class="ty">char</span> delim) {
+    <span class="kw">auto</span> pos = rest.<span class="fn">find</span>(delim);
+    <span class="kw">auto</span> token = rest.<span class="fn">substr</span>(<span class="nu">0</span>, pos);
+    rest = pos == std::<span class="ty">string_view</span>::npos ? std::<span class="ty">string_view</span>{} : rest.<span class="fn">substr</span>(pos + <span class="nu">1</span>);
+    <span class="kw">return</span> token;
+}
+</code></pre>
+      <p>
+        <code>find</code> が返した位置までを <code>substr</code> で切り出し、<code>rest</code> はその1文字先から残りを指すように付け替えます。<code>find</code> が <code>npos</code> を返したとき、<code>substr(0, npos)</code> は残り全部になります。一方 <code>rest.substr(npos + 1)</code> は、<code>npos + 1</code> が符号なし整数の巻き戻りで <code>0</code> になるため <code>rest</code> 全体を返してしまい、呼び出し側のループが終わりません。そこでこの場合だけ空の <code>string_view</code> を入れます。
+      </p>
+      <p>
+        <code>strtok</code> は、どこまで読んだかを関数の中の静的変数に覚えています。そのため、2つの文字列を交互に分割すると互いの位置を上書きし、分割の途中で別の文字列を分割する関数を呼ぶこともできません。<code>next_token</code> はその位置を引数の <code>rest</code> として呼び出し側に持たせるので、<code>rest</code> を2つ用意すれば2つの分割を交互に進められます<sup class="fn-ref">1</sup>。返す語は元の文字列の一部を指す <code>string_view</code> なので、元の文字列より長く使ってはいけません。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>npos</code> の場合を <code>if</code> で先に分けて返す書き方でもかまいません。
+      </p>
+      <ol class="footnotes">
+        <li>POSIX の <code>strtok_r</code> と C11 の附属書 K の <code>strtok_s</code> は、読んだ位置を引数で呼び出し側に持たせる版の <code>strtok</code> です。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

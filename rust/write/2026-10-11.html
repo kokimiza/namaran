@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="n 人に n 件の仕事を1件ずつ割り当てる費用の最小値を、割り当て済みの仕事の集合だけを状態にしたビットDPで求めるRust 2024のドリル。集合の要素数が次に割り当てる人を決めるので、人の番号を状態に入れなくてよいことを扱う。">
+<title>仕事の割り当ての最小費用</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-10-11">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-11" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-10-11",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-10-11",
+      "datePublished": "2026-10-11",
+      "dateModified": "2026-10-11",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "仕事の割り当ての最小費用" },
+      "keywords": "bitmask-dp, bitmask, dynamic-programming",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "n 人に n 件の仕事を1件ずつ割り当てる費用の最小値を、割り当て済みの仕事の集合だけを状態にしたビットDPで求めるRust 2024のドリル。集合の要素数が次に割り当てる人を決めるので、人の番号を状態に入れなくてよいことを扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-11">C23</a>
+  <a href="/cpp/write/2026-10-11">C++26</a>
+  <a href="/rust/write/2026-10-11" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-10-11">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-11">READ</a>
+  <a href="/rust/write/2026-10-11" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-10-11">DEBUG</a>
+</nav>
+
+<main
+  data-topic="仕事の割り当ての最小費用"
+  data-tags="bitmask-dp bitmask dynamic-programming"
+  data-concepts="割り当て問題, ビットDP, 割り当て済みの仕事の集合, count_ones, assignment problem, bitmask DP, popcount"
+  data-level="peacock"
+>
+  <h2>2026-10-11</h2>
+  <div class="code-frame">
+    <p class="code-filename">assignment.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">min_assignment</span>(cost: &amp;[<span class="ty">Vec</span>&lt;<span class="ty">u32</span>&gt;]) -&gt; <span class="ty">u32</span> {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>cost[i][j]</code> が人 <code>i</code> に仕事 <code>j</code> を任せる費用を表す n × n の表を受け取り、全員にちょうど1件ずつ仕事を割り当てたときの費用の合計の最小値を返す <code>min_assignment</code> を書いてください。n は0以上16以下で、n が <code>0</code> のときは <code>0</code> を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>min_assignment(&amp;[vec![4, 1], vec![2, 3]])</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>3</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>min_assignment(&amp;[vec![1, 2, 3], vec![2, 4, 6], vec![3, 6, 9]])</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>10</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>min_assignment(&amp;[])</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">min_assignment</span>(cost: &amp;[<span class="ty">Vec</span>&lt;<span class="ty">u32</span>&gt;]) -&gt; <span class="ty">u32</span> {
+    <span class="kw">let</span> n = cost.<span class="fn">len</span>();
+    <span class="cm">// best[mask]: cheapest way to give the jobs in `mask` to workers 0..mask.count_ones()</span>
+    <span class="kw">let</span> <span class="kw">mut</span> best = <span class="mc">vec!</span>[<span class="ty">u32</span>::<span class="nu">MAX</span>; <span class="nu">1</span> &lt;&lt; n];
+    best[<span class="nu">0</span>] = <span class="nu">0</span>;
+    <span class="kw">for</span> mask <span class="kw">in</span> <span class="nu">0</span>..<span class="nu">1usize</span> &lt;&lt; n {
+        <span class="kw">let</span> worker = mask.<span class="fn">count_ones</span>() <span class="kw">as</span> <span class="ty">usize</span>;
+        <span class="kw">if</span> worker == n {
+            <span class="kw">continue</span>;
+        }
+        <span class="kw">for</span> job <span class="kw">in</span> (<span class="nu">0</span>..n).<span class="fn">filter</span>(|&amp;j| mask &amp; (<span class="nu">1</span> &lt;&lt; j) == <span class="nu">0</span>) {
+            <span class="kw">let</span> next = mask | <span class="nu">1</span> &lt;&lt; job;
+            best[next] = best[next].<span class="fn">min</span>(best[mask] + cost[worker][job]);
+        }
+    }
+    best[(<span class="nu">1</span> &lt;&lt; n) - <span class="nu">1</span>]
+}
+
+</code></pre>
+      <p>
+        人に <code>0</code> から順に仕事を割り当てると決めておけば、割り当て済みの仕事の集合 <code>mask</code> だけで状態が決まります。割り当てを終えた人数は <code>mask</code> の要素数 <code>mask.count_ones()</code> に等しく、次に仕事を受け取るのはその番号の人だからです。<code>best[mask]</code> を「<code>mask</code> の仕事を人 <code>0</code> から順に割り当てたときの最小費用」とし、まだ誰にも渡していない仕事 <code>job</code> を次の人に渡して <code>best[mask | 1 &lt;&lt; job]</code> を更新します。<code>mask | 1 &lt;&lt; job</code> は <code>mask</code> より大きいので、<code>mask</code> を小さい順に回せば、使う時点で <code>best[mask]</code> は確定しています。
+      </p>
+      <p>
+        人の番号も状態に入れて <code>best[i][mask]</code> と書きたくなりますが、<code>i</code> は <code>mask</code> から決まるので、表が n 倍に大きくなるだけです。順列を全部試すと n! 通り、n = 16 なら約 2 × 10<sup>13</sup> 通りですが、このDPは 2<sup>n</sup> 個の集合それぞれで最大 n 件の仕事を見るだけなので、約100万回の更新で済みます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。割り当て済みの人の集合を状態にして、仕事の側を <code>0</code> から順に決めても同じ値が求まります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

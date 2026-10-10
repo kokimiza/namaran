@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="値が期待どおりなら新しい値を代入し、違えば現在の値を期待値の側へ書き戻す compare_exchange を書くC23のドリル。atomic_compare_exchange_strong と同じ約束を通して、1つの関数の中で等値比較と代入を使い分ける。">
+<title>比較して一致なら代入</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-10-11">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-11" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-10-11",
+      "url": "https://namaran.jocarium.productions/c/write/2026-10-11",
+      "datePublished": "2026-10-11",
+      "dateModified": "2026-10-11",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "比較して一致なら代入" },
+      "keywords": "atomic, comparison, pointer",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "値が期待どおりなら新しい値を代入し、違えば現在の値を期待値の側へ書き戻す compare_exchange を書くC23のドリル。atomic_compare_exchange_strong と同じ約束を通して、1つの関数の中で等値比較と代入を使い分ける。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-11" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-10-11">C++26</a>
+  <a href="/rust/write/2026-10-11">Rust 2024</a>
+  <a href="/haskell/write/2026-10-11">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-11">READ</a>
+  <a href="/c/write/2026-10-11" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-10-11">DEBUG</a>
+</nav>
+
+<main
+  data-topic="比較して一致なら代入"
+  data-tags="atomic comparison pointer"
+  data-concepts="比較と交換, 等値比較と代入, compare-and-swap, compare and exchange, atomic_compare_exchange_strong, CAS"
+  data-level="hedgehog"
+>
+  <h2>2026-10-11</h2>
+  <div class="code-frame">
+    <p class="code-filename">compare_exchange.c</p>
+    <pre class="code"><code><span class="ty">bool</span> <span class="fn">compare_exchange</span>(<span class="ty">int</span> *obj, <span class="ty">int</span> *expected, <span class="ty">int</span> desired) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>*obj</code> が <code>*expected</code> と等しければ <code>*obj</code> に <code>desired</code> を代入して <code>true</code> を返し、等しくなければ <code>*obj</code> の現在の値を <code>*expected</code> に代入して <code>false</code> を返す <code>compare_exchange</code> を書いてください。<code>&lt;stdatomic.h&gt;</code> の <code>atomic_compare_exchange_strong</code> と同じ約束を、普通の <code>int</code> で書くものです。<code>desired</code> が現在の値と同じでも、比較が一致すれば <code>true</code> を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>obj = 5; exp = 5; compare_exchange(&amp;obj, &amp;exp, 9)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>true (obj = 9, exp = 5)</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>obj = 7; exp = 5; compare_exchange(&amp;obj, &amp;exp, 9)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>false (obj = 7, exp = 7)</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>obj = 7; exp = 7; compare_exchange(&amp;obj, &amp;exp, 7)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>true (obj = 7, exp = 7)</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="ty">bool</span> <span class="fn">compare_exchange</span>(<span class="ty">int</span> *obj, <span class="ty">int</span> *expected, <span class="ty">int</span> desired) {
+    <span class="kw">if</span> (*obj == *expected) {
+        *obj = desired;
+        <span class="kw">return</span> <span class="nu">true</span>;
+    }
+    *expected = *obj;
+    <span class="kw">return</span> <span class="nu">false</span>;
+}
+</code></pre>
+      <p>
+        比較の <code>==</code> は両辺を読むだけで何も書き換えず、代入の <code>=</code> は左辺を書き換えます。この関数では、比較の結果によって代入の向きが入れ替わります。一致すれば <code>*obj</code> に <code>desired</code> を書き、一致しなければ逆に <code>*expected</code> に <code>*obj</code> を書きます。
+      </p>
+      <p>
+        失敗したときに <code>*expected</code> を書き換えるのは、呼び出し側がそのまま再試行できるようにするためです。<code>exp</code> から次の値を計算して <code>compare_exchange(&amp;obj, &amp;exp, next)</code> を呼ぶループでは、失敗するたびに <code>exp</code> が <code>obj</code> の最新の値になり、次の試行はその値から計算し直せます<sup class="fn-ref">1</sup>。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。比較の結果をいったん <code>bool</code> の変数に取り、<code>return</code> を1か所にまとめても同じ動きになります。
+      </p>
+      <ol class="footnotes">
+        <li>本物の <code>atomic_compare_exchange_strong</code> は、比較と代入を他のスレッドから割り込まれない1つの操作として行います。この参考実装は同じ約束を普通の <code>int</code> で書いただけなので、複数のスレッドから同時に呼ぶと、比較と代入の間に別のスレッドが値を書き換えることがあります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

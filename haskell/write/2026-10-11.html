@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="リストを n 個ずつの塊に分ける chunksOf を、塊の無限リストを作ってから必要な分だけ取り出す形で書くHaskell 2010のドリル。iterate が作る終わりのない列を takeWhile で止めることと、無限の入力にもそのまま使えることを扱う。">
+<title>n個ずつの塊に分ける</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-10-11">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-11" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-10-11",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-10-11",
+      "datePublished": "2026-10-11",
+      "dateModified": "2026-10-11",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "n個ずつの塊に分ける" },
+      "keywords": "infinite-list, laziness, higher-order, list",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "リストを n 個ずつの塊に分ける chunksOf を、塊の無限リストを作ってから必要な分だけ取り出す形で書くHaskell 2010のドリル。iterate が作る終わりのない列を takeWhile で止めることと、無限の入力にもそのまま使えることを扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-11">C23</a>
+  <a href="/cpp/write/2026-10-11">C++26</a>
+  <a href="/rust/write/2026-10-11">Rust 2024</a>
+  <a href="/haskell/write/2026-10-11" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-11">READ</a>
+  <a href="/haskell/write/2026-10-11" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-10-11">DEBUG</a>
+</nav>
+
+<main
+  data-topic="n個ずつの塊に分ける"
+  data-tags="infinite-list laziness higher-order list"
+  data-concepts="リストを n 個ずつに分ける, iterate と takeWhile, 無限リスト, 遅延評価, chunksOf, split into chunks, lazy evaluation"
+  data-level="peacock"
+>
+  <h2>2026-10-11</h2>
+  <div class="code-frame">
+    <p class="code-filename">ChunksOf.hs</p>
+    <pre class="code"><code><span class="fn">chunksOf</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> [a] <span class="op">-&gt;</span> [[a]]
+</code></pre>
+  </div>
+
+  <p class="question">
+    リストを先頭から <code>n</code> 個ずつの塊に分けたリストを返す <code>chunksOf</code> を書いてください。最後の塊は <code>n</code> 個に満たなくてもよく、空リストには空リストを返します。無限リストを渡したときも、取り出した分の塊は有限の時間で返します。<code>n</code> は1以上です。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>chunksOf 2 [1 .. 5]</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>[[1,2],[3,4],[5]]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>chunksOf 3 []</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>[]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>take 2 (chunksOf 2 [1 ..])</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>[[1,2],[3,4]]</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="fn">chunksOf</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> [a] <span class="op">-&gt;</span> [[a]]
+<span class="fn">chunksOf</span> n = takeWhile (not . null) . map (take n) . iterate (drop n)
+</code></pre>
+      <p>
+        <code>iterate (drop n) xs</code> は、<code>xs</code>、<code>drop n xs</code>、<code>drop (2 * n) xs</code> … と、<code>n</code> 個ずつ削った残りを終わりなく並べます。それぞれの先頭 <code>n</code> 個を <code>map (take n)</code> で取ると塊の無限リストになり、入力を使い切ったあとには空リストが無限に続きます。<code>takeWhile (not . null)</code> は最初の空リストで止まるので、塊の列はそこで終わります。
+      </p>
+      <p>
+        この組み合わせでは、どの段も次の段が要求した分しか計算しません。<code>takeWhile</code> が空リストを見つけたあと、<code>iterate</code> の続きは誰にも要求されないので、無限の列を作っても計算は止まります。入力が無限なら空の塊は現れず、<code>take 2</code> が要求した2つの塊だけが計算されます。<code>takeWhile</code> の代わりに <code>filter (not . null)</code> を使うと、最後の塊のあとも空でない塊を探し続け、結果のリストが終わらなくなります。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>splitAt n</code> で塊と残りに分け、残りに再帰する書き方でも、無限リストにそのまま使えます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
