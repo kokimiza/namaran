@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="r.celsius = r.display = c と型の違うメンバへ連鎖代入すると、右結合のせいで int に切り捨てた値が double のほうにも入るC++26のドリル。代入式の値が代入後の左辺であることを扱う。">
+<title>右から伝わる切り捨て</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-10-12">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-12" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-10-12",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-10-12",
+      "datePublished": "2026-10-12",
+      "dateModified": "2026-10-12",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "右から伝わる切り捨て" },
+      "keywords": "associativity, implicit-conversion, floating-point, expression",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "r.celsius = r.display = c と型の違うメンバへ連鎖代入すると、右結合のせいで int に切り捨てた値が double のほうにも入るC++26のドリル。代入式の値が代入後の左辺であることを扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-12">C23</a>
+  <a href="/cpp/debug/2026-10-12" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-10-12">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-12">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-12">READ</a>
+  <a href="/cpp/write/2026-10-12">WRITE</a>
+  <a href="/cpp/debug/2026-10-12" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="右から伝わる切り捨て"
+  data-tags="associativity implicit-conversion floating-point expression"
+  data-concepts="連鎖代入, 代入演算子の右結合, 代入式の値, double から int への切り捨て, chained assignment, right associativity, floating-integral conversion"
+  data-level="peacock"
+>
+  <h2>2026-10-12</h2>
+  <div class="code-frame">
+    <p class="code-filename">reading.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+
+<span class="kw">struct</span> <span class="ty">Reading</span> {
+    <span class="ty">double</span> celsius;
+    <span class="ty">int</span> display;
+};
+
+<span class="ty">void</span> <span class="ty">set</span>(<span class="ty">Reading</span>&amp; r, <span class="ty">double</span> c) {
+    r.celsius = r.display = c;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="ty">Reading</span> r;
+    <span class="ty">set</span>(r, <span class="nu">21.5</span>);
+    std::cout &lt;&lt; r.display &lt;&lt; <span class="st">' '</span> &lt;&lt; r.celsius * <span class="nu">9</span> / <span class="nu">5</span> + <span class="nu">32</span> &lt;&lt; <span class="st">'\n'</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>set</code> は、摂氏の温度を計算用の <code>celsius</code> にはそのまま、表示用の <code>display</code> には整数に切り捨てて入れるつもりの関数です。<code>set(r, 21.5)</code> のあとに表示用の値と華氏を出力すると、いまは <code>21 69.8</code> が出ます。本来の出力は <code>21 70.7</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code>r.celsius = r.display = c;
+</code></pre>
+      <p>
+        代入演算子は右結合なので、この行は <code>r.celsius = (r.display = c)</code> です。先に <code>r.display = c</code> が <code>21.5</code> を <code>int</code> に変換して <code>21</code> を入れます。代入式の値は代入したあとの左辺なので、括弧の中の値は <code>c</code> ではなく <code>int</code> の <code>21</code> です。<code>r.celsius</code> にはこの <code>21</code> が入り、華氏は <code>21 * 9 / 5 + 32</code> の <code>69.8</code> になります<sup class="fn-ref">1</sup>。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code>r.display = r.celsius = c;
+</code></pre>
+      <p>
+        並びを入れ替えると、先に <code>r.celsius = c</code> が <code>21.5</code> をそのまま入れ、その値が <code>r.display</code> への代入で <code>21</code> に切り捨てられます。値を落とさない型のほうを右に置けば、切り捨ては最後の代入でしか起きません。<code>r.celsius = c;</code> と <code>r.display = c;</code> の2文に分ければ、並び順に気を配る必要もなくなります。
+      </p>
+      <ol class="footnotes">
+        <li>GCC と Clang は、<code>-Wconversion</code> を付けると <code>double</code> から <code>int</code> への暗黙の変換を警告します。<code>-Wall -Wextra</code> だけでは警告されません。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

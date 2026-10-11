@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="文字列を写して、写したヌル文字を指すポインタを返す append を書くC23のドリル。末尾を返せば連結のたびに先頭から終端を探し直さずに済み、strcat を重ねたときの2乗の計算量を避けられる。">
+<title>末尾を返す追記</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-10-12">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-12" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-10-12",
+      "url": "https://namaran.jocarium.productions/c/write/2026-10-12",
+      "datePublished": "2026-10-12",
+      "dateModified": "2026-10-12",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "末尾を返す追記" },
+      "keywords": "null-terminated-string, performance, pointer, string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "文字列を写して、写したヌル文字を指すポインタを返す append を書くC23のドリル。末尾を返せば連結のたびに先頭から終端を探し直さずに済み、strcat を重ねたときの2乗の計算量を避けられる。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-12" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-10-12">C++26</a>
+  <a href="/rust/write/2026-10-12">Rust 2024</a>
+  <a href="/haskell/write/2026-10-12">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-12">READ</a>
+  <a href="/c/write/2026-10-12" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-10-12">DEBUG</a>
+</nav>
+
+<main
+  data-topic="末尾を返す追記"
+  data-tags="null-terminated-string performance pointer string"
+  data-concepts="文字列の連結, 連結の計算量, 末尾ポインタ, strcat の再走査, string concatenation, stpcpy, end pointer"
+  data-level="hedgehog"
+>
+  <h2>2026-10-12</h2>
+  <div class="code-frame">
+    <p class="code-filename">append.c</p>
+    <pre class="code"><code><span class="ty">char</span> *<span class="fn">append</span>(<span class="ty">char</span> *end, <span class="kw">const</span> <span class="ty">char</span> *src) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>src</code> の文字列を終端のヌル文字まで <code>end</code> の位置へ写し、写したヌル文字を指すポインタを返す <code>append</code> を書いてください。返り値を次の呼び出しの <code>end</code> に渡せば、連結を重ねても書き込み先を先頭から探し直さずに済みます。<code>src</code> が空文字列なら、ヌル文字だけを写して <code>end</code> をそのまま返します。書き込み先の大きさは足りているものとし、例の <code>buf</code> は <code>char buf[16] = "";</code> です。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>append(append(buf, "ab"), "cde") - buf</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>5</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>append(buf, "") - buf</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>append(append(buf, "na"), "ran"); puts(buf);</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>naran</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="ty">char</span> *<span class="fn">append</span>(<span class="ty">char</span> *end, <span class="kw">const</span> <span class="ty">char</span> *src) {
+    <span class="kw">while</span> ((*end = *src++))
+        end++;
+    <span class="kw">return</span> end;
+}
+</code></pre>
+      <p>
+        ループの条件 <code>(*end = *src++)</code> は、代入した文字そのものを値に持ちます。偽になるのはヌル文字を写した回だけなので、<code>end++</code> はヌル文字の手前までしか進まず、返す <code>end</code> は写したヌル文字の上で止まります。条件の中で <code>*end++ = *src++</code> と書くと、ヌル文字を写した回にも <code>end</code> が進み、ヌル文字の1つ先を返してしまいます。次の連結はヌル文字の後ろに書かれ、文字列としては見えなくなります。
+      </p>
+      <p>
+        標準の <code>strcat(dst, src)</code> は <code>dst</code> を返すので、続けて連結するたびに <code>dst</code> の先頭からヌル文字を探し直します。同じ長さの文字列を n 回つなぐと、探し直しで読む文字数の合計は n の2乗に比例して増えます。<code>append</code> は末尾を返すので、どの文字も一度写すだけで済みます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>strlen</code> で長さを測ってから <code>memcpy</code> でヌル文字ごと写し、<code>end + n</code> を返す書き方もあります。POSIX には同じ働きの <code>stpcpy</code> があります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

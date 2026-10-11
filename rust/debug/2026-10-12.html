@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="四分円に入った点の割合から円周率を推定する関数が 0 を返すRust 2024のドリル。f64::from(inside / (n * n)) のように、整数の割り算を済ませてから f64 に変換すると割合が切り捨てられることを扱う。">
+<title>割合が0になる推定</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-10-12">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-12" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-10-12",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-10-12",
+      "datePublished": "2026-10-12",
+      "dateModified": "2026-10-12",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "割合が0になる推定" },
+      "keywords": "division, integer-arithmetic, type-conversion, sampling",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "四分円に入った点の割合から円周率を推定する関数が 0 を返すRust 2024のドリル。f64::from(inside / (n * n)) のように、整数の割り算を済ませてから f64 に変換すると割合が切り捨てられることを扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-12">C23</a>
+  <a href="/cpp/debug/2026-10-12">C++26</a>
+  <a href="/rust/debug/2026-10-12" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-12">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-12">READ</a>
+  <a href="/rust/write/2026-10-12">WRITE</a>
+  <a href="/rust/debug/2026-10-12" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="割合が0になる推定"
+  data-tags="division integer-arithmetic type-conversion sampling"
+  data-concepts="整数の割り算, 割ってから変換, 円周率の推定, モンテカルロ法, integer division, convert before dividing, Monte Carlo pi"
+  data-level="hedgehog"
+>
+  <h2>2026-10-12</h2>
+  <div class="code-frame">
+    <p class="code-filename">grid_pi.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">estimate_pi</span>(n: <span class="ty">u32</span>) -&gt; <span class="ty">f64</span> {
+    <span class="kw">let</span> <span class="kw">mut</span> inside = <span class="nu">0</span>;
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="nu">0</span>..n {
+        <span class="kw">for</span> j <span class="kw">in</span> <span class="nu">0</span>..n {
+            <span class="kw">let</span> x = (<span class="ty">f64</span>::<span class="fn">from</span>(i) + <span class="nu">0.5</span>) / <span class="ty">f64</span>::<span class="fn">from</span>(n);
+            <span class="kw">let</span> y = (<span class="ty">f64</span>::<span class="fn">from</span>(j) + <span class="nu">0.5</span>) / <span class="ty">f64</span>::<span class="fn">from</span>(n);
+            <span class="kw">if</span> x * x + y * y &lt;= <span class="nu">1.0</span> {
+                inside += <span class="nu">1</span>;
+            }
+        }
+    }
+    <span class="nu">4.0</span> * <span class="ty">f64</span>::<span class="fn">from</span>(inside / (n * n))
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="fn">estimate_pi</span>(<span class="nu">100</span>));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>estimate_pi</code> は、1辺が1の正方形に <code>n</code> × <code>n</code> 個の点を格子状に並べ、x² + y² ≤ 1 の内側に入った点の割合を4倍して円周率を推定するつもりの関数です。モンテカルロ法の乱数の代わりに格子点を使っています。<code>estimate_pi(100)</code> を表示すると、いまは <code>0</code> が出ます。本来の出力は <code>3.1428</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="nu">4.0</span> * <span class="ty">f64</span>::<span class="fn">from</span>(inside / (n * n))
+</code></pre>
+      <p>
+        <code>inside</code> は <code>n * n</code> と割られるので、<code>n</code> と同じ <code>u32</code> に推論されます。<code>inside / (n * n)</code> は整数どうしの割り算で、商の小数部は切り捨てられます。内側に入った点は全体より少ないので、<code>7857 / 10000</code> の商は <code>0</code> です。<code>f64::from</code> が変換するのは割り終えたあとの <code>0</code> なので、4倍しても <code>0.0</code> のままで、<code>{}</code> では <code>0</code> と表示されます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="nu">4.0</span> * <span class="ty">f64</span>::<span class="fn">from</span>(inside) / <span class="ty">f64</span>::<span class="fn">from</span>(n * n)
+</code></pre>
+      <p>
+        割る前に、割られる数と割る数の両方を <code>f64</code> に変換します。割り算が浮動小数点数で行われるので、<code>7857</code> を <code>10000</code> で割った <code>0.7857</code> がそのまま残り、4倍した <code>3.1428</code> が返ります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

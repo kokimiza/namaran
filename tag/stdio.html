@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「標準入出力」を扱ったNamaranのコーディングドリル14問。std::getline、抽出演算子のあとの改行、istream::ignore、std::ws、数字のあとにgetline、getline after cin。">
+<meta name="description" content="「標準入出力」を扱ったNamaranのコーディングドリル15問。snprintf の返り値、切り捨て、size_t の回り込み、文字列の連結、snprintf return value、truncation。">
 <title>標準入出力</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/stdio">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>標準入出力</h2>
 
   <p class="lede">
-    「標準入出力」を扱った14問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「標準入出力」を扱った15問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/c/debug/2026-10-12">C / DEBUG · 2026-10-12</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">足し込んだ長さの先で溢れる</span> <span class="past-concepts">snprintf の返り値, 切り捨て, size_t の回り込み, 文字列の連結, snprintf return value, truncation, unsigned wraparound, string concatenation</span></li>
     <li><a href="/cpp/write/2026-10-08">C++ / WRITE · 2026-10-08</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">件数の行のあとの名前</span> <span class="past-concepts">std::getline, 抽出演算子のあとの改行, istream::ignore, std::ws, 数字のあとにgetline, getline after cin, leftover newline</span></li>
     <li><a href="/cpp/read/2026-10-08">C++ / READ · 2026-10-08</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">カンマで区切る行</span> <span class="past-concepts">std::getline, 区切り文字, 改行が残る, CSVの読み込み, getline delimiter, newline in token</span></li>
     <li><a href="/c/write/2026-10-08">C / WRITE · 2026-10-08</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">2つのファイルを比べる</span> <span class="past-concepts">getc, EOF, ファイルの比較, cmp, 一定のメモリで読む, compare two files, streaming comparison</span></li>

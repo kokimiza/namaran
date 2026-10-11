@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="設定ファイルに 0644 と書かれたファイルのモードを read で読むと、10進数の 644 になってマスクの結果が狂うHaskell 2010のドリル。read が Haskell の整数リテラルと同じ規則で読み、8進数には 0o が要ることを扱う。">
+<title>readが読む0644</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-10-12">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-12" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-10-12",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-10-12",
+      "datePublished": "2026-10-12",
+      "dateModified": "2026-10-12",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "readが読む0644" },
+      "keywords": "integer-literal, parsing, bit-operation, file-system",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "設定ファイルに 0644 と書かれたファイルのモードを read で読むと、10進数の 644 になってマスクの結果が狂うHaskell 2010のドリル。read が Haskell の整数リテラルと同じ規則で読み、8進数には 0o が要ることを扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-12">C23</a>
+  <a href="/cpp/debug/2026-10-12">C++26</a>
+  <a href="/rust/debug/2026-10-12">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-12" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-12">READ</a>
+  <a href="/haskell/write/2026-10-12">WRITE</a>
+  <a href="/haskell/debug/2026-10-12" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="readが読む0644"
+  data-tags="integer-literal parsing bit-operation file-system"
+  data-concepts="read と8進数, 先頭が0の整数, ファイルのモード, umask, read octal, leading zero, file mode, 0o prefix"
+  data-level="peacock"
+>
+  <h2>2026-10-12</h2>
+  <div class="code-frame">
+    <p class="code-filename">FileMode.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Data.Bits</span> (complement, (.&amp;.))
+<span class="kw">import</span> <span class="ty">Numeric</span> (showOct)
+
+<span class="fn">parseMode</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">Int</span>
+<span class="fn">parseMode</span> = read
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = <span class="kw">do</span>
+  <span class="kw">let</span> mode = parseMode <span class="st">"0644"</span> .&amp;. complement <span class="nu">0o027</span>
+  putStrLn (showOct mode <span class="st">""</span>)
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>parseMode</code> は、設定ファイルに <code>"0644"</code> のように8進数で書かれたファイルのモードを数値にするつもりの関数です。<code>main</code> は読んだモードから umask の <code>0o027</code> のビットを落とし、8進数で表示します。いまは <code>1200</code> が出ます。本来の出力は <code>640</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="fn">parseMode</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">Int</span>
+<span class="fn">parseMode</span> = read
+</code></pre>
+      <p>
+        <code>read</code> は、文字列を Haskell の整数リテラルと同じ規則で読みます。Haskell では先頭の <code>0</code> は8進数の印にならないので、<code>read "0644"</code> は10進数の 644 です。644 を8進数で書くと <code>1204</code> で、ここから <code>0o027</code> のビットを落とすと末尾の <code>4</code> が消え、<code>1200</code> が表示されます。マスクの計算は合っていて、狂っているのは読み込んだ時点の値です。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="fn">parseMode</span> s = read (<span class="st">"0o"</span> ++ s)
+</code></pre>
+      <p>
+        先頭に <code>0o</code> を付けると、文字列は Haskell の8進数リテラル <code>0o0644</code> になり、<code>read</code> は 420(8進数で <code>0o644</code>)を返します。そこから <code>0o027</code> のビットを落とした <code>0o640</code> が、<code>640</code> と表示されます<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li><code>Numeric</code> の <code>readOct</code> でも読めます。<code>readOct</code> は読めた値と残りの文字列の組をリストで返し、<code>"0644"</code> なら <code>[(420,"")]</code> です。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

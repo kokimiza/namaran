@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「構文解析」を扱ったNamaranのコーディングドリル4問。再入可能な字句分割、strtok の代わり、string_view、区切り文字で分割、reentrant tokenizer、strtok_r。">
+<meta name="description" content="「構文解析」を扱ったNamaranのコーディングドリル6問。8進数リテラル、16進数リテラル、先頭が0の整数、基数変換、octal literal、hexadecimal literal。">
 <title>構文解析</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/parsing">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,12 @@
   <h2>構文解析</h2>
 
   <p class="lede">
-    「構文解析」を扱った4問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「構文解析」を扱った6問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/haskell/write/2026-10-12">Haskell / WRITE · 2026-10-12</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">C流の整数リテラルを読む</span> <span class="past-concepts">8進数リテラル, 16進数リテラル, 先頭が0の整数, 基数変換, octal literal, hexadecimal literal, leading zero, strtol base 0</span></li>
+    <li><a href="/haskell/debug/2026-10-12">Haskell / DEBUG · 2026-10-12</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">readが読む0644</span> <span class="past-concepts">read と8進数, 先頭が0の整数, ファイルのモード, umask, read octal, leading zero, file mode, 0o prefix</span></li>
     <li><a href="/cpp/write/2026-10-11">C++ / WRITE · 2026-10-11</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">読んだ位置を呼び出し側に</span> <span class="past-concepts">再入可能な字句分割, strtok の代わり, string_view, 区切り文字で分割, reentrant tokenizer, strtok_r, split by delimiter</span></li>
     <li><a href="/cpp/write/2026-10-08">C++ / WRITE · 2026-10-08</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">件数の行のあとの名前</span> <span class="past-concepts">std::getline, 抽出演算子のあとの改行, istream::ignore, std::ws, 数字のあとにgetline, getline after cin, leftover newline</span></li>
     <li><a href="/rust/read/2026-10-06">Rust / READ · 2026-10-06</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">引用符を数えるCSV</span> <span class="past-concepts">CSVの引用符, 二重にした引用符のエスケープ, 状態機械, matchのガード, CSV quoting, escaped double quote, match guard</span></li>

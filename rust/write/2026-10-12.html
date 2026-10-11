@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="乱数を返すクロージャを FnMut で受け取り、モンテカルロ法で円周率を推定する estimate_pi を書くRust 2024のドリル。クロージャの可変借用、タプルの評価順、整数の個数を f64 に変えてから割ることを扱う。">
+<title>乱数を受け取る円周率推定</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-10-12">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-12" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-10-12",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-10-12",
+      "datePublished": "2026-10-12",
+      "dateModified": "2026-10-12",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "乱数を受け取る円周率推定" },
+      "keywords": "fn-trait, closure, sampling, random-number-generator, iterator",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "乱数を返すクロージャを FnMut で受け取り、モンテカルロ法で円周率を推定する estimate_pi を書くRust 2024のドリル。クロージャの可変借用、タプルの評価順、整数の個数を f64 に変えてから割ることを扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-12">C23</a>
+  <a href="/cpp/write/2026-10-12">C++26</a>
+  <a href="/rust/write/2026-10-12" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-10-12">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-12">READ</a>
+  <a href="/rust/write/2026-10-12" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-10-12">DEBUG</a>
+</nav>
+
+<main
+  data-topic="乱数を受け取る円周率推定"
+  data-tags="fn-trait closure sampling random-number-generator iterator"
+  data-concepts="モンテカルロ法, 円周率の推定, FnMut クロージャ, 乱数を引数で渡す, Monte Carlo pi, FnMut closure, injected random source"
+  data-level="peacock"
+>
+  <h2>2026-10-12</h2>
+  <div class="code-frame">
+    <p class="code-filename">estimate_pi.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">estimate_pi</span>(n: <span class="ty">u32</span>, <span class="kw">mut</span> rand: <span class="kw">impl</span> <span class="fn">FnMut</span>() -&gt; <span class="ty">f64</span>) -&gt; <span class="ty">f64</span> {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    呼ぶたびに0以上1未満の乱数を返すクロージャ <code>rand</code> を使い、1辺が1の正方形に <code>n</code> 個の点を打って円周率を推定する <code>estimate_pi</code> を書いてください。点は1個につき <code>rand</code> を2回呼び、1回目を x 座標、2回目を y 座標とします。x² + y² ≤ 1 となった点の割合を4倍した値を返し、<code>n</code> が0のときは <code>0.0</code> を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>let mut v = [0.5, 0.5, 0.9, 0.9].into_iter(); estimate_pi(2, || v.next().unwrap())</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>2.0</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>estimate_pi(3, || 0.5)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>4.0</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>estimate_pi(0, || 0.0)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>0.0</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">estimate_pi</span>(n: <span class="ty">u32</span>, <span class="kw">mut</span> rand: <span class="kw">impl</span> <span class="fn">FnMut</span>() -&gt; <span class="ty">f64</span>) -&gt; <span class="ty">f64</span> {
+    <span class="kw">if</span> n == <span class="nu">0</span> {
+        <span class="kw">return</span> <span class="nu">0.0</span>;
+    }
+    <span class="kw">let</span> inside = (<span class="nu">0</span>..n)
+        .<span class="fn">filter</span>(|_| {
+            <span class="kw">let</span> (x, y) = (<span class="fn">rand</span>(), <span class="fn">rand</span>());
+            x * x + y * y &lt;= <span class="nu">1.0</span>
+        })
+        .<span class="fn">count</span>();
+    <span class="nu">4.0</span> * inside <span class="kw">as</span> <span class="ty">f64</span> / <span class="ty">f64</span>::<span class="fn">from</span>(n)
+}
+</code></pre>
+      <p>
+        乱数を返すクロージャは、ふつう呼ぶたびに自分の状態を書き換えます。入力例 1 のクロージャなら、捕捉したイテレータ <code>v</code> を1つずつ進めます。そういうクロージャを受け取れるのは <code>Fn</code> ではなく <code>FnMut</code> で、<code>FnMut</code> を呼ぶには可変の借用が要るため、引数の束縛を <code>mut rand</code> にしています。<code>filter</code> に渡したクロージャはその中で <code>rand()</code> を呼ぶので、<code>rand</code> を可変で借用したまま、<code>count</code> が数え終わるまで持ち続けます。
+      </p>
+      <p>
+        タプル <code>(rand(), rand())</code> の要素は左から順に評価されるので、1回目の値が <code>x</code>、2回目が <code>y</code> に入ります。数えた個数は <code>usize</code> なので、<code>f64</code> に変えてから割ります。整数のまま <code>4 * inside / n</code> と割ると小数部が切り捨てられ、推定値が整数にしかなりません。<code>n</code> が0のまま割り算まで進むと <code>0.0 / 0.0</code> で <code>NaN</code> になるので、先に <code>0.0</code> を返しています。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>for</code> ループで内側の点の数を数える書き方でも同じ結果になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

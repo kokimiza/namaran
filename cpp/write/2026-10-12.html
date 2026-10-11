@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="累乗を右から結合する累乗の塔 tower(2, 3, 2) = 512 を、可変長テンプレートと畳み込み式で書くC++26のドリル。多重定義した ^ は左結合のままなので、右畳み込みで結合の向きを決める。">
+<title>右から積む累乗の塔</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-10-12">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-12" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-10-12",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-10-12",
+      "datePublished": "2026-10-12",
+      "dateModified": "2026-10-12",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "右から積む累乗の塔" },
+      "keywords": "associativity, fold-expression, variadic-template, operator-overload, constexpr",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "累乗を右から結合する累乗の塔 tower(2, 3, 2) = 512 を、可変長テンプレートと畳み込み式で書くC++26のドリル。多重定義した ^ は左結合のままなので、右畳み込みで結合の向きを決める。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-12">C23</a>
+  <a href="/cpp/write/2026-10-12" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-10-12">Rust 2024</a>
+  <a href="/haskell/write/2026-10-12">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-12">READ</a>
+  <a href="/cpp/write/2026-10-12" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-10-12">DEBUG</a>
+</nav>
+
+<main
+  data-topic="右から積む累乗の塔"
+  data-tags="associativity fold-expression variadic-template operator-overload constexpr"
+  data-concepts="累乗の塔, 累乗の右結合, 右畳み込み, 演算子の多重定義と結合性, power tower, right fold, right associative exponentiation"
+  data-level="whale"
+>
+  <h2>2026-10-12</h2>
+  <div class="code-frame">
+    <p class="code-filename">tower.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;cstdint&gt;</span>
+
+<span class="kw">template</span> &lt;<span class="kw">class</span>... <span class="ty">T</span>&gt;
+<span class="kw">constexpr</span> std::<span class="ty">uint64_t</span> <span class="fn">tower</span>(<span class="ty">T</span>... xs) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    引数を数学の累乗の塔のように右から結合した値を返す <code>tower</code> を書いてください。<code>tower(a, b, c)</code> なら、a の (b の c 乗) 乗です。引数は1個以上の非負の整数で、1個ならその値を返し、0 の 0 乗は 1 とします。結果が <code>std::uint64_t</code> に収まる入力だけを考えればよく、<code>static_assert</code> の中のようにコンパイル時にも呼べるようにします。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>tower(2, 3, 2)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>512</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>tower(2, 2, 2, 2)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>65536</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>tower(7)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>7</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;cstdint&gt;</span>
+
+<span class="kw">struct</span> <span class="ty">Pow</span> {
+    std::<span class="ty">uint64_t</span> v;
+};
+
+<span class="kw">constexpr</span> <span class="ty">Pow</span> <span class="kw">operator</span>^(<span class="ty">Pow</span> base, <span class="ty">Pow</span> exp) {
+    std::<span class="ty">uint64_t</span> r = <span class="nu">1</span>;
+    <span class="kw">for</span> (std::<span class="ty">uint64_t</span> i = <span class="nu">0</span>; i &lt; exp.v; i++)
+        r *= base.v;
+    <span class="kw">return</span> {r};
+}
+
+<span class="kw">template</span> &lt;<span class="kw">class</span>... <span class="ty">T</span>&gt;
+<span class="kw">constexpr</span> std::<span class="ty">uint64_t</span> <span class="fn">tower</span>(<span class="ty">T</span>... xs) {
+    <span class="kw">return</span> (<span class="ty">Pow</span>{<span class="kw">static_cast</span>&lt;std::<span class="ty">uint64_t</span>&gt;(xs)} ^ ...).v;
+}
+</code></pre>
+      <p>
+        累乗の塔は右から結合するので、計算は最後の2つの引数から始まります。<code>tower(2, 3, 2)</code> は 3 の 2 乗の 9 を先に求め、2 の 9 乗で <code>512</code> になります。C++ には累乗の演算子がなく、<code>^</code> は排他的論理和です。そこで累乗を <code>^</code> に受け持たせた型 <code>Pow</code> を用意し、引数をすべて <code>Pow</code> に包んで、畳み込み式で <code>^</code> をつなぎます。
+      </p>
+      <p>
+        演算子を多重定義しても、優先順位と結合性は組み込みの <code>^</code> のまま変わりません。<code>Pow</code> 同士を <code>a ^ b ^ c</code> と並べれば左結合で <code>(a ^ b) ^ c</code> になります。結合の向きを決めるのは畳み込み式の形のほうです。<code>(E ^ ...)</code> は単項の右畳み込みで、<code>E1 ^ (E2 ^ (... ^ En))</code> と右側に括弧を付けて展開されます。<code>(... ^ E)</code> と書くと左畳み込みになり、<code>tower(2, 3, 2)</code> は 2 の 3 乗の 2 乗、<code>64</code> になってしまいます。引数が1個なら、単項の畳み込みはその要素そのものです。
+      </p>
+      <p>
+        <code>operator^</code> は指数の回数だけ掛け算を繰り返します。指数が <code>0</code> ならループは1回も回らずに <code>1</code> を返すので、0 の 0 乗も <code>1</code> です。<code>std::pow</code> は浮動小数点数で計算するので、2 の 53 乗を超える結果では下の桁が正確に出ないことがあります。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。引数を <code>std::uint64_t</code> の配列に展開し、末尾から先頭へ向かって累乗を重ねるループでも書けます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
