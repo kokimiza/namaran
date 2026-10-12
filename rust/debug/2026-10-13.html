@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="連結のたびのコピーを避けようと std::mem::take で String を取り出して + でつなぐと、同じ式の中の ? で早期リターンしたときに、それまでの中身がすべて消えるRust 2024のドリル。オペランドの評価順と ? を扱う。">
+<title>取り出したまま帰る</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-10-13">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-13" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-10-13",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-10-13",
+      "datePublished": "2026-10-13",
+      "dateModified": "2026-10-13",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "取り出したまま帰る" },
+      "keywords": "string, question-mark-operator, evaluation-order, ownership, performance",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "連結のたびのコピーを避けようと std::mem::take で String を取り出して + でつなぐと、同じ式の中の ? で早期リターンしたときに、それまでの中身がすべて消えるRust 2024のドリル。オペランドの評価順と ? を扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-13">C23</a>
+  <a href="/cpp/debug/2026-10-13">C++26</a>
+  <a href="/rust/debug/2026-10-13" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-13">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-13">READ</a>
+  <a href="/rust/write/2026-10-13">WRITE</a>
+  <a href="/rust/debug/2026-10-13" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="取り出したまま帰る"
+  data-tags="string question-mark-operator evaluation-order ownership performance"
+  data-concepts="std::mem::take, 文字列の連結, 早期リターン, オペランドの評価順, データの消失, string concatenation, early return, evaluation order"
+  data-level="whale"
+>
+  <h2>2026-10-13</h2>
+  <div class="code-frame">
+    <p class="code-filename">cells.rs</p>
+    <pre class="code"><code><span class="kw">use</span> std::num::<span class="ty">ParseIntError</span>;
+
+<span class="kw">fn</span> <span class="fn">add</span>(body: &amp;<span class="kw">mut</span> <span class="ty">String</span>, cell: &amp;<span class="ty">str</span>) -&gt; <span class="ty">Result</span>&lt;(), <span class="ty">ParseIntError</span>&gt; {
+    *body = std::mem::<span class="fn">take</span>(body) + &amp;cell.<span class="fn">parse</span>::&lt;<span class="ty">i32</span>&gt;()?.<span class="fn">to_string</span>() + <span class="st">","</span>;
+    <span class="fn">Ok</span>(())
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> <span class="kw">mut</span> body = <span class="ty">String</span>::<span class="fn">new</span>();
+    <span class="kw">for</span> cell <span class="kw">in</span> [<span class="st">"1"</span>, <span class="st">"2"</span>, <span class="st">"x"</span>, <span class="st">"4"</span>] {
+        <span class="kw">if</span> <span class="fn">add</span>(&amp;<span class="kw">mut</span> body, cell).<span class="fn">is_err</span>() {
+            <span class="mc">eprintln!</span>(<span class="st">"skip {cell}"</span>);
+        }
+    }
+    <span class="mc">println!</span>(<span class="st">"{body}"</span>);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>add</code> は、表のセルを1つ数として読み、<code>body</code> の末尾に「数,」を書き足す関数です。数として読めないセルではエラーを返し、呼び出し側はそのセルを飛ばして続けます。<code>main</code> は <code>"1"</code> <code>"2"</code> <code>"x"</code> <code>"4"</code> の4つのセルを渡すので、本来は <code>1,2,4,</code> と表示されるはずですが、いまは <code>4,</code> と表示されます。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code>*body = std::mem::<span class="fn">take</span>(body) + &amp;cell.<span class="fn">parse</span>::&lt;<span class="ty">i32</span>&gt;()?.<span class="fn">to_string</span>() + <span class="st">","</span>;
+</code></pre>
+      <p>
+        <code>+</code> の左辺は <code>String</code> を値で受け取るので、<code>&amp;mut String</code> の先にある中身をそのまま渡すことはできません。そこで <code>std::mem::take</code> で <code>body</code> の中身を取り出し、代わりに空の <code>String</code> を置いています。<code>clone</code> で写すと連結のたびに全体をコピーすることになるので、取り出すこと自体は理にかなっています。
+      </p>
+      <p>
+        問題は取り出す時機です。二項演算子のオペランドは左から順に評価されるので、<code>"x"</code> のセルでは、まず <code>mem::take</code> が <code>"1,2,"</code> を取り出して <code>body</code> を空にし、そのあとで右側の <code>cell.parse::&lt;i32&gt;()</code> が失敗します。<code>?</code> はそこで関数から抜けるので、代入までは進みません。取り出した <code>"1,2,"</code> は一時的な値のまま捨てられ、<code>body</code> には空の <code>String</code> が残ります。続く <code>"4"</code> はこの空の <code>body</code> に書き足されるので、表示は <code>4,</code> になります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">let</span> n: <span class="ty">i32</span> = cell.<span class="fn">parse</span>()?;
+*body = std::mem::<span class="fn">take</span>(body) + &amp;n.<span class="fn">to_string</span>() + <span class="st">","</span>;
+</code></pre>
+      <p>
+        失敗しうる読み取りを、<code>body</code> から取り出す前に済ませます。<code>?</code> で抜けるのは <code>body</code> に手を付ける前になるので、<code>"x"</code> のセルでも <code>body</code> は <code>"1,2,"</code> のまま残ります。取り出してから戻すまでの間に <code>?</code> を置かなければ、同じ消え方は起きません<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li><code>body.push_str(&amp;n.to_string())</code> のように <code>&amp;mut String</code> へ直接書き足せば、そもそも取り出す必要がありません。<code>push_str</code> も <code>+</code> と同じく末尾に書き足すだけなので、かかる時間は足す文字数に比例します。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

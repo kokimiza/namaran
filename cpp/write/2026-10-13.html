@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="std::istream から件数の分からない整数を読み、k 個を一様に残すリザーバサンプリング(reservoir sampling)を書くC++26のドリル。乱数は番号を返す関数として受け取り、例では決まった値を返させる。">
+<title>k個を残しながら読む</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-10-13">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-13" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-10-13",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-10-13",
+      "datePublished": "2026-10-13",
+      "dateModified": "2026-10-13",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "k個を残しながら読む" },
+      "keywords": "reservoir-sampling, sampling, random-number-generator, template, io",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "std::istream から件数の分からない整数を読み、k 個を一様に残すリザーバサンプリング(reservoir sampling)を書くC++26のドリル。乱数は番号を返す関数として受け取り、例では決まった値を返させる。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-13">C23</a>
+  <a href="/cpp/write/2026-10-13" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-10-13">Rust 2024</a>
+  <a href="/haskell/write/2026-10-13">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-13">READ</a>
+  <a href="/cpp/write/2026-10-13" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-10-13">DEBUG</a>
+</nav>
+
+<main
+  data-topic="k個を残しながら読む"
+  data-tags="reservoir-sampling sampling random-number-generator template io"
+  data-concepts="リザーバサンプリング, 件数不明の入力, 一様な抽出, reservoir sampling, Algorithm R, streaming sample"
+  data-level="hedgehog"
+>
+  <h2>2026-10-13</h2>
+  <div class="code-frame">
+    <p class="code-filename">sample.cpp</p>
+    <pre class="code"><code><span class="kw">template</span> &lt;<span class="kw">class</span> <span class="ty">Pick</span>&gt;
+std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt; <span class="fn">sample</span>(std::<span class="ty">istream</span>&amp; in, std::<span class="ty">size_t</span> k, <span class="ty">Pick</span> pick) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>in</code> の整数を終わりまで読み、そのうち <code>k</code> 個を、どの値も同じ確率で残るように選んで返す <code>sample</code> を書いてください。何個読むことになるかは前もって分かりません。<code>pick(i)</code> は、<code>i</code> 番目(0から数える)の値を読んだときに呼ぶ関数で、0以上 <code>i</code> 以下の整数を一様に返します。値が <code>k</code> 個に満たないときは、読んだ値をすべて返します。例の <code>in</code> は、入力例1と2では <code>"1 2 3 4 5"</code>、入力例3では <code>"7 8"</code> を読む <code>std::istringstream</code> です。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>sample(in, 2, [](std::size_t i) { return i; })</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>{1, 2}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>sample(in, 2, [](std::size_t) { return std::size_t{0}; })</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>{5, 2}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>sample(in, 3, [](std::size_t i) { return i; })</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>{7, 8}</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">template</span> &lt;<span class="kw">class</span> <span class="ty">Pick</span>&gt;
+std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt; <span class="fn">sample</span>(std::<span class="ty">istream</span>&amp; in, std::<span class="ty">size_t</span> k, <span class="ty">Pick</span> pick) {
+    std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt; kept;
+    std::<span class="ty">size_t</span> i = <span class="nu">0</span>;
+    <span class="kw">for</span> (<span class="ty">int</span> x; in &gt;&gt; x; ++i) {
+        <span class="kw">if</span> (kept.<span class="fn">size</span>() &lt; k)
+            kept.<span class="fn">push_back</span>(x);
+        <span class="kw">else</span> <span class="kw">if</span> (std::<span class="ty">size_t</span> j = <span class="fn">pick</span>(i); j &lt; k)
+            kept[j] = x;
+    }
+    <span class="kw">return</span> kept;
+}
+</code></pre>
+      <p>
+        最初の <code>k</code> 個はそのまま <code>kept</code> に入れます。<code>i</code> 番目の値は、<code>pick(i)</code> が返す <code>i + 1</code> 通りの番号のうち、0から <code>k - 1</code> の <code>k</code> 通りに当たったときだけ、その番号の位置に入ります。入る確率は <code>k / (i + 1)</code> で、あとから来た値に追い出される確率まで掛け合わせると、読み終えたときにはどの値も「<code>k</code> ÷ 読んだ個数」の確率で残っています。
+      </p>
+      <p>
+        各値の扱いは、それまでに読んだ個数 <code>i</code> だけで決まるので、全体の件数を知る必要がありません。ループの条件 <code>in &gt;&gt; x</code> は、読めなくなった時点で偽になり、入力の終わりでループを抜けます。
+      </p>
+      <p>
+        実際に使うときは <code>std::mt19937 gen;</code> を用意し、<code>[&amp;](std::size_t i) { return std::uniform_int_distribution&lt;std::size_t&gt;(0, i)(gen); }</code> のように渡します。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

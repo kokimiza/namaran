@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="可変長整数(varint)を uint64_t に読み戻すとき、キャストの位置のせいでシフトが int のまま行われ、5バイト目から値が壊れるC23のドリル。整数昇格、シフトの結果の型、キャストの結合を扱う。">
+<title>キャストの外でずらす</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-10-13">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-13" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-10-13",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-10-13",
+      "datePublished": "2026-10-13",
+      "dateModified": "2026-10-13",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "キャストの外でずらす" },
+      "keywords": "varint, integer-promotion, bit-operation, undefined-behavior, type-conversion",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "可変長整数(varint)を uint64_t に読み戻すとき、キャストの位置のせいでシフトが int のまま行われ、5バイト目から値が壊れるC23のドリル。整数昇格、シフトの結果の型、キャストの結合を扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-13" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-10-13">C++26</a>
+  <a href="/rust/debug/2026-10-13">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-13">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-13">READ</a>
+  <a href="/c/write/2026-10-13">WRITE</a>
+  <a href="/c/debug/2026-10-13" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="キャストの外でずらす"
+  data-tags="varint integer-promotion bit-operation undefined-behavior type-conversion"
+  data-concepts="可変長整数, varint, LEB128, 整数昇格, シフトの結果の型, キャストの位置, integer promotion, shift overflow"
+  data-level="whale"
+>
+  <h2>2026-10-13</h2>
+  <div class="code-frame">
+    <p class="code-filename">get_varint.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;inttypes.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">static</span> <span class="ty">uint64_t</span> <span class="fn">get_varint</span>(<span class="kw">const</span> <span class="ty">unsigned</span> <span class="ty">char</span> *p) {
+    <span class="ty">uint64_t</span> value = <span class="nu">0</span>;
+    <span class="ty">int</span> shift = <span class="nu">0</span>;
+    <span class="ty">unsigned</span> <span class="ty">char</span> b;
+    <span class="kw">do</span> {
+        b = *p++;
+        value |= (<span class="ty">uint64_t</span>)((b &amp; <span class="nu">0x7F</span>) &lt;&lt; shift);
+        shift += <span class="nu">7</span>;
+    } <span class="kw">while</span> (b &amp; <span class="nu">0x80</span>);
+    <span class="kw">return</span> value;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="kw">const</span> <span class="ty">unsigned</span> <span class="ty">char</span> buf[] = {<span class="nu">0x80</span>, <span class="nu">0xE4</span>, <span class="nu">0x97</span>, <span class="nu">0xD0</span>, <span class="nu">0x12</span>};
+    <span class="fn">printf</span>(<span class="st">"%"</span> <span class="ty">PRIu64</span> <span class="st">"\n"</span>, <span class="fn">get_varint</span>(buf));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>get_varint</code> は、下位から7ビットずつ並べ、続きがあるバイトだけ最上位ビットを立てた可変長整数を、<code>uint64_t</code> に読み戻す関数です。<code>main</code> の5バイトは <code>5000000000</code> を書いたもので、本来は <code>5000000000</code> と表示されるはずですが、いまは別の値が表示されます。4バイト以下に収まる数は正しく読めています。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code>value |= (<span class="ty">uint64_t</span>)((b &amp; <span class="nu">0x7F</span>) &lt;&lt; shift);
+</code></pre>
+      <p>
+        <code>b</code> は <code>unsigned char</code> ですが、演算の前に整数昇格で <code>int</code> になります。<code>0x7F</code> も <code>int</code> なので、<code>b &amp; 0x7F</code> は <code>int</code> です。シフトの結果は左オペランドの型になるので、<code>(b &amp; 0x7F) &lt;&lt; shift</code> も <code>int</code> で計算されます。<code>uint64_t</code> へのキャストが変換するのは、シフトが済んだあとの値です。
+      </p>
+      <p>
+        4バイト目までは <code>shift</code> が21以下で、<code>127 &lt;&lt; 21</code> でも <code>int</code> に収まるので正しく読めます。5バイト目の <code>0x12</code>(18)では <code>shift</code> が28になり、<code>18 &lt;&lt; 28</code> は約48億で、32ビットの <code>int</code> では表せません。符号付き整数の左シフトの結果が表せないときは未定義動作なので、表示される値は決まりません<sup class="fn-ref">1</sup>。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code>value |= (<span class="ty">uint64_t</span>)(b &amp; <span class="nu">0x7F</span>) &lt;&lt; shift;
+</code></pre>
+      <p>
+        キャストは単項演算子で、シフトより強く結びつきます。括弧を外すとキャストが <code>b &amp; 0x7F</code> だけにかかり、シフトは <code>uint64_t</code> で行われるので、28ビットずらしても上位のビットが残ります<sup class="fn-ref">2</sup>。<code>0x7Fu</code> と書いて符号なしにするだけでは足りません。未定義動作はなくなりますが、シフトは32ビットの <code>unsigned int</code> のままなので、32ビット目より上が黙って捨てられます。
+      </p>
+      <ol class="footnotes">
+        <li>x86-64 の GCC では、上位のビットが落ちた <code>705032704</code>(<code>5000000000</code> を2の32乗で割った余り)が表示されることがありますが、最適化の具合で変わりうる値です。</li>
+        <li>Protocol Buffers の varint や DWARF の ULEB128 がこの形式です。64ビットの値は最大10バイトになり、最後のバイトでは <code>shift</code> が63に達します。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

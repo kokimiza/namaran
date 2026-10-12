@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Data.Set を優先度付きキューにしたA*探索(A* search)で、取り出したコストと見積もりの和をそのまま次のコストに使い、見積もりが経路に沿って積み上がるHaskell 2010のドリル。見積もりを0にすると正しく動く理由を考える。">
+<title>長すぎる最短経路</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-10-13">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-13" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-10-13",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-10-13",
+      "datePublished": "2026-10-13",
+      "dateModified": "2026-10-13",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "長すぎる最短経路" },
+      "keywords": "a-star-search, shortest-path, priority-queue, set, maybe",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "Data.Set を優先度付きキューにしたA*探索(A* search)で、取り出したコストと見積もりの和をそのまま次のコストに使い、見積もりが経路に沿って積み上がるHaskell 2010のドリル。見積もりを0にすると正しく動く理由を考える。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-13">C23</a>
+  <a href="/cpp/debug/2026-10-13">C++26</a>
+  <a href="/rust/debug/2026-10-13">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-13" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-13">READ</a>
+  <a href="/haskell/write/2026-10-13">WRITE</a>
+  <a href="/haskell/debug/2026-10-13" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="長すぎる最短経路"
+  data-tags="a-star-search shortest-path priority-queue set maybe"
+  data-concepts="A*探索, 評価関数 f = g + h, ヒューリスティック, 見積もり, Data.Set, A* search, heuristic, path cost"
+  data-level="whale"
+>
+  <h2>2026-10-13</h2>
+  <div class="code-frame">
+    <p class="code-filename">Route.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="kw">qualified</span> <span class="ty">Data.Set</span> <span class="kw">as</span> <span class="ty">Set</span>
+
+<span class="fn">edges</span> <span class="op">::</span> <span class="ty">Char</span> <span class="op">-&gt;</span> [(<span class="ty">Char</span>, <span class="ty">Int</span>)]
+<span class="fn">edges</span> <span class="st">'S'</span> = [(<span class="st">'A'</span>, <span class="nu">1</span>), (<span class="st">'G'</span>, <span class="nu">5</span>)]
+<span class="fn">edges</span> <span class="st">'A'</span> = [(<span class="st">'G'</span>, <span class="nu">2</span>)]
+<span class="fn">edges</span> _ = []
+
+<span class="fn">estimate</span> <span class="op">::</span> <span class="ty">Char</span> <span class="op">-&gt;</span> <span class="ty">Int</span>
+<span class="fn">estimate</span> <span class="st">'S'</span> = <span class="nu">3</span>
+<span class="fn">estimate</span> <span class="st">'A'</span> = <span class="nu">2</span>
+<span class="fn">estimate</span> _ = <span class="nu">0</span>
+
+<span class="fn">search</span> <span class="op">::</span> <span class="ty">Set.Set</span> (<span class="ty">Int</span>, <span class="ty">Char</span>) <span class="op">-&gt;</span> <span class="ty">Maybe</span> <span class="ty">Int</span>
+<span class="fn">search</span> open = <span class="kw">do</span>
+  ((f, n), rest) <span class="op">&lt;-</span> <span class="ty">Set</span>.minView open
+  <span class="kw">if</span> n == <span class="st">'G'</span>
+    <span class="kw">then</span> <span class="ty">Just</span> f
+    <span class="kw">else</span> search (foldr <span class="ty">Set</span>.insert rest [(f + c + estimate m, m) | (m, c) <span class="op">&lt;-</span> edges n])
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (search (<span class="ty">Set</span>.singleton (estimate <span class="st">'S'</span>, <span class="st">'S'</span>)))
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>search</code> は、A*探索で <code>'S'</code> から <code>'G'</code> までの最短距離を求める関数です。<code>open</code> には、そのノードまでのコストと <code>estimate</code> による残りの見積もりの和を、ノードと組にして入れ、和が最小のものから取り出します。このグラフの最短経路は <code>S→A→G</code> の長さ3なので、本来は <code>Just 3</code> と表示されるはずですが、いまは <code>Just 8</code> と表示されます。<code>estimate</code> がどのノードにも0を返すように書き換えると、<code>Just 3</code> が表示されます。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code>((f, n), rest) <span class="op">&lt;-</span> <span class="ty">Set</span>.minView open
+<span class="kw">if</span> n == <span class="st">'G'</span>
+  <span class="kw">then</span> <span class="ty">Just</span> f
+  <span class="kw">else</span> search (foldr <span class="ty">Set</span>.insert rest [(f + c + estimate m, m) | (m, c) <span class="op">&lt;-</span> edges n])
+</code></pre>
+      <p>
+        取り出した <code>f</code> は、<code>n</code> までのコストと <code>n</code> の見積もり <code>estimate n</code> の和です。隣の <code>m</code> の和に要るのは「<code>n</code> までのコスト + <code>c</code> + <code>estimate m</code>」ですが、このコードはコストの代わりに <code>f</code> を使うので、<code>n</code> の見積もりが <code>m</code> までのコストに混ざります。混ざった分は <code>m</code> の <code>f</code> の一部として次のノードへ引き継がれ、経路をたどるたびに積み上がります。
+      </p>
+      <p>
+        <code>S</code> の <code>f</code> は見積もりの3です。<code>A</code> の和は <code>3 + 1 + 2</code> で6、<code>S</code> から直接行く <code>G</code> は <code>3 + 5 + 0</code> で8になり、<code>A</code> を取り出すと、<code>A</code> 経由の <code>G</code> も <code>6 + 2 + 0</code> で8になります。どちらの経路も8なので、取り出した <code>G</code> の <code>f</code> の8がそのまま返ります。見積もりがすべて0なら和とコストが同じ値になり、混ざるものがないので <code>Just 3</code> が返ります。とはいえ見積もりの値はどれも実際の残りの距離を超えておらず、直すべきは見積もりではありません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code>((f, n), rest) <span class="op">&lt;-</span> <span class="ty">Set</span>.minView open
+<span class="kw">let</span> g = f - estimate n
+<span class="kw">if</span> n == <span class="st">'G'</span>
+  <span class="kw">then</span> <span class="ty">Just</span> g
+  <span class="kw">else</span> search (foldr <span class="ty">Set</span>.insert rest [(g + c + estimate m, m) | (m, c) <span class="op">&lt;-</span> edges n])
+</code></pre>
+      <p>
+        和 <code>f</code> から <code>n</code> の見積もりを引けば、<code>n</code> までのコスト <code>g</code> に戻ります。隣の和を <code>g</code> から作れば、どのノードの <code>f</code> も「そこまでのコスト + そのノードの見積もり」だけになり、見積もりは積み上がりません。<code>A</code> の和は3、<code>A</code> 経由の <code>G</code> も3、直接の <code>G</code> は5になり、先に取り出される <code>G</code> のコスト3が返ります。<code>G</code> の見積もりは0なので <code>Just f</code> のままでも値は同じですが、返したいのはコストなので <code>g</code> を返します<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>引き算で戻す代わりに、集合に <code>(f, g, n)</code> の3つ組を入れてコストを持ち運ぶ書き方もよく使われます。和とコストを別の値として持てば、取り違えようがありません。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="A*探索(A* search)の候補を、ここまでのコストと目的地までの見積もりの和が小さい順に並べるHaskell 2010のドリル。sortOn に渡したキーで、どのノードが先に来るかを追う。">
+<title>次に広げる順番</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-10-13">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-13" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-10-13",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-10-13",
+      "datePublished": "2026-10-13",
+      "dateModified": "2026-10-13",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "次に広げる順番" },
+      "keywords": "a-star-search, shortest-path, sorting, list-comprehension",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "A*探索(A* search)の候補を、ここまでのコストと目的地までの見積もりの和が小さい順に並べるHaskell 2010のドリル。sortOn に渡したキーで、どのノードが先に来るかを追う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-13">C23</a>
+  <a href="/cpp/read/2026-10-13">C++26</a>
+  <a href="/rust/read/2026-10-13">Rust 2024</a>
+  <a href="/haskell/read/2026-10-13" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-13" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-10-13">WRITE</a>
+  <a href="/haskell/debug/2026-10-13">DEBUG</a>
+</nav>
+
+<main
+  data-topic="次に広げる順番"
+  data-tags="a-star-search shortest-path sorting list-comprehension"
+  data-concepts="A*探索, 評価関数 f = g + h, ヒューリスティック, 見積もり, A* search, heuristic, frontier"
+  data-level="hedgehog"
+>
+  <h2>2026-10-13</h2>
+  <div class="code-frame">
+    <p class="code-filename">Frontier.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Data.List</span> (sortOn)
+
+<span class="kw">type</span> <span class="ty">Node</span> = (<span class="ty">Char</span>, <span class="ty">Int</span>, <span class="ty">Int</span>) <span class="cm">-- name, cost so far, estimate to goal</span>
+
+<span class="fn">frontier</span> <span class="op">::</span> [<span class="ty">Node</span>]
+<span class="fn">frontier</span> = [(<span class="st">'a'</span>, <span class="nu">1</span>, <span class="nu">9</span>), (<span class="st">'b'</span>, <span class="nu">5</span>, <span class="nu">3</span>), (<span class="st">'c'</span>, <span class="nu">4</span>, <span class="nu">7</span>), (<span class="st">'d'</span>, <span class="nu">6</span>, <span class="nu">0</span>)]
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = putStrLn [name | (name, _, _) <span class="op">&lt;-</span> sortOn (\(_, g, h) <span class="op">-&gt;</span> g + h) frontier]
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>dbac</code> です。
+      </p>
+      <p>
+        <code>sortOn</code> は、渡した関数で求めたキーの小さい順に並べます。キーはここまでのコストと目的地までの見積もりの和 <code>g + h</code> で、<code>a</code> は10、<code>b</code> は8、<code>c</code> は11、<code>d</code> は6です。小さい順に名前を拾うと <code>d</code> <code>b</code> <code>a</code> <code>c</code> になります。
+      </p>
+      <p>
+        この和は、そのノードを通って目的地まで行く経路の長さの見積もりにあたります。ここまでのコストだけで並べると <code>acbd</code>、見積もりだけで並べると <code>dbca</code> になり、どちらとも違う順番です。コストがいちばん大きい <code>d</code> も、見積もりが0なので先頭に来ます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

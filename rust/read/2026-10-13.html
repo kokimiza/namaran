@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="String を値で受け取って + で連結する関数に、元の文字列とその clone を渡したとき、結果のバッファがどこにあるかを as_ptr で比べるRust 2024のドリル。ムーブ、+ によるバッファの再利用、容量、clone の確保を組み合わせて考える。">
+<title>連結のあとのas_ptr</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-10-13">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / READ", "item": "https://namaran.jocarium.productions/rust/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-13" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / READ — 2026-10-13",
+      "url": "https://namaran.jocarium.productions/rust/read/2026-10-13",
+      "datePublished": "2026-10-13",
+      "dateModified": "2026-10-13",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "連結のあとのas_ptr" },
+      "keywords": "string, move-semantics, capacity, performance, clone-trait",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "String を値で受け取って + で連結する関数に、元の文字列とその clone を渡したとき、結果のバッファがどこにあるかを as_ptr で比べるRust 2024のドリル。ムーブ、+ によるバッファの再利用、容量、clone の確保を組み合わせて考える。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-13">C23</a>
+  <a href="/cpp/read/2026-10-13">C++26</a>
+  <a href="/rust/read/2026-10-13" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/read/2026-10-13">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-13" class="active" aria-current="page">READ</a>
+  <a href="/rust/write/2026-10-13">WRITE</a>
+  <a href="/rust/debug/2026-10-13">DEBUG</a>
+</nav>
+
+<main
+  data-topic="連結のあとのas_ptr"
+  data-tags="string move-semantics capacity performance clone-trait"
+  data-concepts="文字列の連結, バッファの再利用, Add for String, 容量, ムーブ, string concatenation, buffer reuse, as_ptr"
+  data-level="whale"
+>
+  <h2>2026-10-13</h2>
+  <div class="code-frame">
+    <p class="code-filename">shout.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">shout</span>(s: <span class="ty">String</span>) -&gt; <span class="ty">String</span> {
+    s + <span class="st">"!"</span>
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> <span class="kw">mut</span> a = <span class="ty">String</span>::<span class="fn">with_capacity</span>(<span class="nu">8</span>);
+    a.<span class="fn">push_str</span>(<span class="st">"hi"</span>);
+    <span class="kw">let</span> p = a.<span class="fn">as_ptr</span>();
+    <span class="kw">let</span> b = <span class="fn">shout</span>(a.<span class="fn">clone</span>());
+    a = <span class="fn">shout</span>(a);
+    <span class="mc">println!</span>(<span class="st">"{} {} {a} {b}"</span>, a.<span class="fn">as_ptr</span>() == p, b.<span class="fn">as_ptr</span>() == p);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>true false hi! hi!</code> です。
+      </p>
+      <p>
+        <code>shout</code> は <code>String</code> を値で受け取ります。<code>String</code> の値そのものは、ヒープ上のバッファを指すポインタと長さと容量の3つで、ムーブで移るのはこの3つだけです。<code>a = shout(a)</code> でも、<code>a</code> のバッファは中身ごとコピーされず、そのまま <code>s</code> に渡ります。
+      </p>
+      <p>
+        <code>s + "!"</code> は左の <code>String</code> を消費し、そのバッファの末尾に <code>"!"</code> を書き足して返します。バッファが足りなければ伸ばしますが、<code>a</code> は <code>with_capacity(8)</code> で8バイト以上の容量を持っているので、3バイトの <code>"hi!"</code> は今のバッファに収まり、場所は動きません。返ってきた <code>String</code> を <code>a</code> に入れ直すので、<code>a.as_ptr()</code> は <code>p</code> のままで、1つ目は <code>true</code> です<sup class="fn-ref">1</sup>。
+      </p>
+      <p>
+        <code>a.clone()</code> は、<code>a</code> と同じ中身のバッファを新しく確保します。この時点で <code>a</code> のバッファはまだ使われているので、新しいバッファが <code>p</code> の場所に置かれることはありません。clone の容量は <code>"hi"</code> の分しかないこともあり、<code>"!"</code> を足すときにバッファが動く可能性はありますが、どこへ動いても <code>p</code> ではないので、2つ目は <code>false</code> です。
+      </p>
+      <p>
+        <code>with_capacity(8)</code> がなく <code>String::from("hi")</code> から始めていたら、<code>a</code> 側も <code>"!"</code> を足すときに伸ばす必要があるかどうかが容量しだいになり、1つ目が <code>true</code> になるとは言えなくなります。
+      </p>
+      <ol class="footnotes">
+        <li>標準ライブラリの <code>impl Add&lt;&amp;str&gt; for String</code> のドキュメントは、左辺を消費してそのバッファを再利用すると明記しています。連結のたびに新しい <code>String</code> を確保して全体をコピーすると、n バイトの文字列をくり返しの連結で組み立てるのに n の2乗に比例する時間がかかるためです。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/read">Today</a></li>
+    <li><a href="/rust/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="上下左右に動くグリッドで、いちばん近い目的地までのマンハッタン距離を返す、A*探索(A* search)の見積もり関数を書くHaskell 2010のドリル。実際の距離を超えない見積もりを、リスト内包表記と minimum で組む。">
+<title>近い目的地への見積もり</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-10-13">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-13" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-10-13",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-10-13",
+      "datePublished": "2026-10-13",
+      "dateModified": "2026-10-13",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "近い目的地への見積もり" },
+      "keywords": "a-star-search, shortest-path, list-comprehension",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "上下左右に動くグリッドで、いちばん近い目的地までのマンハッタン距離を返す、A*探索(A* search)の見積もり関数を書くHaskell 2010のドリル。実際の距離を超えない見積もりを、リスト内包表記と minimum で組む。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-13">C23</a>
+  <a href="/cpp/write/2026-10-13">C++26</a>
+  <a href="/rust/write/2026-10-13">Rust 2024</a>
+  <a href="/haskell/write/2026-10-13" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-13">READ</a>
+  <a href="/haskell/write/2026-10-13" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-10-13">DEBUG</a>
+</nav>
+
+<main
+  data-topic="近い目的地への見積もり"
+  data-tags="a-star-search shortest-path list-comprehension"
+  data-concepts="A*探索, ヒューリスティック, マンハッタン距離, 許容的な見積もり, A* search, admissible heuristic, Manhattan distance"
+  data-level="hedgehog"
+>
+  <h2>2026-10-13</h2>
+  <div class="code-frame">
+    <p class="code-filename">Estimate.hs</p>
+    <pre class="code"><code><span class="fn">estimate</span> <span class="op">::</span> [(<span class="ty">Int</span>, <span class="ty">Int</span>)] <span class="op">-&gt;</span> (<span class="ty">Int</span>, <span class="ty">Int</span>) <span class="op">-&gt;</span> <span class="ty">Int</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    上下左右に1マスずつ動くグリッドで、位置 <code>(x, y)</code> から <code>goals</code> のうちいちばん近い目的地までの見積もりを返す <code>estimate</code> を書いてください。見積もりは、各目的地とのマンハッタン距離(x 座標の差の絶対値と y 座標の差の絶対値の和)のうち最小のものです。<code>goals</code> は空でないものとし、目的地の上にいるときは0を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>estimate [(0, 0)] (3, 4)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>7</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>estimate [(0, 0), (5, 5)] (4, 3)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>3</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>estimate [(2, 2)] (2, 2)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="fn">estimate</span> <span class="op">::</span> [(<span class="ty">Int</span>, <span class="ty">Int</span>)] <span class="op">-&gt;</span> (<span class="ty">Int</span>, <span class="ty">Int</span>) <span class="op">-&gt;</span> <span class="ty">Int</span>
+<span class="fn">estimate</span> goals (x, y) = minimum [abs (x - gx) + abs (y - gy) | (gx, gy) <span class="op">&lt;-</span> goals]
+</code></pre>
+      <p>
+        リスト内包表記で各目的地とのマンハッタン距離を並べ、<code>minimum</code> で最小のものを取ります。入力例2では <code>(0, 0)</code> までが7、<code>(5, 5)</code> までが3なので、3が返ります。
+      </p>
+      <p>
+        上下左右に1マスずつしか動けないなら、どの目的地へ行くにも、少なくともマンハッタン距離だけの歩数が要ります。壁があれば実際の歩数はもっと増えますが、見積もりが実際を超えない限り、A*探索はこの値を使っても最短経路を見つけられます。目的地が複数あるときは、いちばん近いものまでの距離を取れば、どの目的地に着く経路と比べても実際を超えません。
+      </p>
+      <p>
+        <code>minimum</code> は空リストではエラーになるので、<code>goals</code> が空でないことを前提にしています。掲載したのは参考実装で、唯一の正解ではありません。距離を求める関数を <code>where</code> で分けて <code>minimum (map dist goals)</code> と書いても同じです。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
