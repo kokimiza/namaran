@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="最短距離の表を、k についての d[i][k] + d[k][j] の最小値で1回ずつ置き換えるRust 2024のドリル。k のループがいちばん内側にあると、どの経路が見つかりどれが見落とされるかを追う。">
+<title>kが内側の最短距離</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-10-14">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / READ", "item": "https://namaran.jocarium.productions/rust/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-14" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / READ — 2026-10-14",
+      "url": "https://namaran.jocarium.productions/rust/read/2026-10-14",
+      "datePublished": "2026-10-14",
+      "dateModified": "2026-10-14",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "kが内側の最短距離" },
+      "keywords": "floyd-warshall, shortest-path, loop, iterator",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "最短距離の表を、k についての d[i][k] + d[k][j] の最小値で1回ずつ置き換えるRust 2024のドリル。k のループがいちばん内側にあると、どの経路が見つかりどれが見落とされるかを追う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-14">C23</a>
+  <a href="/cpp/read/2026-10-14">C++26</a>
+  <a href="/rust/read/2026-10-14" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/read/2026-10-14">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-14" class="active" aria-current="page">READ</a>
+  <a href="/rust/write/2026-10-14">WRITE</a>
+  <a href="/rust/debug/2026-10-14">DEBUG</a>
+</nav>
+
+<main
+  data-topic="kが内側の最短距離"
+  data-tags="floyd-warshall shortest-path loop iterator"
+  data-concepts="ワーシャル・フロイド法, ループの順序, 全点対最短経路, Iterator::min, Floyd-Warshall, loop order, all-pairs shortest path"
+  data-level="bison"
+>
+  <h2>2026-10-14</h2>
+  <div class="code-frame">
+    <p class="code-filename">min_over_k.rs</p>
+    <pre class="code"><code><span class="kw">const</span> <span class="nu">INF</span>: <span class="ty">u32</span> = <span class="ty">u32</span>::<span class="nu">MAX</span>;
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> <span class="kw">mut</span> d = [
+        [<span class="nu">0</span>, <span class="nu">1</span>, <span class="nu">5</span>, <span class="nu">INF</span>, <span class="nu">INF</span>],
+        [<span class="nu">INF</span>, <span class="nu">0</span>, <span class="nu">INF</span>, <span class="nu">1</span>, <span class="nu">INF</span>],
+        [<span class="nu">INF</span>, <span class="nu">INF</span>, <span class="nu">0</span>, <span class="nu">INF</span>, <span class="nu">INF</span>],
+        [<span class="nu">INF</span>, <span class="nu">INF</span>, <span class="nu">1</span>, <span class="nu">0</span>, <span class="nu">1</span>],
+        [<span class="nu">INF</span>, <span class="nu">INF</span>, <span class="nu">INF</span>, <span class="nu">INF</span>, <span class="nu">0</span>],
+    ];
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="nu">0</span>..<span class="nu">5</span> {
+        <span class="kw">for</span> j <span class="kw">in</span> <span class="nu">0</span>..<span class="nu">5</span> {
+            d[i][j] = (<span class="nu">0</span>..<span class="nu">5</span>).<span class="fn">map</span>(|k| d[i][k].<span class="fn">saturating_add</span>(d[k][j])).<span class="fn">min</span>().<span class="fn">unwrap</span>();
+        }
+    }
+    <span class="mc">println!</span>(<span class="st">"{:?}"</span>, d[<span class="nu">0</span>]);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>[0, 1, 5, 2, 3]</code> です。
+      </p>
+      <p>
+        <code>d</code> は、5つの頂点（vertex）を結ぶ向き付きの辺（edge）の長さの表で、<code>d[i][j]</code> が頂点 <code>i</code> から <code>j</code> へ直接向かう辺の長さ、辺がなければ <code>INF</code> です。ループは各 <code>d[i][j]</code> を、<code>k</code> をすべて動かしたときの <code>d[i][k] + d[k][j]</code> の最小値で置き換えます。<code>k = i</code> なら <code>d[i][i]</code> が0なので、この最小値には今の <code>d[i][j]</code> 自身も入り、値が増えることはありません。最短経路（shortest path）の長さの定義そのものに見える式ですが、<code>k</code> のループがいちばん内側にあるので、各 <code>(i, j)</code> は1回ずつしか更新されません。
+      </p>
+      <p>
+        <code>i = 0</code> の行は <code>j</code> の小さい順に更新され、求めた値はすぐ <code>d</code> に書き戻されます。<code>j = 2</code> のとき、0→1→3→2 の長さ3を見つけるには <code>d[0][3]</code> が2になっている必要がありますが、<code>d[0][3]</code> を更新するのは <code>j = 3</code> の番で、まだ <code>INF</code> です。ほかに使える経路は直接の辺の5しかないので、<code>d[0][2]</code> は5のまま残ります。
+      </p>
+      <p>
+        逆に、先に書き戻された値は後ろの <code>j</code> で使われます。<code>j = 3</code> で <code>d[0][1] + d[1][3]</code> から2が入り、<code>j = 4</code> ではその2に <code>d[3][4]</code> の1を足して3になります。辺を3本通る 0→1→3→4 が見つかるのはこのためです。結果は、本当の最短距離 <code>[0, 1, 3, 2, 3]</code> とも、辺2本までの経路だけを見たときの値（<code>d[0][4]</code> が <code>INF</code> のまま）とも違うものになります。
+      </p>
+      <p>
+        <code>k</code> のループを3重ループのいちばん外に出すと、<code>d[0][2]</code> も3になります。これがワーシャル・フロイド法（Floyd-Warshall algorithm）の形で、<code>k</code> 回目の繰り返しを終えた時点の <code>d[i][j]</code> は、途中で通る頂点を0から <code>k</code> までに限ったときの最短距離になります<sup class="fn-ref">1</sup>。最後の <code>k</code> を終えれば、どの頂点を通ってもよい最短距離が求まります。
+      </p>
+      <ol class="footnotes">
+        <li><code>k</code> 回目では、途中で <code>k</code> を通らない経路の長さは前の回の <code>d[i][j]</code> に、<code>k</code> を通る経路の長さは前の回の <code>d[i][k] + d[k][j]</code> に入っています。この2つの小さいほうを取れば、通ってよい頂点が1つ増えた最短距離になります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/read">Today</a></li>
+    <li><a href="/rust/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

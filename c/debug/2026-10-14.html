@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="長さを足し終える前に可変長配列(VLA)を宣言したため、sizeof が宣言時の大きさを返し、snprintf の結果が途中で切れるC23のドリル。可変長配列の大きさがいつ決まるかを扱う。">
+<title>先に作った配列の大きさ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-10-14">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-14" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-10-14",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-10-14",
+      "datePublished": "2026-10-14",
+      "dateModified": "2026-10-14",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "先に作った配列の大きさ" },
+      "keywords": "variable-length-array, sizeof, string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "長さを足し終える前に可変長配列(VLA)を宣言したため、sizeof が宣言時の大きさを返し、snprintf の結果が途中で切れるC23のドリル。可変長配列の大きさがいつ決まるかを扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-14" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-10-14">C++26</a>
+  <a href="/rust/debug/2026-10-14">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-14">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-14">READ</a>
+  <a href="/c/write/2026-10-14">WRITE</a>
+  <a href="/c/debug/2026-10-14" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="先に作った配列の大きさ"
+  data-tags="variable-length-array sizeof string"
+  data-concepts="可変長配列, VLA, sizeof, 配列の大きさが決まる時点, snprintf の切り捨て, variable length array, truncation"
+  data-level="hedgehog"
+>
+  <h2>2026-10-14</h2>
+  <div class="code-frame">
+    <p class="code-filename">join.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string.h&gt;</span>
+
+<span class="kw">static</span> <span class="ty">void</span> <span class="fn">join</span>(<span class="kw">const</span> <span class="ty">char</span> *a, <span class="kw">const</span> <span class="ty">char</span> *b) {
+    <span class="ty">size_t</span> n = <span class="fn">strlen</span>(a);
+    <span class="ty">char</span> buf[n + <span class="nu">1</span>];
+    n += <span class="fn">strlen</span>(b);
+    <span class="fn">snprintf</span>(buf, <span class="kw">sizeof</span> buf, <span class="st">"%s%s"</span>, a, b);
+    <span class="fn">puts</span>(buf);
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="fn">join</span>(<span class="st">"note"</span>, <span class="st">"book"</span>);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>join</code> は、2つの文字列をつないだものを1行に出力する関数です。<code>join("note", "book")</code> を呼ぶと、いまは <code>note</code> と出力されます。本来の出力は <code>notebook</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="ty">size_t</span> n = <span class="fn">strlen</span>(a);
+<span class="ty">char</span> buf[n + <span class="nu">1</span>];
+n += <span class="fn">strlen</span>(b);
+<span class="fn">snprintf</span>(buf, <span class="kw">sizeof</span> buf, <span class="st">"%s%s"</span>, a, b);
+</code></pre>
+      <p>
+        可変長配列 <code>buf</code> の大きさは、宣言を実行したときの <code>n + 1</code> で決まります。その時点の <code>n</code> は <code>"note"</code> の長さの4なので、<code>buf</code> は5バイトです。次の行で <code>n</code> に <code>"book"</code> の長さを足して8にしても、作り終えた <code>buf</code> は大きくなりません。
+      </p>
+      <p>
+        <code>sizeof buf</code> は実行時に評価されますが、返すのは宣言のときに決まった5で、<code>n</code> をもう一度読み直すわけではありません。<code>snprintf</code> は終端の <code>'\0'</code> を含めて5バイトまでしか書かないので、<code>"notebook"</code> は先頭の4文字で切れ、<code>note</code> が出力されます<sup class="fn-ref">1</sup>。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="ty">size_t</span> n = <span class="fn">strlen</span>(a);
+n += <span class="fn">strlen</span>(b);
+<span class="ty">char</span> buf[n + <span class="nu">1</span>];
+<span class="fn">snprintf</span>(buf, <span class="kw">sizeof</span> buf, <span class="st">"%s%s"</span>, a, b);
+</code></pre>
+      <p>
+        <code>n</code> が2つの長さの合計になってから <code>buf</code> を宣言すれば、<code>buf</code> は9バイトで作られ、<code>sizeof buf</code> も9になります。<code>notebook</code> の8文字と終端がちょうど収まり、切り捨ては起きません。
+      </p>
+      <ol class="footnotes">
+        <li><code>snprintf</code> の代わりに <code>sprintf</code> を使っていたら、5バイトの <code>buf</code> に9バイトを書き込み、未定義動作になっていました。<code>sizeof buf</code> で上限を渡していたので、壊れ方が切り捨てで済んでいます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

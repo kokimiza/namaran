@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="構築を終えてから仮想関数 init() を呼んで std::unique_ptr で返す関数テンプレートを書くC++26のドリル。基底クラスのコンストラクタからは派生クラスの init() に届かない理由を扱う。">
+<title>構築のあとでinitを呼ぶ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-10-14">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-14" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-10-14",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-10-14",
+      "datePublished": "2026-10-14",
+      "dateModified": "2026-10-14",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "構築のあとでinitを呼ぶ" },
+      "keywords": "virtual-function, constructor, pure-virtual-function, smart-pointer, factory",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "構築を終えてから仮想関数 init() を呼んで std::unique_ptr で返す関数テンプレートを書くC++26のドリル。基底クラスのコンストラクタからは派生クラスの init() に届かない理由を扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-14">C23</a>
+  <a href="/cpp/write/2026-10-14" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-10-14">Rust 2024</a>
+  <a href="/haskell/write/2026-10-14">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-14">READ</a>
+  <a href="/cpp/write/2026-10-14" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-10-14">DEBUG</a>
+</nav>
+
+<main
+  data-topic="構築のあとでinitを呼ぶ"
+  data-tags="virtual-function constructor pure-virtual-function smart-pointer factory"
+  data-concepts="二段階初期化, コンストラクタ内の仮想関数呼び出し, 純粋仮想関数, ファクトリ関数, two-phase initialization, pure virtual call"
+  data-level="hedgehog"
+>
+  <h2>2026-10-14</h2>
+  <div class="code-frame">
+    <p class="code-filename">create.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;memory&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;utility&gt;</span>
+
+<span class="kw">struct</span> <span class="ty">Widget</span> {
+    <span class="kw">virtual</span> ~<span class="fn">Widget</span>() = <span class="kw">default</span>;
+    <span class="kw">virtual</span> <span class="ty">void</span> <span class="fn">init</span>() = <span class="nu">0</span>;
+};
+
+<span class="kw">struct</span> <span class="ty">Label</span> : <span class="ty">Widget</span> {
+    std::<span class="ty">string</span> text;
+    <span class="kw">explicit</span> <span class="fn">Label</span>(std::<span class="ty">string</span> t) : <span class="fn">text</span>(std::<span class="fn">move</span>(t)) {}
+    <span class="ty">void</span> <span class="fn">init</span>() <span class="kw">override</span> { std::cout &lt;&lt; <span class="st">"["</span> &lt;&lt; text &lt;&lt; <span class="st">"]\n"</span>; }
+};
+
+<span class="kw">template</span> &lt;<span class="kw">class</span> <span class="ty">T</span>, <span class="kw">class</span>... <span class="ty">Args</span>&gt;
+std::<span class="ty">unique_ptr</span>&lt;<span class="ty">T</span>&gt; <span class="fn">create</span>(<span class="ty">Args</span>&amp;&amp;... args) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>Widget</code> の派生クラスは、構築が終わったあとで <code>init()</code> を1回呼び、準備を済ませる約束になっています。<code>T</code> を <code>args</code> から構築し、<code>init()</code> を呼んでから <code>std::unique_ptr&lt;T&gt;</code> で返す <code>create</code> を書いてください。出力例は、呼び出したときに標準出力に出る文字列です。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>create&lt;Label&gt;("OK")</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>[OK]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>create&lt;Label&gt;("")</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>[]</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">template</span> &lt;<span class="kw">class</span> <span class="ty">T</span>, <span class="kw">class</span>... <span class="ty">Args</span>&gt;
+std::<span class="ty">unique_ptr</span>&lt;<span class="ty">T</span>&gt; <span class="fn">create</span>(<span class="ty">Args</span>&amp;&amp;... args) {
+    <span class="kw">auto</span> p = std::make_unique&lt;<span class="ty">T</span>&gt;(std::forward&lt;<span class="ty">Args</span>&gt;(args)...);
+    p-&gt;<span class="fn">init</span>();
+    <span class="kw">return</span> p;
+}
+</code></pre>
+      <p>
+        <code>std::make_unique</code> でオブジェクトを作り終えてから、<code>init()</code> を呼びます。<code>make_unique</code> から戻った時点で <code>T</code> までの構築が済んでいるので、<code>p-&gt;init()</code> は <code>T</code> の版、ここでは <code>Label::init</code> に届きます。引数は <code>std::forward</code> で、左辺値か右辺値かという区別を保ったまま <code>T</code> のコンストラクタへ渡します。
+      </p>
+      <p>
+        <code>Widget</code> のコンストラクタの中で <code>init()</code> を呼べば、<code>create</code> は要らなくなりそうに見えます。しかし <code>Widget()</code> の本体が動いている間、オブジェクトはまだ <code>Widget</code> で、仮想関数の呼び出しは <code>Widget</code> の版で解決されます。<code>Widget::init</code> は純粋仮想関数なので、この呼び出しは未定義動作です<sup class="fn-ref">1</sup>。構築が終わってから呼ぶ、という順序を守らせるために、構築と <code>init()</code> を1つの関数にまとめています。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>std::unique_ptr&lt;T&gt; p(new T(std::forward&lt;Args&gt;(args)...));</code> と書いても同じように動きます。
+      </p>
+      <ol class="footnotes">
+        <li>GCC 14 では、コンストラクタから純粋仮想関数を直接呼ぶと警告が出て、定義のない <code>Widget::init</code> を探すリンクにも失敗します。別のメンバ関数を間に挟んで呼ぶとビルドは通り、実行すると <code>pure virtual method called</code> と表示して異常終了します。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

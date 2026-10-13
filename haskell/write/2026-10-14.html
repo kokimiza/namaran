@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="関数をくり返し当てた列について、くり返しに入るまでの長さと周期を、Eq の比較だけを使い、その長さに比例する手間で求める関数を書くHaskell 2010のドリル。until で2つの位置を動かして書く。">
+<title>Eqだけで周期を求める</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-10-14">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-14" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-10-14",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-10-14",
+      "datePublished": "2026-10-14",
+      "dateModified": "2026-10-14",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "Eqだけで周期を求める" },
+      "keywords": "cycle-detection, typeclass, higher-order",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "関数をくり返し当てた列について、くり返しに入るまでの長さと周期を、Eq の比較だけを使い、その長さに比例する手間で求める関数を書くHaskell 2010のドリル。until で2つの位置を動かして書く。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-14">C23</a>
+  <a href="/cpp/write/2026-10-14">C++26</a>
+  <a href="/rust/write/2026-10-14">Rust 2024</a>
+  <a href="/haskell/write/2026-10-14" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-14">READ</a>
+  <a href="/haskell/write/2026-10-14" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-10-14">DEBUG</a>
+</nav>
+
+<main
+  data-topic="Eqだけで周期を求める"
+  data-tags="cycle-detection typeclass higher-order"
+  data-concepts="フロイドの循環検出法, ウサギとカメ, 周期, Floyd cycle detection, tortoise and hare, cycle length"
+  data-level="bison"
+>
+  <h2>2026-10-14</h2>
+  <div class="code-frame">
+    <p class="code-filename">CycleOf.hs</p>
+    <pre class="code"><code><span class="fn">cycleOf</span> <span class="op">::</span> <span class="ty">Eq</span> a <span class="op">=&gt;</span> (a <span class="op">-&gt;</span> a) <span class="op">-&gt;</span> a <span class="op">-&gt;</span> (<span class="ty">Int</span>, <span class="ty">Int</span>)
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>x0</code> に <code>f</code> を0回、1回、2回と当てていった列 <code>x0</code>, <code>f x0</code>, <code>f (f x0)</code>, … に現れる値の種類は有限だとします。この列はいつか前に出た値に戻り、そこから先は同じ並びをくり返します。列の中で、あとでもう一度現れる値のうち最初のものの位置（0から数えます）を μ、その値が次に現れるまでの間隔を λ とします。λ はこの列の周期（period）です。(μ, λ) を返す <code>cycleOf</code> を書いてください。<code>a</code> の値に対して使ってよいのは <code>Eq</code> の比較だけで、<code>f</code> を呼ぶ回数と比較の回数は、どちらも μ + λ の定数倍に収めます。<code>x0</code> がくり返しの中にあるなら、μ は0です。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>cycleOf (\x -&gt; (x * x + 1) `mod` 10) 3</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>(1,6)</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>cycleOf (`div` 2) 5</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>(3,1)</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>cycleOf id 'a'</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>(0,1)</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="fn">cycleOf</span> <span class="op">::</span> <span class="ty">Eq</span> a <span class="op">=&gt;</span> (a <span class="op">-&gt;</span> a) <span class="op">-&gt;</span> a <span class="op">-&gt;</span> (<span class="ty">Int</span>, <span class="ty">Int</span>)
+<span class="fn">cycleOf</span> f x0 = (mu, lam)
+  <span class="kw">where</span>
+    (meet, _) = until (uncurry (==)) (\(t, h) <span class="op">-&gt;</span> (f t, f (f h))) (f x0, f (f x0))
+    (mu, start, _) = until (\(_, a, b) <span class="op">-&gt;</span> a == b) (\(j, a, b) <span class="op">-&gt;</span> (j + <span class="nu">1</span>, f a, f b)) (<span class="nu">0</span>, x0, meet)
+    lam = <span class="nu">1</span> + length (takeWhile (/= start) (drop <span class="nu">1</span> (iterate f start)))
+</code></pre>
+      <p>
+        3つの段階で求めます。1段目は、<code>t</code> を <code>f</code> で1歩ずつ、<code>h</code> を2歩ずつ進め、両者が等しくなるまで <code>until</code> で回します。<code>i</code> 歩目で等しくなったなら、列の <code>i</code> 番目と <code>2i</code> 番目が同じ値です。<code>i</code> 番目の値があとでもう一度現れたので <code>i</code> は μ 以上で、くり返しの中で <code>i</code> 個先が同じ値なので、<code>i</code> は λ の倍数です。
+      </p>
+      <p>
+        2段目は、<code>a</code> を <code>x0</code> から、<code>b</code> を1段目で出会った値から、同時に1歩ずつ進めます。<code>j</code> 歩目の <code>a</code> は列の <code>j</code> 番目、<code>b</code> は <code>i + j</code> 番目です。<code>j</code> が μ より小さいうちは、<code>a</code> の値はあとに二度と現れないので、<code>b</code> と等しくなることはありません。<code>j</code> が μ になると、<code>i</code> が λ の倍数なので2つは同じ値を指します。最初に等しくなった <code>j</code> が μ で、そのときの値がくり返しの始まりです。3段目で、その値から1歩ずつ進めて同じ値に戻るまでの歩数を数えれば λ になります。
+      </p>
+      <p>
+        どの段階も、進めた歩数は μ + λ の定数倍で済みます。これまでに出た値をリストに覚えて <code>elem</code> で探す書き方では、<code>==</code> の回数が (μ + λ) の2乗に比例し、<code>Eq</code> だけでは <code>Data.Map</code> のような探索の速い表も使えません。1段目の、速さの違う2つの位置を走らせる方法はフロイドの循環検出法（Floyd's cycle-finding algorithm）と呼ばれ、ウサギとカメのアルゴリズムともいいます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>until</code> の代わりに <code>where</code> の中で再帰する補助関数を書いても、同じ3段階になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

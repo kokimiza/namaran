@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="同じ関数を1回ずつ当てる列と2回ずつ当てる列を iterate で作り、初めて値が一致する位置と値を求めるHaskell 2010のドリル。列の周期と、一致する位置の関係を追う。">
+<title>カメとウサギが出会う所</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-10-14">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-14" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-10-14",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-10-14",
+      "datePublished": "2026-10-14",
+      "dateModified": "2026-10-14",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "カメとウサギが出会う所" },
+      "keywords": "cycle-detection, infinite-list, laziness",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "同じ関数を1回ずつ当てる列と2回ずつ当てる列を iterate で作り、初めて値が一致する位置と値を求めるHaskell 2010のドリル。列の周期と、一致する位置の関係を追う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-14">C23</a>
+  <a href="/cpp/read/2026-10-14">C++26</a>
+  <a href="/rust/read/2026-10-14">Rust 2024</a>
+  <a href="/haskell/read/2026-10-14" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-14" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-10-14">WRITE</a>
+  <a href="/haskell/debug/2026-10-14">DEBUG</a>
+</nav>
+
+<main
+  data-topic="カメとウサギが出会う所"
+  data-tags="cycle-detection infinite-list laziness"
+  data-concepts="フロイドの循環検出法, ウサギとカメ, 周期, iterate, Floyd cycle detection, tortoise and hare"
+  data-level="hedgehog"
+>
+  <h2>2026-10-14</h2>
+  <div class="code-frame">
+    <p class="code-filename">Meet.hs</p>
+    <pre class="code"><code><span class="fn">next</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Int</span>
+<span class="fn">next</span> x = (x * x + <span class="nu">1</span>) `mod` <span class="nu">10</span>
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (take <span class="nu">1</span> [(i, t) | (i, t, h) <span class="op">&lt;-</span> zip3 [<span class="nu">1</span> <span class="op">::</span> <span class="ty">Int</span> ..] tortoise hare, t == h])
+  <span class="kw">where</span>
+    tortoise = drop <span class="nu">1</span> (iterate next <span class="nu">3</span>)
+    hare = drop <span class="nu">1</span> (iterate (next . next) <span class="nu">3</span>)
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>[(6,7)]</code> です。
+      </p>
+      <p>
+        <code>iterate next 3</code> は、3に <code>next</code> を0回、1回、2回と当てていった値の無限リスト 3, 0, 1, 2, 5, 6, 7, 0, 1, … です。7の次は 7 × 7 + 1 = 50 の一の位で0に戻るので、先頭の3を除くと 0, 1, 2, 5, 6, 7 の6つをくり返します。<code>tortoise</code> はこのリストの <code>i</code> 番目（<code>i</code> = 1, 2, …）を並べたもので、<code>hare</code> は <code>next . next</code> を当てていくので <code>2i</code> 番目を並べたものです。
+      </p>
+      <p>
+        組を順に比べると、<code>i</code> が1から5までは (0, 1)、(1, 5)、(2, 7)、(5, 1)、(6, 5) と食い違い、<code>i</code> = 6 で両方が7になります。2つの位置の差はちょうど <code>i</code> なので、両方がくり返しの中に入っていれば、<code>i</code> がくり返しの長さ、つまり周期（period）の6の倍数になったところで同じ値を指します。<code>take 1</code> は最初の一致だけを取り出し、無限リストの残りは評価されません。
+      </p>
+      <p>
+        1歩ずつ進む側と2歩ずつ進む側を同じ値に出会うまで動かすこのやり方は、フロイドの循環検出法（Floyd's cycle-finding algorithm）と呼ばれ、ウサギとカメのアルゴリズムともいいます。これまでに出た値を覚えておかなくても、列がくり返しに入っていることを確かめられます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

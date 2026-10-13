@@ -141,6 +141,7 @@ fixed-point	固定小数点数
 fixed-point-combinator	不動点コンビネータ
 flexible-array-member	フレキシブル配列メンバ
 floating-point	浮動小数点数
+floyd-warshall	ワーシャル・フロイド法
 fn-trait	Fnトレイト
 fold	畳み込み
 fold-expression	畳み込み式
@@ -304,6 +305,7 @@ process-creation	プロセス生成
 profiling	プロファイリング
 program-termination	プログラムの終了
 property-based-testing	プロパティベーステスト
+pure-virtual-function	純粋仮想関数
 question-mark-operator	?演算子
 queue	キュー
 quicksort	クイックソート
@@ -350,6 +352,7 @@ sieve-of-eratosthenes	エラトステネスの篩
 signal	シグナル
 signed-unsigned	符号あり・なし
 simd	SIMD
+sizeof	sizeof演算子
 skip-list	スキップリスト
 slice	スライス
 slice-pattern	スライスパターン

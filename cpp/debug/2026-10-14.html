@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="基底クラスのコンストラクタの初期化子で仮想関数 kind() を呼び、派生クラスの版ではなく基底の版の結果をメンバに残してしまうC++26のドリル。構築中の仮想関数呼び出しがどこへ届くかを扱う。">
+<title>構築時に決まったラベル</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-10-14">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-14" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-10-14",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-10-14",
+      "datePublished": "2026-10-14",
+      "dateModified": "2026-10-14",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "構築時に決まったラベル" },
+      "keywords": "virtual-function, constructor, dynamic-dispatch",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "基底クラスのコンストラクタの初期化子で仮想関数 kind() を呼び、派生クラスの版ではなく基底の版の結果をメンバに残してしまうC++26のドリル。構築中の仮想関数呼び出しがどこへ届くかを扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-14">C23</a>
+  <a href="/cpp/debug/2026-10-14" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-10-14">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-14">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-14">READ</a>
+  <a href="/cpp/write/2026-10-14">WRITE</a>
+  <a href="/cpp/debug/2026-10-14" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="構築時に決まったラベル"
+  data-tags="virtual-function constructor dynamic-dispatch"
+  data-concepts="コンストラクタ内の仮想関数呼び出し, 構築中の動的型, メンバ初期化子, virtual call in constructor, member initializer list"
+  data-level="hedgehog"
+>
+  <h2>2026-10-14</h2>
+  <div class="code-frame">
+    <p class="code-filename">task_label.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+
+<span class="kw">struct</span> <span class="ty">Task</span> {
+    std::<span class="ty">string</span> label;
+    <span class="fn">Task</span>() : <span class="fn">label</span>(<span class="st">"["</span> + <span class="fn">kind</span>() + <span class="st">"]"</span>) {}
+    <span class="kw">virtual</span> ~<span class="fn">Task</span>() = <span class="kw">default</span>;
+    <span class="kw">virtual</span> std::<span class="ty">string</span> <span class="fn">kind</span>() <span class="kw">const</span> { <span class="kw">return</span> <span class="st">"task"</span>; }
+};
+
+<span class="kw">struct</span> <span class="ty">Backup</span> : <span class="ty">Task</span> {
+    std::<span class="ty">string</span> <span class="fn">kind</span>() <span class="kw">const</span> <span class="kw">override</span> { <span class="kw">return</span> <span class="st">"backup"</span>; }
+};
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="ty">Backup</span> b;
+    std::cout &lt;&lt; b.label &lt;&lt; <span class="st">'\n'</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>Task</code> は、派生クラスが <code>kind()</code> で返す種類の名前を角括弧で囲み、<code>label</code> として持つ基底クラスです。<code>Backup b;</code> の <code>b.label</code> を出力すると、いまは <code>[task]</code> と出力されます。本来の出力は <code>[backup]</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code>std::<span class="ty">string</span> label;
+<span class="fn">Task</span>() : <span class="fn">label</span>(<span class="st">"["</span> + <span class="fn">kind</span>() + <span class="st">"]"</span>) {}
+</code></pre>
+      <p>
+        <code>label</code> は <code>Task</code> のコンストラクタの初期化子で作られます。<code>Backup b;</code> は先に基底の <code>Task</code> を構築し、その間 <code>Backup</code> の部分はまだできていないので、オブジェクトは <code>Task</code> としてふるまいます。仮想関数の <code>kind()</code> もこのとき <code>Task::kind</code> で解決され、<code>label</code> には <code>[task]</code> が入ります。
+      </p>
+      <p>
+        <code>Backup</code> の構築が終わっても、<code>label</code> は作られたときの文字列のままです。あとから <code>b.label</code> を読むと <code>[task]</code> が出力されます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code>std::<span class="ty">string</span> <span class="fn">label</span>() <span class="kw">const</span> { <span class="kw">return</span> <span class="st">"["</span> + <span class="fn">kind</span>() + <span class="st">"]"</span>; }
+</code></pre>
+      <p>
+        <code>label</code> をメンバ関数にして、呼ばれるたびに作るようにします。<code>main</code> が <code>b.label()</code> を呼ぶころには構築が終わっているので、<code>kind()</code> は <code>Backup::kind</code> に届き、<code>[backup]</code> が返ります。<code>label</code> を文字列のメンバとして持ち続けたいなら、<code>kind()</code> を呼ぶのをやめ、派生クラスから <code>Task</code> のコンストラクタへ種類の名前を引数で渡します。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

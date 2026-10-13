@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="借用規則を避けるために距離の表の写しを3重ループの外で1度だけ取り、前の回で縮んだ距離が後の回に伝わらないRust 2024のドリル。写しを取る位置とループの順序の関係を扱う。">
+<title>ループの前に取った写し</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-10-14">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-14" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-10-14",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-10-14",
+      "datePublished": "2026-10-14",
+      "dateModified": "2026-10-14",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "ループの前に取った写し" },
+      "keywords": "floyd-warshall, shortest-path, copy-trait, borrow",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "借用規則を避けるために距離の表の写しを3重ループの外で1度だけ取り、前の回で縮んだ距離が後の回に伝わらないRust 2024のドリル。写しを取る位置とループの順序の関係を扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-14">C23</a>
+  <a href="/cpp/debug/2026-10-14">C++26</a>
+  <a href="/rust/debug/2026-10-14" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-14">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-14">READ</a>
+  <a href="/rust/write/2026-10-14">WRITE</a>
+  <a href="/rust/debug/2026-10-14" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="ループの前に取った写し"
+  data-tags="floyd-warshall shortest-path copy-trait borrow"
+  data-concepts="ワーシャル・フロイド法, 配列のコピー, 写しを取る位置, 借用規則, Floyd-Warshall, Copy array snapshot, borrow checker"
+  data-level="peacock"
+>
+  <h2>2026-10-14</h2>
+  <div class="code-frame">
+    <p class="code-filename">snapshot.rs</p>
+    <pre class="code"><code><span class="kw">const</span> <span class="nu">INF</span>: <span class="ty">u32</span> = <span class="ty">u32</span>::<span class="nu">MAX</span>;
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> <span class="kw">mut</span> d = [
+        [<span class="nu">0</span>, <span class="nu">INF</span>, <span class="nu">1</span>, <span class="nu">9</span>],
+        [<span class="nu">INF</span>, <span class="nu">0</span>, <span class="nu">INF</span>, <span class="nu">1</span>],
+        [<span class="nu">INF</span>, <span class="nu">1</span>, <span class="nu">0</span>, <span class="nu">INF</span>],
+        [<span class="nu">INF</span>, <span class="nu">INF</span>, <span class="nu">INF</span>, <span class="nu">0</span>],
+    ];
+    <span class="kw">let</span> base = d;
+    <span class="kw">for</span> k <span class="kw">in</span> <span class="nu">0</span>..<span class="nu">4</span> {
+        <span class="kw">for</span> row <span class="kw">in</span> d.<span class="fn">iter_mut</span>() {
+            <span class="kw">let</span> ik = row[k];
+            <span class="kw">for</span> (x, b) <span class="kw">in</span> row.<span class="fn">iter_mut</span>().<span class="fn">zip</span>(base[k]) {
+                *x = (*x).<span class="fn">min</span>(ik.<span class="fn">saturating_add</span>(b));
+            }
+        }
+    }
+    <span class="mc">println!</span>(<span class="st">"{}"</span>, d[<span class="nu">0</span>][<span class="nu">3</span>]);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    このコードは、4つの頂点（vertex）を結ぶ向き付きの辺（edge）の長さの表 <code>d</code> を、頂点どうしの最短距離の表に書き換えるつもりのものです。<code>d[i][j]</code> は頂点 <code>i</code> から <code>j</code> へ直接向かう辺の長さで、辺がなければ <code>INF</code> です。頂点0から3へは 0→2→1→3 と進む長さ3の経路がありますが、実行すると、いまは <code>d[0][3]</code> として <code>9</code> が出力されます。本来の出力は <code>3</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">let</span> base = d;
+<span class="kw">for</span> k <span class="kw">in</span> <span class="nu">0</span>..<span class="nu">4</span> {
+    <span class="kw">for</span> row <span class="kw">in</span> d.<span class="fn">iter_mut</span>() {
+        <span class="kw">let</span> ik = row[k];
+        <span class="kw">for</span> (x, b) <span class="kw">in</span> row.<span class="fn">iter_mut</span>().<span class="fn">zip</span>(base[k]) {
+</code></pre>
+      <p>
+        <code>d</code> の型 <code>[[u32; 4]; 4]</code> は <code>Copy</code> なので、<code>let base = d;</code> はループに入る前の表をまるごと写します。<code>k</code> を経由する長さは <code>row[k]</code> と <code>base[k][j]</code> の和で求めていますが、<code>base[k]</code> はいつまでも最初の辺の長さのままで、前の回で縮んだ <code>d[k][j]</code> が後の回に伝わりません。
+      </p>
+      <p>
+        <code>k = 1</code> の回で、2→1→3 が見つかって <code>d[2][3]</code> は2に縮みます。ところが <code>k = 2</code> の回に頂点0から2を経由する長さを求めるときに使われるのは、縮む前の <code>base[2][3]</code>、つまり <code>INF</code> です。0→2→1→3 の長さ3は見つからず、<code>d[0][3]</code> には直接の辺の9が残ります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">for</span> k <span class="kw">in</span> <span class="nu">0</span>..<span class="nu">4</span> {
+    <span class="kw">let</span> base = d[k];
+    <span class="kw">for</span> row <span class="kw">in</span> d.<span class="fn">iter_mut</span>() {
+        <span class="kw">let</span> ik = row[k];
+        <span class="kw">for</span> (x, b) <span class="kw">in</span> row.<span class="fn">iter_mut</span>().<span class="fn">zip</span>(base) {
+</code></pre>
+      <p>
+        各回の初めに、その時点の <code>k</code> 行目を写します。前の回までに縮んだ値が写しに入るので、<code>k = 2</code> の回には <code>d[2][3]</code> の2が使われ、<code>d[0][3]</code> は3になります。<code>k</code> 回目の間、<code>k</code> 行目そのものは書き換わりません。<code>d[k][k]</code> が0なので、<code>k</code> を経由しても <code>d[k][j]</code> より短くならないからです。そのため回の途中で写しと本物の値がずれることもありません<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>写しを取るのは、<code>d.iter_mut()</code> で各行を書き換え用に借りている間、同じ <code>d</code> から <code>d[k]</code> を読むことを借用チェッカーが許さないからです。<code>d[i][j]</code> のように添字だけで書けば、写しは要りません。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

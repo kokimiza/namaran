@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="位置だけを比べる Eq のインスタンスを持つ玉の状態に、1歩ずつと2歩ずつ進める周期の求め方を使い、周期を短く答えてしまうHaskell 2010のドリル。等しい値からは同じ列が続くという前提を扱う。">
+<title>位置だけ比べる玉の周期</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-10-14">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-14" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-10-14",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-10-14",
+      "datePublished": "2026-10-14",
+      "dateModified": "2026-10-14",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "位置だけ比べる玉の周期" },
+      "keywords": "cycle-detection, typeclass, typeclass-law",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "位置だけを比べる Eq のインスタンスを持つ玉の状態に、1歩ずつと2歩ずつ進める周期の求め方を使い、周期を短く答えてしまうHaskell 2010のドリル。等しい値からは同じ列が続くという前提を扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-14">C23</a>
+  <a href="/cpp/debug/2026-10-14">C++26</a>
+  <a href="/rust/debug/2026-10-14">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-14" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-14">READ</a>
+  <a href="/haskell/write/2026-10-14">WRITE</a>
+  <a href="/haskell/debug/2026-10-14" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="位置だけ比べる玉の周期"
+  data-tags="cycle-detection typeclass typeclass-law"
+  data-concepts="フロイドの循環検出法, ウサギとカメ, Eq インスタンス, 状態の同一性, 周期, Floyd cycle detection, Eq instance, deriving Eq"
+  data-level="whale"
+>
+  <h2>2026-10-14</h2>
+  <div class="code-frame">
+    <p class="code-filename">Bounce.hs</p>
+    <pre class="code"><code><span class="kw">data</span> <span class="ty">Ball</span> = <span class="ty">Ball</span> <span class="ty">Int</span> <span class="ty">Int</span>
+
+<span class="kw">instance</span> <span class="ty">Eq</span> <span class="ty">Ball</span> <span class="kw">where</span>
+  <span class="ty">Ball</span> p _ == <span class="ty">Ball</span> q _ = p == q
+
+<span class="fn">bounce</span> <span class="op">::</span> <span class="ty">Ball</span> <span class="op">-&gt;</span> <span class="ty">Ball</span>
+<span class="fn">bounce</span> (<span class="ty">Ball</span> p v)
+  | p + v &lt; <span class="nu">0</span> || p + v &gt; <span class="nu">3</span> = <span class="ty">Ball</span> (p - v) (-v)
+  | otherwise = <span class="ty">Ball</span> (p + v) v
+
+<span class="fn">period</span> <span class="op">::</span> <span class="ty">Eq</span> a <span class="op">=&gt;</span> (a <span class="op">-&gt;</span> a) <span class="op">-&gt;</span> a <span class="op">-&gt;</span> <span class="ty">Int</span>
+<span class="fn">period</span> f x0 = <span class="nu">1</span> + length (takeWhile (/= meet) (drop <span class="nu">1</span> (iterate f meet)))
+  <span class="kw">where</span>
+    (meet, _) = until (uncurry (==)) (\(t, h) <span class="op">-&gt;</span> (f t, f (f h))) (f x0, f (f x0))
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (period bounce (<span class="ty">Ball</span> <span class="nu">0</span> <span class="nu">1</span>))
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>period f x0</code> は、<code>x0</code> に <code>f</code> を0回、1回、2回と当てていった列がやがて同じ並びのくり返しに入るとき、そのくり返し1周の長さ、つまり列の周期（period）を返す関数です。<code>Ball p v</code> は0から3までの範囲を位置 <code>p</code>、速度 <code>v</code> で動き、範囲を出そうになると向きを変えて跳ね返る玉で、<code>bounce</code> がその1歩です。<code>period bounce (Ball 0 1)</code> を実行すると、いまは <code>2</code> と出力されます。本来の出力は <code>6</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">data</span> <span class="ty">Ball</span> = <span class="ty">Ball</span> <span class="ty">Int</span> <span class="ty">Int</span>
+
+<span class="kw">instance</span> <span class="ty">Eq</span> <span class="ty">Ball</span> <span class="kw">where</span>
+  <span class="ty">Ball</span> p _ == <span class="ty">Ball</span> q _ = p == q
+</code></pre>
+      <p>
+        <code>Ball</code> の状態は位置と速度の組なのに、この <code>==</code> は位置しか比べません。<code>period</code> は、等しい値からは同じ列が続く、つまり <code>x == y</code> なら <code>f x == f y</code> であることを前提にしていますが、位置2の玉は、上りの <code>Ball 2 1</code> なら次に3へ、下りの <code>Ball 2 (-1)</code> なら次に1へ進むので、「等しい」2つの値から違う列が続いてしまいます。
+      </p>
+      <p>
+        列の状態は <code>Ball 0 1</code>, <code>Ball 1 1</code>, <code>Ball 2 1</code>, <code>Ball 3 1</code>, <code>Ball 2 (-1)</code>, <code>Ball 1 (-1)</code>, <code>Ball 0 (-1)</code>, <code>Ball 1 1</code>, … と進みます。<code>until</code> は2歩目で、1歩ずつ進む側の <code>Ball 2 1</code> と2歩ずつ進む側の <code>Ball 2 (-1)</code> を等しいと判定して止まり、<code>meet</code> から進めた列も2歩先の <code>Ball 2 (-1)</code> で止まるので、2が返ります。位置の並び 0, 1, 2, 3, 2, 1 は6ごとにくり返しますが、1周の中に位置2が上りと下りで2度現れるため、位置だけで比べると周期の途中で止まります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">data</span> <span class="ty">Ball</span> = <span class="ty">Ball</span> <span class="ty">Int</span> <span class="ty">Int</span> <span class="kw">deriving</span> <span class="ty">Eq</span>
+</code></pre>
+      <p>
+        <code>deriving Eq</code> で作られる <code>==</code> は、位置と速度の両方を比べます。状態が丸ごと一致したときだけ等しくなるので、等しい値からは必ず同じ列が続きます。最初の <code>Ball 0 1</code> は二度と現れず、<code>Ball 1 1</code> から <code>Ball 0 (-1)</code> までの6つの状態がくり返します。<code>until</code> は6歩目の <code>Ball 0 (-1)</code> で止まり、そこから1周して戻るまでの6が返ります<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>Haskell 2010 の報告書は <code>Eq</code> に法則を定めていませんが、GHC の <code>base</code> の文書は、<code>x == y</code> なら <code>f x == f y</code> となること（Extensionality）を、インスタンスが満たすよう勧める性質の1つに挙げています。<code>==</code> を状態の一部だけの比較にすると、<code>elem</code> や <code>lookup</code> のように <code>==</code> を「同じ値」の意味で使う関数すべての前提が崩れます。位置だけを比べたいなら、<code>samePlace</code> のような別の名前の関数にします。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
