@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="外積で3点の向きを調べるマクロを、2本の線分が交わるかの判定に使うと何が出力されるかを追うC23のドリル。括弧のないマクロの置き換え、演算子の優先順位、外積の符号を組み合わせて考える。">
+<title>交差判定の外積マクロ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-09-02">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-02" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-09-02",
+      "url": "https://namaran.jocarium.productions/c/read/2026-09-02",
+      "datePublished": "2026-09-02",
+      "dateModified": "2026-09-02",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "交差判定の外積マクロ" },
+      "keywords": "macro, operator-precedence, cross-product, computational-geometry, preprocessor",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "外積で3点の向きを調べるマクロを、2本の線分が交わるかの判定に使うと何が出力されるかを追うC23のドリル。括弧のないマクロの置き換え、演算子の優先順位、外積の符号を組み合わせて考える。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-02" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-09-02">C++26</a>
+  <a href="/rust/read/2026-09-02">Rust 2024</a>
+  <a href="/haskell/read/2026-09-02">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-09-02" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-09-02">WRITE</a>
+  <a href="/c/debug/2026-09-02">DEBUG</a>
+</nav>
+
+<main
+  data-topic="交差判定の外積マクロ"
+  data-tags="macro operator-precedence cross-product computational-geometry preprocessor"
+  data-concepts="外積, 線分の交差判定, マクロの展開, 演算子の優先順位, cross product, segment intersection, macro parentheses"
+  data-level="bison"
+>
+  <h2>2026-09-02</h2>
+  <div class="code-frame">
+    <p class="code-filename">straddle.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">struct</span> <span class="ty">pt</span> { <span class="ty">int</span> x, y; };
+
+<span class="pp">#define</span> <span class="fn">CROSS</span>(o, p, q) (p.x - o.x) * (q.y - o.y) - (p.y - o.y) * (q.x - o.x)
+
+<span class="kw">static</span> <span class="ty">bool</span> <span class="fn">straddles</span>(<span class="kw">struct</span> <span class="ty">pt</span> a, <span class="kw">struct</span> <span class="ty">pt</span> b, <span class="kw">struct</span> <span class="ty">pt</span> c, <span class="kw">struct</span> <span class="ty">pt</span> d) {
+    <span class="kw">return</span> <span class="fn">CROSS</span>(a, b, c) * <span class="fn">CROSS</span>(a, b, d) &lt; <span class="nu">0</span>;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="kw">struct</span> <span class="ty">pt</span> a = {<span class="nu">0</span>, <span class="nu">0</span>}, b = {<span class="nu">2</span>, <span class="nu">2</span>}, c = {<span class="nu">0</span>, <span class="nu">1</span>}, d = {<span class="nu">2</span>, <span class="nu">0</span>};
+    <span class="fn">printf</span>(<span class="st">"%d %d\n"</span>, <span class="fn">straddles</span>(a, b, c, d), <span class="fn">straddles</span>(c, d, a, b));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>1 0</code> です。
+      </p>
+      <p>
+        <code>CROSS(o, p, q)</code> が計算しようとしているのは、ベクトル o→p と o→q の外積(cross product)です。平面のベクトル (x1, y1) と (x2, y2) の外積は x1y2 − y1x2 で、o から p へ進むとき q が左側にあれば正、右側にあれば負、直線上なら0になります。<code>straddles</code> は、c と d が直線 ab の反対側にあるかを、2つの外積の積が負かどうかで判定するつもりの関数です。意図どおりなら、1つ目の呼び出しの外積は 2 と −4、2つ目は −2 と 4 で、どちらも積が負なので <code>1 1</code> になりそうに見えます。
+      </p>
+      <p>
+        ところが <code>CROSS</code> はマクロなので、呼び出しは字句のまま置き換えられます。置き換えた結果の全体を囲む括弧がないため、外積の引き算の左の項を P、右の項を Q と書くと、<code>CROSS(a, b, c) * CROSS(a, b, d) &lt; 0</code> は P1 − Q1 * P2 − Q2 &lt; 0 になります。<code>*</code> は <code>-</code> より強く結びつくので、掛け合わされるのは1つ目の Q1 と2つ目の P2 だけで、外積どうしの積はどこにも現れません。
+      </p>
+      <p>
+        1つ目の呼び出しでは P1 = 2、Q1 = 0、P2 = 0、Q2 = 4 なので、2 − 0 − 4 = −2 となり、たまたま負になって <code>1</code> が出ます。2つ目の呼び出しでは P1 = −2、Q1 = 0、P2 = 2、Q2 = −2 なので、−2 − 0 + 2 = 0 です。0 は負ではないので、こちらは <code>0</code> になります。
+      </p>
+      <p>
+        置き換え結果の全体を括弧で囲めば、2つとも <code>1</code> になります。<code>(p).x</code> のように引数も括弧で囲むと、式を引数に渡したときに同じ問題が起きません。マクロをやめて <code>static</code> 関数にすれば、戻り値はいったん値になるので、優先順位の問題そのものが起きません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

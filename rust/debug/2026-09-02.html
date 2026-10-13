@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="区間を半分ずつ狭めて方程式の解を求める関数が、解が 10 の8乗ほどになると終わらなくなるRust 2024のドリル。隣り合う f64 の間隔が値の大きさに比例して広がり、固定の幅 1e-9 まで縮められないことを扱う。">
+<title>幅の判定が終わらない</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-09-02">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-02" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-09-02",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-09-02",
+      "datePublished": "2026-09-02",
+      "dateModified": "2026-09-02",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "幅の判定が終わらない" },
+      "keywords": "floating-point, numerical-analysis, infinite-loop",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "区間を半分ずつ狭めて方程式の解を求める関数が、解が 10 の8乗ほどになると終わらなくなるRust 2024のドリル。隣り合う f64 の間隔が値の大きさに比例して広がり、固定の幅 1e-9 まで縮められないことを扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-02">C23</a>
+  <a href="/cpp/debug/2026-09-02">C++26</a>
+  <a href="/rust/debug/2026-09-02" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-02">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-09-02">READ</a>
+  <a href="/rust/write/2026-09-02">WRITE</a>
+  <a href="/rust/debug/2026-09-02" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="幅の判定が終わらない"
+  data-tags="floating-point numerical-analysis infinite-loop"
+  data-concepts="二分法, 浮動小数点数の間隔, 停止条件, 無限ループ, bisection method, ulp, floating-point spacing"
+  data-level="hedgehog"
+>
+  <h2>2026-09-02</h2>
+  <div class="code-frame">
+    <p class="code-filename">root.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">root</span>(f: <span class="kw">impl</span> <span class="fn">Fn</span>(<span class="ty">f64</span>) -&gt; <span class="ty">f64</span>, <span class="kw">mut</span> lo: <span class="ty">f64</span>, <span class="kw">mut</span> hi: <span class="ty">f64</span>) -&gt; <span class="ty">f64</span> {
+    <span class="kw">while</span> hi - lo &gt; <span class="nu">1e-9</span> {
+        <span class="kw">let</span> mid = (lo + hi) / <span class="nu">2.0</span>;
+        <span class="kw">if</span> <span class="fn">f</span>(mid) &lt; <span class="nu">0.0</span> {
+            lo = mid;
+        } <span class="kw">else</span> {
+            hi = mid;
+        }
+    }
+    lo
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="mc">println!</span>(<span class="st">"{:.6}"</span>, <span class="fn">root</span>(|x| x * x - <span class="nu">2.0</span>, <span class="nu">0.0</span>, <span class="nu">2.0</span>));
+    <span class="mc">println!</span>(<span class="st">"{:.6}"</span>, <span class="fn">root</span>(|x| x * x - <span class="nu">2e16</span>, <span class="nu">0.0</span>, <span class="nu">2e8</span>));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>root</code> は、増加する関数 <code>f</code> について、f(lo) &lt; 0 ≦ f(hi) を保ったまま区間を半分ずつ狭め、f(x) = 0 の解を近似するつもりの関数です。<code>main</code> の1行目は x<sup>2</sup> = 2 の解として <code>1.414214</code> を表示しますが、2行目の x<sup>2</sup> = 2 × 10<sup>16</sup> では何も表示されないまま、プログラムが終わりません。本来は2行目に <code>141421356.237309</code> と表示されるはずです。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">while</span> hi - lo &gt; <span class="nu">1e-9</span> {
+</code></pre>
+      <p>
+        <code>f64</code> の有効数字は値の大きさによらず2進数で53桁なので、隣り合う <code>f64</code> の間隔は値の大きさに比例して広がります。2行目の解 1.41 × 10<sup>8</sup> の付近では、この間隔が約3 × 10<sup>−8</sup> で、<code>1e-9</code> より広くなります。
+      </p>
+      <p>
+        区間が隣り合う2つの <code>f64</code> まで縮むと、その間に数はないので、中点 <code>(lo + hi) / 2.0</code> は <code>lo</code> か <code>hi</code> のどちらかに丸められ、区間はそれ以上縮みません。<code>hi - lo</code> は約3 × 10<sup>−8</sup> のまま <code>1e-9</code> を下回らないので、ループが終わりません。1行目の解の付近では間隔が約2 × 10<sup>−16</sup> なので、同じ条件でも止まります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">for</span> _ <span class="kw">in</span> <span class="nu">0</span>..<span class="nu">100</span> {
+</code></pre>
+      <p>
+        繰り返しの回数を決めておけば、値の大きさに関係なく必ず終わります。幅 2 × 10<sup>8</sup> の区間でも、約53回半分にすると隣り合う2つの <code>f64</code> に達します。そこから先は中点が端に一致し、<code>lo = mid</code> や <code>hi = mid</code> は区間を変えないので、100回まで回しても答えは変わりません<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>止める条件を <code>hi - lo &gt; 1e-9 * hi.abs()</code> のように値の大きさに比例させる書き方もありますが、解が0に近いと右辺も0に近づき、同じように終わらなくなります。中点が <code>lo</code> か <code>hi</code> に一致した時点で止める書き方なら、回数を決めなくても終わります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

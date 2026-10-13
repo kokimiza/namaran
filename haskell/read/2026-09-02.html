@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="IORef に順に足していく処理が途中で例外を投げ、catchIOError で受け止められたとき、IORef に何が残っているかを答えるHaskell 2010のドリル。例外は処理を止めるが、それまでの書き込みは取り消さないことを扱う。">
+<title>途中で止めた加算</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-09-02">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-02" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-09-02",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-09-02",
+      "datePublished": "2026-09-02",
+      "dateModified": "2026-09-02",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "途中で止めた加算" },
+      "keywords": "ioref, exception, io",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "IORef に順に足していく処理が途中で例外を投げ、catchIOError で受け止められたとき、IORef に何が残っているかを答えるHaskell 2010のドリル。例外は処理を止めるが、それまでの書き込みは取り消さないことを扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-02">C23</a>
+  <a href="/cpp/read/2026-09-02">C++26</a>
+  <a href="/rust/read/2026-09-02">Rust 2024</a>
+  <a href="/haskell/read/2026-09-02" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-09-02" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-09-02">WRITE</a>
+  <a href="/haskell/debug/2026-09-02">DEBUG</a>
+</nav>
+
+<main
+  data-topic="途中で止めた加算"
+  data-tags="ioref exception io"
+  data-concepts="例外, 途中状態, IORef, 取り消されない書き込み, exception, partial update, catchIOError"
+  data-level="hedgehog"
+>
+  <h2>2026-09-02</h2>
+  <div class="code-frame">
+    <p class="code-filename">Cancel.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Control.Monad</span> (when)
+<span class="kw">import</span> <span class="ty">Data.IORef</span>
+<span class="kw">import</span> <span class="ty">System.IO.Error</span> (catchIOError)
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = <span class="kw">do</span>
+  total <span class="op">&lt;-</span> newIORef (<span class="nu">0</span> <span class="op">::</span> <span class="ty">Int</span>)
+  <span class="kw">let</span> add x = <span class="kw">do</span>
+        modifyIORef total (+ x)
+        when (x == <span class="nu">3</span>) $ ioError (userError <span class="st">"cancel"</span>)
+  mapM_ add [<span class="nu">1</span> .. <span class="nu">5</span>] `catchIOError` \_ <span class="op">-&gt;</span> return ()
+  readIORef total &gt;&gt;= print
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>6</code> です。
+      </p>
+      <p>
+        <code>mapM_ add [1 .. 5]</code> は <code>add 1</code> から順に実行し、<code>add 3</code> の中で <code>ioError</code> が例外を投げた時点で止まります。残りの <code>add 4</code> と <code>add 5</code> は実行されず、例外は <code>catchIOError</code> のハンドラに渡されて、<code>return ()</code> で何もせずに終わります。
+      </p>
+      <p>
+        例外より前に行われた <code>modifyIORef</code> は取り消されません。<code>add 3</code> は <code>total</code> に3を足してから例外を投げるので、<code>total</code> には 1 + 2 + 3 = 6 が残ります。<code>catchIOError</code> は例外を受け止めるだけで、それまでに <code>IORef</code> へ書き込んだ値を元に戻す仕組みは持っていません。
+      </p>
+      <p>
+        3だけを飛ばして続きが実行されると考えると12、例外で書き込みがすべて取り消されると考えると0と答えることになります。止まった処理の途中までの書き込みを残したくないなら、書き込む前に検査を済ませるか、ハンドラの中で自分で元の値に戻します。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

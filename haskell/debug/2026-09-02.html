@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="ジョブの実行中に立てた印を、ジョブが例外で止まったときに戻し忘れ、以降のジョブがすべて断られるHaskell 2010のドリル。例外の経路でも後始末を必ず実行する finally を扱う。">
+<title>下ろし忘れた実行中の印</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-09-02">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-02" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-09-02",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-09-02",
+      "datePublished": "2026-09-02",
+      "dateModified": "2026-09-02",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "下ろし忘れた実行中の印" },
+      "keywords": "exception-safety, exception, ioref, resource-management",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "ジョブの実行中に立てた印を、ジョブが例外で止まったときに戻し忘れ、以降のジョブがすべて断られるHaskell 2010のドリル。例外の経路でも後始末を必ず実行する finally を扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-02">C23</a>
+  <a href="/cpp/debug/2026-09-02">C++26</a>
+  <a href="/rust/debug/2026-09-02">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-02" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-09-02">READ</a>
+  <a href="/haskell/write/2026-09-02">WRITE</a>
+  <a href="/haskell/debug/2026-09-02" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="下ろし忘れた実行中の印"
+  data-tags="exception-safety exception ioref resource-management"
+  data-concepts="例外安全性, 後始末, finally, 実行中の印, exception safety, cleanup on exception, busy flag"
+  data-level="hedgehog"
+>
+  <h2>2026-09-02</h2>
+  <div class="code-frame">
+    <p class="code-filename">Jobs.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Data.IORef</span>
+<span class="kw">import</span> <span class="ty">System.IO.Error</span> (catchIOError)
+
+<span class="fn">runJob</span> <span class="op">::</span> <span class="ty">IORef</span> <span class="ty">Bool</span> <span class="op">-&gt;</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">IO</span> ()
+<span class="fn">runJob</span> busy n = <span class="kw">do</span>
+  running <span class="op">&lt;-</span> readIORef busy
+  <span class="kw">if</span> running
+    <span class="kw">then</span> putStrLn (<span class="st">"busy "</span> ++ show n)
+    <span class="kw">else</span> <span class="kw">do</span>
+      writeIORef busy <span class="ty">True</span>
+      <span class="kw">if</span> n == <span class="nu">2</span> <span class="kw">then</span> ioError (userError <span class="st">"boom"</span>) <span class="kw">else</span> putStrLn (<span class="st">"done "</span> ++ show n)
+      writeIORef busy <span class="ty">False</span>
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = <span class="kw">do</span>
+  busy <span class="op">&lt;-</span> newIORef <span class="ty">False</span>
+  mapM_ (\n <span class="op">-&gt;</span> runJob busy n `catchIOError` \_ <span class="op">-&gt;</span> putStrLn (<span class="st">"failed "</span> ++ show n)) [<span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">3</span>]
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>runJob</code> は、ジョブを同時に1つしか動かさないように、実行中の印として <code>busy</code> を <code>True</code> にしてからジョブを実行し、終わったら <code>False</code> に戻すつもりの関数です。<code>main</code> はジョブ1、2、3を順に実行し、失敗したジョブには <code>failed</code> と表示します。ジョブ2は失敗するので、本来は <code>done 1</code>、<code>failed 2</code>、<code>done 3</code> の3行が表示されるはずですが、いまは3行目が <code>busy 3</code> になり、ジョブ3が実行されません。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="fn">writeIORef</span> busy <span class="ty">True</span>
+<span class="kw">if</span> n == <span class="nu">2</span> <span class="kw">then</span> ioError (userError <span class="st">"boom"</span>) <span class="kw">else</span> putStrLn (<span class="st">"done "</span> ++ show n)
+<span class="fn">writeIORef</span> busy <span class="ty">False</span>
+</code></pre>
+      <p>
+        ジョブ2では <code>ioError</code> が例外を投げ、<code>do</code> ブロックの残りは実行されません。<code>writeIORef busy False</code> も飛ばされるので、<code>busy</code> は <code>True</code> のまま残ります。
+      </p>
+      <p>
+        例外は <code>main</code> の <code>catchIOError</code> が受け止めて <code>failed 2</code> を表示しますが、このハンドラは <code>busy</code> を戻しません。ジョブ3は前のジョブがまだ動いていると判断して <code>busy 3</code> を表示し、これ以降のジョブも、どれも実行されなくなります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">import</span> <span class="ty">Control.Exception</span> (finally)
+
+      writeIORef busy <span class="ty">True</span>
+      work `finally` writeIORef busy <span class="ty">False</span>
+  <span class="kw">where</span>
+    work = <span class="kw">if</span> n == <span class="nu">2</span> <span class="kw">then</span> ioError (userError <span class="st">"boom"</span>) <span class="kw">else</span> putStrLn (<span class="st">"done "</span> ++ show n)
+</code></pre>
+      <p>
+        <code>finally</code> は、左の動作が正常に終わっても例外で止まっても右の動作を実行し、例外はそのまま投げ直します<sup class="fn-ref">1</sup>。<code>busy</code> を戻す処理が例外の経路でも必ず走るので、ジョブ2の失敗は <code>failed 2</code> として報告され、<code>busy</code> は <code>False</code> に戻ってジョブ3が実行されます。
+      </p>
+      <ol class="footnotes">
+        <li><code>finally</code> は Haskell 2010 の言語報告書が定めるライブラリにはなく、GHC に付属する base パッケージの <code>Control.Exception</code> にあります。言語拡張は使っていません。印を立てる処理と戻す処理を組にするなら、同じモジュールの <code>bracket_</code> も使えます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="「作業 a を b より前に行う」という条件をすべて満たす順番の数を、終えた作業の集合をビットで表して数えるC++26のドリル。並び順を捨てて集合だけを状態にすると、20個の作業でも状態は約100万個に収まる。">
+<title>作業の順番を集合で数える</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-09-02">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-02" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-09-02",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-09-02",
+      "datePublished": "2026-09-02",
+      "dateModified": "2026-09-02",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "作業の順番を集合で数える" },
+      "keywords": "bitmask-dp, dynamic-programming, permutation, topological-sort, bitmask",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "「作業 a を b より前に行う」という条件をすべて満たす順番の数を、終えた作業の集合をビットで表して数えるC++26のドリル。並び順を捨てて集合だけを状態にすると、20個の作業でも状態は約100万個に収まる。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-09-02">C23</a>
+  <a href="/cpp/write/2026-09-02" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-09-02">Rust 2024</a>
+  <a href="/haskell/write/2026-09-02">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-02">READ</a>
+  <a href="/cpp/write/2026-09-02" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-09-02">DEBUG</a>
+</nav>
+
+<main
+  data-topic="作業の順番を集合で数える"
+  data-tags="bitmask-dp dynamic-programming permutation topological-sort bitmask"
+  data-concepts="ビットDP, 作業の順番, 順列の数え上げ, トポロジカル順序, bit DP, topological order, linear extension"
+  data-level="peacock"
+>
+  <h2>2026-09-02</h2>
+  <div class="code-frame">
+    <p class="code-filename">count_orders.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;utility&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+
+<span class="ty">long</span> <span class="ty">long</span> <span class="fn">count_orders</span>(<span class="ty">int</span> n, <span class="kw">const</span> std::<span class="ty">vector</span>&lt;std::<span class="ty">pair</span>&lt;<span class="ty">int</span>, <span class="ty">int</span>&gt;&gt;&amp; rules) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    0 から <code>n - 1</code> までの番号が付いた <code>n</code> 個の作業を、1つずつ順に行います。<code>rules</code> の要素 <code>{a, b}</code> は、作業 <code>a</code> を作業 <code>b</code> より前に行うという条件です。すべての条件を満たす作業の順番が何通りあるかを返す <code>count_orders</code> を書いてください。条件を満たす順番がなければ0を返します。<code>n</code> は1以上20以下です。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>count_orders(4, {})</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>24</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>count_orders(4, {{0, 1}, {0, 2}, {2, 3}})</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>3</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>count_orders(2, {{0, 1}, {1, 0}})</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="ty">long</span> <span class="ty">long</span> <span class="fn">count_orders</span>(<span class="ty">int</span> n, <span class="kw">const</span> std::<span class="ty">vector</span>&lt;std::<span class="ty">pair</span>&lt;<span class="ty">int</span>, <span class="ty">int</span>&gt;&gt;&amp; rules) {
+    std::<span class="ty">vector</span>&lt;<span class="ty">unsigned</span>&gt; <span class="fn">need</span>(n);
+    <span class="kw">for</span> (<span class="kw">auto</span> [a, b] : rules)
+        need[b] |= <span class="nu">1u</span> &lt;&lt; a;
+    std::<span class="ty">vector</span>&lt;<span class="ty">long</span> <span class="ty">long</span>&gt; <span class="fn">ways</span>(<span class="nu">1u</span> &lt;&lt; n);
+    ways[<span class="nu">0</span>] = <span class="nu">1</span>;
+    <span class="kw">for</span> (<span class="ty">unsigned</span> done = <span class="nu">0</span>; done &lt; ways.<span class="fn">size</span>(); ++done)
+        <span class="kw">for</span> (<span class="ty">int</span> t = <span class="nu">0</span>; t &lt; n; ++t)
+            <span class="kw">if</span> (!(done &gt;&gt; t &amp; <span class="nu">1</span>) &amp;&amp; (need[t] &amp; ~done) == <span class="nu">0</span>)
+                ways[done | <span class="nu">1u</span> &lt;&lt; t] += ways[done];
+    <span class="kw">return</span> ways.<span class="fn">back</span>();
+}
+</code></pre>
+      <p>
+        入力例1のように条件がなければ、答えは4個の順列(permutation)の数 4! = 24 です。<code>n</code> が20だと 20! は約2.4 × 10<sup>18</sup> 通りあり、順番を1つずつ試すのは間に合いません。そこで、終えた作業の並び順は捨てて、どの作業を終えたかの集合だけを覚えます。次にどの作業を行えるかは、終えた作業の集合だけで決まるからです。集合 <code>done</code> はビットで表し、<code>ways[done]</code> に、<code>done</code> の作業をちょうど終えるまでの順番の数を入れます。状態は 2<sup>20</sup>、約100万個です。
+      </p>
+      <p>
+        作業 <code>t</code> を次に行えるのは、<code>t</code> がまだ終わっておらず、<code>t</code> より前に行うべき作業の集合 <code>need[t]</code> がすべて <code>done</code> に入っているときです。<code>need[t] &amp; ~done</code> は、前に行うべきなのにまだ終えていない作業の集合です。<code>done | 1u &lt;&lt; t</code> は <code>done</code> より大きい数なので、<code>done</code> を小さい順に処理すれば、<code>ways[done]</code> を使う時点でその値はもう増えません。入力例3のように条件が循環していると、どちらの作業も最初に行えず、全体の集合に一度も数が足されないので0が返ります。
+      </p>
+      <p>
+        条件を満たす順番は、グラフの用語でトポロジカル順序(topological order)と呼ばれます。掲載したのは参考実装で、唯一の正解ではありません。<code>done</code> から1ビットずつ取り除く向きに、メモ化した再帰で数えても同じ答えになります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

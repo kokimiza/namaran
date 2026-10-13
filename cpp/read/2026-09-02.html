@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="頂点0から始まる道順をすべてたどり、訪れた頂点の集合と今いる頂点の組を std::set に集めると、組がいくつになるかを数えるC++26のドリル。ビットで表した訪問済みの集合が、訪れた順番を持たないことを扱う。">
+<title>道順と訪問済みの集合</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-09-02">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-02" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-09-02",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-09-02",
+      "datePublished": "2026-09-02",
+      "dateModified": "2026-09-02",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "道順と訪問済みの集合" },
+      "keywords": "bitmask-dp, bitmask, set, recursion",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "頂点0から始まる道順をすべてたどり、訪れた頂点の集合と今いる頂点の組を std::set に集めると、組がいくつになるかを数えるC++26のドリル。ビットで表した訪問済みの集合が、訪れた順番を持たないことを扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-02">C23</a>
+  <a href="/cpp/read/2026-09-02" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-09-02">Rust 2024</a>
+  <a href="/haskell/read/2026-09-02">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-02" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-09-02">WRITE</a>
+  <a href="/cpp/debug/2026-09-02">DEBUG</a>
+</nav>
+
+<main
+  data-topic="道順と訪問済みの集合"
+  data-tags="bitmask-dp bitmask set recursion"
+  data-concepts="ビットDP, 訪問済みの集合, 状態の数, 道順, bit DP, visited set, std::set"
+  data-level="peacock"
+>
+  <h2>2026-09-02</h2>
+  <div class="code-frame">
+    <p class="code-filename">walk.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;cstdio&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;set&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;utility&gt;</span>
+
+std::<span class="ty">set</span>&lt;std::<span class="ty">pair</span>&lt;<span class="ty">unsigned</span>, <span class="ty">int</span>&gt;&gt; states;
+
+<span class="ty">void</span> <span class="fn">walk</span>(<span class="ty">unsigned</span> visited, <span class="ty">int</span> at, <span class="ty">int</span> n) {
+    states.<span class="fn">insert</span>({visited, at});
+    <span class="kw">for</span> (<span class="ty">int</span> next = <span class="nu">0</span>; next &lt; n; ++next)
+        <span class="kw">if</span> (!(visited &gt;&gt; next &amp; <span class="nu">1</span>))
+            <span class="fn">walk</span>(visited | <span class="nu">1u</span> &lt;&lt; next, next, n);
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="fn">walk</span>(<span class="nu">1u</span>, <span class="nu">0</span>, <span class="nu">4</span>);
+    std::<span class="fn">printf</span>(<span class="st">"%zu\n"</span>, states.<span class="fn">size</span>());
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>13</code> です。
+      </p>
+      <p>
+        <code>walk</code> は頂点0から出発し、まだ訪れていない頂点へ移る道順をすべてたどります。訪れた頂点の集合は <code>visited</code> のビットで表し、頂点 k を訪れていればビット k が1です。4頂点のどこからどこへでも移れるので、訪れた頂点の数が1、2、3、4の道順はそれぞれ1通り、3通り、3 × 2 = 6通り、6通りで、<code>walk</code> は合わせて16回呼ばれます。
+      </p>
+      <p>
+        ただし <code>states</code> は <code>std::set</code> なので、同じ組 <code>{visited, at}</code> を2回入れても要素は増えません。ここで、ビットで表した集合は訪れた順番を持たないことが効いてきます。0→1→2 と 0→2→1 は今いる頂点が違うので別の組ですが、4頂点すべてを訪れた6通りの道順は、最後にいる頂点が1、2、3のどれかなので、組は3つしかありません。重なった3回は要素を増やさないので、16 − 3 = 13 です。<code>std::set</code> に気付いても、道順が違えば組も違うと考えると、16 と答えることになります。
+      </p>
+      <p>
+        訪れた頂点の集合と今いる頂点が同じなら、その先の進み方も同じです。そこで、道順ではなくこの組を状態として計算を進める方法をビットDP(bit DP)と呼びます。頂点が n 個なら状態は多くても 2<sup>n</sup> × n 個で、道順の数 n! よりはるかに少なくなります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
