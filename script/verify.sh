@@ -55,7 +55,10 @@
 # see is the code that was checked — READ/DEBUG question code (outside
 # <details>) is at most 21 lines, a WRITE page's examples sit in
 # <div class="examples">, a DEBUG answer is Wrong + listing then Right +
-# listing — and the listings are highlighted exactly
+# listing, the Japanese prose has none of the patterns the humanizer-ja-tech
+# revision pass removes (AI stock phrases, dashes, full-width alphanumerics,
+# だ・である sentences), footnote references and notes match one to one —
+# and the listings are highlighted exactly
 # as script/highlight.sh would write them.
 #
 # Toolchains (override the command names with environment variables):
@@ -420,6 +423,47 @@ if typ == "debug":
                      r'<h3 class="right">Right</h3>\s*<pre class="code">', answer, re.S):
         problems.append('DEBUG answer must be <h3 class="wrong">Wrong</h3> + listing, '
                         'then <h3 class="right">Right</h3> + listing')
+
+# --- the Japanese prose (.claude/skills/namara-daily/humanizer-ja-tech.md) --
+# Most of the revision pass is judgment, but part of what it removes can be
+# found by pattern: AI stock phrases (§5), dashes, full-width alphanumerics
+# and emoji (§4), and a だ・である sentence on a です・ます page (§8). A hit
+# means the page skipped the revision pass. Code is left out: <pre> blocks
+# entirely, inline <code> as a stand-in letter.
+main_html = s[s.find("<main"):s.find("</main>")]
+def prose(fragment):
+    fragment = re.sub(r"<pre\b.*?</pre>", " ", fragment, flags=re.S)
+    fragment = re.sub(r"<code>.*?</code>", "X", fragment, flags=re.S)
+    return html.unescape(re.sub(r"<[^>]+>", "", fragment))
+text = prose(main_html) + "\n" + prose(html.escape(desc, quote=False))
+prose_rules = [
+    (r"重要なのは|(?<![ァ-ヴー])ポイントは|(?<![一-龯々])実は|一見すると|興味深いことに", "§5.1 stage-setting phrase"),
+    (r"ましょう", "§5.1/§5.6 exhortation"),
+    (r"単なる[^。]*?ではなく", "§5.2 false contrast"),
+    (r"非常に|極めて", "§5.3 overstatement"),
+    (r"以上から|以上のように", "§5.4 summary"),
+    (r"[ですま]すよね|安心してください|初心者でも", "§5.6 talking down"),
+    (r"[—–]", "§4 em/en dash"),
+    (r"[Ａ-Ｚａ-ｚ０-９]", "§4 full-width alphanumeric"),
+    (r"[\U0001F300-\U0001FAFF☀-➿]", "§4 emoji"),
+    (r"(?:だ|である|だった|であった|ではない|だろう)。", "§8 だ・である sentence on a です・ます page"),
+]
+for pattern, why in prose_rules:
+    for hit in re.finditer(pattern, text):
+        context = text[max(hit.start() - 12, 0):hit.end() + 8].replace("\n", " ").strip()
+        problems.append(f"prose ({why}, humanizer-ja-tech.md): …{context}…")
+
+# Footnotes (doc/basic-design.md §7.1): only in the answer, and with no
+# links to tie them, numbered 1..n by first reference, one note per number.
+details_at = main_html.find("<details")
+if '<sup class="fn-ref">' in main_html[:details_at]:
+    problems.append("footnote reference in the question; footnotes belong to the answer")
+refs = list(dict.fromkeys(int(r) for r in re.findall(r'<sup class="fn-ref">(\d+)</sup>', main_html)))
+m = re.search(r'<ol class="footnotes">(.*?)</ol>', main_html, re.S)
+notes = len(re.findall(r"<li\b", m.group(1))) if m else 0
+if refs != list(range(1, notes + 1)):
+    problems.append(f"footnotes: the text refers to {refs or 'none'} but the list has {notes} note(s); "
+                    "number references 1..n in order, one <li> each, and drop an unused <ol>")
 
 print("\n".join(problems))
 sys.exit(1 if problems else 0)
