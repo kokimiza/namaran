@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="ミリ秒のリストを秒に直すつもりの関数が、ほとんど 0 を返してしまうHaskell 2010のDEBUGです。div を部分適用したときに、どちらの引数が埋まるかを扱います。">
+<title>ミリ秒から秒への変換</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-10-15">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-15" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-10-15",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-10-15",
+      "datePublished": "2026-10-15",
+      "dateModified": "2026-10-15",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "ミリ秒から秒への変換" },
+      "keywords": "partial-application, section, division",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "ミリ秒のリストを秒に直すつもりの関数が、ほとんど 0 を返してしまうHaskell 2010のDEBUGです。div を部分適用したときに、どちらの引数が埋まるかを扱います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-15">C23</a>
+  <a href="/cpp/debug/2026-10-15">C++26</a>
+  <a href="/rust/debug/2026-10-15">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-15" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-15">READ</a>
+  <a href="/haskell/write/2026-10-15">WRITE</a>
+  <a href="/haskell/debug/2026-10-15" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="ミリ秒から秒への変換"
+  data-tags="partial-application section division"
+  data-concepts="部分適用, セクション, div の引数の順序, 中置記法, partial application, operator section"
+  data-level="hedgehog"
+>
+  <h2>2026-10-15</h2>
+  <div class="code-frame">
+    <p class="code-filename">ToSeconds.hs</p>
+    <pre class="code"><code><span class="fn">toSeconds</span> <span class="op">::</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> [<span class="ty">Int</span>]
+<span class="fn">toSeconds</span> = map (div <span class="nu">1000</span>)
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (toSeconds [<span class="nu">1500</span>, <span class="nu">2000</span>, <span class="nu">999</span>])
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>toSeconds</code> は、ミリ秒のリストを、端数を切り捨てて秒に直したリストを返すつもりの関数です。<code>toSeconds [1500, 2000, 999]</code> は、いまは <code>[0,0,1]</code> を返します。本来は <code>[1,2,0]</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="fn">toSeconds</span> = map (div <span class="nu">1000</span>)
+</code></pre>
+      <p>
+        <code>div 1000</code> は <code>div</code> の1つ目の引数に 1000 を渡した部分適用です。残った2つ目の引数にリストの要素 <code>ms</code> が入るので、計算されるのは <code>div 1000 ms</code>、つまり 1000 を <code>ms</code> で割った商です。1500 と 2000 では商が 0、999 では 1 になり、<code>[0,0,1]</code> が返ります。割られる数と割る数が入れ替わっています。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="fn">toSeconds</span> = map (`div` <span class="nu">1000</span>)
+</code></pre>
+      <p>
+        <code>(`div` 1000)</code> は、バッククォートで <code>div</code> を中置の演算子として使い、右側だけを埋めたセクションです。空いている左側に要素が入るので <code>ms `div` 1000</code> が計算され、1500、2000、999 の商は 1、2、0 になります<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li><code>flip div 1000</code> と書いても同じ関数になります。引き算では同じ形のセクション <code>(- 1)</code> が -1 という数として読まれるので、1 を引く関数には <code>subtract 1</code> を使います。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

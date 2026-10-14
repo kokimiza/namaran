@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="計算の結果が配列の逆順で変わらないかを調べる検査が、どんな関数にも same を返してしまうC23のDEBUGです。配列を指すポインタと配列のコピーの違いを扱います。">
+<title>逆順にしたつもりの配列</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-10-15">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-15" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-10-15",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-10-15",
+      "datePublished": "2026-10-15",
+      "dateModified": "2026-10-15",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "逆順にしたつもりの配列" },
+      "keywords": "metamorphic-testing, pointer, array, aliasing",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "計算の結果が配列の逆順で変わらないかを調べる検査が、どんな関数にも same を返してしまうC23のDEBUGです。配列を指すポインタと配列のコピーの違いを扱います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-15" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-10-15">C++26</a>
+  <a href="/rust/debug/2026-10-15">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-15">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-15">READ</a>
+  <a href="/c/write/2026-10-15">WRITE</a>
+  <a href="/c/debug/2026-10-15" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="逆順にしたつもりの配列"
+  data-tags="metamorphic-testing pointer array aliasing"
+  data-concepts="メタモルフィックテスト, ポインタと配列, 配列のコピー, エイリアス, metamorphic testing, aliasing, array copy"
+  data-level="hedgehog"
+>
+  <h2>2026-10-15</h2>
+  <div class="code-frame">
+    <p class="code-filename">reversed_same.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">static</span> <span class="ty">int</span> <span class="fn">last</span>(<span class="kw">const</span> <span class="ty">int</span> *a) {
+    <span class="kw">return</span> a[<span class="nu">2</span>];
+}
+
+<span class="kw">static</span> <span class="ty">bool</span> <span class="fn">reversed_same</span>(<span class="ty">int</span> (*f)(<span class="kw">const</span> <span class="ty">int</span> *)) {
+    <span class="ty">int</span> a[] = {<span class="nu">3</span>, <span class="nu">1</span>, <span class="nu">2</span>};
+    <span class="ty">int</span> *b = a;
+    <span class="ty">int</span> t = b[<span class="nu">0</span>];
+    b[<span class="nu">0</span>] = b[<span class="nu">2</span>];
+    b[<span class="nu">2</span>] = t;
+    <span class="kw">return</span> <span class="fn">f</span>(a) == <span class="fn">f</span>(b);
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="fn">puts</span>(<span class="fn">reversed_same</span>(last) ? <span class="st">"same"</span> : <span class="st">"differs"</span>);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>reversed_same</code> は、計算 <code>f</code> が配列 {3, 1, 2} と、それを逆順にした {2, 1, 3} とで同じ値を返すかを調べる関数です。末尾の要素を返す <code>last</code> を渡して呼ぶと、いまは <code>same</code> と出力されます。本来の出力は <code>differs</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="ty">int</span> a[] = {<span class="nu">3</span>, <span class="nu">1</span>, <span class="nu">2</span>};
+<span class="ty">int</span> *b = a;
+<span class="ty">int</span> t = b[<span class="nu">0</span>];
+b[<span class="nu">0</span>] = b[<span class="nu">2</span>];
+b[<span class="nu">2</span>] = t;
+<span class="kw">return</span> <span class="fn">f</span>(a) == <span class="fn">f</span>(b);
+</code></pre>
+      <p>
+        <code>int *b = a;</code> で作られるのは配列のコピーではなく、<code>a</code> の先頭を指すポインタです。続く入れ替えは <code>b</code> を通して <code>a</code> そのものを {2, 1, 3} に書き換えるので、<code>f(a)</code> と <code>f(b)</code> は同じ配列を見て、<code>last</code> はどちらにも 3 を返します。比べる2つが同じ配列なので、どんな <code>f</code> を渡しても <code>same</code> になります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="ty">int</span> a[] = {<span class="nu">3</span>, <span class="nu">1</span>, <span class="nu">2</span>};
+<span class="ty">int</span> b[] = {a[<span class="nu">0</span>], a[<span class="nu">1</span>], a[<span class="nu">2</span>]};
+<span class="ty">int</span> t = b[<span class="nu">0</span>];
+b[<span class="nu">0</span>] = b[<span class="nu">2</span>];
+b[<span class="nu">2</span>] = t;
+<span class="kw">return</span> <span class="fn">f</span>(a) == <span class="fn">f</span>(b);
+</code></pre>
+      <p>
+        <code>b</code> を <code>a</code> の要素で初期化した別の配列にすれば、入れ替えは <code>b</code> にだけ起きます。<code>a</code> は {3, 1, 2} のまま残り、<code>last(a)</code> は 2、<code>last(b)</code> は 3 なので <code>differs</code> が出ます。
+      </p>
+      <p>
+        この関数のように、正しい出力の代わりに入力の変え方と出力の変わり方の関係を確かめる検査を、メタモルフィックテスト（metamorphic testing）といいます。比べる2つの入力が同じものを指していると、検査は何も確かめないまま成功し続けます<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>検査が常に成功してしまう欠陥は、検査が通っているあいだは表に出ません。<code>last</code> のように結果が順序で変わると分かっている関数を渡し、検査がそれを見つけられるかを試しておくと、この種の欠陥に気付けます。コードにわざと誤りを入れてテストが失敗するかを調べる、ミューテーションテスト（mutation testing）と同じ考え方です。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

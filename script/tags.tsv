@@ -237,6 +237,7 @@ memory-order	メモリ順序
 merge	マージ
 merge-sort	マージソート
 merkle-tree	Merkle木
+metamorphic-testing	メタモルフィックテスト
 method-resolution	メソッド解決
 minimum-spanning-tree	最小全域木
 modular-arithmetic	合同算術

@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="捨てられるときに経過時間を出力するタイマーで処理時間を測ろうとして、測る前にタイマーが止まってしまうRust 2024のDEBUGです。let _ = で受けた値がいつ drop されるかを扱います。">
+<title>すぐに止まるタイマー</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-10-15">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-15" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-10-15",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-10-15",
+      "datePublished": "2026-10-15",
+      "dateModified": "2026-10-15",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "すぐに止まるタイマー" },
+      "keywords": "benchmark, raii, drop-scope",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "捨てられるときに経過時間を出力するタイマーで処理時間を測ろうとして、測る前にタイマーが止まってしまうRust 2024のDEBUGです。let _ = で受けた値がいつ drop されるかを扱います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-15">C23</a>
+  <a href="/cpp/debug/2026-10-15">C++26</a>
+  <a href="/rust/debug/2026-10-15" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-15">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-15">READ</a>
+  <a href="/rust/write/2026-10-15">WRITE</a>
+  <a href="/rust/debug/2026-10-15" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="すぐに止まるタイマー"
+  data-tags="benchmark raii drop-scope"
+  data-concepts="let _, Drop, RAII タイマー, 一時値の破棄, スコープガード, let underscore, drop timing"
+  data-level="hedgehog"
+>
+  <h2>2026-10-15</h2>
+  <div class="code-frame">
+    <p class="code-filename">sort_timer.rs</p>
+    <pre class="code"><code><span class="kw">use</span> std::time::<span class="ty">Instant</span>;
+
+<span class="kw">struct</span> <span class="fn">Timer</span>(&amp;<span class="lt">'static</span> <span class="ty">str</span>, <span class="ty">Instant</span>);
+
+<span class="kw">impl</span> <span class="ty">Drop</span> <span class="kw">for</span> <span class="ty">Timer</span> {
+    <span class="kw">fn</span> <span class="fn">drop</span>(&amp;<span class="kw">mut</span> <span class="kw">self</span>) {
+        <span class="mc">println!</span>(<span class="st">"{} took {:?}"</span>, <span class="kw">self</span>.<span class="nu">0</span>, <span class="kw">self</span>.<span class="nu">1</span>.<span class="fn">elapsed</span>());
+    }
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> _ = <span class="fn">Timer</span>(<span class="st">"sort"</span>, <span class="ty">Instant</span>::<span class="fn">now</span>());
+    <span class="kw">let</span> <span class="kw">mut</span> v: <span class="ty">Vec</span>&lt;<span class="ty">u32</span>&gt; = (<span class="nu">0</span>..<span class="nu">5</span>).<span class="fn">rev</span>().<span class="fn">collect</span>();
+    v.<span class="fn">sort</span>();
+    <span class="mc">println!</span>(<span class="st">"{v:?}"</span>);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>Timer</code> は、作られてから捨てられるまでの時間を、捨てられるときに出力する型です。<code>main</code> はこれでソートにかかる時間を測るつもりです。実行すると、いまは <code>sort took 150ns</code> のような行がソート結果の <code>[0, 1, 2, 3, 4]</code> より先に出ます。本来は <code>[0, 1, 2, 3, 4]</code> が先に出て、そのあとに <code>sort took</code> の行が出ます。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">let</span> _ = <span class="fn">Timer</span>(<span class="st">"sort"</span>, <span class="ty">Instant</span>::<span class="fn">now</span>());
+</code></pre>
+      <p>
+        <code>let _ =</code> は、右辺の値をどの変数にも束縛しません。作られた <code>Timer</code> は名前を持たない一時値のままで、一時値はその文の終わりで捨てられます。<code>drop</code> がその場で呼ばれるので、ソートを始める前に <code>sort took</code> の行が出ます。測れたのは <code>Timer</code> を作ってから捨てるまでの一瞬で、ソートは入っていません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">let</span> _timer = <span class="fn">Timer</span>(<span class="st">"sort"</span>, <span class="ty">Instant</span>::<span class="fn">now</span>());
+</code></pre>
+      <p>
+        <code>_timer</code> は先頭に <code>_</code> が付いていても普通の変数で、値は <code>main</code> の終わりまで生きています。<code>Timer</code> が捨てられるのは <code>main</code> を抜けるときなので、ソートと結果の出力が済んでから <code>sort took</code> の行が出ます。先頭の <code>_</code> が止めるのは、使っていない変数への警告だけです<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>同じ誤りは、<code>Mutex</code> のロックを <code>let _ = m.lock();</code> で受けたときにも起きます。ロックは取った文の終わりで解放されるので、守りたい処理は守られません。こちらはコンパイラの <code>let_underscore_lock</code> という lint が既定でエラーにしますが、自分で書いた <code>Timer</code> のような型には働きません。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

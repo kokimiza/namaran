@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="すべての値に k を足すと平均も k だけ増えるはず、という関係で平均の計算を確かめるC23のREADです。和が負になったときに整数の割り算がどちらへ切り捨てるかを問います。">
+<title>ずらした入力の平均</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-10-15">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-15" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-10-15",
+      "url": "https://namaran.jocarium.productions/c/read/2026-10-15",
+      "datePublished": "2026-10-15",
+      "dateModified": "2026-10-15",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "ずらした入力の平均" },
+      "keywords": "metamorphic-testing, division, integer-arithmetic",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "すべての値に k を足すと平均も k だけ増えるはず、という関係で平均の計算を確かめるC23のREADです。和が負になったときに整数の割り算がどちらへ切り捨てるかを問います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-15" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-10-15">C++26</a>
+  <a href="/rust/read/2026-10-15">Rust 2024</a>
+  <a href="/haskell/read/2026-10-15">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-15" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-10-15">WRITE</a>
+  <a href="/c/debug/2026-10-15">DEBUG</a>
+</nav>
+
+<main
+  data-topic="ずらした入力の平均"
+  data-tags="metamorphic-testing division integer-arithmetic"
+  data-concepts="メタモルフィックテスト, 整数除算, 0への切り捨て, 平均の平行移動, metamorphic testing, integer division, truncation toward zero"
+  data-level="hedgehog"
+>
+  <h2>2026-10-15</h2>
+  <div class="code-frame">
+    <p class="code-filename">shifted_mean.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">static</span> <span class="ty">int</span> <span class="fn">mean</span>(<span class="kw">const</span> <span class="ty">int</span> *x, <span class="ty">int</span> n) {
+    <span class="ty">int</span> s = <span class="nu">0</span>;
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; n; i++) {
+        s += x[i];
+    }
+    <span class="kw">return</span> s / n;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="kw">for</span> (<span class="ty">int</span> k = -<span class="nu">2</span>; k &lt;= <span class="nu">1</span>; k++) {
+        <span class="ty">int</span> x[] = {<span class="nu">1</span> + k, <span class="nu">2</span> + k};
+        <span class="fn">printf</span>(<span class="st">"%d\n"</span>, <span class="fn">mean</span>(x, <span class="nu">2</span>) - k);
+    }
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>2</code>、<code>1</code>、<code>1</code>、<code>1</code> の4行です。
+      </p>
+      <p>
+        ループは {1, 2} の各要素に <code>k</code> を足した配列の平均を求め、そこから <code>k</code> を引いています。すべての要素に同じ数を足せば平均も同じだけ増えるので、平均が正しく計算できていれば、どの <code>k</code> でも元の {1, 2} の平均に戻るはずです。正しい出力を知らなくても、入力の変え方と出力の変わり方の関係から計算を確かめるこのやり方を、メタモルフィックテスト（metamorphic testing）といいます。
+      </p>
+      <p>
+        <code>k</code> が -1、0、1 のときは和が 1、3、5 で、<code>s / n</code> は 0、1、2 です。そこから <code>k</code> を引くと、どれも 1 になります。
+      </p>
+      <p>
+        <code>k = -2</code> のときだけ和が -1 になります。C の整数の割り算は商の小数部を捨てて 0 の側へ丸めるので、<code>-1 / 2</code> は -1 ではなく 0 です。<code>0 - (-2)</code> で、最初の行だけ 2 になります。割り算の結果を、それ以下の最大の整数へ丸める床関数（floor function）で求めていれば、4行とも 1 でした。0 の側への丸めは、商が正なら小さい側へ、負なら大きい側へ丸めることになるので、和が負になったところで床関数とずれます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

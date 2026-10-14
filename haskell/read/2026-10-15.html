@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="引数を1つだけ書いて関数合成を返す step を、foldr と foldl に渡したときの結果を読むHaskell 2010のREADです。合成の順序と、畳み込みが渡す引数の順序が絡みます。">
+<title>引数を1つだけ書いた関数</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-10-15">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-15" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-10-15",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-10-15",
+      "datePublished": "2026-10-15",
+      "dateModified": "2026-10-15",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "引数を1つだけ書いた関数" },
+      "keywords": "partial-application, function-composition, fold, section",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "引数を1つだけ書いて関数合成を返す step を、foldr と foldl に渡したときの結果を読むHaskell 2010のREADです。合成の順序と、畳み込みが渡す引数の順序が絡みます。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-15">C23</a>
+  <a href="/cpp/read/2026-10-15">C++26</a>
+  <a href="/rust/read/2026-10-15">Rust 2024</a>
+  <a href="/haskell/read/2026-10-15" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-15" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-10-15">WRITE</a>
+  <a href="/haskell/debug/2026-10-15">DEBUG</a>
+</nav>
+
+<main
+  data-topic="引数を1つだけ書いた関数"
+  data-tags="partial-application function-composition fold section"
+  data-concepts="関数合成, 部分適用, セクション, foldr と foldl, 引数の順序, function composition, argument order"
+  data-level="bison"
+>
+  <h2>2026-10-15</h2>
+  <div class="code-frame">
+    <p class="code-filename">Step.hs</p>
+    <pre class="code"><code><span class="fn">step</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Int</span>
+<span class="fn">step</span> x = (+ x) . (* <span class="nu">2</span>)
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (foldr step <span class="nu">0</span> [<span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">3</span>], foldl step <span class="nu">0</span> [<span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">3</span>])
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>(17,12)</code> です。
+      </p>
+      <p>
+        <code>step</code> の定義に書かれた引数は <code>x</code> の1つだけですが、右辺の <code>(+ x) . (* 2)</code> は関数なので、<code>step x</code> はもう1つ引数を受け取ります。合成は右側の関数から適用されるので、2つ目の引数を <code>y</code> とすると <code>step x y = y * 2 + x</code> です。2倍されるのは、定義に名前の出てこない2つ目の引数のほうです。
+      </p>
+      <p>
+        <code>foldr</code> は要素を1つ目の引数に、それまでの結果を2つ目の引数に渡し、右端から計算します。<code>step 3 0 = 3</code>、<code>step 2 3 = 8</code>、<code>step 1 8 = 17</code> です。
+      </p>
+      <p>
+        <code>foldl</code> は逆に、それまでの結果を1つ目、要素を2つ目に渡し、左端から計算します。<code>step 0 1 = 2</code>、<code>step 2 2 = 6</code>、<code>step 6 3 = 12</code> です。2倍されるのが <code>foldr</code> ではそれまでの結果、<code>foldl</code> では要素なので、同じ <code>step</code> と同じリストでも結果が分かれます。
+      </p>
+      <p>
+        定義を左から読んで <code>step x y = x * 2 + y</code> と取り違えると、<code>(12,11)</code> になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

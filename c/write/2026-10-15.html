@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="配列を逆順に並べ替えても計算結果が変わらないかを、関数ポインタで受け取った計算について確かめるC23のWRITEです。正しい値が分からない計算を、入力と出力の関係で検査します。">
+<title>逆順にしても同じ結果か</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-10-15">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-15" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-10-15",
+      "url": "https://namaran.jocarium.productions/c/write/2026-10-15",
+      "datePublished": "2026-10-15",
+      "dateModified": "2026-10-15",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "逆順にしても同じ結果か" },
+      "keywords": "metamorphic-testing, function-pointer, array",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "配列を逆順に並べ替えても計算結果が変わらないかを、関数ポインタで受け取った計算について確かめるC23のWRITEです。正しい値が分からない計算を、入力と出力の関係で検査します。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-15" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-10-15">C++26</a>
+  <a href="/rust/write/2026-10-15">Rust 2024</a>
+  <a href="/haskell/write/2026-10-15">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-15">READ</a>
+  <a href="/c/write/2026-10-15" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-10-15">DEBUG</a>
+</nav>
+
+<main
+  data-topic="逆順にしても同じ結果か"
+  data-tags="metamorphic-testing function-pointer array"
+  data-concepts="メタモルフィックテスト, 関数ポインタ, 配列の反転, 順序に依らない計算, metamorphic testing, function pointer, reverse in place"
+  data-level="hedgehog"
+>
+  <h2>2026-10-15</h2>
+  <div class="code-frame">
+    <p class="code-filename">reverse_invariant.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stddef.h&gt;</span>
+
+<span class="ty">bool</span> <span class="fn">reverse_invariant</span>(<span class="ty">int</span> (*f)(<span class="kw">const</span> <span class="ty">int</span> *, <span class="ty">size_t</span>), <span class="ty">int</span> *a, <span class="ty">size_t</span> n) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    長さ <code>n</code> の配列 <code>a</code> に対する計算 <code>f</code> が、要素を逆順に並べ替えても同じ値を返すかを確かめる <code>reverse_invariant</code> を書いてください。<code>f(a, n)</code> の値と、<code>a</code> を逆順にしてから求めた <code>f(a, n)</code> の値が等しければ <code>true</code>、違えば <code>false</code> を返します。<code>a</code> はその場で並べ替えてかまいませんが、返る前に元の順に戻します。<code>n</code> が 0 や 1 のときも、<code>f</code> を2回呼んで比べます。入力例の <code>sum</code> は要素の総和を返す関数、<code>first</code> は先頭の要素を返す関数です。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>reverse_invariant(sum, (int[]){3, 1, 2}, 3)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>true</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>reverse_invariant(first, (int[]){3, 1, 2}, 3)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>false</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>reverse_invariant(first, (int[]){7}, 1)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>true</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">static</span> <span class="ty">void</span> <span class="fn">reverse</span>(<span class="ty">int</span> *a, <span class="ty">size_t</span> n) {
+    <span class="kw">for</span> (<span class="ty">size_t</span> i = <span class="nu">0</span>; i &lt; n / <span class="nu">2</span>; i++) {
+        <span class="ty">int</span> t = a[i];
+        a[i] = a[n - <span class="nu">1</span> - i];
+        a[n - <span class="nu">1</span> - i] = t;
+    }
+}
+
+<span class="ty">bool</span> <span class="fn">reverse_invariant</span>(<span class="ty">int</span> (*f)(<span class="kw">const</span> <span class="ty">int</span> *, <span class="ty">size_t</span>), <span class="ty">int</span> *a, <span class="ty">size_t</span> n) {
+    <span class="ty">int</span> before = <span class="fn">f</span>(a, n);
+    <span class="fn">reverse</span>(a, n);
+    <span class="ty">int</span> after = <span class="fn">f</span>(a, n);
+    <span class="fn">reverse</span>(a, n);
+    <span class="kw">return</span> before == after;
+}
+</code></pre>
+      <p>
+        総和や最大値のように要素の順序に依らないはずの計算なら、正しい値を知らなくても、逆順の配列で結果が変わらないことは確かめられます。正しい出力の代わりに、入力の変え方と出力の変わり方の関係を確かめる検査をメタモルフィックテスト（metamorphic testing）といい、ここで使っている関係は「逆順にしても値が変わらない」です。先頭の要素を見る <code>first</code> は、この関係を満たさないので <code>false</code> になります。
+      </p>
+      <p>
+        <code>reverse</code> は <code>a</code> を直接書き換えるので、2回目の <code>f</code> の値を <code>after</code> に取っておいてから、もう一度 <code>reverse</code> を呼んで元の順に戻しています。逆順の逆順は元の並びなので、コピー用の配列は要りません。<code>n</code> が 0 や 1 なら <code>reverse</code> のループは1回も回らず、<code>f</code> の2回の呼び出しは同じ配列を見ます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>a</code> に触れたくないなら、<code>malloc</code> で確保した別の配列へ逆順にコピーして比べる書き方もあります。その場合は確保の失敗をどう返すかを決める必要があります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
