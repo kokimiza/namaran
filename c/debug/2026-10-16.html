@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="範囲の終わりを返して「見つからない」を伝える探索関数の結果を、NULL と比べてしまう C23 の DEBUG です。配列の末尾の1つ先を指すポインタが、比べてよいが読んではいけない値であることを扱います。">
+<title>見つからないときの戻り値</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-10-16">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-16" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-10-16",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-10-16",
+      "datePublished": "2026-10-16",
+      "dateModified": "2026-10-16",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "見つからないときの戻り値" },
+      "keywords": "pointer, null-pointer, sentinel, half-open-interval",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "範囲の終わりを返して「見つからない」を伝える探索関数の結果を、NULL と比べてしまう C23 の DEBUG です。配列の末尾の1つ先を指すポインタが、比べてよいが読んではいけない値であることを扱います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-16" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-10-16">C++26</a>
+  <a href="/rust/debug/2026-10-16">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-16">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-16">READ</a>
+  <a href="/c/write/2026-10-16">WRITE</a>
+  <a href="/c/debug/2026-10-16" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="見つからないときの戻り値"
+  data-tags="pointer null-pointer sentinel half-open-interval"
+  data-concepts="末尾の1つ先, 見つからないときの戻り値, NULLとの比較, 番兵, one past the end, not found sentinel, past-the-end pointer"
+  data-level="peacock"
+>
+  <h2>2026-10-16</h2>
+  <div class="code-frame">
+    <p class="code-filename">port_slot.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">static</span> <span class="kw">const</span> <span class="ty">int</span> *<span class="fn">find</span>(<span class="kw">const</span> <span class="ty">int</span> *first, <span class="kw">const</span> <span class="ty">int</span> *last, <span class="ty">int</span> v) {
+    <span class="kw">while</span> (first != last &amp;&amp; *first != v) {
+        first++;
+    }
+    <span class="kw">return</span> first;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="kw">const</span> <span class="ty">int</span> ports[] = {<span class="nu">22</span>, <span class="nu">80</span>, <span class="nu">443</span>};
+    <span class="kw">const</span> <span class="ty">int</span> want[] = {<span class="nu">443</span>, <span class="nu">8080</span>};
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; <span class="nu">2</span>; i++) {
+        <span class="kw">const</span> <span class="ty">int</span> *p = <span class="fn">find</span>(ports, ports + <span class="nu">3</span>, want[i]);
+        <span class="kw">if</span> (p != <span class="nu">NULL</span>) {
+            <span class="fn">printf</span>(<span class="st">"%d: slot %td\n"</span>, want[i], p - ports);
+        } <span class="kw">else</span> {
+            <span class="fn">printf</span>(<span class="st">"%d: closed\n"</span>, want[i]);
+        }
+    }
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>main</code> は、<code>want</code> の各ポート番号が <code>ports</code> の何番目にあるかを <code>find</code> で調べ、無いものには <code>closed</code> と出すつもりのコードです。入力は <code>want</code> の 443 と 8080 です。いまは <code>443: slot 2</code> と <code>8080: slot 3</code> の2行が出ます。本来の出力は <code>443: slot 2</code> と <code>8080: closed</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">if</span> (p != <span class="nu">NULL</span>) {
+</code></pre>
+      <p>
+        <code>find</code> は、見つからなかったことを <code>NULL</code> ではなく、受け取った範囲の終わり <code>last</code> を返して伝えます。8080 は <code>ports</code> に無いので、<code>while</code> は <code>first</code> が <code>last</code> に追いつくまで回り、戻り値は <code>ports + 3</code> です。このポインタは配列の末尾の1つ先を指す正しい値で、<code>NULL</code> と等しくなることはありません。<code>p != NULL</code> が真になり、<code>p - ports</code> の 3 が見つかった位置として出力されます。
+      </p>
+      <p>
+        この分岐の中で <code>*p</code> を読んでいたら、出力が誤るだけでは済まず、配列の外を読む未定義動作になります。末尾の1つ先のポインタは、作ることも比べることも許されていますが、指す先を読むことは許されていません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">if</span> (p != ports + <span class="nu">3</span>) {
+</code></pre>
+      <p>
+        見つかったかどうかは、<code>find</code> に渡した終わりの <code>ports + 3</code> と比べて判定します。同じ配列を指す2つのポインタの比較なので、末尾の1つ先を相手にしても定義された結果になり、8080 では偽になって <code>8080: closed</code> が出ます。<code>find</code> の側を変えて見つからないときに <code>NULL</code> を返す形にもできますが、そうすると呼び出し側は、範囲の終わりと <code>NULL</code> のどちらと比べるかを関数ごとに覚えることになります<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>C の標準ライブラリでは、<code>strchr</code> や <code>bsearch</code> は見つからないときに <code>NULL</code> を返します。C++ の <code>std::find</code> は、このコードの <code>find</code> と同じく範囲の終わりを返します。C で C++ 流の関数を書くと、この2つの流儀が同じコードベースに混ざります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

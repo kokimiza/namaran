@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="偶数だけを配列の前に詰めて新しい終端を返す関数と、元の終端まで出力する main を組み合わせた C23 の READ です。同じ配列の中を進む2本のポインタと、末尾の1つ先を指すポインタの扱いを問います。">
+<title>奇数を消したはずの配列</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-10-16">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-16" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-10-16",
+      "url": "https://namaran.jocarium.productions/c/read/2026-10-16",
+      "datePublished": "2026-10-16",
+      "dateModified": "2026-10-16",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "奇数を消したはずの配列" },
+      "keywords": "pointer, array, half-open-interval",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "偶数だけを配列の前に詰めて新しい終端を返す関数と、元の終端まで出力する main を組み合わせた C23 の READ です。同じ配列の中を進む2本のポインタと、末尾の1つ先を指すポインタの扱いを問います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-16" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-10-16">C++26</a>
+  <a href="/rust/read/2026-10-16">Rust 2024</a>
+  <a href="/haskell/read/2026-10-16">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-16" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-10-16">WRITE</a>
+  <a href="/c/debug/2026-10-16">DEBUG</a>
+</nav>
+
+<main
+  data-topic="奇数を消したはずの配列"
+  data-tags="pointer array half-open-interval"
+  data-concepts="ポインタの差, 末尾の1つ先, 配列の詰め直し, 新しい終端, one past the end, pointer arithmetic, remove idiom"
+  data-level="bison"
+>
+  <h2>2026-10-16</h2>
+  <div class="code-frame">
+    <p class="code-filename">drop_odd.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">static</span> <span class="ty">int</span> *<span class="fn">drop_odd</span>(<span class="ty">int</span> *first, <span class="ty">int</span> *last) {
+    <span class="ty">int</span> *out = first;
+    <span class="kw">for</span> (; first != last; first++) {
+        <span class="kw">if</span> (*first % <span class="nu">2</span> == <span class="nu">0</span>) {
+            *out++ = *first;
+        }
+    }
+    <span class="kw">return</span> out;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="ty">int</span> a[] = {<span class="nu">2</span>, <span class="nu">1</span>, <span class="nu">4</span>, <span class="nu">3</span>, <span class="nu">6</span>};
+    <span class="ty">int</span> *end = <span class="fn">drop_odd</span>(a, a + <span class="nu">5</span>);
+    <span class="kw">for</span> (<span class="kw">const</span> <span class="ty">int</span> *p = a; p != a + <span class="nu">5</span>; p++) {
+        <span class="fn">printf</span>(<span class="st">"%d"</span>, *p);
+    }
+    <span class="fn">printf</span>(<span class="st">" %td\n"</span>, end - a);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>24636 3</code> です。
+      </p>
+      <p>
+        <code>drop_odd</code> は、同じ配列の中を <code>first</code> と <code>out</code> の2本のポインタで前から進みます。<code>first</code> は要素を1つずつ読み、偶数を見つけたときだけ、その値を <code>out</code> の位置に書いて <code>out</code> を1つ進めます。<code>out</code> が <code>first</code> を追い越すことはないので、まだ読んでいない要素を上書きすることはありません。2、4、6 が <code>a[0]</code>、<code>a[1]</code>、<code>a[2]</code> に順に書かれ、関数は <code>a + 3</code> を返します。
+      </p>
+      <p>
+        書き換わったのは先頭の3要素だけで、配列の長さは5のままです。<code>a[3]</code> と <code>a[4]</code> には元の 3 と 6 が残っています。<code>main</code> は返された <code>end</code> ではなく <code>a + 5</code> まで出力するので、詰め直した <code>246</code> のあとに、捨てたはずの奇数 3 を含む <code>36</code> が続きます。
+      </p>
+      <p>
+        <code>a + 5</code> は配列の末尾の1つ先を指すポインタです。C では、このポインタを作って比べたり引き算したりすることは許されていますが、指す先を読むことは許されていません。ループは <code>p != a + 5</code> で止まるので、<code>*p</code> で読むのは <code>a[4]</code> までです。<code>end - a</code> も同じ配列の中を指す2つのポインタの差で、値はその間にある要素の数、ここでは詰め直した偶数の個数の 3 です。関数が返す <code>end</code> は有効な中身の終わりを示す境目で、<code>[a, end)</code> の外にある要素は、読めても意味のない残り物です<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>C++ の <code>std::remove_if</code> も同じ形で動き、要素を前に詰めて新しい終端を返すだけで、コンテナの長さは変えません。残り物を本当に消すには、戻り値を <code>erase</code> に渡します。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

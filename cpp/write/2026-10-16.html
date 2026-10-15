@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="通し番号つきのファイル変更通知から、再送を無視し、欠落を見つけたら std::nullopt を返して、変更されたパスを重複なく集める関数を書く C++26 の WRITE です。">
+<title>再送と欠落のある変更通知</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-10-16">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-16" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-10-16",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-10-16",
+      "datePublished": "2026-10-16",
+      "dateModified": "2026-10-16",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "再送と欠落のある変更通知" },
+      "keywords": "deduplication, optional, file-system, set",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "通し番号つきのファイル変更通知から、再送を無視し、欠落を見つけたら std::nullopt を返して、変更されたパスを重複なく集める関数を書く C++26 の WRITE です。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-16">C23</a>
+  <a href="/cpp/write/2026-10-16" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-10-16">Rust 2024</a>
+  <a href="/haskell/write/2026-10-16">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-16">READ</a>
+  <a href="/cpp/write/2026-10-16" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-10-16">DEBUG</a>
+</nav>
+
+<main
+  data-topic="再送と欠落のある変更通知"
+  data-tags="deduplication optional file-system set"
+  data-concepts="変更通知, 再送, 通知の欠落, 通し番号, std::optional, std::set, 重複除去, file change notification, sequence number, event coalescing"
+  data-level="bison"
+>
+  <h2>2026-10-16</h2>
+  <div class="code-frame">
+    <p class="code-filename">changed.cpp</p>
+    <pre class="code"><code><span class="kw">struct</span> <span class="ty">Event</span> {
+    <span class="ty">unsigned</span> seq;
+    std::<span class="ty">string</span> path;
+};
+
+std::<span class="ty">optional</span>&lt;std::<span class="ty">vector</span>&lt;std::<span class="ty">string</span>&gt;&gt; <span class="fn">changed</span>(<span class="kw">const</span> std::<span class="ty">vector</span>&lt;<span class="ty">Event</span>&gt;&amp; events) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    ファイル変更の通知 <code>Event</code> の列を受け取り、変更されたファイルのパスを返す <code>changed</code> を書いてください。通知元は通知ごとに通し番号 <code>seq</code> を1ずつ増やして付けますが、同じ通知を再送することも、途中の通知を失うこともあります。それまでに受け取った最大の番号以下の番号を持つ通知は再送なので無視します。番号がそれより2以上大きければ途中の通知が失われているので、<code>std::nullopt</code> を返します。そうでなければ、パスを重複なしで、最初に現れた順に並べて返します。最初の通知の番号は何でもよく、<code>events</code> が空なら空の列を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>changed({{1, "a.cpp"}, {2, "b.cpp"}, {2, "b.cpp"}, {3, "a.cpp"}, {1, "a.cpp"}})</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>{"a.cpp", "b.cpp"}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>changed({{5, "a.cpp"}, {7, "b.cpp"}})</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>std::nullopt</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>changed({})</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>{}</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code>std::<span class="ty">optional</span>&lt;std::<span class="ty">vector</span>&lt;std::<span class="ty">string</span>&gt;&gt; <span class="fn">changed</span>(<span class="kw">const</span> std::<span class="ty">vector</span>&lt;<span class="ty">Event</span>&gt;&amp; events) {
+    std::<span class="ty">vector</span>&lt;std::<span class="ty">string</span>&gt; paths;
+    std::<span class="ty">set</span>&lt;std::<span class="ty">string</span>&gt; seen;
+    std::<span class="ty">optional</span>&lt;<span class="ty">unsigned</span>&gt; last;
+    <span class="kw">for</span> (<span class="kw">const</span> <span class="ty">Event</span>&amp; e : events) {
+        <span class="kw">if</span> (last &amp;&amp; e.seq &lt;= *last) {
+            <span class="kw">continue</span>;
+        }
+        <span class="kw">if</span> (last &amp;&amp; e.seq != *last + <span class="nu">1</span>) {
+            <span class="kw">return</span> std::nullopt;
+        }
+        last = e.seq;
+        <span class="kw">if</span> (seen.<span class="fn">insert</span>(e.path).second) {
+            paths.<span class="fn">push_back</span>(e.path);
+        }
+    }
+    <span class="kw">return</span> paths;
+}
+</code></pre>
+      <p>
+        この列には、番号で見分ける重複とパスで見分ける重複の2種類があり、参考実装は別々の道具で扱います。番号の側を受け持つ <code>last</code> は最後に受け取った番号で、最初の通知が来るまでは値が無いので <code>std::optional&lt;unsigned&gt;</code> にしています。番号が <code>last</code> 以下なら再送として読み飛ばし、<code>last + 1</code> でなければ途中が抜けているので <code>std::nullopt</code> を返します。
+      </p>
+      <p>
+        2つの判定は、再送の判定が先でなければいけません。入力例 1 の最後の <code>{1, "a.cpp"}</code> は、番号が <code>last + 1</code> かどうかだけを見ると 3 から 1 への飛びですが、正しくは再送として捨てる通知です。順番を逆にすると、遅れて届いた古い通知のたびに <code>std::nullopt</code> を返し、そのたびに呼び出し側が全体を調べ直すことになります。
+      </p>
+      <p>
+        パスの重複は <code>std::set</code> で見分けます。<code>insert</code> の戻り値の <code>second</code> は新しく入ったときだけ真なので、初めて現れたパスだけが <code>paths</code> に最初に現れた順で積まれます。番号の飛びを見つけたときは、それまでに集めたパスも返しません。一部だけを返すと、失われた通知に含まれていたファイルが調べ漏れるからです。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>std::set</code> を使わずに <code>std::ranges::find</code> で <code>paths</code> を探しても同じ結果になり、パスの数が少なければそのほうが速いこともあります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

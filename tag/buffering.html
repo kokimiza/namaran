@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「バッファリング」を扱ったNamaranのコーディングドリル1問。_Exit、fflush、出力バッファ、後始末を呼ばない終了、exit without atexit handlers、flush before _Exit。">
+<meta name="description" content="「バッファリング」を扱ったNamaranのコーディングドリル2問。Read::read、読めたバイト数、古いバイトの混入、スライス、partial read、stale buffer。">
 <title>バッファリング</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/buffering">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>バッファリング</h2>
 
   <p class="lede">
-    「バッファリング」を扱った1問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「バッファリング」を扱った2問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/debug/2026-10-16">Rust / DEBUG · 2026-10-16</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">前回の読み込みの残り</span> <span class="past-concepts">Read::read, 読めたバイト数, 古いバイトの混入, スライス, partial read, stale buffer, read return value</span></li>
     <li><a href="/c/write/2026-09-30">C / WRITE · 2026-09-30</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">後始末を飛ばして終わる</span> <span class="past-concepts">_Exit, fflush, 出力バッファ, 後始末を呼ばない終了, exit without atexit handlers, flush before _Exit</span></li>
   </ul>
 

@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="配列への参照、スライス、Vec、Vec への参照が、それぞれポインタ何個分の大きさかを出力する Rust 2024 の READ です。要素の数を型、参照、値のどれが覚えているかを問います。">
+<title>長さを覚えているのは誰か</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-10-16">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / READ", "item": "https://namaran.jocarium.productions/rust/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-16" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / READ — 2026-10-16",
+      "url": "https://namaran.jocarium.productions/rust/read/2026-10-16",
+      "datePublished": "2026-10-16",
+      "dateModified": "2026-10-16",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "長さを覚えているのは誰か" },
+      "keywords": "slice, dynamically-sized-type, array, reference",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "配列への参照、スライス、Vec、Vec への参照が、それぞれポインタ何個分の大きさかを出力する Rust 2024 の READ です。要素の数を型、参照、値のどれが覚えているかを問います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-16">C23</a>
+  <a href="/cpp/read/2026-10-16">C++26</a>
+  <a href="/rust/read/2026-10-16" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/read/2026-10-16">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-16" class="active" aria-current="page">READ</a>
+  <a href="/rust/write/2026-10-16">WRITE</a>
+  <a href="/rust/debug/2026-10-16">DEBUG</a>
+</nav>
+
+<main
+  data-topic="長さを覚えているのは誰か"
+  data-tags="slice dynamically-sized-type array reference"
+  data-concepts="スライス, ファットポインタ, 配列への参照, Vecの大きさ, size_of, fat pointer, slice length, dynamically sized type"
+  data-level="hedgehog"
+>
+  <h2>2026-10-16</h2>
+  <div class="code-frame">
+    <p class="code-filename">where_len.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">words</span>&lt;<span class="ty">T</span>&gt;() -&gt; <span class="ty">usize</span> {
+    <span class="fn">size_of</span>::&lt;<span class="ty">T</span>&gt;() / <span class="fn">size_of</span>::&lt;<span class="ty">usize</span>&gt;()
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="fn">words</span>::&lt;&amp;[<span class="ty">u8</span>; <span class="nu">4</span>]&gt;());
+    <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="fn">words</span>::&lt;&amp;[<span class="ty">u8</span>]&gt;());
+    <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="fn">words</span>::&lt;<span class="ty">Vec</span>&lt;<span class="ty">u8</span>&gt;&gt;());
+    <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="fn">words</span>::&lt;&amp;<span class="ty">Vec</span>&lt;<span class="ty">u8</span>&gt;&gt;());
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>1</code>、<code>2</code>、<code>3</code>、<code>1</code> の4行です。
+      </p>
+      <p>
+        <code>usize</code> はポインタと同じ大きさなので、<code>words</code> はその型の値がポインタ何個分の大きさかを返します。どの型も、長さを誰が覚えているかで大きさが決まります。<code>&amp;[u8; 4]</code> の長さ 4 は型の一部で、コンパイル時に決まっているので、参照が実行時に持つのはアドレス1つだけです。<code>&amp;[u8]</code> の型には長さが無く、同じ型の参照が2要素のスライスも100要素のスライスも指すので、参照自身がアドレスと要素数の2つを持ちます<sup class="fn-ref">1</sup>。
+      </p>
+      <p>
+        <code>Vec&lt;u8&gt;</code> は要素を足すたびに長さが変わるので、長さを型にも参照にも預けられず、値そのものがバッファへのポインタ、確保済みの容量、長さの3つを持ちます。<code>&amp;Vec&lt;u8&gt;</code> はその <code>Vec</code> を指すだけで、長さは指した先の <code>Vec</code> が覚えているので、アドレス1つ分です。
+      </p>
+      <ol class="footnotes">
+        <li>The Rust Reference は、大きさが型で決まらない型（dynamically sized type）へのポインタが、普通のポインタの2倍の大きさを持つと定めています。<code>Vec</code> がポインタ、容量、長さの3つ組であることは、標準ライブラリのドキュメントが保証しています。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/read">Today</a></li>
+    <li><a href="/rust/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

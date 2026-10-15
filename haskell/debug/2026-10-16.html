@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="ファイルの大きさを文字列のまま comparing に渡し、大きい順に並べたつもりが 900 が 1200 より先に来る Haskell 2010 の DEBUG です。String の compare が先頭の文字から比べることを扱います。">
+<title>文字列のままの数値</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-10-16">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-16" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-10-16",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-10-16",
+      "datePublished": "2026-10-16",
+      "dateModified": "2026-10-16",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "文字列のままの数値" },
+      "keywords": "comparison, string, sorting",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "ファイルの大きさを文字列のまま comparing に渡し、大きい順に並べたつもりが 900 が 1200 より先に来る Haskell 2010 の DEBUG です。String の compare が先頭の文字から比べることを扱います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-16">C23</a>
+  <a href="/cpp/debug/2026-10-16">C++26</a>
+  <a href="/rust/debug/2026-10-16">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-16" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-16">READ</a>
+  <a href="/haskell/write/2026-10-16">WRITE</a>
+  <a href="/haskell/debug/2026-10-16" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="文字列のままの数値"
+  data-tags="comparison string sorting"
+  data-concepts="comparing, Down, 文字列の比較, 辞書式順序, read, lexicographic order, string comparison, numeric sort"
+  data-level="hedgehog"
+>
+  <h2>2026-10-16</h2>
+  <div class="code-frame">
+    <p class="code-filename">Largest.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Data.List</span> (sortBy)
+<span class="kw">import</span> <span class="ty">Data.Ord</span> (<span class="ty">Down</span> (..), comparing)
+
+<span class="fn">files</span> <span class="op">::</span> [(<span class="ty">String</span>, <span class="ty">String</span>)]
+<span class="fn">files</span> = [(<span class="st">"a.log"</span>, <span class="st">"900"</span>), (<span class="st">"b.log"</span>, <span class="st">"1200"</span>), (<span class="st">"c.log"</span>, <span class="st">"80"</span>)]
+
+<span class="fn">largestFirst</span> <span class="op">::</span> [(<span class="ty">String</span>, <span class="ty">String</span>)] <span class="op">-&gt;</span> [<span class="ty">String</span>]
+<span class="fn">largestFirst</span> = map fst . sortBy (comparing (<span class="ty">Down</span> . snd))
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (largestFirst files)
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>files</code> はファイル一覧から読んだファイル名とバイト数の組で、<code>largestFirst</code> はファイル名を大きいファイルから順に並べるつもりの関数です。入力は <code>files</code> の3件で、大きさは 900、1200、80 バイトです。いまの出力は <code>["a.log","c.log","b.log"]</code> です。本来の出力は <code>["b.log","a.log","c.log"]</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="fn">largestFirst</span> = map fst . sortBy (comparing (<span class="ty">Down</span> . snd))
+</code></pre>
+      <p>
+        <code>snd</code> はバイト数を文字列のまま取り出すので、<code>comparing</code> が比べるのは <code>String</code> どうしです。<code>String</code> は <code>Char</code> のリストで、リストの <code>compare</code> は先頭から順に要素を比べ、最初に違った要素の大小で結果を決めます。この順序を辞書式順序（lexicographic order）といいます。<code>"900"</code>、<code>"1200"</code>、<code>"80"</code> は先頭の <code>'9'</code>、<code>'1'</code>、<code>'8'</code> で決着し、文字列としては <code>"900"</code> が最も大きく、<code>"1200"</code> が最も小さくなります。<code>Down</code> で大きい順にした結果が <code>a.log</code>、<code>c.log</code>、<code>b.log</code> です。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="fn">largestFirst</span> = map fst . sortBy (comparing (<span class="ty">Down</span> . bytes))
+  <span class="kw">where</span>
+    bytes <span class="op">::</span> (<span class="ty">String</span>, <span class="ty">String</span>) <span class="op">-&gt;</span> <span class="ty">Integer</span>
+    bytes = read . snd
+</code></pre>
+      <p>
+        <code>read</code> で <code>Integer</code> に直してから比べれば、<code>compare</code> は数としての大小を返し、桁数の多い 1200 が最も大きくなります。文字列の比較で数の大小が合うのは、桁数がそろっているときだけです<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li><code>sortBy</code> は比べるたびに <code>bytes</code> を呼ぶので、同じ文字列を何度も <code>read</code> します。<code>Data.List</code> の <code>sortOn (Down . bytes)</code> は各要素のキーを一度だけ計算してから並べ替えるので、キーの計算が重いときはこちらが向いています。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

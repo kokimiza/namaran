@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="ファイルの変更通知をパスごとにまとめるつもりで、std::map の insert に同じキーを何度も渡す C++26 の READ です。重複した通知のうち、どれが残るかを問います。">
+<title>同じキーへのinsert</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-10-16">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-16" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-10-16",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-10-16",
+      "datePublished": "2026-10-16",
+      "dateModified": "2026-10-16",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "同じキーへのinsert" },
+      "keywords": "ordered-map, deduplication, file-system",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "ファイルの変更通知をパスごとにまとめるつもりで、std::map の insert に同じキーを何度も渡す C++26 の READ です。重複した通知のうち、どれが残るかを問います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-16">C23</a>
+  <a href="/cpp/read/2026-10-16" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-10-16">Rust 2024</a>
+  <a href="/haskell/read/2026-10-16">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-16" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-10-16">WRITE</a>
+  <a href="/cpp/debug/2026-10-16">DEBUG</a>
+</nav>
+
+<main
+  data-topic="同じキーへのinsert"
+  data-tags="ordered-map deduplication file-system"
+  data-concepts="std::map, insert, 重複キー, 上書きされない, insert_or_assign, 変更通知の集約, duplicate key, event coalescing"
+  data-level="hedgehog"
+>
+  <h2>2026-10-16</h2>
+  <div class="code-frame">
+    <p class="code-filename">coalesce.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;map&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;utility&gt;</span>
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    std::<span class="ty">pair</span>&lt;std::<span class="ty">string</span>, <span class="ty">char</span>&gt; events[] = {
+        {<span class="st">"a.txt"</span>, <span class="st">'M'</span>}, {<span class="st">"b.txt"</span>, <span class="st">'C'</span>}, {<span class="st">"a.txt"</span>, <span class="st">'D'</span>}, {<span class="st">"b.txt"</span>, <span class="st">'M'</span>}};
+    std::<span class="ty">map</span>&lt;std::<span class="ty">string</span>, <span class="ty">char</span>&gt; latest;
+    <span class="kw">for</span> (<span class="kw">const</span> <span class="kw">auto</span>&amp; [path, kind] : events) {
+        latest.<span class="fn">insert</span>({path, kind});
+    }
+    <span class="kw">for</span> (<span class="kw">const</span> <span class="kw">auto</span>&amp; [path, kind] : latest) {
+        std::cout &lt;&lt; path &lt;&lt; <span class="st">' '</span> &lt;&lt; kind &lt;&lt; <span class="st">'\n'</span>;
+    }
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>a.txt M</code> と <code>b.txt C</code> の2行です。
+      </p>
+      <p>
+        <code>std::map</code> の <code>insert</code> は、同じキーの要素がすでにあれば何もしません。挿入できたかどうかを戻り値の <code>bool</code> で知らせるだけで、入っている値は書き換えません。<code>a.txt</code> では最初の <code>'M'</code> が残って3つ目の <code>'D'</code> が捨てられ、<code>b.txt</code> でも最初の <code>'C'</code> が残って4つ目の <code>'M'</code> が捨てられます。<code>std::map</code> はキーの順に並ぶので、出力は <code>a.txt</code> が先です。
+      </p>
+      <p>
+        変数名の <code>latest</code> が示すとおり、同じファイルへの通知をまとめるなら、残したいのは最後の通知です。このままでは、削除された <code>a.txt</code> を変更されたものとして扱い、もう無いファイルを読みにいきます。最後の値を残すには、<code>latest[path] = kind;</code> か <code>latest.insert_or_assign(path, kind);</code> で上書きします。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
