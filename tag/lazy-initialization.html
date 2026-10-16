@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「遅延初期化」を扱ったNamaranのコーディングドリル2問。静的初期化順序の問題、破棄順序、初回使用時の構築、static initialization order fiasco、construct on first use、destruction order。">
+<meta name="description" content="「遅延初期化」を扱ったNamaranのコーディングドリル3問。sync_with_stdio、戻り値は以前の状態、関数内static変数、一度だけの初期化、CとC++の入出力の混在、previous synchronization state。">
 <title>遅延初期化</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/lazy-initialization">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>遅延初期化</h2>
 
   <p class="lede">
-    「遅延初期化」を扱った2問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「遅延初期化」を扱った3問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/cpp/read/2026-10-17">C++ / READ · 2026-10-17</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">同期を切る関数の戻り値</span> <span class="past-concepts">sync_with_stdio, 戻り値は以前の状態, 関数内static変数, 一度だけの初期化, CとC++の入出力の混在, previous synchronization state, function-local static</span></li>
     <li><a href="/cpp/write/2026-10-05">C++ / WRITE · 2026-10-05</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">初期化順に依らない表</span> <span class="past-concepts">静的初期化順序の問題, 破棄順序, 初回使用時の構築, static initialization order fiasco, construct on first use, destruction order</span></li>
     <li><a href="/cpp/read/2026-10-05">C++ / READ · 2026-10-05</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">関数内staticの初期化</span> <span class="past-concepts">関数内static変数, 初回使用時の構築, 静的初期化の順序, function-local static, construct on first use, static initialization order</span></li>
   </ul>

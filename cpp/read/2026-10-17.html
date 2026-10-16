@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="std::ios::sync_with_stdio(false)が何を返すかを、関数内のstatic変数の初期化と組み合わせて追います。同期を切ったあとにprintfとstd::coutを混ぜる順番にも触れる、2026-10-17のC++ READです。">
+<title>同期を切る関数の戻り値</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-10-17">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-17" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-10-17",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-10-17",
+      "datePublished": "2026-10-17",
+      "dateModified": "2026-10-17",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "同期を切る関数の戻り値" },
+      "keywords": "stdio, buffering, lazy-initialization, static-storage",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "std::ios::sync_with_stdio(false)が何を返すかを、関数内のstatic変数の初期化と組み合わせて追います。同期を切ったあとにprintfとstd::coutを混ぜる順番にも触れる、2026-10-17のC++ READです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-17">C23</a>
+  <a href="/cpp/read/2026-10-17" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-10-17">Rust 2024</a>
+  <a href="/haskell/read/2026-10-17">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-17" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-10-17">WRITE</a>
+  <a href="/cpp/debug/2026-10-17">DEBUG</a>
+</nav>
+
+<main
+  data-topic="同期を切る関数の戻り値"
+  data-tags="stdio buffering lazy-initialization static-storage"
+  data-concepts="sync_with_stdio, 戻り値は以前の状態, 関数内static変数, 一度だけの初期化, CとC++の入出力の混在, previous synchronization state, function-local static"
+  data-level="bison"
+>
+  <h2>2026-10-17</h2>
+  <div class="code-frame">
+    <p class="code-filename">fast_io.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;cstdio&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+
+<span class="ty">bool</span> <span class="fn">fast_io</span>() {
+    <span class="kw">static</span> <span class="kw">const</span> <span class="ty">bool</span> enabled = std::ios::<span class="fn">sync_with_stdio</span>(<span class="nu">false</span>);
+    <span class="kw">return</span> enabled;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="ty">bool</span> a = <span class="fn">fast_io</span>();
+    <span class="ty">bool</span> b = std::ios::<span class="fn">sync_with_stdio</span>(<span class="nu">false</span>);
+    <span class="ty">bool</span> c = <span class="fn">fast_io</span>();
+    std::<span class="fn">printf</span>(<span class="st">"%d %d %d\n"</span>, a, b, c);
+    std::<span class="fn">fflush</span>(stdout);
+    std::cout &lt;&lt; <span class="st">"done\n"</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>1 0 1</code> と <code>done</code> の2行です。
+      </p>
+      <p>
+        <code>std::ios::sync_with_stdio(false)</code> が返すのは、切り替えに成功したかどうかでも、呼んだあとの状態でもなく、呼ぶ前に標準ストリームが C の標準入出力と同期していたかどうかです。プログラムの開始時は同期しているので、<code>true</code> を返すのは最初の呼び出しだけで、2回目以降は <code>false</code> を返します。
+      </p>
+      <p>
+        最初の呼び出しは <code>a = fast_io()</code> の中で起きます。<code>enabled</code> は関数内の <code>static</code> 変数で、制御が初めて宣言を通ったときに1回だけ初期化されるので、ここで <code>sync_with_stdio(false)</code> が呼ばれ、<code>true</code> が入ります。続く <code>b</code> の行は2回目の呼び出しなので <code>false</code> です。<code>c = fast_io()</code> の時点では初期化が済んでいるため <code>sync_with_stdio</code> は呼ばれず、<code>enabled</code> に残っている <code>true</code> がそのまま返ります。
+      </p>
+      <p>
+        <code>enabled</code> という名前からは「この呼び出しで速くなった」と読めますが、入っているのは「呼ぶ前は同期していた」という値です。成功したかどうかを返すと読むと <code>1 1 1</code>、呼んだあとの状態を返すと読むと <code>0 0 0</code> になり、<code>static</code> 変数の初期化が呼び出しのたびに起きると読むと <code>c</code> を <code>0</code> と答えることになります。
+      </p>
+      <p>
+        同期を切ったあとの <code>printf</code> と <code>std::cout</code> は別々のバッファに書くので、そのまま混ぜると、出てくる順は保証されません。このコードは <code>std::fflush(stdout)</code> で C 側のバッファを出し切ってから <code>std::cout</code> に書くので、<code>1 0 1</code> の行が <code>done</code> より先に出ます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

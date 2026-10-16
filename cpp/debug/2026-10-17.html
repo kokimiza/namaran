@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="同期を切ったstd::coutとprintfを混ぜた表の出力が、ファイルにリダイレクトしたときだけ順番を崩す欠陥を直します。std::endlが書き出すバッファと、stdoutの全バッファリングを扱う、2026-10-17のC++ DEBUGです。">
+<title>ファイルにすると崩れる表</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-10-17">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-17" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-10-17",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-10-17",
+      "datePublished": "2026-10-17",
+      "dateModified": "2026-10-17",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "ファイルにすると崩れる表" },
+      "keywords": "stdio, buffering",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "同期を切ったstd::coutとprintfを混ぜた表の出力が、ファイルにリダイレクトしたときだけ順番を崩す欠陥を直します。std::endlが書き出すバッファと、stdoutの全バッファリングを扱う、2026-10-17のC++ DEBUGです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-17">C23</a>
+  <a href="/cpp/debug/2026-10-17" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-10-17">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-17">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-17">READ</a>
+  <a href="/cpp/write/2026-10-17">WRITE</a>
+  <a href="/cpp/debug/2026-10-17" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="ファイルにすると崩れる表"
+  data-tags="stdio buffering"
+  data-concepts="sync_with_stdio, std::endl, printfとstd::coutの混在, 全バッファリング, 行バッファリング, fully buffered, line buffered, output ordering"
+  data-level="bison"
+>
+  <h2>2026-10-17</h2>
+  <div class="code-frame">
+    <p class="code-filename">build_report.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;cstdio&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+
+<span class="kw">static</span> <span class="ty">void</span> <span class="fn">row</span>(<span class="kw">const</span> <span class="ty">char</span> *step, <span class="ty">double</span> sec) {
+    std::<span class="fn">printf</span>(<span class="st">"%-6s %6.2f\n"</span>, step, sec);
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    std::ios::<span class="fn">sync_with_stdio</span>(<span class="nu">false</span>);
+    std::cout &lt;&lt; <span class="st">"step      sec"</span> &lt;&lt; std::endl;
+    <span class="fn">row</span>(<span class="st">"parse"</span>, <span class="nu">0.5</span>);
+    <span class="fn">row</span>(<span class="st">"link"</span>, <span class="nu">1.25</span>);
+    std::cout &lt;&lt; <span class="st">"total    1.75"</span> &lt;&lt; std::endl;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>main</code> は、ビルドの段階ごとにかかった秒数を、見出しの行、<code>parse</code> と <code>link</code> の行、<code>total</code> の行の順に表にして出すつもりのコードです。入力はありません。端末で実行すると正しく並びますが、標準出力をファイルにリダイレクトすると、いまは見出し、<code>total</code>、<code>parse</code>、<code>link</code> の順に4行が並びます。本来の出力は、見出し、<code>parse</code>、<code>link</code>、<code>total</code> の順です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="ty">int</span> <span class="fn">main</span>() {
+    std::ios::<span class="fn">sync_with_stdio</span>(<span class="nu">false</span>);
+    std::cout &lt;&lt; <span class="st">"step      sec"</span> &lt;&lt; std::endl;
+</code></pre>
+      <p>
+        同期を切ると、<code>std::cout</code> は C の <code>stdout</code> とは別のバッファに書くようになります。<code>std::endl</code> が書き出すのは <code>std::cout</code> のバッファだけで、<code>printf</code> の行がたまっている <code>stdout</code> のバッファには触れません。
+      </p>
+      <p>
+        <code>stdout</code> がファイルを指すとき、C の標準出力は全バッファリング（fully buffered）になり、バッファが一杯になるかプログラムが終わるまで書き出しません<sup class="fn-ref">1</sup>。見出しと <code>total</code> の行は <code>std::endl</code> のたびにファイルへ書かれ、<code>row</code> の2行はプログラムの終了時にやっと書かれるので、最後に回ります。端末では <code>stdout</code> が改行ごとに書き出されるため、同じプログラムでも正しく並んで見えます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="ty">int</span> <span class="fn">main</span>() {
+    std::cout &lt;&lt; <span class="st">"step      sec"</span> &lt;&lt; std::endl;
+</code></pre>
+      <p>
+        同期を切る行を消すと、<code>std::cout</code> は <code>stdout</code> と同期したまま動き、<code>std::cout</code> への出力と <code>printf</code> の出力は書いた順に同じ <code>stdout</code> へ入ります。リダイレクト先がファイルでも端末でも、表は見出しから <code>total</code> まで順に並びます。速さのために同期を切りたいなら、<code>row</code> も <code>std::cout</code> で書いて、C の出力関数を混ぜないようにします。
+      </p>
+      <ol class="footnotes">
+        <li>C の規格は、標準入力と標準出力が対話的な装置を指していないと判断できる場合に限り、全バッファリングで開くと定めています。端末を指す <code>stdout</code> は、多くの処理系で行バッファリング（line buffered）になります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

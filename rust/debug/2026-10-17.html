@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="k変数のブール関数の個数 2^(2^k) を返すはずの関数が、kが3以上で小さすぎる値を返す欠陥を直します。powをメソッドとしてつなげたときの計算の順と、累乗の右結合を扱う、2026-10-17のRust DEBUGです。">
+<title>2の2のk乗のはずが</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-10-17">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-17" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-10-17",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-10-17",
+      "datePublished": "2026-10-17",
+      "dateModified": "2026-10-17",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "2の2のk乗のはずが" },
+      "keywords": "associativity, integer-arithmetic",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "k変数のブール関数の個数 2^(2^k) を返すはずの関数が、kが3以上で小さすぎる値を返す欠陥を直します。powをメソッドとしてつなげたときの計算の順と、累乗の右結合を扱う、2026-10-17のRust DEBUGです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-17">C23</a>
+  <a href="/cpp/debug/2026-10-17">C++26</a>
+  <a href="/rust/debug/2026-10-17" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-17">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-17">READ</a>
+  <a href="/rust/write/2026-10-17">WRITE</a>
+  <a href="/rust/debug/2026-10-17" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="2の2のk乗のはずが"
+  data-tags="associativity integer-arithmetic"
+  data-concepts="pow, メソッドチェーン, 累乗の右結合, ブール関数の個数, method chaining, power tower, exponentiation, Boolean function"
+  data-level="hedgehog"
+>
+  <h2>2026-10-17</h2>
+  <div class="code-frame">
+    <p class="code-filename">lut_count.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">functions</span>(k: <span class="ty">u32</span>) -&gt; <span class="ty">u64</span> {
+    <span class="nu">2u64</span>.<span class="fn">pow</span>(<span class="nu">2</span>).<span class="fn">pow</span>(k)
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">for</span> k <span class="kw">in</span> <span class="nu">1</span>..=<span class="nu">4</span> {
+        <span class="mc">println!</span>(<span class="st">"{k}: {}"</span>, <span class="fn">functions</span>(k));
+    }
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    0 か 1 の値を <code>k</code> 個受け取って 0 か 1 を返す関数を、<code>k</code> 変数のブール関数（Boolean function）といいます。入力の組は <code>2^k</code> 通りあり、そのそれぞれに 0 か 1 を割り当てる方法の数だけ関数があるので、個数は <code>2^(2^k)</code> です（<code>^</code> は累乗）。<code>functions(k)</code> はこの個数を返すつもりの関数で、入力は <code>main</code> の <code>k = 1</code> から <code>4</code> です。いまは <code>1: 4</code>、<code>2: 16</code>、<code>3: 64</code>、<code>4: 256</code> の4行が出ます。本来の出力は <code>1: 4</code>、<code>2: 16</code>、<code>3: 256</code>、<code>4: 65536</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="nu">2u64</span>.<span class="fn">pow</span>(<span class="nu">2</span>).<span class="fn">pow</span>(k)
+</code></pre>
+      <p>
+        メソッド呼び出しは左から順に評価されるので、この式は <code>2u64.pow(2)</code> の <code>4</code> を先に作り、それを <code>k</code> 乗します。計算しているのは <code>(2^2)^k = 4^k</code> で、数学の <code>2^2^k</code> が表す <code>2^(2^k)</code> ではありません。<code>4^k</code> は <code>2^(2k)</code> なので、<code>2k</code> と <code>2^k</code> が等しい <code>k = 1</code> と <code>2</code> では正しい値と一致し、<code>k = 3</code> から小さすぎる値になります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="nu">2u64</span>.<span class="fn">pow</span>(<span class="nu">2u32</span>.<span class="fn">pow</span>(k))
+</code></pre>
+      <p>
+        指数の <code>2^k</code> を先に計算して、それを <code>pow</code> の引数に渡します。<code>pow</code> の指数は <code>u32</code> なので、指数側は <code>2u32.pow(k)</code> で作ります。右側の累乗を括弧の内側に置く形にすると、累乗の右結合がそのままコードの入れ子になります。<code>k = 6</code> では <code>2^64</code> になって <code>u64</code> に収まらず、デバッグビルドではオーバーフローの panic で止まります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

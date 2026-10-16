@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「マージ」を扱ったNamaranのコーディングドリル6問。G-Counter、or_insertの挙動、統合の取りこぼし、Entry API、grow-only counter merge、2P-Set。">
+<meta name="description" content="「マージ」を扱ったNamaranのコーディングドリル7問。マージ、安定性、等しいときは左から取る、マージソート、stable merge、merge sort stability。">
 <title>マージ</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/merge">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>マージ</h2>
 
   <p class="lede">
-    「マージ」を扱った6問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「マージ」を扱った7問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/c/debug/2026-10-17">C / DEBUG · 2026-10-17</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">同じ日付のログの順番</span> <span class="past-concepts">マージ, 安定性, 等しいときは左から取る, マージソート, stable merge, merge sort stability, tie-breaking</span></li>
     <li><a href="/rust/debug/2026-10-04">Rust / DEBUG · 2026-10-04</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">統合しても揃わない回数</span> <span class="past-concepts">G-Counter, or_insertの挙動, 統合の取りこぼし, Entry API, grow-only counter merge</span></li>
     <li><a href="/cpp/write/2026-09-26">C++ / WRITE · 2026-09-26</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">削除が勝つ集合の統合</span> <span class="past-concepts">2P-Set, CRDT, 追加集合と削除集合, 墓石, tombstone, two-phase set, set union</span></li>
     <li><a href="/cpp/debug/2026-09-26">C++ / DEBUG · 2026-09-26</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">2回届くと増える</span> <span class="past-concepts">G-Counter, CRDT, 冪等性, 状態の統合, 二重計上, idempotence, grow-only counter, state-based merge</span></li>

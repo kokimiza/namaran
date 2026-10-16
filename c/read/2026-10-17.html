@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="鍵が等しい要素の順を毎回逆にする挿入ソートで、日付と優先度の二段の並べ替えをしたときの結果を追います。安定ソートと不安定ソートを扱う、2026-10-17のC READです。">
+<title>2回並べ替えた順番</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-10-17">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-17" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-10-17",
+      "url": "https://namaran.jocarium.productions/c/read/2026-10-17",
+      "datePublished": "2026-10-17",
+      "dateModified": "2026-10-17",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "2回並べ替えた順番" },
+      "keywords": "sorting, stability, insertion-sort, comparison",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "鍵が等しい要素の順を毎回逆にする挿入ソートで、日付と優先度の二段の並べ替えをしたときの結果を追います。安定ソートと不安定ソートを扱う、2026-10-17のC READです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-17" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-10-17">C++26</a>
+  <a href="/rust/read/2026-10-17">Rust 2024</a>
+  <a href="/haskell/read/2026-10-17">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-17" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-10-17">WRITE</a>
+  <a href="/c/debug/2026-10-17">DEBUG</a>
+</nav>
+
+<main
+  data-topic="2回並べ替えた順番"
+  data-tags="sorting stability insertion-sort comparison"
+  data-concepts="安定ソート, 不安定ソート, 挿入ソート, 複数キーの並べ替え, 等しい要素の順序, stable sort, insertion sort, multi-key sort"
+  data-level="whale"
+>
+  <h2>2026-10-17</h2>
+  <div class="code-frame">
+    <p class="code-filename">job_order.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">static</span> <span class="ty">void</span> <span class="fn">sort</span>(<span class="kw">const</span> <span class="ty">char</span> *a[], <span class="ty">int</span> n, <span class="ty">int</span> k) {
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">1</span>; i &lt; n; i++) {
+        <span class="kw">for</span> (<span class="ty">int</span> j = i; j &gt; <span class="nu">0</span> &amp;&amp; a[j - <span class="nu">1</span>][k] &gt;= a[j][k]; j--) {
+            <span class="kw">const</span> <span class="ty">char</span> *t = a[j];
+            a[j] = a[j - <span class="nu">1</span>];
+            a[j - <span class="nu">1</span>] = t;
+        }
+    }
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="kw">const</span> <span class="ty">char</span> *jobs[] = {<span class="st">"a21"</span>, <span class="st">"b12"</span>, <span class="st">"c22"</span>, <span class="st">"d12"</span>, <span class="st">"e21"</span>};
+    <span class="fn">sort</span>(jobs, <span class="nu">5</span>, <span class="nu">2</span>);
+    <span class="fn">sort</span>(jobs, <span class="nu">5</span>, <span class="nu">1</span>);
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; <span class="nu">5</span>; i++) {
+        <span class="fn">putchar</span>(jobs[i][<span class="nu">0</span>]);
+    }
+    <span class="fn">putchar</span>(<span class="st">'\n'</span>);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>bdcae</code> です。
+      </p>
+      <p>
+        <code>sort</code> は挿入ソートで、内側のループは、左隣の鍵が自分の鍵以上である間、左隣と入れ替わり続けます。等しい鍵の左隣とも入れ替わるので、各要素は同じ鍵の要素をすべて飛び越して、その並びの先頭に入ります。後から来た要素ほど前に出るため、鍵が等しい要素どうしの順は、並べ替えるたびにちょうど逆になります。等しい要素の元の順を保つ並べ替えを安定ソート（stable sort）といいますが、この <code>sort</code> はそうなっていません。
+      </p>
+      <p>
+        1回目は3文字目の日付で並べます。日付が <code>1</code> の <code>a</code> と <code>e</code> は <code>e a</code> に、<code>2</code> の <code>b</code>、<code>c</code>、<code>d</code> は <code>d c b</code> になり、<code>jobs</code> は <code>e a d c b</code> の順です。2回目は2文字目の優先度で並べます。この順のまま、優先度 <code>1</code> の <code>d b</code> が <code>b d</code> に、優先度 <code>2</code> の <code>e a c</code> が <code>c a e</code> に反転し、結果は <code>b d c a e</code> です。
+      </p>
+      <p>
+        <code>sort</code> を安定だと思って読むと、日付で並べてから優先度で並べる二段の並べ替えが「優先度順、同じ優先度なら日付順」を作るはずなので、答えは <code>bdaec</code> になります。2回目の反転にだけ気付いて1回目を安定だと考えると、<code>dbcea</code> です。実際は2回とも反転するので、同じ優先度の要素は日付の降順に並び、優先度も日付も同じ <code>b</code> と <code>d</code> だけが、2回の反転で元の順に戻ります。比較を <code>&gt;=</code> から <code>&gt;</code> に変えると <code>sort</code> は安定になり、<code>bdaec</code> が出ます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

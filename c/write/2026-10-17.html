@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="qsortで文字列を長さ順に並べ、長さが同じものは元の順を保つ関数を書きます。qsortが安定ソートを約束しないことと、元の位置を比較関数に渡す方法を扱う、2026-10-17のC WRITEです。">
+<title>qsortで長さ順、同長は元順</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-10-17">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-17" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-10-17",
+      "url": "https://namaran.jocarium.productions/c/write/2026-10-17",
+      "datePublished": "2026-10-17",
+      "dateModified": "2026-10-17",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "qsortで長さ順、同長は元順" },
+      "keywords": "sorting, stability, comparison, function-pointer",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "qsortで文字列を長さ順に並べ、長さが同じものは元の順を保つ関数を書きます。qsortが安定ソートを約束しないことと、元の位置を比較関数に渡す方法を扱う、2026-10-17のC WRITEです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-17" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-10-17">C++26</a>
+  <a href="/rust/write/2026-10-17">Rust 2024</a>
+  <a href="/haskell/write/2026-10-17">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-17">READ</a>
+  <a href="/c/write/2026-10-17" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-10-17">DEBUG</a>
+</nav>
+
+<main
+  data-topic="qsortで長さ順、同長は元順"
+  data-tags="sorting stability comparison function-pointer"
+  data-concepts="安定ソート, qsort, 比較関数, 元の位置で順位を決める, stable sort, qsort comparator, tie-breaking"
+  data-level="bison"
+>
+  <h2>2026-10-17</h2>
+  <div class="code-frame">
+    <p class="code-filename">sort_by_len.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdbool.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;stddef.h&gt;</span>
+
+<span class="ty">bool</span> <span class="fn">sort_by_len</span>(<span class="kw">const</span> <span class="ty">char</span> *words[], <span class="ty">size_t</span> n) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    文字列の配列 <code>words</code> の先頭 <code>n</code> 個を、文字列の短い順に並べ替える <code>sort_by_len</code> を、標準ライブラリの <code>qsort</code> を使って書いてください。長さが同じ文字列どうしは、並べ替える前の順を保ちます。<code>n</code> が1以下なら何もせずに <code>true</code> を返し、作業用のメモリを確保できなかったときは <code>words</code> を変えずに <code>false</code> を返します。下の例は、呼び出す前と後の <code>words</code> の中身で、どれも戻り値は <code>true</code> です。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>{"pear", "fig", "kiwi", "ox", "yam"}</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>{"ox", "fig", "yam", "pear", "kiwi"}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>{"bb", "a", "cc", "d"}</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>{"a", "d", "bb", "cc"}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>{"solo"}</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>{"solo"}</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+<pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdbool.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;stddef.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;stdlib.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string.h&gt;</span>
+
+<span class="kw">struct</span> <span class="ty">item</span> {
+    <span class="kw">const</span> <span class="ty">char</span> *s;
+    <span class="ty">size_t</span> pos;
+};
+
+<span class="kw">static</span> <span class="ty">int</span> <span class="fn">by_len</span>(<span class="kw">const</span> <span class="ty">void</span> *a, <span class="kw">const</span> <span class="ty">void</span> *b) {
+    <span class="kw">const</span> <span class="kw">struct</span> <span class="ty">item</span> *x = a;
+    <span class="kw">const</span> <span class="kw">struct</span> <span class="ty">item</span> *y = b;
+    <span class="ty">size_t</span> lx = <span class="fn">strlen</span>(x-&gt;s);
+    <span class="ty">size_t</span> ly = <span class="fn">strlen</span>(y-&gt;s);
+    <span class="kw">if</span> (lx != ly) {
+        <span class="kw">return</span> lx &lt; ly ? -<span class="nu">1</span> : <span class="nu">1</span>;
+    }
+    <span class="kw">return</span> (x-&gt;pos &gt; y-&gt;pos) - (x-&gt;pos &lt; y-&gt;pos);
+}
+
+<span class="ty">bool</span> <span class="fn">sort_by_len</span>(<span class="kw">const</span> <span class="ty">char</span> *words[], <span class="ty">size_t</span> n) {
+    <span class="kw">if</span> (n &lt; <span class="nu">2</span>) {
+        <span class="kw">return</span> <span class="nu">true</span>;
+    }
+    <span class="kw">struct</span> <span class="ty">item</span> *tmp = <span class="fn">calloc</span>(n, <span class="kw">sizeof</span> *tmp);
+    <span class="kw">if</span> (tmp == <span class="nu">NULL</span>) {
+        <span class="kw">return</span> <span class="nu">false</span>;
+    }
+    <span class="kw">for</span> (<span class="ty">size_t</span> i = <span class="nu">0</span>; i &lt; n; i++) {
+        tmp[i] = (<span class="kw">struct</span> <span class="ty">item</span>){words[i], i};
+    }
+    <span class="fn">qsort</span>(tmp, n, <span class="kw">sizeof</span> *tmp, by_len);
+    <span class="kw">for</span> (<span class="ty">size_t</span> i = <span class="nu">0</span>; i &lt; n; i++) {
+        words[i] = tmp[i].s;
+    }
+    <span class="fn">free</span>(tmp);
+    <span class="kw">return</span> <span class="nu">true</span>;
+}
+</code></pre>
+      <p>
+        <code>qsort</code> は安定ソートではありません。C の規格は、比較関数が等しいと判定した2つの要素が結果の中でどの順になるかを定めておらず<sup class="fn-ref">1</sup>、長さだけを比べる比較関数では、<code>"pear"</code> と <code>"kiwi"</code> がどちらの順で出てきても規格どおりです。元の順を保つには、長さが等しい要素どうしでも比較関数が 0 を返さず、元の位置で順を決める必要があります。
+      </p>
+      <p>
+        ところが、その元の位置は比較関数の引数からは分かりません。<code>qsort</code> は並べ替えの途中で要素を動かすので、比較関数が受け取るポインタのアドレスは、いまどこにあるかを表すだけで、最初にどこにあったかは表していません。そこで参考実装は、文字列と元の添字 <code>pos</code> を組にした <code>struct item</code> の配列を作業用に確保して並べ替え、最後に文字列だけを <code>words</code> へ書き戻します。<code>calloc</code> を使ったのは、<code>n * sizeof *tmp</code> の掛け算が溢れる場合も確保の失敗として扱ってくれるからです。
+      </p>
+      <p>
+        比較関数は <code>lx - ly</code> を返す形にしていません。長さは <code>size_t</code> なので、<code>lx</code> が小さいときの差は負にならずに大きな正の数になり、それを <code>int</code> に変換した値の符号は当てになりません。<code>pos</code> の比較も、差ではなく2つの比較の結果の差で -1、0、1 を作っています。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>qsort</code> を使わなくてよければ、左隣の長さが自分より真に大きいときだけ入れ替える挿入ソートでも、作業用のメモリなしで同じ結果になります。
+      </p>
+      <ol class="footnotes">
+        <li>規格の <code>qsort</code> の節には、2つの要素が等しいと比較された場合、並べ替えたあとの配列での順は未規定（unspecified）である、という一文があります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

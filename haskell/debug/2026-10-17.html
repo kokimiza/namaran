@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="入力が不正なら終了コード2で終わるはずのHaskellのプログラムが、0で終わってしまう欠陥を直します。exitWithが投げるExitCodeの例外を、SomeExceptionのハンドラが捕まえてしまう仕組みを扱う、2026-10-17のHaskell DEBUGです。">
+<title>失敗したのに終了コード0</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-10-17">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-17" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-10-17",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-10-17",
+      "datePublished": "2026-10-17",
+      "dateModified": "2026-10-17",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "失敗したのに終了コード0" },
+      "keywords": "program-termination, exception, error-handling",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "入力が不正なら終了コード2で終わるはずのHaskellのプログラムが、0で終わってしまう欠陥を直します。exitWithが投げるExitCodeの例外を、SomeExceptionのハンドラが捕まえてしまう仕組みを扱う、2026-10-17のHaskell DEBUGです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-17">C23</a>
+  <a href="/cpp/debug/2026-10-17">C++26</a>
+  <a href="/rust/debug/2026-10-17">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-17" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-17">READ</a>
+  <a href="/haskell/write/2026-10-17">WRITE</a>
+  <a href="/haskell/debug/2026-10-17" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="失敗したのに終了コード0"
+  data-tags="program-termination exception error-handling"
+  data-concepts="終了コード, exitWith, SomeException, handle, 例外を捕まえすぎる, exit status, catch-all handler, ExitCode exception"
+  data-level="peacock"
+>
+  <h2>2026-10-17</h2>
+  <div class="code-frame">
+    <p class="code-filename">Validate.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Control.Exception</span> (<span class="ty">SomeException</span>, handle)
+<span class="kw">import</span> <span class="ty">System.Exit</span> (<span class="ty">ExitCode</span> (..), exitWith)
+<span class="kw">import</span> <span class="ty">System.IO</span> (hPutStrLn, stderr)
+
+<span class="fn">report</span> <span class="op">::</span> <span class="ty">SomeException</span> <span class="op">-&gt;</span> <span class="ty">IO</span> ()
+<span class="fn">report</span> e = hPutStrLn stderr (<span class="st">"unexpected: "</span> ++ show e)
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = handle report $ <span class="kw">do</span>
+  <span class="kw">let</span> xs = [<span class="nu">3</span>, -<span class="nu">1</span>, <span class="nu">4</span>] <span class="op">::</span> [<span class="ty">Int</span>]
+  <span class="kw">if</span> any (&lt; <span class="nu">0</span>) xs
+    <span class="kw">then</span> <span class="kw">do</span>
+      putStrLn <span class="st">"invalid input"</span>
+      exitWith (<span class="ty">ExitFailure</span> <span class="nu">2</span>)
+    <span class="kw">else</span> print (sum xs)
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>main</code> は、整数の列に負の数があれば <code>invalid input</code> と出して終了コード 2 で終わり、なければ合計を出すつもりのプログラムです。<code>handle report</code> は、予期しない例外を標準エラー出力に記録するために付けてあります。入力は <code>xs</code> の <code>[3, -1, 4]</code> です。いまは標準出力に <code>invalid input</code> が出たあと、標準エラー出力に <code>unexpected: ExitFailure 2</code> が出て、終了コード 0 で終わります。本来は <code>invalid input</code> だけを出して、終了コード 2 で終わります。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">import</span> <span class="ty">Control.Exception</span> (<span class="ty">SomeException</span>, handle)
+
+<span class="fn">report</span> <span class="op">::</span> <span class="ty">SomeException</span> <span class="op">-&gt;</span> <span class="ty">IO</span> ()
+</code></pre>
+      <p>
+        <code>exitWith (ExitFailure 2)</code> は、その場でプロセスを終わらせずに、<code>ExitFailure 2</code> という <code>ExitCode</code> 型の値を例外として投げます。終了コードになるのは、この例外が <code>main</code> の外まで伝わったときです。
+      </p>
+      <p>
+        <code>handle report</code> が捕まえるのは <code>report</code> の引数の型の例外で、<code>SomeException</code> はすべての例外を表す型なので、<code>ExitCode</code> の例外もここで捕まります。<code>report</code> は <code>unexpected: ExitFailure 2</code> を書いて普通に戻るため、<code>main</code> は正常に終わったことになり、終了コードは 0 になります。呼び出したシェルスクリプトや CI からは、不正な入力が成功に見えます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">import</span> <span class="ty">Control.Exception</span> (<span class="ty">IOException</span>, handle)
+
+<span class="fn">report</span> <span class="op">::</span> <span class="ty">IOException</span> <span class="op">-&gt;</span> <span class="ty">IO</span> ()
+</code></pre>
+      <p>
+        <code>report</code> の引数の型を <code>IOException</code> にすると、<code>handle</code> が捕まえるのは入出力の失敗だけになります。<code>ExitCode</code> の例外は <code>handle</code> を素通りして <code>main</code> の外まで伝わり、ランタイムが終了コード 2 でプログラムを終えます。すべての例外を記録したいなら、<code>SomeException</code> のまま <code>fromException</code> で <code>ExitCode</code> かどうかを調べ、そうであれば <code>throwIO</code> で投げ直す方法もあります<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li><code>Control.Exception</code> は GHC の base ライブラリのモジュールで、Haskell 2010 の言語報告には含まれていません。言語報告のライブラリで例外を捕まえる関数は、<code>System.IO.Error</code> の <code>catchIOError</code> のように入出力のエラーだけを扱うもので、こちらは <code>ExitCode</code> を捕まえません。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

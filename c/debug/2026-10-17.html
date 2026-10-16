@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="日付順の2つのログを1本にまとめるmergeで、同じ日付の行の順が入れ替わる欠陥を直します。マージで等しい要素をどちらから取るかと安定ソートの関係を扱う、2026-10-17のC DEBUGです。">
+<title>同じ日付のログの順番</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-10-17">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-17" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-10-17",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-10-17",
+      "datePublished": "2026-10-17",
+      "dateModified": "2026-10-17",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "同じ日付のログの順番" },
+      "keywords": "merge, stability, merge-sort, comparison",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "日付順の2つのログを1本にまとめるmergeで、同じ日付の行の順が入れ替わる欠陥を直します。マージで等しい要素をどちらから取るかと安定ソートの関係を扱う、2026-10-17のC DEBUGです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-17" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-10-17">C++26</a>
+  <a href="/rust/debug/2026-10-17">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-17">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-17">READ</a>
+  <a href="/c/write/2026-10-17">WRITE</a>
+  <a href="/c/debug/2026-10-17" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="同じ日付のログの順番"
+  data-tags="merge stability merge-sort comparison"
+  data-concepts="マージ, 安定性, 等しいときは左から取る, マージソート, stable merge, merge sort stability, tie-breaking"
+  data-level="hedgehog"
+>
+  <h2>2026-10-17</h2>
+  <div class="code-frame">
+    <p class="code-filename">merge_logs.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">static</span> <span class="ty">void</span> <span class="fn">merge</span>(<span class="kw">const</span> <span class="ty">char</span> *a[], <span class="ty">int</span> na, <span class="kw">const</span> <span class="ty">char</span> *b[], <span class="ty">int</span> nb, <span class="kw">const</span> <span class="ty">char</span> *out[]) {
+    <span class="ty">int</span> i = <span class="nu">0</span>, j = <span class="nu">0</span>, k = <span class="nu">0</span>;
+    <span class="kw">while</span> (k &lt; na + nb) {
+        <span class="ty">bool</span> take_a = j == nb || (i &lt; na &amp;&amp; a[i][<span class="nu">0</span>] &lt; b[j][<span class="nu">0</span>]);
+        out[k++] = take_a ? a[i++] : b[j++];
+    }
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="kw">const</span> <span class="ty">char</span> *a[] = {<span class="st">"1 boot"</span>, <span class="st">"3 disk"</span>};
+    <span class="kw">const</span> <span class="ty">char</span> *b[] = {<span class="st">"1 auth"</span>, <span class="st">"2 net"</span>, <span class="st">"3 fan"</span>};
+    <span class="kw">const</span> <span class="ty">char</span> *out[<span class="nu">5</span>];
+    <span class="fn">merge</span>(a, <span class="nu">2</span>, b, <span class="nu">3</span>, out);
+    <span class="kw">for</span> (<span class="ty">int</span> k = <span class="nu">0</span>; k &lt; <span class="nu">5</span>; k++) {
+        <span class="fn">puts</span>(out[k]);
+    }
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>merge</code> は、日付の昇順に並んだ2つのログ <code>a</code> と <code>b</code> を、日付の昇順の1本にまとめるつもりの関数です。日付は各行の先頭の数字で、同じ日付の行どうしは、古いログ <code>a</code> の行を <code>b</code> の行より先に置く約束です。入力は <code>main</code> の <code>a</code> と <code>b</code> です。いまは <code>1 auth</code>、<code>1 boot</code>、<code>2 net</code>、<code>3 fan</code>、<code>3 disk</code> の順に5行が出ます。本来の出力は <code>1 boot</code>、<code>1 auth</code>、<code>2 net</code>、<code>3 disk</code>、<code>3 fan</code> の順です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="ty">bool</span> take_a = j == nb || (i &lt; na &amp;&amp; a[i][<span class="nu">0</span>] &lt; b[j][<span class="nu">0</span>]);
+</code></pre>
+      <p>
+        日付が同じ行どうしを比べると、<code>a[i][0] &lt; b[j][0]</code> は偽になり、<code>take_a</code> も偽になるので <code>b</code> の行が先に書かれます。<code>1 boot</code> と <code>1 auth</code> では <code>1 auth</code> が、<code>3 disk</code> と <code>3 fan</code> では <code>3 fan</code> が先に出て、同じ日付の中だけ <code>a</code> と <code>b</code> の順が逆になります。日付の昇順は崩れないので、出力を眺めただけでは気付きにくい欠陥です。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="ty">bool</span> take_a = j == nb || (i &lt; na &amp;&amp; a[i][<span class="nu">0</span>] &lt;= b[j][<span class="nu">0</span>]);
+</code></pre>
+      <p>
+        <code>&lt;=</code> にすると、日付が等しいときも <code>a</code> の行を取ります。<code>a</code> の行は、同じ日付の <code>b</code> の行がまだ残っていても先に出ていくので、同じ日付の中では <code>a</code> の行がすべて <code>b</code> の行より前に並びます。マージソート（merge sort）が安定ソートになるのも、半分ずつ並べた列を併合するときに、等しければ前半の列の要素を取るからです。この比較が <code>&lt;</code> だと、マージソートは等しい要素の順を保てなくなります<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>C++ の <code>std::merge</code> は、2つの範囲に同値な要素があるとき、1つ目の範囲の要素を先に置くと規定しています。<code>std::stable_sort</code> をマージソートで実装する処理系も、この規則で併合しています。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

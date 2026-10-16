@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="forM_の中でexitSuccessを呼んだHaskellのプログラムが、どこまで出力して終わるかを追います。exitSuccessがループではなくプログラム全体を終了コード0で終えることを扱う、2026-10-17のHaskell READです。">
+<title>途中で成功として終わる</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-10-17">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-17" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-10-17",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-10-17",
+      "datePublished": "2026-10-17",
+      "dateModified": "2026-10-17",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "途中で成功として終わる" },
+      "keywords": "program-termination, io",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "forM_の中でexitSuccessを呼んだHaskellのプログラムが、どこまで出力して終わるかを追います。exitSuccessがループではなくプログラム全体を終了コード0で終えることを扱う、2026-10-17のHaskell READです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-17">C23</a>
+  <a href="/cpp/read/2026-10-17">C++26</a>
+  <a href="/rust/read/2026-10-17">Rust 2024</a>
+  <a href="/haskell/read/2026-10-17" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-17" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-10-17">WRITE</a>
+  <a href="/haskell/debug/2026-10-17">DEBUG</a>
+</nav>
+
+<main
+  data-topic="途中で成功として終わる"
+  data-tags="program-termination io"
+  data-concepts="exitSuccess, forM_, 終了コード, ループの途中で終了, ExitCode例外, exit status, early exit, program termination"
+  data-level="hedgehog"
+>
+  <h2>2026-10-17</h2>
+  <div class="code-frame">
+    <p class="code-filename">Shares.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Control.Monad</span> (forM_, when)
+<span class="kw">import</span> <span class="ty">System.Exit</span> (exitSuccess)
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = <span class="kw">do</span>
+  forM_ [<span class="nu">3</span>, <span class="nu">1</span>, <span class="nu">4</span>, <span class="nu">0</span>, <span class="nu">6</span>] $ \n <span class="op">-&gt;</span> <span class="kw">do</span>
+    when (n == <span class="nu">0</span>) exitSuccess
+    print (<span class="nu">12</span> `div` n <span class="op">::</span> <span class="ty">Int</span>)
+  putStrLn <span class="st">"all shares printed"</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>4</code>、<code>12</code>、<code>3</code> の3行です。
+      </p>
+      <p>
+        <code>exitSuccess</code> は、いま回っている <code>forM_</code> の1回分を飛ばす命令ではなく、プログラム全体を終了コード 0 で終える IO アクションです。<code>n</code> が <code>3</code>、<code>1</code>、<code>4</code> の間は <code>when</code> の条件が偽なので、<code>12 `div` n</code> の <code>4</code>、<code>12</code>、<code>3</code> が順に出力されます。4つ目の <code>0</code> で <code>exitSuccess</code> が実行されると、残りの <code>6</code> も、<code>forM_</code> のあとにある <code>putStrLn</code> も実行されずにプログラムが終わります。
+      </p>
+      <p>
+        0 で割るのを避けて次の要素へ進むつもりなら、<code>when (n /= 0) (print (12 `div` n :: Int))</code> のように、出力する側を条件で包みます。このプログラムは途中で打ち切られても終了コードが 0 なので、呼び出したシェルスクリプトからは、すべて出力し終えたときと区別が付きません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

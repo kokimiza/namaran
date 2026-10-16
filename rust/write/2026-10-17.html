@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="累乗を重ねた式 x1^(x2^(…^xn)) を右から計算する関数を書きます。累乗が右結合であることと、イテレータを後ろから畳み込む書き方を扱う、2026-10-17のRust WRITEです。">
+<title>右から積む累乗の塔</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-10-17">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-17" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-10-17",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-10-17",
+      "datePublished": "2026-10-17",
+      "dateModified": "2026-10-17",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "右から積む累乗の塔" },
+      "keywords": "associativity, fold, iterator",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "累乗を重ねた式 x1^(x2^(…^xn)) を右から計算する関数を書きます。累乗が右結合であることと、イテレータを後ろから畳み込む書き方を扱う、2026-10-17のRust WRITEです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-17">C23</a>
+  <a href="/cpp/write/2026-10-17">C++26</a>
+  <a href="/rust/write/2026-10-17" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-10-17">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-17">READ</a>
+  <a href="/rust/write/2026-10-17" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-10-17">DEBUG</a>
+</nav>
+
+<main
+  data-topic="右から積む累乗の塔"
+  data-tags="associativity fold iterator"
+  data-concepts="累乗の塔, 右結合, 右畳み込み, rev, fold, rfold, power tower, right fold, exponentiation"
+  data-level="hedgehog"
+>
+  <h2>2026-10-17</h2>
+  <div class="code-frame">
+    <p class="code-filename">tower.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">tower</span>(xs: &amp;[<span class="ty">u32</span>]) -&gt; <span class="ty">u32</span> {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    列 <code>xs</code> が <code>[x1, x2, …, xn]</code> のとき、<code>x1^(x2^(…^xn))</code> を返す <code>tower</code> を書いてください。ここでの <code>^</code> は Rust の演算子ではなく累乗の記号で、数学で <code>2^3^2</code> を <code>2^(3^2)</code> と読むのと同じく、右から順に計算します。このように累乗を重ねた式を、累乗の塔（power tower）といいます。要素が1つならその値を、空の列には <code>1</code> を返します。結果が <code>u32</code> に収まる入力だけを考えます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>tower(&amp;[2, 2, 3])</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>256</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>tower(&amp;[3, 2])</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>9</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>tower(&amp;[])</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>1</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+<pre class="code"><code><span class="kw">fn</span> <span class="fn">tower</span>(xs: &amp;[<span class="ty">u32</span>]) -&gt; <span class="ty">u32</span> {
+    xs.<span class="fn">iter</span>().<span class="fn">rev</span>().<span class="fn">fold</span>(<span class="nu">1</span>, |acc, &amp;x| x.<span class="fn">pow</span>(acc))
+}
+</code></pre>
+      <p>
+        右から計算するので、列を後ろから畳み込みます。<code>rev()</code> で後ろの要素から取り出し、<code>fold</code> の累積値 <code>acc</code> にはそこまでに計算した右側の指数を持たせて、<code>x.pow(acc)</code> で1段ずつ積み上げます。<code>[2, 2, 3]</code> なら、<code>acc</code> は <code>1</code> から始まって、<code>3</code>、<code>8</code>、<code>256</code> と進みます。
+      </p>
+      <p>
+        初期値の <code>1</code> は空の列の答えで、要素が1つのときも <code>x.pow(1)</code> が <code>x</code> になるので、場合分けは要りません。<code>rev()</code> を忘れると、先頭の要素がいちばん上の指数に回り、<code>[2, 2, 3]</code> は <code>3^(2^2)</code> の <code>81</code> になります。<code>(2^2)^3</code> のように左から計算すると、今度は <code>64</code> です。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>xs.iter().rfold(1, |acc, &amp;x| x.pow(acc))</code> も後ろから畳み込みます。スライスパターンで <code>[x, rest @ ..]</code> に分け、<code>x.pow(tower(rest))</code> を返す再帰で書いても、右から計算する形がそのまま式に出ます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
