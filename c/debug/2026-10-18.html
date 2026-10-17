@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="再帰の正規表現マッチャで、パターン id. が2文字の文字列 id にも一致してしまう欠陥を直します。. が文字列の終端まで1文字として数えてしまう誤りを扱う、2026-10-18のC DEBUGです。">
+<title>長さの足りないIDが通る</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-10-18">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-18" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-10-18",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-10-18",
+      "datePublished": "2026-10-18",
+      "dateModified": "2026-10-18",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "長さの足りないIDが通る" },
+      "keywords": "regular-expression, null-terminated-string, recursion",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "再帰の正規表現マッチャで、パターン id. が2文字の文字列 id にも一致してしまう欠陥を直します。. が文字列の終端まで1文字として数えてしまう誤りを扱う、2026-10-18のC DEBUGです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-18" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-10-18">C++26</a>
+  <a href="/rust/debug/2026-10-18">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-18">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-18">READ</a>
+  <a href="/c/write/2026-10-18">WRITE</a>
+  <a href="/c/debug/2026-10-18" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="長さの足りないIDが通る"
+  data-tags="regular-expression null-terminated-string recursion"
+  data-concepts="正規表現マッチャ, ドット, 終端文字, ヌル終端文字列, regex dot, null terminator, end of string"
+  data-level="hedgehog"
+>
+  <h2>2026-10-18</h2>
+  <div class="code-frame">
+    <p class="code-filename">ids.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">static</span> <span class="ty">bool</span> <span class="fn">here</span>(<span class="kw">const</span> <span class="ty">char</span> *re, <span class="kw">const</span> <span class="ty">char</span> *s) {
+    <span class="kw">if</span> (re[<span class="nu">0</span>] == <span class="st">'\0'</span>) <span class="kw">return</span> <span class="nu">true</span>;
+    <span class="kw">if</span> (re[<span class="nu">1</span>] == <span class="st">'*'</span>) {
+        <span class="kw">do</span> {
+            <span class="kw">if</span> (<span class="fn">here</span>(re + <span class="nu">2</span>, s)) <span class="kw">return</span> <span class="nu">true</span>;
+        } <span class="kw">while</span> (*s != <span class="st">'\0'</span> &amp;&amp; (*s++ == re[<span class="nu">0</span>] || re[<span class="nu">0</span>] == <span class="st">'.'</span>));
+        <span class="kw">return</span> <span class="nu">false</span>;
+    }
+    <span class="kw">if</span> (re[<span class="nu">0</span>] == <span class="st">'$'</span> &amp;&amp; re[<span class="nu">1</span>] == <span class="st">'\0'</span>) <span class="kw">return</span> *s == <span class="st">'\0'</span>;
+    <span class="kw">if</span> (re[<span class="nu">0</span>] == <span class="st">'.'</span> || re[<span class="nu">0</span>] == *s) <span class="kw">return</span> <span class="fn">here</span>(re + <span class="nu">1</span>, s + <span class="nu">1</span>);
+    <span class="kw">return</span> <span class="nu">false</span>;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="kw">const</span> <span class="ty">char</span> *ids[] = {<span class="st">"id7"</span>, <span class="st">"id"</span>, <span class="st">"ix9"</span>};
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; <span class="nu">3</span>; i++) {
+        <span class="fn">printf</span>(<span class="st">"%s %d\n"</span>, ids[i], <span class="fn">here</span>(<span class="st">"id."</span>, ids[i]));
+    }
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>here(re, s)</code> は、<code>^ $ . *</code> だけを扱う正規表現 <code>re</code> が文字列 <code>s</code> の先頭から始まる部分に一致するかを返す関数で、<code>.</code> は任意の1文字に一致します。<code>main</code> は、<code>id</code> の後ろに少なくとも1文字続く文字列だけを通すつもりで、パターン <code>id.</code> を3つの文字列に当てています。いまの出力は <code>id7 1</code>、<code>id 1</code>、<code>ix9 0</code> の3行で、2文字しかない <code>id</code> も通ってしまいます。本来の出力は <code>id7 1</code>、<code>id 0</code>、<code>ix9 0</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code>    <span class="kw">if</span> (re[<span class="nu">0</span>] == <span class="st">'.'</span> || re[<span class="nu">0</span>] == *s) <span class="kw">return</span> <span class="fn">here</span>(re + <span class="nu">1</span>, s + <span class="nu">1</span>);
+</code></pre>
+      <p>
+        <code>here("id.", "id")</code> は <code>i</code> と <code>d</code> を1文字ずつ照合し、<code>s</code> が終端の <code>'\0'</code> を指した状態で残りのパターン <code>.</code> に来ます。この行は <code>re[0] == '.'</code> だけで一致とみなすので、文字列の終わりを示す <code>'\0'</code> まで1文字として数え、残りのパターンが空になって <code>true</code> を返します。<code>.</code> 以外の文字は <code>'\0'</code> と等しくならないので、この誤りが表に出るのは <code>.</code> のときだけです。
+      </p>
+      <p>
+        このとき再帰に渡る <code>s + 1</code> は配列 <code>"id"</code> の終わりの1つ先で、パターンが <code>id.</code> なら読まれずに終わります。<code>id.x</code> のように <code>.</code> の後ろに文字が続くと、次の呼び出しが <code>re[0] == *s</code> でこの位置を読み、配列の外を読む未定義動作になります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code>    <span class="kw">if</span> (*s != <span class="st">'\0'</span> &amp;&amp; (re[<span class="nu">0</span>] == <span class="st">'.'</span> || re[<span class="nu">0</span>] == *s)) <span class="kw">return</span> <span class="fn">here</span>(re + <span class="nu">1</span>, s + <span class="nu">1</span>);
+</code></pre>
+      <p>
+        <code>*s != '\0'</code> を先に調べると、文字列が尽きた位置では <code>.</code> もほかの文字も一致しなくなります。<code>&amp;&amp;</code> は左が偽なら右を評価しないので、終端の先を読むこともありません。文字を1つ消費する箇所には、どれも消費する前に終端かどうかを調べる条件が要ります。<code>*</code> の分岐の <code>while</code> にある <code>*s != '\0'</code> も同じ理由で置かれており、文字を消費しない <code>$</code> の分岐だけが、終端そのものを一致の条件にしています。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

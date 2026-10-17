@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="下書きと公開済みの投稿を、大きさ0のマーカー型とPhantomDataで別の型にし、公開前の本文を読む誤りをコンパイル時に止めるメソッドを書きます。2026-10-18のRust WRITEです。">
+<title>型で状態を持つ投稿</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-10-18">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-18" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-10-18",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-10-18",
+      "datePublished": "2026-10-18",
+      "dateModified": "2026-10-18",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "型で状態を持つ投稿" },
+      "keywords": "zero-sized-type, phantom-type, generic-programming, state-machine",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "下書きと公開済みの投稿を、大きさ0のマーカー型とPhantomDataで別の型にし、公開前の本文を読む誤りをコンパイル時に止めるメソッドを書きます。2026-10-18のRust WRITEです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-18">C23</a>
+  <a href="/cpp/write/2026-10-18">C++26</a>
+  <a href="/rust/write/2026-10-18" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-10-18">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-18">READ</a>
+  <a href="/rust/write/2026-10-18" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-10-18">DEBUG</a>
+</nav>
+
+<main
+  data-topic="型で状態を持つ投稿"
+  data-tags="zero-sized-type phantom-type generic-programming state-machine"
+  data-concepts="PhantomData, 型状態, typestate, マーカー型, ゼロサイズ型, phantom type, marker type, zero-sized type"
+  data-level="peacock"
+>
+  <h2>2026-10-18</h2>
+  <div class="code-frame">
+    <p class="code-filename">post.rs</p>
+    <pre class="code"><code><span class="kw">use</span> std::marker::<span class="ty">PhantomData</span>;
+
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ty">Draft</span>;
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ty">Published</span>;
+
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ty">Post</span>&lt;<span class="ty">S</span>&gt; {
+    body: <span class="ty">String</span>,
+    state: <span class="ty">PhantomData</span>&lt;<span class="ty">S</span>&gt;,
+}
+
+<span class="kw">impl</span> <span class="ty">Post</span>&lt;<span class="ty">Draft</span>&gt; {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">new</span>(body: &amp;<span class="ty">str</span>) -&gt; <span class="ty">Self</span> {
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">publish</span>(<span class="kw">self</span>) -&gt; <span class="ty">Post</span>&lt;<span class="ty">Published</span>&gt; {
+    }
+}
+
+<span class="kw">impl</span> <span class="ty">Post</span>&lt;<span class="ty">Published</span>&gt; {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">body</span>(&amp;<span class="kw">self</span>) -&gt; &amp;<span class="ty">str</span> {
+    }
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    下書きの投稿 <code>Post&lt;Draft&gt;</code> と公開済みの投稿 <code>Post&lt;Published&gt;</code> を型で区別するために、3つのメソッドの本体を書いてください。<code>new</code> は本文が <code>body</code> の下書きを作り、<code>publish</code> は下書きを受け取って同じ本文の公開済みの投稿を返し、<code>body</code> は公開済みの投稿の本文を返します。<code>body</code> は公開済みの投稿にしか無いので、<code>Post::new("hi").body()</code> はコンパイルエラーになります。本文は空文字列でもかまいません。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>Post::new("hello").publish().body()</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>"hello"</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>Post::new("").publish().body()</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>""</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">impl</span> <span class="ty">Post</span>&lt;<span class="ty">Draft</span>&gt; {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">new</span>(body: &amp;<span class="ty">str</span>) -&gt; <span class="ty">Self</span> {
+        <span class="ty">Post</span> { body: body.<span class="fn">to_string</span>(), state: <span class="ty">PhantomData</span> }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">publish</span>(<span class="kw">self</span>) -&gt; <span class="ty">Post</span>&lt;<span class="ty">Published</span>&gt; {
+        <span class="ty">Post</span> { body: <span class="kw">self</span>.body, state: <span class="ty">PhantomData</span> }
+    }
+}
+
+<span class="kw">impl</span> <span class="ty">Post</span>&lt;<span class="ty">Published</span>&gt; {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">body</span>(&amp;<span class="kw">self</span>) -&gt; &amp;<span class="ty">str</span> {
+        &amp;<span class="kw">self</span>.body
+    }
+}
+</code></pre>
+      <p>
+        <code>Draft</code> と <code>Published</code> はフィールドを持たない構造体で、値が1つしかないので大きさは 0 です。この2つは値として使うためではなく、<code>Post&lt;S&gt;</code> の <code>S</code> に入れて状態を表す目印として使います。ただ、型引数 <code>S</code> をどのフィールドにも使わないとコンパイルエラーになるので、<code>PhantomData&lt;S&gt;</code> を置いて <code>S</code> を持っているものとして扱わせます。<code>PhantomData&lt;S&gt;</code> も大きさ0の型なので、状態を型に持たせても、実行時に状態を表すための値は増えません。
+      </p>
+      <p>
+        <code>publish</code> は <code>self</code> を値で受け取るので、呼んだあとの下書きは使えなくなります。返す <code>Post&lt;Published&gt;</code> は <code>Post&lt;Draft&gt;</code> とは別の型なので、<code>Post { body: self.body, state: PhantomData }</code> と作り直します。<code>Post { state: PhantomData, ..self }</code> と書きたくなりますが、構造体更新構文の <code>..self</code> は作る値と同じ型の値しか受け付けず、型が合わないというエラーになります。
+      </p>
+      <p>
+        <code>body</code> は <code>impl Post&lt;Published&gt;</code> の中にしか無いので、<code>Post&lt;Draft&gt;</code> の値に対して呼ぶと、そのメソッドが見つからないというコンパイルエラーになります。公開前の本文を読む誤りは、実行する前に止まります。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>PhantomData&lt;S&gt;</code> の代わりに <code>state: S</code> を持たせ、<code>state: Published</code> のように目印の値そのものを入れても同じように書けます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

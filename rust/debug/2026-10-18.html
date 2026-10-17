@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="値の型が () のHashMapを集合として使い、単語の重複を除くつもりの関数が、2度目以降の単語だけを残してしまう欠陥を直します。insertが返すOption&lt;()&gt;の意味を扱う、2026-10-18のRust DEBUGです。">
+<title>値が空のマップで重複除去</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-10-18">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-18" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-10-18",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-10-18",
+      "datePublished": "2026-10-18",
+      "dateModified": "2026-10-18",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "値が空のマップで重複除去" },
+      "keywords": "zero-sized-type, hash-table, deduplication",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "値の型が () のHashMapを集合として使い、単語の重複を除くつもりの関数が、2度目以降の単語だけを残してしまう欠陥を直します。insertが返すOption<()>の意味を扱う、2026-10-18のRust DEBUGです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-18">C23</a>
+  <a href="/cpp/debug/2026-10-18">C++26</a>
+  <a href="/rust/debug/2026-10-18" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-18">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-18">READ</a>
+  <a href="/rust/write/2026-10-18">WRITE</a>
+  <a href="/rust/debug/2026-10-18" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="値が空のマップで重複除去"
+  data-tags="zero-sized-type hash-table deduplication"
+  data-concepts="HashMap&lt;K, ()&gt;, Option&lt;()&gt;, insert の戻り値, 重複除去, 集合, zero-sized type, dedup, HashSet"
+  data-level="bison"
+>
+  <h2>2026-10-18</h2>
+  <div class="code-frame">
+    <p class="code-filename">first_seen.rs</p>
+    <pre class="code"><code><span class="kw">use</span> std::collections::<span class="ty">HashMap</span>;
+
+<span class="kw">fn</span> <span class="fn">first_seen</span>&lt;<span class="lt">'a</span>&gt;(words: &amp;[&amp;<span class="lt">'a</span> <span class="ty">str</span>]) -&gt; <span class="ty">Vec</span>&lt;&amp;<span class="lt">'a</span> <span class="ty">str</span>&gt; {
+    <span class="kw">let</span> <span class="kw">mut</span> seen: <span class="ty">HashMap</span>&lt;&amp;<span class="ty">str</span>, ()&gt; = <span class="ty">HashMap</span>::<span class="fn">new</span>();
+    words
+        .<span class="fn">iter</span>()
+        .<span class="fn">copied</span>()
+        .<span class="fn">filter</span>(|&amp;w| seen.<span class="fn">insert</span>(w, ()).<span class="fn">is_some</span>())
+        .<span class="fn">collect</span>()
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="mc">println!</span>(<span class="st">"{:?}"</span>, <span class="fn">first_seen</span>(&amp;[<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"a"</span>, <span class="st">"c"</span>, <span class="st">"b"</span>, <span class="st">"a"</span>]));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>first_seen</code> は、単語の列から重複を除き、それぞれの単語を最初に現れた順に並べて返すつもりの関数です。入力は <code>main</code> の <code>["a", "b", "a", "c", "b", "a"]</code> です。いまの出力は <code>["a", "b", "a"]</code> です。本来の出力は <code>["a", "b", "c"]</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code>        .<span class="fn">filter</span>(|&amp;w| seen.<span class="fn">insert</span>(w, ()).<span class="fn">is_some</span>())
+</code></pre>
+      <p>
+        <code>HashMap::insert</code> が返すのは、そのキーに前から入っていた値です。初めてのキーなら <code>None</code>、既にあったキーなら <code>Some(())</code> が返るので、<code>is_some()</code> が真になるのは2度目以降に現れた単語です。<code>filter</code> はその単語だけを残すため、3番目の <code>a</code>、5番目の <code>b</code>、6番目の <code>a</code> が残って <code>["a", "b", "a"]</code> になります。
+      </p>
+      <p>
+        値の型 <code>()</code> は大きさ0の型なので、<code>Option&lt;()&gt;</code> が伝えるのは <code>Some</code> か <code>None</code> かだけで、実質は真偽値です。中身の値を見ないまま真偽値として読むと、「入れられたら <code>Some</code>」と向きを逆に取りやすく、このコードもそう読んでいます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code>        .<span class="fn">filter</span>(|&amp;w| seen.<span class="fn">insert</span>(w, ()).<span class="fn">is_none</span>())
+</code></pre>
+      <p>
+        <code>is_none()</code> にすると、前に入っていなかった単語だけが、<code>insert</code> で記録されると同時に残ります。値が <code>()</code> の <code>HashMap</code> は集合として使えますが、標準ライブラリにはそのための <code>HashSet</code> があります<sup class="fn-ref">1</sup>。<code>HashSet::insert</code> は新しく入ったときに <code>true</code> を返すので、<code>.filter(|&amp;w| seen.insert(w))</code> と書けば戻り値の向きを取り違えません。
+      </p>
+      <ol class="footnotes">
+        <li>標準ライブラリの <code>HashSet&lt;T&gt;</code> は、値が <code>()</code> のハッシュ表として実装されています。Go では <code>map[string]struct{}</code> が集合の定番の書き方で、値の <code>struct{}</code> も Rust の <code>()</code> と同じく大きさが0の型です。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
