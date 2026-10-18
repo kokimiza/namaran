@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="λ計算の項の変数名を、束縛している λ までの距離を表す番号に置き換える関数が、同じ名前の変数が重なる項をどう番号にするかを、iter().rev().position() に沿って追います。2026-10-19のRust READです。">
+<title>束縛を数える番号</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-10-19">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / READ", "item": "https://namaran.jocarium.productions/rust/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-19" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / READ — 2026-10-19",
+      "url": "https://namaran.jocarium.productions/rust/read/2026-10-19",
+      "datePublished": "2026-10-19",
+      "dateModified": "2026-10-19",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "束縛を数える番号" },
+      "keywords": "de-bruijn-index, lambda-calculus, shadowing, iterator, recursion",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "λ計算の項の変数名を、束縛している λ までの距離を表す番号に置き換える関数が、同じ名前の変数が重なる項をどう番号にするかを、iter().rev().position() に沿って追います。2026-10-19のRust READです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-19">C23</a>
+  <a href="/cpp/read/2026-10-19">C++26</a>
+  <a href="/rust/read/2026-10-19" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/read/2026-10-19">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-19" class="active" aria-current="page">READ</a>
+  <a href="/rust/write/2026-10-19">WRITE</a>
+  <a href="/rust/debug/2026-10-19">DEBUG</a>
+</nav>
+
+<main
+  data-topic="束縛を数える番号"
+  data-tags="de-bruijn-index lambda-calculus shadowing iterator recursion"
+  data-concepts="De Bruijnインデックス, λ計算, 束縛変数, 変数の隠蔽, de Bruijn index, lambda calculus, bound variable"
+  data-level="peacock"
+>
+  <h2>2026-10-19</h2>
+  <div class="code-frame">
+    <p class="code-filename">de_bruijn.rs</p>
+    <pre class="code"><code><span class="kw">enum</span> <span class="ty">T</span> { <span class="fn">Var</span>(&amp;<span class="lt">'static</span> <span class="ty">str</span>), <span class="fn">Lam</span>(&amp;<span class="lt">'static</span> <span class="ty">str</span>, <span class="ty">Vec</span>&lt;<span class="ty">T</span>&gt;) }
+<span class="kw">use</span> <span class="ty">T</span>::*;
+
+<span class="kw">fn</span> <span class="fn">db</span>&lt;<span class="lt">'a</span>&gt;(t: &amp;<span class="lt">'a</span> <span class="ty">T</span>, env: &amp;<span class="kw">mut</span> <span class="ty">Vec</span>&lt;&amp;<span class="lt">'a</span> <span class="ty">str</span>&gt;) -&gt; <span class="ty">String</span> {
+    <span class="kw">match</span> t {
+        <span class="fn">Var</span>(x) =&gt; env.<span class="fn">iter</span>().<span class="fn">rev</span>().<span class="fn">position</span>(|y| y == x).<span class="fn">unwrap</span>().<span class="fn">to_string</span>(),
+        <span class="fn">Lam</span>(x, body) =&gt; {
+            env.<span class="fn">push</span>(x);
+            <span class="kw">let</span> s: <span class="ty">Vec</span>&lt;_&gt; = body.<span class="fn">iter</span>().<span class="fn">map</span>(|t| <span class="fn">db</span>(t, env)).<span class="fn">collect</span>();
+            env.<span class="fn">pop</span>();
+            <span class="mc">format!</span>(<span class="st">"(λ {})"</span>, s.<span class="fn">join</span>(<span class="st">" "</span>))
+        }
+    }
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> t = <span class="fn">Lam</span>(<span class="st">"x"</span>, <span class="mc">vec!</span>[<span class="fn">Lam</span>(<span class="st">"y"</span>, <span class="mc">vec!</span>[<span class="fn">Var</span>(<span class="st">"x"</span>), <span class="fn">Lam</span>(<span class="st">"x"</span>, <span class="mc">vec!</span>[<span class="fn">Var</span>(<span class="st">"x"</span>), <span class="fn">Var</span>(<span class="st">"y"</span>)])])]);
+    <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="fn">db</span>(&amp;t, &amp;<span class="kw">mut</span> <span class="ty">Vec</span>::<span class="fn">new</span>()));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>(λ (λ 1 (λ 0 1)))</code> の1行です。
+      </p>
+      <p>
+        <code>t</code> は λ計算（lambda calculus）の項 λx. λy. x (λx. x y) を表しています。<code>Lam(x, body)</code> は変数 <code>x</code> を束縛する λ で、<code>body</code> に並べた項を左から順に適用したものがその本体です。<code>db</code> は各変数を、自分を囲む λ を内側から数えたとき、その変数を束縛している λ が何番目か（いちばん内側を0とする）という番号に置き換えます。この番号を De Bruijn インデックス（de Bruijn index）といいます。
+      </p>
+      <p>
+        <code>env</code> には、いま見ている位置を囲む λ の変数名が外側から順に積まれています。<code>Lam</code> に入るときに名前を積み、本体を変換し終えたら取り除きます。<code>Var</code> では <code>env.iter().rev()</code> が内側から順に名前をたどり、<code>position</code> は最初に一致した位置を、逆順にした列の先頭から数えて返します。逆順の先頭はいちばん内側の λ なので、この位置がそのまま内側から数えた番号です。
+      </p>
+      <p>
+        最初の <code>Var("x")</code> の時点で <code>env</code> は <code>["x", "y"]</code> です。内側から <code>y</code>、<code>x</code> の順に見るので、<code>x</code> は1になります。次の <code>Lam("x", ...)</code> に入ると <code>env</code> は <code>["x", "y", "x"]</code> になり、その中の <code>x</code> は内側の <code>"x"</code> に最初に一致して0になります。同じ名前の外側の λx は、内側の λx に隠されて見えません。<code>y</code> は内側から <code>x</code>、<code>y</code> と見て1です。
+      </p>
+      <p>
+        同じ名前には同じ番号が付くと読むと、2つの <code>x</code> を同じ番号にしてしまいます。逆に名前が違う <code>x</code> と <code>y</code> が、どちらも1になっています。番号が表すのは名前ではなく、使われている位置から束縛している λ までの距離だからです。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/read">Today</a></li>
+    <li><a href="/rust/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

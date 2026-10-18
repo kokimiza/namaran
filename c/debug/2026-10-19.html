@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="ラン長圧縮のデータが展開後に何バイトになるかを数え、上限を超えたら -1 を返すはずの関数が、合計600バイトになる入力を通してしまう欠陥を直します。2026-10-19のC DEBUGです。">
+<title>ランごとに測る上限</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-10-19">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-19" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-10-19",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-10-19",
+      "datePublished": "2026-10-19",
+      "dateModified": "2026-10-19",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "ランごとに測る上限" },
+      "keywords": "decompression-bomb, compression, invariant",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "ラン長圧縮のデータが展開後に何バイトになるかを数え、上限を超えたら -1 を返すはずの関数が、合計600バイトになる入力を通してしまう欠陥を直します。2026-10-19のC DEBUGです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-19" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-10-19">C++26</a>
+  <a href="/rust/debug/2026-10-19">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-19">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-19">READ</a>
+  <a href="/c/write/2026-10-19">WRITE</a>
+  <a href="/c/debug/2026-10-19" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="ランごとに測る上限"
+  data-tags="decompression-bomb compression invariant"
+  data-concepts="展開量の上限, ラン長圧縮, 合計に対する検査, zip爆弾, run-length encoding, decompression bomb, zip bomb"
+  data-level="hedgehog"
+>
+  <h2>2026-10-19</h2>
+  <div class="code-frame">
+    <p class="code-filename">runs.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">static</span> <span class="ty">long</span> <span class="fn">decoded_size</span>(<span class="kw">const</span> <span class="ty">unsigned</span> <span class="ty">char</span> *in, <span class="ty">size_t</span> n, <span class="ty">long</span> limit) {
+    <span class="ty">long</span> total = <span class="nu">0</span>;
+    <span class="kw">for</span> (<span class="ty">size_t</span> i = <span class="nu">0</span>; i + <span class="nu">1</span> &lt; n; i += <span class="nu">2</span>) {
+        <span class="kw">if</span> (in[i] &gt; limit) <span class="kw">return</span> -<span class="nu">1</span>;
+        total += in[i];
+    }
+    <span class="kw">return</span> total;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="kw">const</span> <span class="ty">unsigned</span> <span class="ty">char</span> in[] = {<span class="nu">200</span>, <span class="st">'a'</span>, <span class="nu">200</span>, <span class="st">'b'</span>, <span class="nu">200</span>, <span class="st">'c'</span>};
+    <span class="fn">printf</span>(<span class="st">"%ld\n"</span>, <span class="fn">decoded_size</span>(in, <span class="kw">sizeof</span> in, <span class="nu">500</span>));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>decoded_size</code> は、(個数, バイト) の組を並べたラン長圧縮のデータが展開後に何バイトになるかを数え、展開する前に上限 <code>limit</code> を超えるデータを見つけて <code>-1</code> を返すための関数です。<code>main</code> は200個ずつ3つの組からなるデータを、上限500バイトで調べています。いまの出力は <code>600</code> で、上限を超えるデータが通ってしまいます。本来の出力は <code>-1</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">if</span> (in[i] &gt; limit) <span class="kw">return</span> -<span class="nu">1</span>;
+total += in[i];
+</code></pre>
+      <p>
+        この検査が上限と比べているのは、いま読んだ1組の個数 <code>in[i]</code> です。個数は <code>unsigned char</code> に入っているので255を超えず、上限が500なら検査は一度も成り立ちません。3つの組はどれも200で通り、合計の600がそのまま返ります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code>total += in[i];
+<span class="kw">if</span> (total &gt; limit) <span class="kw">return</span> -<span class="nu">1</span>;
+</code></pre>
+      <p>
+        上限が守るべきなのは展開後の合計なので、足したあとの <code>total</code> を上限と比べます。3つ目の組を足して <code>total</code> が600になった時点で <code>-1</code> が返ります。1組の個数が255で頭打ちでも、組の数を増やせば合計はいくらでも大きくなるので、1組ずつの検査では展開量を抑えられません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

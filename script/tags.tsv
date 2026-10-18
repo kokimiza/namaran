@@ -80,6 +80,7 @@ copy-elision	コピー省略
 copy-trait	Copyトレイト
 coroutine	コルーチン
 counting-sort	計数ソート
+covariant-return-type	共変戻り値型
 crdt	CRDT
 cross-product	外積
 cross-site-scripting	XSS
@@ -94,6 +95,7 @@ database-index	インデックス
 date-time	日付と時刻
 de-bruijn-index	De Bruijnインデックス
 deadlock	デッドロック
+decompression-bomb	zip爆弾
 deduplication	重複除去
 deep-copy	深いコピー
 default	デフォルト値
@@ -210,6 +212,7 @@ lazy-deletion	遅延削除
 lazy-initialization	遅延初期化
 lazy-io	遅延IO
 leap-year	閏年
+left-recursion	左再帰
 let-chain	letチェーン
 lexical-analysis	字句解析
 lifetime	寿命

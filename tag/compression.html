@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「圧縮」を扱ったNamaranのコーディングドリル1問。可変長整数、varint、LEB128、継続ビット、エンコード、continuation bit。">
+<meta name="description" content="「圧縮」を扱ったNamaranのコーディングドリル3問。展開量の上限、zip爆弾、符号なし整数の回り込み、size_t の引き算、unsigned wraparound、decompression bomb。">
 <title>圧縮</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/compression">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,12 @@
   <h2>圧縮</h2>
 
   <p class="lede">
-    「圧縮」を扱った1問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「圧縮」を扱った3問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/c/read/2026-10-19">C / READ · 2026-10-19</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">展開量の上限検査</span> <span class="past-concepts">展開量の上限, zip爆弾, 符号なし整数の回り込み, size_t の引き算, unsigned wraparound, decompression bomb, zip bomb</span></li>
+    <li><a href="/c/debug/2026-10-19">C / DEBUG · 2026-10-19</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">ランごとに測る上限</span> <span class="past-concepts">展開量の上限, ラン長圧縮, 合計に対する検査, zip爆弾, run-length encoding, decompression bomb, zip bomb</span></li>
     <li><a href="/c/write/2026-10-13">C / WRITE · 2026-10-13</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">7ビットずつ書き出す</span> <span class="past-concepts">可変長整数, varint, LEB128, 継続ビット, エンコード, continuation bit, variable-length integer encoding</span></li>
   </ul>
 

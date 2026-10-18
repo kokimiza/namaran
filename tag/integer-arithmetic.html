@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「整数の演算」を扱ったNamaranのコーディングドリル18問。pow、メソッドチェーン、累乗の右結合、ブール関数の個数、method chaining、power tower。">
+<meta name="description" content="「整数の演算」を扱ったNamaranのコーディングドリル20問。展開量の上限、残り容量、符号なし整数の回り込み、オーバーフローしない比較、unsigned wraparound、overflow-safe bounds check。">
 <title>整数の演算</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/integer-arithmetic">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,12 @@
   <h2>整数の演算</h2>
 
   <p class="lede">
-    「整数の演算」を扱った18問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「整数の演算」を扱った20問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/c/write/2026-10-19">C / WRITE · 2026-10-19</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">上限までの残りを渡す</span> <span class="past-concepts">展開量の上限, 残り容量, 符号なし整数の回り込み, オーバーフローしない比較, unsigned wraparound, overflow-safe bounds check, zip bomb</span></li>
+    <li><a href="/c/read/2026-10-19">C / READ · 2026-10-19</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">展開量の上限検査</span> <span class="past-concepts">展開量の上限, zip爆弾, 符号なし整数の回り込み, size_t の引き算, unsigned wraparound, decompression bomb, zip bomb</span></li>
     <li><a href="/rust/debug/2026-10-17">Rust / DEBUG · 2026-10-17</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">2の2のk乗のはずが</span> <span class="past-concepts">pow, メソッドチェーン, 累乗の右結合, ブール関数の個数, method chaining, power tower, exponentiation, Boolean function</span></li>
     <li><a href="/c/read/2026-10-15">C / READ · 2026-10-15</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">ずらした入力の平均</span> <span class="past-concepts">メタモルフィックテスト, 整数除算, 0への切り捨て, 平均の平行移動, metamorphic testing, integer division, truncation toward zero</span></li>
     <li><a href="/rust/debug/2026-10-12">Rust / DEBUG · 2026-10-12</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">割合が0になる推定</span> <span class="past-concepts">整数の割り算, 割ってから変換, 円周率の推定, モンテカルロ法, integer division, convert before dividing, Monte Carlo pi</span></li>

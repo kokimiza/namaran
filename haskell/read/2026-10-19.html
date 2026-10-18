@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="左再帰を避けるために再帰を右側へ置いた文法で 10-4-3 を構文解析すると、引き算がどの順に組み立てられるかを追います。2026-10-19のHaskell READです。">
+<title>引き算を読む構文解析</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-10-19">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-19" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-10-19",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-10-19",
+      "datePublished": "2026-10-19",
+      "dateModified": "2026-10-19",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "引き算を読む構文解析" },
+      "keywords": "left-recursion, parsing, associativity, recursion",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "左再帰を避けるために再帰を右側へ置いた文法で 10-4-3 を構文解析すると、引き算がどの順に組み立てられるかを追います。2026-10-19のHaskell READです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-19">C23</a>
+  <a href="/cpp/read/2026-10-19">C++26</a>
+  <a href="/rust/read/2026-10-19">Rust 2024</a>
+  <a href="/haskell/read/2026-10-19" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-19" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-10-19">WRITE</a>
+  <a href="/haskell/debug/2026-10-19">DEBUG</a>
+</nav>
+
+<main
+  data-topic="引き算を読む構文解析"
+  data-tags="left-recursion parsing associativity recursion"
+  data-concepts="左再帰の除去, 右再帰, 左結合, 再帰下降構文解析, left recursion, right associativity, recursive descent parser"
+  data-level="hedgehog"
+>
+  <h2>2026-10-19</h2>
+  <div class="code-frame">
+    <p class="code-filename">RightRec.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Data.Char</span> (isDigit)
+
+<span class="cm">-- expr ::= num '-' expr | num</span>
+<span class="fn">expr</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> (<span class="ty">Int</span>, <span class="ty">String</span>)
+<span class="fn">expr</span> s = <span class="kw">case</span> num s <span class="kw">of</span>
+  (n, <span class="st">'-'</span> : rest) <span class="op">-&gt;</span> <span class="kw">let</span> (m, rest') = expr rest <span class="kw">in</span> (n - m, rest')
+  r <span class="op">-&gt;</span> r
+
+<span class="fn">num</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> (<span class="ty">Int</span>, <span class="ty">String</span>)
+<span class="fn">num</span> s = <span class="kw">let</span> (ds, rest) = span isDigit s <span class="kw">in</span> (read ds, rest)
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (fst (expr <span class="st">"10-4-3"</span>))
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>9</code> です。
+      </p>
+      <p>
+        <code>expr</code> は先頭の数を <code>num</code> で読み、続きが <code>-</code> なら、残りの文字列を <code>expr</code> で読み切ってからその値を引きます。<code>"10-4-3"</code> では <code>n</code> が10で、残りの <code>"4-3"</code> を内側の <code>expr</code> が読みます。内側では <code>4 - 3</code> が先に計算されて1が返り、外側の <code>expr</code> は <code>10 - 1</code> の9を返します。
+      </p>
+      <p>
+        コメントの文法 <code>expr ::= num '-' expr | num</code> は、<code>-</code> の右側に式全体を置いているので、<code>10-4-3</code> を <code>10-(4-3)</code> と組み立てます。引き算は左から順に <code>(10-4)-3</code> と計算する左結合（left-associative）の演算なので、普通に読めば3になるところが9になります。
+      </p>
+      <p>
+        再帰を右側に置いたのは、左結合のとおりの文法 <code>expr ::= expr '-' num | num</code> をそのまま関数にすると止まらないからです。その <code>expr</code> は最初に同じ文字列で自分自身を呼び、1文字も読まないまま同じ呼び出しを繰り返します。この形の文法を左再帰（left recursion）といいます。再帰を右へ移せば呼び出すたびに数を1つ読むので必ず止まりますが、組み立てる向きも右からに変わります。左結合のまま止まるようにするには、<code>-</code> と数の組を読むたびに、それまでの値から引いていくループとして書きます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

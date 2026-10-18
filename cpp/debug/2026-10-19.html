@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="戻り値を Sheet* に変えて仮想関数 copy をオーバーライドしたつもりが const を付け忘れ、基底クラスの参照から複製すると Doc しか作られない欠陥を直します。2026-10-19のC++ DEBUGです。">
+<title>複製が基底クラスになる</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-10-19">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-19" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-10-19",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-10-19",
+      "datePublished": "2026-10-19",
+      "dateModified": "2026-10-19",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "複製が基底クラスになる" },
+      "keywords": "covariant-return-type, virtual-function, const-correctness, object-slicing",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "戻り値を Sheet* に変えて仮想関数 copy をオーバーライドしたつもりが const を付け忘れ、基底クラスの参照から複製すると Doc しか作られない欠陥を直します。2026-10-19のC++ DEBUGです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-19">C23</a>
+  <a href="/cpp/debug/2026-10-19" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-10-19">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-19">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-19">READ</a>
+  <a href="/cpp/write/2026-10-19">WRITE</a>
+  <a href="/cpp/debug/2026-10-19" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="複製が基底クラスになる"
+  data-tags="covariant-return-type virtual-function const-correctness object-slicing"
+  data-concepts="共変戻り値型, オーバーライドの条件, const メンバ関数, 名前の隠蔽, covariant return type, override, name hiding"
+  data-level="hedgehog"
+>
+  <h2>2026-10-19</h2>
+  <div class="code-frame">
+    <p class="code-filename">doc_copy.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+
+<span class="kw">struct</span> <span class="ty">Doc</span> {
+    <span class="kw">virtual</span> ~<span class="fn">Doc</span>() = <span class="kw">default</span>;
+    <span class="kw">virtual</span> <span class="ty">Doc</span>* <span class="fn">copy</span>() <span class="kw">const</span> { <span class="kw">return</span> <span class="kw">new</span> <span class="fn">Doc</span>(*<span class="kw">this</span>); }
+    <span class="kw">virtual</span> <span class="kw">const</span> <span class="ty">char</span>* <span class="fn">kind</span>() <span class="kw">const</span> { <span class="kw">return</span> <span class="st">"doc"</span>; }
+};
+<span class="kw">struct</span> <span class="ty">Sheet</span> : <span class="ty">Doc</span> {
+    <span class="ty">Sheet</span>* <span class="fn">copy</span>() { <span class="kw">return</span> <span class="kw">new</span> <span class="fn">Sheet</span>(*<span class="kw">this</span>); }
+    <span class="kw">const</span> <span class="ty">char</span>* <span class="fn">kind</span>() <span class="kw">const</span> <span class="kw">override</span> { <span class="kw">return</span> <span class="st">"sheet"</span>; }
+};
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="ty">Sheet</span> sheet;
+    <span class="kw">const</span> <span class="ty">Doc</span>&amp; doc = sheet;
+    <span class="ty">Doc</span>* p = doc.<span class="fn">copy</span>();
+    std::cout &lt;&lt; p-&gt;<span class="fn">kind</span>() &lt;&lt; <span class="st">'\n'</span>;
+    <span class="kw">delete</span> p;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>Doc::copy</code> は文書を複製する仮想関数で、<code>Sheet</code> はそれを、自分の型のポインタを返すようにオーバーライドしたつもりです。<code>main</code> は <code>Sheet</code> のオブジェクトを <code>const Doc&amp;</code> から複製し、複製の <code>kind()</code> を出力します。いまの出力は <code>doc</code> で、<code>Sheet</code> を複製したのに <code>Doc</code> ができています。本来の出力は <code>sheet</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">virtual</span> <span class="ty">Doc</span>* <span class="fn">copy</span>() <span class="kw">const</span> { <span class="kw">return</span> <span class="kw">new</span> <span class="fn">Doc</span>(*<span class="kw">this</span>); }
+<span class="ty">Sheet</span>* <span class="fn">copy</span>() { <span class="kw">return</span> <span class="kw">new</span> <span class="fn">Sheet</span>(*<span class="kw">this</span>); }
+</code></pre>
+      <p>
+        <code>Doc::copy</code> は <code>const</code> メンバ関数ですが、<code>Sheet::copy</code> には <code>const</code> がありません。オーバーライドになるのは、名前と引数に加えて <code>const</code> の有無まで一致する関数だけなので、<code>Sheet::copy</code> は <code>Doc::copy</code> と別の関数として宣言され、<code>Doc::copy</code> を隠すだけです。戻り値の型が <code>Doc*</code> から <code>Sheet*</code> に変わっているのは、オーバーライドなら許される変え方なので、見た目では違和感がありません。
+      </p>
+      <p>
+        <code>doc.copy()</code> は <code>const Doc&amp;</code> から呼ぶので、選ばれるのは仮想関数 <code>Doc::copy</code> です。<code>Sheet</code> はこれをオーバーライドしていないので、実体が <code>Sheet</code> でも <code>Doc::copy</code> が動き、<code>new Doc(*this)</code> が <code>Doc</code> の部分だけを複製します。その <code>kind()</code> が <code>doc</code> を返します。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="ty">Sheet</span>* <span class="fn">copy</span>() <span class="kw">const</span> <span class="kw">override</span> { <span class="kw">return</span> <span class="kw">new</span> <span class="fn">Sheet</span>(*<span class="kw">this</span>); }
+</code></pre>
+      <p>
+        <code>const</code> を付けると引数と <code>const</code> の有無が <code>Doc::copy</code> とそろい、<code>Sheet::copy</code> がオーバーライドになります。<code>Sheet*</code> は <code>Doc*</code> が指すクラスから派生したクラスへのポインタなので、戻り値の型が違っても許されます。この規則を共変戻り値型（covariant return type）といいます。<code>override</code> も付けておけば、オーバーライドになっていない宣言はコンパイルエラーになり、同じ付け忘れを二度と通しません<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>GCC 14 では、<code>-Wall</code> を付けるだけでこのコードに <code>-Woverloaded-virtual</code> の警告が出て、<code>Doc::copy</code> が <code>Sheet::copy</code> に隠されたことを知らせます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

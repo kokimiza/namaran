@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="左再帰の文法をそのまま Maybe の &lt;|&gt; で書いた構文解析器が、10-4-3 の最初の数だけを読んで止まる欠陥を直します。選択肢を入れ替えると今度は止まらなくなる理由も扱う、2026-10-19のHaskell DEBUGです。">
+<title>最初の数で止まる構文解析</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-10-19">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-19" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-10-19",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-10-19",
+      "datePublished": "2026-10-19",
+      "dateModified": "2026-10-19",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "最初の数で止まる構文解析" },
+      "keywords": "left-recursion, parsing, maybe, laziness, infinite-loop",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "左再帰の文法をそのまま Maybe の <|> で書いた構文解析器が、10-4-3 の最初の数だけを読んで止まる欠陥を直します。選択肢を入れ替えると今度は止まらなくなる理由も扱う、2026-10-19のHaskell DEBUGです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-19">C23</a>
+  <a href="/cpp/debug/2026-10-19">C++26</a>
+  <a href="/rust/debug/2026-10-19">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-19" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-19">READ</a>
+  <a href="/haskell/write/2026-10-19">WRITE</a>
+  <a href="/haskell/debug/2026-10-19" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="最初の数で止まる構文解析"
+  data-tags="left-recursion parsing maybe laziness infinite-loop"
+  data-concepts="左再帰, 再帰下降構文解析, Maybe の &lt;|&gt;, 左結合, left recursion, recursive descent parser, Alternative Maybe"
+  data-level="peacock"
+>
+  <h2>2026-10-19</h2>
+  <div class="code-frame">
+    <p class="code-filename">Minus.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Control.Applicative</span> ((&lt;|&gt;))
+<span class="kw">import</span> <span class="ty">Data.Char</span> (isDigit)
+
+<span class="kw">type</span> <span class="ty">Parser</span> = <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">Maybe</span> (<span class="ty">Int</span>, <span class="ty">String</span>)
+
+<span class="fn">num</span> <span class="op">::</span> <span class="ty">Parser</span>
+<span class="fn">num</span> s = <span class="kw">case</span> span isDigit s <span class="kw">of</span>
+  (<span class="st">""</span>, _) <span class="op">-&gt;</span> <span class="ty">Nothing</span>
+  (ds, rest) <span class="op">-&gt;</span> <span class="ty">Just</span> (read ds, rest)
+
+<span class="cm">-- expr ::= num | expr '-' num</span>
+<span class="fn">expr</span> <span class="op">::</span> <span class="ty">Parser</span>
+<span class="fn">expr</span> s = num s &lt;|&gt; minus
+  <span class="kw">where</span>
+    minus = <span class="kw">do</span>
+      (a, <span class="st">'-'</span> : r1) <span class="op">&lt;-</span> expr s
+      (b, r2) <span class="op">&lt;-</span> num r1
+      <span class="ty">Just</span> (a - b, r2)
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (expr <span class="st">"10-4-3"</span>)
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>expr</code> は、数と <code>-</code> だけからなる式を読んで、値と読み残しの文字列を返すつもりの構文解析器です。コメントの文法のとおり、引き算は左から順に計算します。<code>expr "10-4-3"</code> のいまの出力は <code>Just (10,"-4-3")</code> で、最初の数だけを読んで止まっています。本来の出力は <code>Just (3,"")</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="fn">expr</span> s = num s &lt;|&gt; minus
+  <span class="kw">where</span>
+    minus = <span class="kw">do</span>
+      (a, <span class="st">'-'</span> : r1) <span class="op">&lt;-</span> expr s
+</code></pre>
+      <p>
+        <code>Maybe</code> の <code>&lt;|&gt;</code> は、左が <code>Just</code> ならそれを返し、右を評価しません。<code>"10-4-3"</code> では <code>num s</code> が <code>Just (10,"-4-3")</code> を返すので、<code>minus</code> は一度も評価されず、最初の数を読んだところで <code>expr</code> が終わります。先頭が数である入力では、<code>num s</code> は必ず成功するので、<code>minus</code> の出番はありません。
+      </p>
+      <p>
+        <code>minus &lt;|&gt; num s</code> と入れ替えても直りません。<code>minus</code> は最初に同じ <code>s</code> で <code>expr</code> を呼び、その <code>expr</code> もまず <code>minus</code> を評価するので、1文字も読まないまま同じ呼び出しが続き、答えが返らなくなります。<code>expr ::= expr '-' num</code> のように、選択肢の先頭に自分自身が来る文法を左再帰（left recursion）といい、この文法は、選択肢をどの順に並べても、そのまま関数の再帰呼び出しに写すと正しく動きません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="fn">expr</span> s = num s &gt;&gt;= uncurry rest
+  <span class="kw">where</span>
+    rest a (<span class="st">'-'</span> : r1) = <span class="kw">do</span>
+      (b, r2) <span class="op">&lt;-</span> num r1
+      rest (a - b) r2
+    rest a r = <span class="ty">Just</span> (a, r)
+</code></pre>
+      <p>
+        先頭の数を読んでから、<code>-</code> と数の組を読むたびに、それまでの値 <code>a</code> から引いていきます。<code>"10-4-3"</code> では <code>a</code> が10、6、3と変わり、残りが空になった時点で <code>Just (3,"")</code> を返します。<code>rest</code> は呼び出すたびに <code>-</code> と1文字以上の数を読むので必ず止まり、値は左から順に組み立てられるので、文法が表す左結合の計算と一致します<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>Parsec などのパーサコンビネータのライブラリは、この形を <code>chainl1</code> という関数として用意しています。項を読む構文解析器と演算子を読む構文解析器を渡すと、左結合の式を読む構文解析器を返します。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
