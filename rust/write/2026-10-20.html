@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="正の整数 n の平方根を a√b の形に直すときの組 (a, b) を、素因数を小さい順に試して求める simplify_sqrt を書きます。試し割りのあとに残る大きな素因数の扱いを問う、2026-10-20のRust WRITEです。">
+<title>根号の外に出す</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-10-20">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-20" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-10-20",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-10-20",
+      "datePublished": "2026-10-20",
+      "dateModified": "2026-10-20",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "根号の外に出す" },
+      "keywords": "prime-factorization, number-theory, loop",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "正の整数 n の平方根を a√b の形に直すときの組 (a, b) を、素因数を小さい順に試して求める simplify_sqrt を書きます。試し割りのあとに残る大きな素因数の扱いを問う、2026-10-20のRust WRITEです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-20">C23</a>
+  <a href="/cpp/write/2026-10-20">C++26</a>
+  <a href="/rust/write/2026-10-20" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-10-20">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-20">READ</a>
+  <a href="/rust/write/2026-10-20" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-10-20">DEBUG</a>
+</nav>
+
+<main
+  data-topic="根号の外に出す"
+  data-tags="prime-factorization number-theory loop"
+  data-concepts="素因数分解, 平方因子をもたない数, 根号の簡約, 試し割り, prime factorization, squarefree integer, simplifying square roots"
+  data-level="bison"
+>
+  <h2>2026-10-20</h2>
+  <div class="code-frame">
+    <p class="code-filename">simplify_sqrt.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">simplify_sqrt</span>(<span class="kw">mut</span> n: <span class="ty">u64</span>) -&gt; (<span class="ty">u64</span>, <span class="ty">u64</span>) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    1より大きい平方数で割り切れない正の整数を、平方因子をもたない数（squarefree integer）といいます。正の整数 <code>n</code> に対し、<code>n == a * a * b</code> を満たし、<code>b</code> が平方因子をもたない数であるような組 <code>(a, b)</code> を返す <code>simplify_sqrt</code> を書いてください。√n を a√b の形に直したときの a と b にあたり、この組はただ1つに決まります。<code>n</code> は1以上10の12乗以下とし、<code>n</code> が1なら <code>(1, 1)</code> です。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>simplify_sqrt(360)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>(6, 10)</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>simplify_sqrt(98)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>(7, 2)</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>simplify_sqrt(1)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>(1, 1)</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">simplify_sqrt</span>(<span class="kw">mut</span> n: <span class="ty">u64</span>) -&gt; (<span class="ty">u64</span>, <span class="ty">u64</span>) {
+    <span class="kw">let</span> (<span class="kw">mut</span> outside, <span class="kw">mut</span> inside) = (<span class="nu">1</span>, <span class="nu">1</span>);
+    <span class="kw">let</span> <span class="kw">mut</span> p = <span class="nu">2</span>;
+    <span class="kw">while</span> p * p &lt;= n {
+        <span class="kw">while</span> n.<span class="fn">is_multiple_of</span>(p * p) {
+            n /= p * p;
+            outside *= p;
+        }
+        <span class="kw">if</span> n.<span class="fn">is_multiple_of</span>(p) {
+            n /= p;
+            inside *= p;
+        }
+        p += <span class="nu">1</span>;
+    }
+    (outside, inside * n)
+}
+</code></pre>
+      <p>
+        <code>p</code> を2から順に試し、<code>n</code> が <code>p * p</code> で割り切れるあいだは割って <code>p</code> を根号の外に出し、そのあと <code>p</code> でまだ割り切れれば、その1個を根号の中に残します。素因数 <code>p</code> の指数が <code>e</code> なら、外に出る <code>p</code> の個数は <code>e</code> を2で割った商、中に残る個数は余りの0か1です。360 = 2³ × 3² × 5 では、2が外と中に1個ずつ、3が外に1個出ます。
+      </p>
+      <p>
+        ループは <code>p * p &lt;= n</code> のあいだだけ回るので、抜けたあとに1より大きい <code>n</code> が残ることがあります。この <code>n</code> は <code>p</code> 未満の素因数をもたず、しかも <code>p * p</code> より小さいので素数です。指数が1の素因数として、根号の中に掛けます。入力例 1 の5はこの形で残り、最後を <code>inside * n</code> ではなく <code>inside</code> にすると <code>(6, 2)</code> が返って5が消えます。
+      </p>
+      <p>
+        <code>p</code> が4や6のような合成数のときに割り切れることはありません。<code>p</code> より小さい素因数は、その時点で <code>n</code> からすべて取り除かれているからです。<code>n</code> が10の12乗以下なら、<code>p</code> は10の6乗を少し超えるところまでしか進まず、<code>p * p</code> も <code>u64</code> に収まります。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。先に素因数と指数の組をすべて求め、指数を2で割った商と余りから <code>a</code> と <code>b</code> を組み立てても同じ結果になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="型の違う設定値を Dynamic に包んで並べた一覧から、再試行の回数を Int として取り出すはずが、いつも既定値の 1 になってしまう欠陥を直します。2026-10-20のHaskell DEBUGです。">
+<title>Integerで入れた設定値</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-10-20">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-20" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-10-20",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-10-20",
+      "datePublished": "2026-10-20",
+      "dateModified": "2026-10-20",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "Integerで入れた設定値" },
+      "keywords": "type-erasure, type-conversion, maybe",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "型の違う設定値を Dynamic に包んで並べた一覧から、再試行の回数を Int として取り出すはずが、いつも既定値の 1 になってしまう欠陥を直します。2026-10-20のHaskell DEBUGです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-20">C23</a>
+  <a href="/cpp/debug/2026-10-20">C++26</a>
+  <a href="/rust/debug/2026-10-20">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-20" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-20">READ</a>
+  <a href="/haskell/write/2026-10-20">WRITE</a>
+  <a href="/haskell/debug/2026-10-20" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="Integerで入れた設定値"
+  data-tags="type-erasure type-conversion maybe"
+  data-concepts="型消去, Data.Dynamic, fromDynamic, Int と Integer, type erasure, dynamic typing, Typeable"
+  data-level="hedgehog"
+>
+  <h2>2026-10-20</h2>
+  <div class="code-frame">
+    <p class="code-filename">Settings.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Data.Dynamic</span>
+<span class="kw">import</span> <span class="ty">Data.Maybe</span> (fromMaybe)
+
+<span class="fn">number</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">Integer</span>
+<span class="fn">number</span> = read
+
+<span class="fn">settings</span> <span class="op">::</span> [(<span class="ty">String</span>, <span class="ty">Dynamic</span>)]
+<span class="fn">settings</span> = [(<span class="st">"host"</span>, toDyn <span class="st">"localhost"</span>), (<span class="st">"retries"</span>, toDyn (number <span class="st">"3"</span>))]
+
+<span class="fn">retries</span> <span class="op">::</span> <span class="ty">Int</span>
+<span class="fn">retries</span> = fromMaybe <span class="nu">1</span> (lookup <span class="st">"retries"</span> settings &gt;&gt;= fromDynamic)
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print retries
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>settings</code> は、型の違う設定値を <code>Dynamic</code> に包んで名前と組にした一覧で、<code>retries</code> はそこから再試行の回数を <code>Int</code> として取り出し、見つからなければ1を使うつもりの定義です。設定には <code>number "3"</code> の値が入っているので本来の出力は <code>3</code> ですが、いまの出力は <code>1</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="fn">number</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">Integer</span>
+<span class="fn">settings</span> = [(<span class="st">"host"</span>, toDyn <span class="st">"localhost"</span>), (<span class="st">"retries"</span>, toDyn (number <span class="st">"3"</span>))]
+<span class="fn">retries</span> = fromMaybe <span class="nu">1</span> (lookup <span class="st">"retries"</span> settings &gt;&gt;= fromDynamic)
+</code></pre>
+      <p>
+        <code>toDyn</code> は値と一緒にその型の情報を <code>Dynamic</code> に入れ、<code>fromDynamic</code> は、入っている型が求める型と一致したときだけ <code>Just</code> を返します。<code>number "3"</code> の型は <code>Integer</code> なので、<code>"retries"</code> に入っているのは <code>Integer</code> の3です。<code>retries</code> は <code>Int</code> を求めるので型が一致せず、<code>fromDynamic</code> は <code>Nothing</code> を返し、<code>fromMaybe</code> が代わりの1を返します。<code>Int</code> と <code>Integer</code> はどちらも整数を表しますが別の型で、<code>fromDynamic</code> は型の変換をしません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="fn">number</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">Int</span>
+</code></pre>
+      <p>
+        <code>number</code> が <code>Int</code> を返すようにすると、<code>Dynamic</code> に入れる型と取り出す型がそろい、<code>fromDynamic</code> は <code>Just 3</code> を返します。<code>Dynamic</code> に包んだあとの型の食い違いはコンパイラには見えず、実行時に <code>Nothing</code> になるだけなので、入れる側と取り出す側で同じ型を使うことは書く側が守るしかありません<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li><code>Data.Dynamic</code> は base に含まれるモジュールで、使う側のコードに拡張機能は要りません。値の型の情報は <code>Typeable</code> クラスが持っていて、GHC はすべての型に <code>Typeable</code> のインスタンスを自動で用意します。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -132,6 +132,7 @@ event-sourcing	イベントソーシング
 exception	例外
 exception-safety	例外安全性
 exhaustiveness	網羅性
+existential-type	存在型
 exponentiation-by-squaring	繰り返し二乗法
 expression	式と値
 factory	ファクトリ

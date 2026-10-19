@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="C23 の auto で 0 から始めた合計が int になり、double の平均が 1.50 ではなく 1.00 になる欠陥を直します。割り算だけを直しても結果が変わらない理由も扱う、2026-10-20のC DEBUGです。">
+<title>0で始めた合計</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-10-20">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-20" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-10-20",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-10-20",
+      "datePublished": "2026-10-20",
+      "dateModified": "2026-10-20",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "0で始めた合計" },
+      "keywords": "type-deduction, implicit-conversion, floating-point, division",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "C23 の auto で 0 から始めた合計が int になり、double の平均が 1.50 ではなく 1.00 になる欠陥を直します。割り算だけを直しても結果が変わらない理由も扱う、2026-10-20のC DEBUGです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-20" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-10-20">C++26</a>
+  <a href="/rust/debug/2026-10-20">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-20">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-20">READ</a>
+  <a href="/c/write/2026-10-20">WRITE</a>
+  <a href="/c/debug/2026-10-20" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="0で始めた合計"
+  data-tags="type-deduction implicit-conversion floating-point division"
+  data-concepts="C23 auto, 型推論, 複合代入の型変換, 小数部の切り捨て, 整数除算, type inference, implicit conversion, integer division"
+  data-level="bison"
+>
+  <h2>2026-10-20</h2>
+  <div class="code-frame">
+    <p class="code-filename">mean.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">static</span> <span class="ty">double</span> <span class="fn">mean</span>(<span class="kw">const</span> <span class="ty">double</span> *xs, <span class="ty">size_t</span> n) {
+    <span class="kw">auto</span> sum = <span class="nu">0</span>;
+    <span class="kw">for</span> (<span class="ty">size_t</span> i = <span class="nu">0</span>; i &lt; n; i++) {
+        sum += xs[i];
+    }
+    <span class="kw">return</span> sum / n;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="kw">const</span> <span class="ty">double</span> xs[] = {<span class="nu">0.5</span>, <span class="nu">1.25</span>, <span class="nu">2.75</span>};
+    <span class="fn">printf</span>(<span class="st">"%.2f\n"</span>, <span class="fn">mean</span>(xs, <span class="nu">3</span>));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>mean</code> は、<code>double</code> の配列 <code>xs</code> の先頭 <code>n</code> 個の平均を返すつもりの関数です。<code>main</code> は <code>{0.5, 1.25, 2.75}</code> の平均を小数点以下2桁で表示します。いまの出力は <code>1.00</code> で、本来の出力は <code>1.50</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">auto</span> sum = <span class="nu">0</span>;
+<span class="kw">for</span> (<span class="ty">size_t</span> i = <span class="nu">0</span>; i &lt; n; i++) {
+    sum += xs[i];
+}
+<span class="kw">return</span> sum / n;
+</code></pre>
+      <p>
+        <code>auto</code> の型は初期化子 <code>0</code> から決まり、<code>0</code> は <code>int</code> の定数なので、<code>sum</code> は <code>int</code> になります。<code>sum += xs[i]</code> の足し算そのものは <code>double</code> で行われますが、結果を <code>sum</code> に戻すときに <code>int</code> へ変換され、小数部が切り捨てられます。0.5 を足しても <code>sum</code> は0のまま、1.25 を足して1、2.75 を足すと 3.75 から3になります。
+      </p>
+      <p>
+        最後の <code>sum / n</code> も、<code>int</code> と <code>size_t</code> の割り算なので整数の割り算です。3を3で割った1が <code>double</code> に変換されて返り、<code>1.00</code> と表示されます。割り算だけを <code>(double)sum / n</code> に直しても、<code>sum</code> はすでに3なので結果は <code>1.00</code> のままです。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">auto</span> sum = <span class="nu">0.0</span>;
+</code></pre>
+      <p>
+        初期化子を <code>0.0</code> にすると <code>sum</code> は <code>double</code> になり、足すたびの切り捨てが起きなくなります。<code>sum / n</code> でも <code>n</code> のほうが <code>double</code> に変換されて浮動小数点数の割り算になるので、4.5 を3で割った <code>1.50</code> が返ります。型を直す場所は1か所で、足し算と割り算の両方が直ります。<code>auto</code> を使わずに <code>double sum = 0;</code> と型を書けば、初期化子の書き方で型が変わることもありません<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>GCC は <code>-Wconversion</code> を付けると、<code>sum += xs[i]</code> の行に「<code>double</code> から <code>int</code> への変換で値が変わりうる」という警告を出します。この警告は <code>-Wall</code> にも <code>-Wextra</code> にも含まれないので、このコードは警告なしでコンパイルされます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

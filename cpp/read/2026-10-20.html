@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="長さ9の配列を3要素ずつの塊に分け、区間 [2, 9) の和を端の要素と塊ごとの和の組み合わせで求めるコードが、何回の足し算で答えに着くかを追います。2026-10-20のC++ READです。">
+<title>区間を塊で数える</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-10-20">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-20" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-10-20",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-10-20",
+      "datePublished": "2026-10-20",
+      "dateModified": "2026-10-20",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "区間を塊で数える" },
+      "keywords": "sqrt-decomposition, half-open-interval, loop",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "長さ9の配列を3要素ずつの塊に分け、区間 [2, 9) の和を端の要素と塊ごとの和の組み合わせで求めるコードが、何回の足し算で答えに着くかを追います。2026-10-20のC++ READです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-20">C23</a>
+  <a href="/cpp/read/2026-10-20" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-10-20">Rust 2024</a>
+  <a href="/haskell/read/2026-10-20">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-20" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-10-20">WRITE</a>
+  <a href="/cpp/debug/2026-10-20">DEBUG</a>
+</nav>
+
+<main
+  data-topic="区間を塊で数える"
+  data-tags="sqrt-decomposition half-open-interval loop"
+  data-concepts="平方分割, 区間和, 塊ごとの和, 半開区間, sqrt decomposition, range sum query, bucket"
+  data-level="hedgehog"
+>
+  <h2>2026-10-20</h2>
+  <div class="code-frame">
+    <p class="code-filename">block_sum.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="kw">const</span> std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt; a = {<span class="nu">3</span>, <span class="nu">1</span>, <span class="nu">4</span>, <span class="nu">1</span>, <span class="nu">5</span>, <span class="nu">9</span>, <span class="nu">2</span>, <span class="nu">6</span>, <span class="nu">5</span>};
+    <span class="kw">const</span> <span class="ty">int</span> b = <span class="nu">3</span>;
+    std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt; <span class="fn">block</span>(<span class="nu">3</span>);
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; <span class="nu">9</span>; ++i) block[i / b] += a[i];
+
+    <span class="ty">int</span> l = <span class="nu">2</span>, r = <span class="nu">9</span>, sum = <span class="nu">0</span>, steps = <span class="nu">0</span>;
+    <span class="kw">for</span> (; l &lt; r &amp;&amp; l % b != <span class="nu">0</span>; ++l, ++steps) sum += a[l];
+    <span class="kw">for</span> (; l + b &lt;= r; l += b, ++steps) sum += block[l / b];
+    <span class="kw">for</span> (; l &lt; r; ++l, ++steps) sum += a[l];
+    std::cout &lt;&lt; sum &lt;&lt; <span class="st">' '</span> &lt;&lt; steps &lt;&lt; <span class="st">'\n'</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>32 3</code> です。
+      </p>
+      <p>
+        <code>block[k]</code> には、<code>a[3k]</code> から <code>a[3k + 2]</code> までの3要素の和が入っています。区間 <code>[l, r)</code> の和は3つのループで求めます。<code>l</code> が塊の境目に来るまで1要素ずつ足し、塊を丸ごと足せるあいだは <code>block</code> を足し、最後に残った要素をまた1つずつ足します。<code>steps</code> は、どのループでも足し算を1回するたびに1増えます。
+      </p>
+      <p>
+        <code>l = 2</code> は境目ではないので、最初のループで <code>a[2]</code> の4を足し、<code>l</code> は3になります。3は境目なので、2つ目のループに移ります。<code>3 + 3 &lt;= 9</code> で <code>block[1]</code> の15（1 + 5 + 9）を、<code>6 + 3 &lt;= 9</code> で <code>block[2]</code> の13（2 + 6 + 5）を足すと、<code>l</code> は9になって3つ目のループは回りません。和は 4 + 15 + 13 = 32、足し算は3回です。
+      </p>
+      <p>
+        7個の要素の和が3回の足し算で求まりました。長さ <code>n</code> の配列を √n 個程度ずつの塊に分けておくと、端で1つずつ足す要素も、丸ごと足す塊も、それぞれ √n 個程度で済みます。この方法を平方分割（sqrt decomposition）といいます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

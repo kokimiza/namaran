@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Show を持つどんな型の値も、表示のしかただけを閉じ込めた関数として同じ型 Erased に包む erase を、拡張機能を使わない Haskell 2010 の範囲で書きます。Just (-3) の括弧まで元どおりに表示させる、2026-10-20のHaskell WRITEです。">
+<title>括弧を忘れない型消去</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-10-20">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-20" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-10-20",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-10-20",
+      "datePublished": "2026-10-20",
+      "dateModified": "2026-10-20",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "括弧を忘れない型消去" },
+      "keywords": "type-erasure, closure, typeclass, operator-precedence",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "Show を持つどんな型の値も、表示のしかただけを閉じ込めた関数として同じ型 Erased に包む erase を、拡張機能を使わない Haskell 2010 の範囲で書きます。Just (-3) の括弧まで元どおりに表示させる、2026-10-20のHaskell WRITEです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-20">C23</a>
+  <a href="/cpp/write/2026-10-20">C++26</a>
+  <a href="/rust/write/2026-10-20">Rust 2024</a>
+  <a href="/haskell/write/2026-10-20" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-20">READ</a>
+  <a href="/haskell/write/2026-10-20" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-10-20">DEBUG</a>
+</nav>
+
+<main
+  data-topic="括弧を忘れない型消去"
+  data-tags="type-erasure closure typeclass operator-precedence"
+  data-concepts="型消去, クロージャ, showsPrec, 表示の優先度, type erasure, closure, showsPrec precedence"
+  data-level="peacock"
+>
+  <h2>2026-10-20</h2>
+  <div class="code-frame">
+    <p class="code-filename">Erase.hs</p>
+    <pre class="code"><code><span class="kw">newtype</span> <span class="ty">Erased</span> = <span class="ty">Erased</span> (<span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">ShowS</span>)
+
+<span class="kw">instance</span> <span class="ty">Show</span> <span class="ty">Erased</span> <span class="kw">where</span>
+  showsPrec d (<span class="ty">Erased</span> f) = f d
+
+<span class="fn">erase</span> <span class="op">::</span> <span class="ty">Show</span> a <span class="op">=&gt;</span> a <span class="op">-&gt;</span> <span class="ty">Erased</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>Show</code> を持つどんな型の値も、表示のしかただけを残して同じ型 <code>Erased</code> に包む <code>erase</code> を書いてください。包んだ値は、元の値を同じ場所に置いたときと同じ文字列で表示されるようにします。<code>Just</code> の引数のように、値によっては括弧が要る位置に置いた場合も同じで、元の値に括弧が付くなら包んだ値にも付けます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>show [erase (1 :: Int), erase "hi", erase 'c']</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>[1,"hi",'c']</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>show (Just (erase (-3 :: Int)))</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>Just (-3)</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>show (Just (erase (Just True)))</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>Just (Just True)</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="fn">erase</span> <span class="op">::</span> <span class="ty">Show</span> a <span class="op">=&gt;</span> a <span class="op">-&gt;</span> <span class="ty">Erased</span>
+<span class="fn">erase</span> x = <span class="ty">Erased</span> (\d <span class="op">-&gt;</span> showsPrec d x)
+</code></pre>
+      <p>
+        <code>Erased</code> が持っているのは、優先度 <code>d</code> を受け取って文字列を組み立てる関数だけです。<code>erase</code> は <code>x</code> を閉じ込めた関数 <code>\d -&gt; showsPrec d x</code> を作るので、外からは <code>x</code> の型が見えず、<code>Int</code> も <code>String</code> も同じ <code>Erased</code> としてリストに並べられます。どの型の <code>showsPrec</code> を使うかは関数を作った時点で決まり、関数の中に残ります。
+      </p>
+      <p>
+        優先度を受け取るのは、括弧を付けるかどうかを外側の文脈が決めるからです。<code>Just</code> の <code>showsPrec</code> は引数を優先度11で表示させ、<code>Int</code> の <code>showsPrec</code> は優先度が6より大きいときに負の数を括弧で囲みます。<code>\_ -&gt; shows x</code> のように優先度を捨てると、<code>shows</code> はいつも優先度0で表示するので、入力例 2 は <code>Just -3</code> に、入力例 3 は <code>Just Just True</code> になります。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>erase x = Erased (`showsPrec` x)</code> のように、演算子の切断で書くこともできます。どちらも拡張機能を使わず、Haskell 2010 の範囲で型を消しています。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

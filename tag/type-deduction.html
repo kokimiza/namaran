@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「型推論」を扱ったNamaranのコーディングドリル10問。共変戻り値型、仮想関数、静的な型と動的な型、auto の型推論、covariant return type、static type。">
+<meta name="description" content="「型推論」を扱ったNamaranのコーディングドリル13問。SWAPマクロ、C23 auto、引数の多重評価、do while 0、swap macro、macro side effects。">
 <title>型推論</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/type-deduction">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>型推論</h2>
 
   <p class="lede">
-    「型推論」を扱った10問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「型推論」を扱った13問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/c/write/2026-10-20">C / WRITE · 2026-10-20</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">一度だけ評価するSWAP</span> <span class="past-concepts">SWAPマクロ, C23 auto, 引数の多重評価, do while 0, swap macro, macro side effects, type inference</span></li>
+    <li><a href="/c/read/2026-10-20">C / READ · 2026-10-20</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">autoで受けた配列</span> <span class="past-concepts">C23 auto, 型推論, 配列からポインタへの変換, 構造体のコピー, type inference, array-to-pointer conversion, array decay</span></li>
+    <li><a href="/c/debug/2026-10-20">C / DEBUG · 2026-10-20</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">0で始めた合計</span> <span class="past-concepts">C23 auto, 型推論, 複合代入の型変換, 小数部の切り捨て, 整数除算, type inference, implicit conversion, integer division</span></li>
     <li><a href="/cpp/read/2026-10-19">C++ / READ · 2026-10-19</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">クローンを受け取る型</span> <span class="past-concepts">共変戻り値型, 仮想関数, 静的な型と動的な型, auto の型推論, covariant return type, static type, clone</span></li>
     <li><a href="/cpp/read/2026-10-11">C++ / READ · 2026-10-11</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">静的バッファを返す関数</span> <span class="past-concepts">静的バッファ, 再入不可能な関数, auto の型推論, const char* と std::string, static buffer, non-reentrant function, auto type deduction</span></li>
     <li><a href="/cpp/debug/2026-10-04">C++ / DEBUG · 2026-10-04</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">CSVの引用符が付かない</span> <span class="past-concepts">decltypeと参照, std::remove_cvref_t, if constexpr, std::is_same_v, decltype of reference parameter, CSV quoting</span></li>

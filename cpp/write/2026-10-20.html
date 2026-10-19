@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="配列を b 要素ずつの塊に分けて持ち、区間 [l, r) のすべての要素に x を足す add を、丸ごと入る塊には塊ごとの加算値で、はみ出した端には要素ごとに足して書きます。2026-10-20のC++ WRITEです。">
+<title>塊ごとに足す区間加算</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-10-20">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-20" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-10-20",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-10-20",
+      "datePublished": "2026-10-20",
+      "dateModified": "2026-10-20",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "塊ごとに足す区間加算" },
+      "keywords": "sqrt-decomposition, half-open-interval, struct",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "配列を b 要素ずつの塊に分けて持ち、区間 [l, r) のすべての要素に x を足す add を、丸ごと入る塊には塊ごとの加算値で、はみ出した端には要素ごとに足して書きます。2026-10-20のC++ WRITEです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-20">C23</a>
+  <a href="/cpp/write/2026-10-20" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-10-20">Rust 2024</a>
+  <a href="/haskell/write/2026-10-20">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-20">READ</a>
+  <a href="/cpp/write/2026-10-20" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-10-20">DEBUG</a>
+</nav>
+
+<main
+  data-topic="塊ごとに足す区間加算"
+  data-tags="sqrt-decomposition half-open-interval struct"
+  data-concepts="平方分割, 区間加算, 塊ごとの加算値, 半開区間, sqrt decomposition, range add, lazy tag"
+  data-level="hedgehog"
+>
+  <h2>2026-10-20</h2>
+  <div class="code-frame">
+    <p class="code-filename">range_add.cpp</p>
+    <pre class="code"><code><span class="kw">struct</span> <span class="ty">Blocks</span> {
+    <span class="ty">int</span> b;
+    std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt; a, tag;
+    <span class="ty">int</span> <span class="fn">get</span>(<span class="ty">int</span> i) <span class="kw">const</span> { <span class="kw">return</span> a[i] + tag[i / b]; }
+};
+
+<span class="ty">void</span> <span class="fn">add</span>(<span class="ty">Blocks</span>&amp; s, <span class="ty">int</span> l, <span class="ty">int</span> r, <span class="ty">int</span> x) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    配列を <code>b</code> 要素ずつの塊に分けて持つ <code>Blocks</code> の、区間 <code>[l, r)</code> のすべての要素に <code>x</code> を足す <code>add</code> を書いてください。要素 <code>i</code> の値は、<code>get</code> のとおり <code>a[i]</code> とその要素を含む塊の <code>tag</code> の和です。区間に丸ごと入る塊はその塊の <code>tag</code> に足し、一部だけが入る塊は区間に入る要素の <code>a</code> に1つずつ足します。<code>l == r</code> のときは何も変えません。例の <code>s</code> は、<code>b</code> が3で、8個の <code>a</code> と3個の <code>tag</code> がすべて0の状態から <code>add</code> を1回呼んだもので、出力例は <code>s.get(0)</code> から <code>s.get(7)</code> までを並べたものです。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>add(s, 1, 7, 5)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>0 5 5 5 5 5 5 0</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>add(s, 4, 4, 9)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>0 0 0 0 0 0 0 0</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>add(s, 0, 8, 2)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>2 2 2 2 2 2 2 2</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="ty">void</span> <span class="fn">add</span>(<span class="ty">Blocks</span>&amp; s, <span class="ty">int</span> l, <span class="ty">int</span> r, <span class="ty">int</span> x) {
+    <span class="kw">for</span> (; l &lt; r &amp;&amp; l % s.b != <span class="nu">0</span>; ++l) s.a[l] += x;
+    <span class="kw">for</span> (; l + s.b &lt;= r; l += s.b) s.tag[l / s.b] += x;
+    <span class="kw">for</span> (; l &lt; r; ++l) s.a[l] += x;
+}
+</code></pre>
+      <p>
+        左端 <code>l</code> が塊の境目に来るまでは <code>a</code> に1つずつ足し、境目からは塊を丸ごと覆えるあいだ <code>tag</code> に足し、最後に残った要素をまた <code>a</code> に足します。入力例 1 では <code>a[1]</code> と <code>a[2]</code> に足したあと <code>tag[1]</code> に足し、残った <code>a[6]</code> に足します。丸ごと入る塊の中は1つずつ書き換えないので、1回の <code>add</code> で触る値の数は、両端の要素が合わせて塊の大きさの2倍未満、<code>tag</code> が塊の数以下に収まります。
+      </p>
+      <p>
+        3つのループの条件は <code>l &lt; r</code> か <code>l + s.b &lt;= r</code> を含むので、<code>l == r</code> ならどれも1回も回りません。入力例 3 の最後の塊は要素6、7、8にあたりますが、配列は要素7で終わるので <code>6 + 3 &lt;= 8</code> が成り立たず、<code>tag[2]</code> ではなく <code>a[6]</code> と <code>a[7]</code> に足されます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。要素ごとに、その要素を含む塊が区間に丸ごと入るかを調べて足し先を選ぶ書き方もあります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

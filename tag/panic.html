@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「パニック」を扱ったNamaranのコーディングドリル4問。RefCellの二重借用、Rc::ptr_eq、一時値の寿命、already borrowed、BorrowMutError、Rc aliasing。">
+<meta name="description" content="「パニック」を扱ったNamaranのコーディングドリル5問。素因数分解、試し割り、整数オーバーフロー、掛け算の桁あふれ、prime factorization、trial division。">
 <title>パニック</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/panic">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>パニック</h2>
 
   <p class="lede">
-    「パニック」を扱った4問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「パニック」を扱った5問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/debug/2026-10-20">Rust / DEBUG · 2026-10-20</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">u32の上限近くの素数</span> <span class="past-concepts">素因数分解, 試し割り, 整数オーバーフロー, 掛け算の桁あふれ, prime factorization, trial division, integer overflow panic</span></li>
     <li><a href="/rust/write/2026-10-03">Rust / WRITE · 2026-10-03</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">共有されたVecを併合</span> <span class="past-concepts">RefCellの二重借用, Rc::ptr_eq, 一時値の寿命, already borrowed, BorrowMutError, Rc aliasing</span></li>
     <li><a href="/rust/debug/2026-10-03">Rust / DEBUG · 2026-10-03</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">在庫を足して合計</span> <span class="past-concepts">RefCellの借用ガード, already mutably borrowed, RefMutの寿命, BorrowError, borrow guard scope</span></li>
     <li><a href="/rust/debug/2026-09-29">Rust / DEBUG · 2026-09-29</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">容量の2のべき判定</span> <span class="past-concepts">2のべき乗判定, x &amp; (x - 1), 減算のオーバーフロー, リングバッファの容量, power of two check, integer overflow panic, is_power_of_two</span></li>

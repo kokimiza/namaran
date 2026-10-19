@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="C23 の auto で配列と、配列を包んだ構造体をそれぞれ受け取り、要素を書き換えたときに元の変数が変わるかを追います。2026-10-20のC READです。">
+<title>autoで受けた配列</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-10-20">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-20" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-10-20",
+      "url": "https://namaran.jocarium.productions/c/read/2026-10-20",
+      "datePublished": "2026-10-20",
+      "dateModified": "2026-10-20",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "autoで受けた配列" },
+      "keywords": "type-deduction, pointer-decay, array, struct",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "C23 の auto で配列と、配列を包んだ構造体をそれぞれ受け取り、要素を書き換えたときに元の変数が変わるかを追います。2026-10-20のC READです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-20" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-10-20">C++26</a>
+  <a href="/rust/read/2026-10-20">Rust 2024</a>
+  <a href="/haskell/read/2026-10-20">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-20" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-10-20">WRITE</a>
+  <a href="/c/debug/2026-10-20">DEBUG</a>
+</nav>
+
+<main
+  data-topic="autoで受けた配列"
+  data-tags="type-deduction pointer-decay array struct"
+  data-concepts="C23 auto, 型推論, 配列からポインタへの変換, 構造体のコピー, type inference, array-to-pointer conversion, array decay"
+  data-level="hedgehog"
+>
+  <h2>2026-10-20</h2>
+  <div class="code-frame">
+    <p class="code-filename">auto_copy.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">struct</span> <span class="ty">pair</span> { <span class="ty">int</span> v[<span class="nu">2</span>]; };
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="ty">int</span> raw[<span class="nu">2</span>] = {<span class="nu">1</span>, <span class="nu">2</span>};
+    <span class="kw">struct</span> <span class="ty">pair</span> boxed = {{<span class="nu">1</span>, <span class="nu">2</span>}};
+
+    <span class="kw">auto</span> r = raw;
+    <span class="kw">auto</span> b = boxed;
+    r[<span class="nu">0</span>] = <span class="nu">10</span>;
+    b.v[<span class="nu">0</span>] = <span class="nu">10</span>;
+
+    <span class="fn">printf</span>(<span class="st">"%d %d %d\n"</span>, raw[<span class="nu">0</span>], boxed.v[<span class="nu">0</span>], b.v[<span class="nu">0</span>]);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>10 1 10</code> の1行です。
+      </p>
+      <p>
+        <code>auto</code> で宣言した変数の型は、初期化子の式の型で決まります。式の中に配列の名前を書くと、その配列は先頭要素へのポインタに変換されるので、<code>auto r = raw;</code> の <code>r</code> は <code>int *</code> になって <code>raw</code> の先頭を指します<sup class="fn-ref">1</sup>。そのため <code>r[0] = 10</code> は、<code>raw[0]</code> そのものを10に書き換えます。
+      </p>
+      <p>
+        構造体の値にはこの変換が起きません。<code>auto b = boxed;</code> の <code>b</code> は <code>struct pair</code> 型の新しい変数で、メンバの配列 <code>v</code> ごと <code>boxed</code> の中身がコピーされます。<code>b.v[0] = 10</code> が変えるのは <code>b</code> の中の配列だけなので、<code>boxed.v[0]</code> は1のまま、<code>b.v[0]</code> は10です。
+      </p>
+      <ol class="footnotes">
+        <li>C23 の規格は、<code>auto</code> で宣言した変数の型を、初期化子に配列からポインタへの変換などを施したあとの型と定めています。<code>auto</code> の型が配列型になることはありません。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
