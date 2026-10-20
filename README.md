@@ -12,7 +12,7 @@ AIコーディングツールで仕事の生産性は上がった一方、自分
 
 ## 出題
 
-毎日、4言語 × 3種別の12問を公開します。
+毎日、5言語 × 3種別の15問を公開します(Zigは2026-10-21から)。
 
 | 言語 | 対象バージョン |
 |---|---|
@@ -20,6 +20,7 @@ AIコーディングツールで仕事の生産性は上がった一方、自分
 | C++ | C++26 |
 | Rust | Rust 2024 edition |
 | Haskell | Haskell 2010 |
+| Zig | Zig 0.17 |
 
 | 種別 | 内容 |
 |---|---|
@@ -36,7 +37,7 @@ AIコーディングツールで仕事の生産性は上がった一方、自分
 | バイソン | 中級 |
 | クジラ | 上級 |
 
-毎日の12問の難易度は、1問ずつ独立に抽選します。過去の傾向は見ないので、12問すべてがクジラの日もあります。過去問は [/levels](https://namaran.jocarium.productions/levels) から難易度別にも辿れます。
+毎日の15問の難易度は、1問ずつ独立に抽選します。過去の傾向は見ないので、15問すべてがクジラの日もあります。過去問は [/levels](https://namaran.jocarium.productions/levels) から難易度別にも辿れます。
 
 実行環境・採点・スコア・ランキング・アカウントはありません。意図的に作っていません。過去の問題は日付ごとのアーカイブから読めます。
 
@@ -48,7 +49,8 @@ AIコーディングツールで仕事の生産性は上がった一方、自分
 
 ```text
 GitHub Actions(毎日 00:10 JST)
-  write   お題(script/odai.sh)と難易度(script/level.sh)を抽選し、Claude Code が namara-daily Skill で12問を書く
+  write   お題(script/odai.sh)と難易度(script/level.sh)を抽選し、Claude Code が namara-daily Skill で15問を書く
+          (Zigは zig-mcp で同じ版の資料を引きながら書く)
   verify  Claudeが触っていない別のランナーで、パッチを検査(script/check-patch.sh)し、
           コンパイル・実行・静的解析で答えを裏付ける(script/verify.sh)
   publish 検査を通ったパッチだけを main に当て、索引と sitemap.xml を作り直して push
@@ -67,6 +69,7 @@ Claudeが動くジョブは読み取り権限しか持ちません。公開す�
 | C++ | `g++-14 -std=c++26 -Werror`、ASan/UBSan付きで実行 | `clang-format` 23.1.2([.clang-format](.clang-format)) |
 | Rust | `clippy-driver --edition 2024 -D warnings` | `rustfmt`、stable([rustfmt.toml](rustfmt.toml)) |
 | Haskell | `ghc -XHaskell2010 -Wall -Werror`、`hlint` | `fourmolu` 0.21.0.0([fourmolu.yaml](fourmolu.yaml)) |
+| Zig | `zig build-exe`(0.17.0、Debugビルドの安全検査付きで実行)、テストがあれば `zig test` | `zig fmt`(Zig 0.17.0 に同梱、設定なし) |
 
 コードは整形ツールの出力どおりでなければ公開しません。整形の版は固定してあり、CIでも手元でも同じ結果になります。READの答えの出力は実際の実行結果と照合し、「コンパイルエラーになる」という答えは実際に失敗することを確かめます。DEBUGの問題文が「いまはこう出力される」と書くときは、壊れたプログラムを実際に動かしてその出力と照合します。
 
@@ -75,7 +78,7 @@ Claudeが動くジョブは読み取り権限しか持ちません。公開す�
 ```text
 index.html, style.css, 404.html, _headers   サイト本体
 level/*.svg                                  難易度の動物(手描きのSVG)。style.css がマスクとして使う
-{c,cpp,rust,haskell}/{read,write,debug}/
+{c,cpp,rust,haskell,zig}/{read,write,debug}/
   YYYY/MM/YYYY-MM-DD.html                    日付ごとの問題ページ(年・月で分ける。URLは /{lang}/{type}/YYYY-MM-DD。公開後は編集しない)
   archive.html                               その言語・種別の過去問一覧(日付とお題)
 topics.html, tag/                            生成物。お題から過去問を辿る索引
@@ -94,14 +97,16 @@ script/tags.tsv                              タグ語彙(URL用のslugと、画
 script/sitemap.sh                            sitemap.xml の生成
 sitemap.xml, robots.txt                      生成物と、その場所を示す1行
 .claude/skills/namara-daily/                 問題作成の手順(SKILL.md)とお題の候補集(odai.txt)
+.claude/skills/humanizer-ja-tech/            日本語の推敲の手順(SKILL.md)。問題作成の途中で /humanizer-ja-tech として呼ぶ
 .github/workflows/                           定期実行ワークフローと生成物の追随
+.github/zig-mcp/                             Zigの資料を引くMCPサーバー(zig-mcp)の依存をロックファイルで固定したもの
 doc/                                         要件定義・基本設計
 ```
 
 ## 手元で問題を作る
 
 ```text
-/namara-daily                                  今日の12問を抽選お題で作る
+/namara-daily                                  今日の15問を抽選お題で作る
 /namara-daily 2026-09-20 rust/debug 所有権の移動  言語・種別・テーマを指定する
 ```
 

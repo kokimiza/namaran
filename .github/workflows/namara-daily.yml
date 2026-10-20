@@ -1,12 +1,14 @@
-# Publishes one day's Namaran drills (4 languages x READ/WRITE/DEBUG) without
+# Publishes one day's Namaran drills (5 languages x READ/WRITE/DEBUG) without
 # a human in the loop. See doc/basic-design.md §9.2 for why it is shaped
 # like this.
 #
 #   write    Draws each language's topic (script/odai.sh) and each drill's
 #            difficulty (script/level.sh) before Claude starts, then Claude
-#            Code writes the pages with the namara-daily skill. Claude can
-#            run any command here, so nothing this job produces is trusted:
-#            it only hands on a patch and the verification sources.
+#            Code writes the pages with the namara-daily skill, with zig-mcp
+#            serving the pinned Zig's documentation for the Zig drills.
+#            Claude can run any command here, so nothing this job produces
+#            is trusted: it only hands on a patch and the verification
+#            sources.
 #   verify   A fresh runner that Claude never touched. Checks the patch with
 #            script/check-patch.sh (from main, not from the patch) — which
 #            also holds every page to the difficulty drawn for it — applies
@@ -24,8 +26,9 @@
 # CLAUDE_CODE_OAUTH_TOKEN repository secret. Runs count against that
 # subscription's usage limits instead of API credits.
 #
-# Third-party actions are pinned to commit SHAs; .github/dependabot.yml
-# proposes updates.
+# Third-party actions are pinned to commit SHAs, and zig-mcp with all its npm
+# dependencies by .github/zig-mcp/package-lock.json; .github/dependabot.yml
+# proposes updates to both.
 
 name: Namaran daily
 
@@ -56,7 +59,7 @@ env:
 jobs:
   write:
     runs-on: ubuntu-24.04
-    timeout-minutes: 150
+    timeout-minutes: 180
     permissions:
       contents: read
     outputs:
@@ -84,7 +87,7 @@ jobs:
           # Published pages are never edited (doc/basic-design.md §7.1), so
           # only combos without a page for this date are written.
           combos=""
-          for lang in c cpp rust haskell; do
+          for lang in c cpp rust haskell zig; do
             for type in read write debug; do
               [ -e "$lang/$type/${date:0:4}/${date:5:2}/$date.html" ] || combos+="$lang/$type "
             done
@@ -121,24 +124,17 @@ jobs:
           - C++: $(topic_of cpp)
           - Rust: $(topic_of rust)
           - Haskell: $(topic_of haskell)
+          - Zig: $(topic_of zig)
 
           難易度は script/level.sh が組ごとに抽選済み(SKILL.md「難易度」)。各ページはこの難易度で書き、<main> の data-level にこの値を入れる。偏っていても、過去の傾向に合わせて変えない:
           $(printf '%s\n' "$level_lines" | awk -F'\t' 'NF == 2 { printf "- %s: %s\n", $1, $2 }')
 
+          Zig の組は CLAUDE.md の表の版の Zig で書く。Zig は 1.0 より前で、リリースのたびに標準ライブラリの API が変わる。記憶にある書き方は古い版のものであることが多い:
+          - Zig のコードを書く前に、使う標準ライブラリの宣言と組み込み関数を zig-docs MCP で確かめる。std は search_std_lib で探して get_std_lib_item で読み、組み込み関数は get_builtin_function(一覧は list_builtin_functions)で読む。zig-docs はこのランナーに入っている、検証と同じ zig から資料を引く。
+          - zig-docs のツールが使えないときは、zig env が示す std_dir の下のソースと、zig 本体と同じディレクトリにある doc/langref.html を読む。
+          - 標準出力への書き方など、この版で確かめた書き方は SKILL.md の「Zig」の節にある。zig/ の過去ページがまだ無い組は、同じ種別のほかの言語の直近ページを書式の参考にする(SKILL.md §2)。
+
           コードは .claude/skills/namara-daily/ponytail.md の規律で短く書く。書き始める前にこのファイルを最後まで読む。READ・DEBUG のコードは21行以内で、超えたら作問ミスとして切り口から作り直す(行を詰めて収めない)。
-
-          日本語の文章は .claude/skills/namara-daily/humanizer-ja-tech.md で必ず推敲する。1ページも省略しない:
-          - 書き始める前にこのファイルを最後まで読む。
-          - 1ページの TODO を埋め終えるたびに、ハイライトと検証の前に、同ファイル §7 の手順をそのページの問題文・解説・脚注・meta description に適用する。直してよい箇所と変えてはいけないもの(答え・コード・出力・難易度、脚注の HTML 書式など)は §8 に従う。技術的な内容に手を入れたら script/verify.sh をやり直す。
-          - script/verify.sh は、推敲で消えるはずの型(AIの定型句、ダッシュ、全角英数字、である調の混入、脚注の番号と本文のずれ)が残っていると落ちる。ただし検査に通るだけでは推敲したことにならない。情報の順序や短文の羅列は §7 のパスでしか直せない。
-          - 最終報告に、ページごとに推敲で直した主な点を書く。
-
-          東大入試が教科書を超える概念を問題文で定義し、高校生に読めるように作ってあるのに倣う(SKILL.md §3「読者の前提知識と、それを超える知識の定義」):
-          - 読者の前提知識は、その言語を日常的に書くプログラマの知識と、日本の高校の教科書の範囲の数学・理科・社会だけとする。
-          - プログラミング以外の分野(数学、確率・統計、物理、会計・金融、暦など)の概念には、初出で学術用語を書き、英語名を括弧で添える。例: 最大公約数(greatest common divisor)、偶数丸め(round half to even)。
-          - 前提知識を超える概念は、問題文の中で前提知識の言葉だけを使って「〜を…といいます」と定義する。名前を知らない読者が定義だけで解けるようにする。名前は定義の代わりにならない。
-          - 解き方そのものの名前(ユークリッドの互除法など)は問題文に書かず、解説で出して中身を前提知識の言葉で説明する。
-          - 最終報告に、ページごとに添えた学術用語と、問題文で定義した概念を書く(無ければ「なし」)。
 
           これは GitHub Actions 上の非対話実行である(SKILL.md「非対話実行」を参照)。
           - 検証用ソースは $verify_dir/{lang}/{type}/ に置き、次のコマンドが全件通るまで直す:
@@ -153,7 +149,7 @@ jobs:
             echo "### Namaran $date"
             echo
             if [ -z "$combos" ]; then
-              echo "All 12 pages for $date already exist; nothing to write."
+              echo "All 15 pages for $date already exist; nothing to write."
             else
               echo "Combos: \`$combos\`"
               echo
@@ -166,6 +162,71 @@ jobs:
       - name: Install toolchains
         if: steps.plan.outputs.combos != ''
         uses: ./.github/actions/toolchains
+
+      # Zig's standard library changes from one release to the next, and
+      # Claude remembers older ones best, so the Zig drills are written
+      # against the docs of the very zig that verifies them: zig-mcp
+      # (https://github.com/zig-wasm/zig-mcp) reads the langref and std
+      # sources out of the zig on PATH. Installed from the lockfile, every
+      # package pinned by hash, with no install scripts run.
+      #
+      # On a fresh runner, `zig std` (how zig-mcp serves the std sources)
+      # first has to compile itself, which takes longer than the 10 seconds
+      # zig-mcp waits for it, and zig-mcp then falls back to downloading the
+      # docs of `--version` — "master" unless told otherwise. So the server
+      # is built here before Claude starts, `zig-mcp update` fills zig-mcp's
+      # cache (both caches create their own directories), and --version is
+      # pinned to the installed zig in case the fallback runs anyway.
+      #
+      # Failing here must not stop the day: the drills are verified either
+      # way, and the prompt tells Claude where the docs are without zig-mcp.
+      # Whatever happens, the step hands on an MCP config, empty if zig-mcp
+      # could not be installed. It is passed inline, not as a file path: the
+      # action merges inline configs with its own and drops a file path when
+      # it has one of its own (base-action/src/parse-sdk-options.ts).
+      - name: Install zig-mcp and build zig std
+        id: zigdocs
+        if: steps.plan.outputs.combos != ''
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          # The quotes in $config are JSON's, not the shell's.
+          # shellcheck disable=SC2089
+          config='{"mcpServers":{}}'
+          # shellcheck disable=SC2090
+          trap 'echo "mcp_config=$config" >> "$GITHUB_OUTPUT"' EXIT
+          dir="$RUNNER_TEMP/zig-mcp"
+          mkdir -p "$dir"
+          cp .github/zig-mcp/package.json .github/zig-mcp/package-lock.json "$dir/"
+          npm ci --prefix "$dir" --ignore-scripts --no-audit --no-fund --loglevel=error
+          mcp_js="$dir/node_modules/zig-mcp/dist/mcp.js"
+          zig_version="$(zig version)"
+
+          log="$RUNNER_TEMP/zig-std.log"
+          (cd "$RUNNER_TEMP" && exec zig std --no-open-browser) > "$log" 2>&1 &
+          pid=$!
+          for _ in $(seq 1 240); do
+            grep -q 'http://' "$log" && break
+            kill -0 "$pid" 2> /dev/null || break
+            sleep 1
+          done
+          kill "$pid" 2> /dev/null || true
+          wait "$pid" 2> /dev/null || true
+          grep -q 'http://' "$log" ||
+            { echo "::warning::zig std did not start; zig-mcp will use the zig $zig_version docs from ziglang.org"; cat "$log"; }
+
+          (cd "$RUNNER_TEMP" && node "$mcp_js" update --doc-source local --version "$zig_version") ||
+            echo "::warning::zig-mcp could not fill its cache; it will try again when Claude starts it"
+
+          config="$(python3 - "$(command -v node)" "$mcp_js" "$zig_version" "$(command -v zig)" <<'PY'
+          import json, sys
+          node, mcp_js, version, zig = sys.argv[1:]
+          server = {"command": node,
+                    "args": [mcp_js, "--doc-source", "local", "--version", version],
+                    "env": {"ZIG_PATH": zig}}
+          print(json.dumps({"mcpServers": {"zig-docs": server}}, separators=(",", ":")))
+          PY
+          )"
 
       - name: Write drills with Claude Code (namara-daily skill)
         id: claude
@@ -182,15 +243,20 @@ jobs:
           prompt: ${{ steps.plan.outputs.prompt }}
           claude_args: >-
             --model ${{ env.CLAUDE_MODEL }}
-            --max-turns 400
+            --max-turns 500
             --add-dir ${{ steps.plan.outputs.verify_dir }}
-            --allowedTools "Read,Edit,Write,Glob,Grep,Bash"
+            --mcp-config '${{ steps.zigdocs.outputs.mcp_config }}'
+            --allowedTools "Read,Edit,Write,Glob,Grep,Bash,Skill(humanizer-ja-tech),mcp__zig-docs__search_std_lib,mcp__zig-docs__get_std_lib_item,mcp__zig-docs__get_builtin_function,mcp__zig-docs__list_builtin_functions"
             --disallowedTools "Agent"
           # No subagents: in a non-interactive run the session ends as soon as
           # the main turn does, and subagents still running in the background
           # are killed with it. A run on 2026-09-17 handed all 12 drills to
           # background agents, ended its turn "waiting for them", and left
           # nothing but templates behind.
+          # Skill(humanizer-ja-tech) lets the namara-daily skill call the
+          # Japanese revision skill once per page; the slash command at the
+          # top of the prompt needs no rule, but a skill Claude invokes itself
+          # goes through the Skill tool.
           # Bash is not narrowed to a command list. Writing a drill means
           # compiling and running code Claude just wrote, so a list never
           # limited what could run; it only made Claude give up when a needed
@@ -300,7 +366,7 @@ jobs:
     needs: write
     if: needs.write.outputs.combos != ''
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 40
     permissions:
       contents: read
     steps:

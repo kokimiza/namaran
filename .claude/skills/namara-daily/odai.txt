@@ -1,10 +1,11 @@
 # Namaranのお題候補。1行に「ラベル: テーマ」。script/odai.sh が言語ごとに1つ抽選する。
-# ラベルは C23 / C++26 / Rust2024 / Haskell2010 か、4言語すべての候補になる Any。
+# ラベルは C23 / C++26 / Rust2024 / Haskell2010 / Zig か、C・C++・Rust・Haskellの4言語すべての候補になる Any。
+# Zig は Any を引かず、Zig の行だけから抽選する(理由は script/odai.sh の冒頭)。
 # #で始まる行と空行は無視される。
 #
 # 足すときの基準:
 # - READ・DEBUGを21行以内で書ける切り口があること(ponytail.md)。長いアルゴリズムは要の数行を切り出して問う
-# - script/verify.sh のツールチェーン(gcc-14 / g++-14 / 安定版rustc / GHC、標準ライブラリのみ)で確かめられること
+# - script/verify.sh のツールチェーン(gcc-14 / g++-14 / 安定版rustc / GHC / Zig 0.17.0、標準ライブラリのみ)で確かめられること
 # - Anyの行と同じことを特定の言語の言葉で言い直しただけの行は足さない(Anyがその言語の候補も兼ねる)
 
 # ---- C23 ----
@@ -442,7 +443,39 @@ Haskell2010: 結び目を作る(tying the knot)
 Haskell2010: Rationalと%で分数を正確に扱う
 Haskell2010: 遅延IOでファイルを閉じると中身が読めない
 
-# ---- Any(4言語すべての候補になる) ----
+# ---- Zig 0.17 ----
+Zig: comptime引数で型を受け取り、関数から新しい型を返す
+Zig: comptime varと通常のvarで評価されるタイミングが違う
+Zig: inline forで型の異なるタプルの要素を処理する
+Zig: @TypeOfと@typeInfoで型をコンパイル時に調べる
+Zig: @fieldと@hasFieldで構造体のフィールドを名前から操作する
+Zig: @compileErrorと@compileLogでコンパイル時に診断する
+Zig: @inComptimeでコンパイル時と実行時の処理を切り替える
+Zig: anytype引数とcomptime T: type引数の違い
+Zig: .{}による匿名構造体と.{1, 2}によるタプルの違い
+Zig: undefinedを読んではいけない理由と未初期化領域の扱い
+Zig: ?Tとorelseでnullの場合の代替値を指定する
+Zig: if (optional) |value|でnull以外の値を取り出す
+Zig: !Tとtryによるエラーの伝播
+Zig: catchとcatch unreachableでエラーを処理する場合の違い
+Zig: errdeferがエラーでスコープを抜ける場合だけ実行される
+Zig: errdeferのペイロード捕捉で発生したエラーを参照する
+Zig: error集合の結合と推論されるエラー集合の違い
+Zig: ラベル付きブロックとbreak :labelで値を返す
+Zig: switchの範囲パターンと複数の値をまとめた分岐
+Zig: inline elseによるswitch分岐のコンパイル時展開
+Zig: ラベル付きswitchとcontinue :labelで状態を遷移させる
+Zig: whileの継続式:(i += 1)がcontinue時にも実行される
+Zig: for (a, b) |x, y|で複数の配列を同時に走査する
+Zig: [N]Tと[]Tと[*]Tと*Tの違い
+Zig: [*:0]const u8と[:0]const u8による番兵付きデータの扱い
+Zig: packed struct(u8)とu3・u5によるビット単位の配置
+Zig: @backingIntと@fromBackingIntでpacked structを整数と相互変換する
+Zig: @bitCastと@intCastでビットの再解釈と数値変換を区別する
+Zig: @alignCastと@ptrCastでポインタの型とアラインメントを扱う
+Zig: std.mem.Allocatorを明示的に渡して確保と解放の責任を分ける
+
+# ---- Any(C・C++・Rust・Haskellの4言語すべての候補になる。Zigは含まない) ----
 Any: 計算量と実行時間の違い
 Any: 並行処理と並列処理の違い
 Any: 値渡しと参照渡しの違い

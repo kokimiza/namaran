@@ -87,7 +87,7 @@ root = pathlib.Path(sys.argv[1])
 mode = sys.argv[2]
 
 SITE = "https://namaran.jocarium.productions"
-LANGS = {"c": "C", "cpp": "C++", "rust": "Rust", "haskell": "Haskell"}
+LANGS = {"c": "C", "cpp": "C++", "rust": "Rust", "haskell": "Haskell", "zig": "Zig"}
 TYPES = {"read": "READ", "write": "WRITE", "debug": "DEBUG"}
 # Difficulty, easiest first: the animal and the level it stands for
 # (doc/requirements.md §7).
@@ -240,6 +240,8 @@ if mode == "--tags":
 def render_archive(lang, typ):
     """archive.html with its <ul class="past-list"> rewritten."""
     archive = root / lang / typ / "archive.html"
+    if not archive.is_file():
+        die(f"{lang}/{typ}/archive.html does not exist; every combo needs one, even before its first drill")
     s = archive.read_text(encoding="utf-8")
     lines = []
     for date in published_dates(lang, typ):
@@ -381,7 +383,7 @@ def render_levels_index():
 {level_listing()}"""
     return root / "levels.html", shell(
         title="難易度から探す",
-        description="Namaranの過去のドリルを難易度から探す索引。ハリネズミ(基礎)・孔雀(初級)・バイソン(中級)・クジラ(上級)の4段階で、C・C++・Rust・Haskellのドリルをまとめています。",
+        description="Namaranの過去のドリルを難易度から探す索引。ハリネズミ(基礎)・孔雀(初級)・バイソン(中級)・クジラ(上級)の4段階で、C・C++・Rust・Haskell・Zigのドリルをまとめています。",
         canonical=f"{SITE}/levels",
         breadcrumb=[("Namaran", f"{SITE}/"), ("難易度から探す", None)],
         body=body,
@@ -482,7 +484,7 @@ def render_topics_index():
 {listing}"""
     return root / "topics.html", shell(
         title="お題から探す",
-        description="Namaranの過去のドリルを、扱っているお題から探す索引。C・C++・Rust・Haskellの読む・書く・直すドリルを、お題ごとにまとめています。",
+        description="Namaranの過去のドリルを、扱っているお題から探す索引。C・C++・Rust・Haskell・Zigの読む・書く・直すドリルを、お題ごとにまとめています。",
         canonical=f"{SITE}/topics",
         breadcrumb=[("Namaran", f"{SITE}/"), ("お題から探す", None)],
         body=body,

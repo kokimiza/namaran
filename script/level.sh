@@ -10,7 +10,7 @@
 # Usage:
 #   script/level.sh [LANG/TYPE ...]
 #
-#   LANG/TYPE pairs default to all 12 (4 languages x 3 exercise types).
+#   LANG/TYPE pairs default to all 15 (5 languages x 3 exercise types).
 #
 # The four levels are animals, not stars (doc/requirements.md §7):
 #
@@ -24,7 +24,7 @@
 # with probability φ^-k / √5.
 #
 # Every combo is drawn on its own, and nothing looks at what earlier days
-# drew. A day of twelve whales is a legitimate outcome and is published as
+# drew. A day of fifteen whales is a legitimate outcome and is published as
 # such: the distribution holds over time, not within a day, and evening it
 # out by hand would make the draw mean nothing.
 #
@@ -32,7 +32,7 @@
 
 set -euo pipefail
 
-ALL_LANGS=(c cpp rust haskell)
+ALL_LANGS=(c cpp rust haskell zig)
 ALL_TYPES=(read write debug)
 
 # Per mille, so the draw is exact integer arithmetic: 447 + 276 + 171 + 106.
@@ -51,7 +51,7 @@ if [ "$#" -eq 0 ]; then
 else
   for pair in "$@"; do
     case "$pair" in
-      c/*|cpp/*|rust/*|haskell/*) ;;
+      c/*|cpp/*|rust/*|haskell/*|zig/*) ;;
       *) echo "error: expected LANG/TYPE (e.g. c/read), got: $pair" >&2; exit 1 ;;
     esac
     case "${pair#*/}" in

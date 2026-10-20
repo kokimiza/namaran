@@ -11,7 +11,7 @@
 # Usage:
 #   script/verify.sh DATE VERIFY_DIR [LANG/TYPE ...]
 #
-#   LANG/TYPE pairs default to all 12 (4 languages x 3 exercise types).
+#   LANG/TYPE pairs default to all 15 (5 languages x 3 exercise types).
 #
 # VERIFY_DIR holds one directory per combo, VERIFY_DIR/{lang}/{type}/, with
 # complete, compilable source files named NAME.KIND.EXT:
@@ -19,11 +19,14 @@
 #   NAME.ok.EXT    must compile with warnings as errors and pass static
 #                  analysis (see "Toolchains" below). A drill's correct
 #                  code: the READ program, the WRITE reference, the fixed
-#                  DEBUG program.
+#                  DEBUG program. A Zig ok file that declares top-level
+#                  `test` blocks must also pass `zig test` (where
+#                  std.testing.allocator fails a test that leaks).
 #   NAME.stdout    optional, next to NAME.ok.EXT: the program is run (10s
-#                  timeout, sanitizers on for C/C++) and its stdout must
-#                  match this file byte for byte. Required for every READ
-#                  ok file, so the published answer is the observed output.
+#                  timeout, sanitizers on for C/C++, runtime safety checks
+#                  for Zig) and its stdout must match this file byte for
+#                  byte. Required for every READ ok file, so the published
+#                  answer is the observed output.
 #   NAME.ng.EXT    must FAIL to compile: a READ "this doesn't compile"
 #                  answer. Not allowed for DEBUG.
 #   NAME.bug.EXT   must compile (warnings allowed); never analyzed. The
@@ -43,8 +46,9 @@
 #
 # Every ok, ng and bug file must also be laid out exactly as
 # script/format.sh writes it (the repository's .clang-format, rustfmt.toml
-# and fourmolu.yaml). The only exemption is an ng file the formatter cannot
-# read at all, since a syntax error may be what a READ drill asks about.
+# and fourmolu.yaml; zig fmt has no settings). The only exemption is an ng
+# file the formatter cannot read at all, since a syntax error may be what a
+# READ drill asks about.
 #
 # Page checks, for {lang}/{type}/YYYY/MM/DATE.html: JSON-LD parses, no TODO left,
 # the topic metadata is there and agrees with itself (<main>'s data-topic —
@@ -72,7 +76,10 @@
 #   C++      NAMARA_CXX    (g++-14)   -std=c++26 -Wall -Wextra -Wpedantic -Werror
 #   Rust     NAMARA_CLIPPY (clippy-driver) / NAMARA_RUSTC (rustc)  --edition 2024, clippy -D warnings
 #   Haskell  NAMARA_GHC    (ghc) / NAMARA_HLINT (hlint)  -XHaskell2010 -Wall -Werror, hlint warnings/errors
-#   Formatters: see script/format.sh (clang-format, rustfmt, fourmolu; pinned versions).
+#   Zig      NAMARA_ZIG    (zig 0.17.0)  zig build-exe (Debug: runtime safety checks on), zig test
+#            when the file has tests. Zig has no warnings: what the others gate with
+#            -Werror (unused locals, a var never mutated, ...) is already a compile error.
+#   Formatters: see script/format.sh (clang-format, rustfmt, fourmolu, zig fmt; pinned versions).
 #
 # The language versions here must match CLAUDE.md's version table.
 
@@ -81,7 +88,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-ALL_LANGS=(c cpp rust haskell)
+ALL_LANGS=(c cpp rust haskell zig)
 ALL_TYPES=(read write debug)
 
 CC="${NAMARA_CC:-gcc-14}"
@@ -90,9 +97,10 @@ RUSTC="${NAMARA_RUSTC:-rustc}"
 CLIPPY="${NAMARA_CLIPPY:-clippy-driver}"
 GHC="${NAMARA_GHC:-ghc}"
 HLINT="${NAMARA_HLINT:-hlint}"
+ZIG="${NAMARA_ZIG:-zig}"
 
 usage() {
-  sed -n '2,77p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+  sed -n '2,84p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
 }
 
 # page_file LANG TYPE DATE — the dated page, relative to the repository root
@@ -107,6 +115,7 @@ code_ext() {
     cpp) echo "cpp" ;;
     rust) echo "rs" ;;
     haskell) echo "hs" ;;
+    zig) echo "zig" ;;
     *) echo "unknown language: $1" >&2; exit 2 ;;
   esac
 }
@@ -149,6 +158,14 @@ compile_ok() {
       run_logged "$GHC" -XHaskell2010 -Wall -Werror -outputdir "$out" -o "$bin" "$src" &&
         run_logged_hlint "$src"
       ;;
+    zig)
+      # Zig analyzes only what main reaches, so a file's tests are run
+      # separately; std.testing.allocator fails a test that leaks.
+      run_logged "$ZIG" build-exe -O Debug --cache-dir "$out/zig-cache" -femit-bin="$bin" "$src" &&
+        if grep -q '^test\b' "$src"; then
+          run_logged "$ZIG" test -O Debug --cache-dir "$out/zig-cache" "$src"
+        fi
+      ;;
   esac
 }
 
@@ -177,6 +194,7 @@ compile_plain() {
     cpp) run_logged "$CXX" -std=c++26 -g -o "$bin" "$src" ;;
     rust) run_logged "$RUSTC" --edition 2024 --crate-name verify -C debug-assertions=on -o "$bin" "$src" ;;
     haskell) run_logged "$GHC" -XHaskell2010 -outputdir "$out/run" -o "$bin" "$src" ;;
+    zig) run_logged "$ZIG" build-exe -O Debug --cache-dir "$out/zig-cache" -femit-bin="$bin" "$src" ;;
   esac
 }
 
@@ -188,6 +206,7 @@ check_only() {
     cpp) run_logged "$CXX" -std=c++26 -pedantic-errors -fsyntax-only "$src" ;;
     rust) run_logged "$RUSTC" --edition 2024 --crate-name verify --emit=metadata -o "$out/verify.rmeta" "$src" ;;
     haskell) run_logged "$GHC" -XHaskell2010 -fno-code -outputdir "$out" "$src" ;;
+    zig) run_logged "$ZIG" build-exe --cache-dir "$out/zig-cache" -fno-emit-bin "$src" ;;
   esac
 }
 
@@ -326,7 +345,7 @@ import html, json, pathlib, re, sys
 root, lang, typ, date, src_dir = sys.argv[1:]
 page = pathlib.Path(root, lang, typ, date[:4], date[5:7], f"{date}.html")
 archive = pathlib.Path(root, lang, typ, "archive.html")
-exts = {"c": "c", "cpp": "cpp", "rust": "rs", "haskell": "hs"}
+exts = {"c": "c", "cpp": "cpp", "rust": "rs", "haskell": "hs", "zig": "zig"}
 # The only markup allowed inside <code>: script/highlight.sh's token spans.
 spans = re.compile(r'<span class="(?:kw|ty|fn|st|nu|cm|pp|mc|lt|op)">|</span>')
 problems = []
@@ -419,7 +438,9 @@ active = f'href="/{lang}/{typ}/{date}" class="active" aria-current="page"'
 if active not in lang_nav or active not in type_nav:
     problems.append("current page is not marked active in both navs")
 
-if f'href="/{lang}/{typ}/{date}"' not in archive.read_text(encoding="utf-8"):
+if not archive.is_file():
+    problems.append(f"{archive.relative_to(root)} does not exist; it has to be on main before the first drill")
+elif f'href="/{lang}/{typ}/{date}"' not in archive.read_text(encoding="utf-8"):
     problems.append(f"{archive.relative_to(root)} has no line for {date}")
 
 for code in re.findall(r"<code>(.*?)</code>", s, re.S):
@@ -436,7 +457,7 @@ for f in pathlib.Path(src_dir).glob(f"*.{ext}"):
     if any(f.name.endswith(f".{k}.{ext}") for k in kinds):
         for line in f.read_text(encoding="utf-8").splitlines():
             verified.setdefault(line.strip(), set()).add(indent(line))
-comment = re.compile(r"^(--( |$)|\{-)" if lang == "haskell" else r"^(//|/\*|\*/|\*( |$))")
+comment = re.compile({"haskell": r"^(--( |$)|\{-)", "zig": r"^//"}.get(lang, r"^(//|/\*|\*/|\*( |$))"))
 for block in re.findall(r'<pre class="code"><code>(.*?)</code></pre>', s, re.S):
     # The sources are formatted (script/format.sh), so the page has to keep
     # their layout: an excerpt may move left as a whole, by one shift that
@@ -478,7 +499,7 @@ if typ == "debug":
         problems.append('DEBUG answer must be <h3 class="wrong">Wrong</h3> + listing, '
                         'then <h3 class="right">Right</h3> + listing')
 
-# --- the Japanese prose (.claude/skills/namara-daily/humanizer-ja-tech.md) --
+# --- the Japanese prose (/humanizer-ja-tech, .claude/skills/humanizer-ja-tech) --
 # Most of the revision pass is judgment, but part of what it removes can be
 # found by pattern: AI stock phrases (§5), dashes, full-width alphanumerics
 # and emoji (§4), and a だ・である sentence on a です・ます page (§8). A hit
@@ -505,7 +526,7 @@ prose_rules = [
 for pattern, why in prose_rules:
     for hit in re.finditer(pattern, text):
         context = text[max(hit.start() - 12, 0):hit.end() + 8].replace("\n", " ").strip()
-        problems.append(f"prose ({why}, humanizer-ja-tech.md): …{context}…")
+        problems.append(f"prose ({why}, /humanizer-ja-tech): …{context}…")
 
 # Footnotes (doc/basic-design.md §7.1): only in the answer, and with no
 # links to tie them, numbered 1..n by first reference, one note per number.

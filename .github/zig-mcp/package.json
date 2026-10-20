@@ -1,0 +1,9 @@
+{
+  "name": "namara-zig-mcp",
+  "private": true,
+  "description": "zig-mcp, the Zig documentation MCP server the namara-daily workflow gives Claude Code. Installed with npm ci from package-lock.json, so every package is pinned by its integrity hash.",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "zig-mcp": "1.4.1"
+  }
+}

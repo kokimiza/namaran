@@ -40,7 +40,7 @@ ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 OUT="$ROOT_DIR/sitemap.xml"
 
 SITE_ORIGIN="https://namaran.jocarium.productions"
-ALL_LANGS=(c cpp rust haskell)
+ALL_LANGS=(c cpp rust haskell zig)
 ALL_TYPES=(read write debug)
 
 usage() {

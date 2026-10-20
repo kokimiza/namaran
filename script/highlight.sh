@@ -26,7 +26,8 @@
 # Token classes (colours live in style.css, "syntax" section):
 #   kw keyword   ty type / constructor   fn function name   st string / char
 #   nu number / literal constant   cm comment   pp preprocessor, attribute,
-#   pragma   mc macro call   lt lifetime   op Haskell reserved operator
+#   pragma   mc macro call, Zig builtin (@import)   lt lifetime, label
+#   op Haskell reserved operator
 #
 # The lexers are deliberately small, regex-based, and wrong in the corners
 # (no nested block comments, no C++ context-sensitive keywords). A token
@@ -35,7 +36,7 @@
 set -euo pipefail
 
 case "${1:-}" in
-  ""|-h|--help|help) sed -n '2,33p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit 0 ;;
+  ""|-h|--help|help) sed -n '2,34p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit 0 ;;
 esac
 
 exec python3 - "$@" <<'PY'
@@ -44,7 +45,7 @@ import pathlib
 import re
 import sys
 
-LANGS = ("c", "cpp", "rust", "haskell")
+LANGS = ("c", "cpp", "rust", "haskell", "zig")
 BLOCK = re.compile(r'(<pre class="code"><code>)(.*?)(</code></pre>)', re.S)
 SPAN = re.compile(r'</?span\b[^>]*>')
 
@@ -227,6 +228,65 @@ def hs_classify(kind, tok, text, pos, end, prev):
     return None
 
 
+# ---------- Zig ----------
+# The keywords and primitive types are std/zig/tokenizer.zig's and
+# std/zig/primitives.zig's lists as of Zig 0.17.
+
+ZIG_KW = words("""
+    addrspace align allowzero and anyframe anytype asm break callconv catch
+    comptime const continue defer else enum errdefer error export extern fn
+    for if inline linksection noalias noinline nosuspend opaque or orelse
+    packed pub resume return struct suspend switch test threadlocal try union
+    unreachable var volatile while""")
+ZIG_TY = words("""
+    anyerror anyframe anyopaque bool c_char c_short c_ushort c_int c_uint
+    c_long c_ulong c_longlong c_ulonglong c_longdouble comptime_float
+    comptime_int f16 f32 f64 f80 f128 isize noreturn type usize void""")
+ZIG_LIT = words("true false null undefined")
+# What a label (blk:, outer:) can be put in front of.
+ZIG_LABELED = re.compile(r":\s*(?:\{|(?:inline\s+)?(?:while|for)\b|switch\b)")
+
+ZIG_RULES = [
+    ("ws", r"\s+"),
+    ("cm", r"//[^\n]*"),
+    ("st", r"\\\\[^\n]*"),
+    ("qid", r'@"(?:\\.|[^"\\\n])*"'),
+    ("mc", r"@[A-Za-z_]\w*"),
+    ("st", r'"(?:\\.|[^"\\\n])*"'),
+    ("st", r"'(?:\\(?:x[0-9a-fA-F]{2}|u\{[0-9a-fA-F]+\}|.)|[^'\\\n])'"),
+    ("nu", r"0x[0-9a-fA-F_]+(?:\.[0-9a-fA-F_]+)?(?:[pP][+-]?\d[\d_]*)?|0o[0-7_]+|0b[01_]+|\d[\d_]*(?:\.\d[\d_]*)?(?:[eE][+-]?\d[\d_]*)?"),
+    ("lbl", r":[A-Za-z_]\w*"),
+    ("id", r"[A-Za-z_]\w*"),
+    ("x", r"[\s\S]"),
+]
+
+
+def zig_classify(kind, tok, text, pos, end, prev):
+    if kind == "lbl":
+        # only the target of break :blk / continue :outer; otherwise the
+        # colon is a type annotation or a sentinel, lexed char by char
+        return "lt" if prev in (("kw", "break"), ("kw", "continue")) else False
+    if kind != "id":
+        return kind if kind in ("cm", "st", "nu", "mc") else None
+    if tok in ZIG_LIT:
+        return "nu"
+    if tok in ZIG_KW:
+        return "kw"
+    if tok in ZIG_TY or re.fullmatch(r"[iu]\d+", tok):
+        return "ty"
+    if prev == ("kw", "fn"):
+        return "fn"
+    if ZIG_LABELED.match(text, end):
+        return "lt"
+    if re.fullmatch(r"[A-Z][A-Z0-9_]+", tok):
+        return "nu"
+    if tok[0].isupper():
+        return "ty"  # types are TitleCase, and so are functions returning one
+    if next_char(text, end) == "(":
+        return "fn"
+    return None
+
+
 # ---------- driver ----------
 
 LEXERS = {
@@ -234,6 +294,7 @@ LEXERS = {
     "cpp": c_like(cpp=True),
     "rust": (RS_RULES, rs_classify),
     "haskell": (HS_RULES, hs_classify),
+    "zig": (ZIG_RULES, zig_classify),
 }
 COMPILED = {
     lang: [(kind, re.compile(rx)) for kind, rx in rules]

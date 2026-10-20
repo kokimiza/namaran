@@ -1,11 +1,17 @@
 #!/usr/bin/env bash
 # Namaran topic picker.
 #
-# A local and CI authoring aid (never deployed). Picks, for each of the four
+# A local and CI authoring aid (never deployed). Picks, for each of the five
 # languages, one random topic from the namara-daily skill's odai.txt: either
 # a line for that language or an "Any" line. The pick is made here, by a
 # script, rather than by asking a model to "choose randomly", so it is
 # actually random and shows up verbatim in the workflow log.
+#
+# "Any" covers the four languages Namaran started with (ANY_LANGS below).
+# Zig draws only from its own lines: they were written for Zig 0.17, whose
+# standard library is still changing release by release, and a general
+# topic in Zig is far more likely to fail verification — which holds back
+# the whole day's drills, not just Zig's.
 #
 # Usage:
 #   script/odai.sh [ODAI_FILE]
@@ -15,12 +21,13 @@
 # odai.txt format: one "LABEL: topic" per line; blank lines and lines
 # starting with # are ignored. LABEL names a language by its usual name,
 # with or without the edition/standard suffix (C23, C++26, Rust2024,
-# Haskell2010 ...), or is "Any" for a topic every language can take on.
+# Haskell2010, Zig ...), or is "Any" for a topic every language in
+# ANY_LANGS can take on.
 # The suffix is not interpreted, so odai.txt keeps working when CLAUDE.md's
 # version table moves to a newer standard.
 #
-# Output: one line per language, "LANG<TAB>TOPIC", in c, cpp, rust, haskell
-# order; an "Any" topic is printed as-is. Exits non-zero on an unknown label
+# Output: one line per language, "LANG<TAB>TOPIC", in c, cpp, rust, haskell,
+# zig order; an "Any" topic is printed as-is. Exits non-zero on an unknown label
 # or when some language has no candidate topic at all.
 
 set -euo pipefail
@@ -29,7 +36,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 ODAI_FILE="${1:-$ROOT_DIR/.claude/skills/namara-daily/odai.txt}"
 
-ALL_LANGS=(c cpp rust haskell)
+ALL_LANGS=(c cpp rust haskell zig)
+ANY_LANGS=(c cpp rust haskell)
 
 label_lang() {
   case "$1" in
@@ -37,6 +45,7 @@ label_lang() {
     C++*) echo "cpp" ;;
     Rust*) echo "rust" ;;
     Haskell*) echo "haskell" ;;
+    Zig*) echo "zig" ;;
     C|C[0-9]*) echo "c" ;;
     *) return 1 ;;
   esac
@@ -60,7 +69,7 @@ while IFS= read -r line || [ -n "$line" ]; do
     exit 1
   fi
   if [ "$lang" = "any" ]; then
-    for l in "${ALL_LANGS[@]}"; do candidates[$l]+="$topic"$'\n'; done
+    for l in "${ANY_LANGS[@]}"; do candidates[$l]+="$topic"$'\n'; done
   else
     candidates[$lang]+="$topic"$'\n'
   fi

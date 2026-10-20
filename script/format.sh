@@ -9,8 +9,8 @@
 # Usage:
 #   script/format.sh [--check] FILE ...
 #
-#   FILE is a C, C++, Rust or Haskell source (.c .cpp .rs .hs, so the
-#   verification names NAME.ok.rs etc. work as they are).
+#   FILE is a C, C++, Rust, Haskell or Zig source (.c .cpp .rs .hs .zig, so
+#   the verification names NAME.ok.rs etc. work as they are).
 #
 #   --check  change nothing; exit 1 and print the diff for each file that is
 #            not exactly what this script would write. script/verify.sh uses
@@ -25,6 +25,8 @@
 #                            only the style edition; the edition belongs to
 #                            the crate)
 #   Haskell  fourmolu.yaml   fourmolu
+#   Zig      (none)          zig fmt, which has no settings: the layout is
+#                            fixed by the Zig release itself
 #
 # Exit status: 0 everything formatted (or rewritten); 1 --check found a file
 # that would change; 2 usage error, or a formatter is missing or not the
@@ -39,15 +41,19 @@
 #   C, C++   // clang-format off  ...  // clang-format on
 #   Rust     #[rustfmt::skip] on the item or statement
 #   Haskell  {- FOURMOLU_DISABLE -}  ...  {- FOURMOLU_ENABLE -}  (column 0)
+#   Zig      // zig fmt: off  ...  // zig fmt: on
 # Never to keep lines short of the 21-line limit (ponytail.md §2).
 #
 # Formatters (override the command names with environment variables). Their
-# output differs between versions, so clang-format and fourmolu must be the
-# versions .github/actions/toolchains installs; rustfmt follows stable Rust,
-# whose output is fixed by style_edition.
+# output differs between versions, so clang-format, fourmolu and zig must be
+# the versions .github/actions/toolchains installs; rustfmt follows stable
+# Rust, whose output is fixed by style_edition. zig fmt ships inside the
+# compiler, so its version is the Zig version of CLAUDE.md's table, the same
+# binary script/verify.sh builds with.
 #   C, C++   NAMARA_CLANG_FORMAT (clang-format)  23.1.2  pip install clang-format==23.1.2
 #   Rust     NAMARA_RUSTFMT      (rustfmt)       stable  rustup component add rustfmt
 #   Haskell  NAMARA_FOURMOLU     (fourmolu)      0.21.0.0  github.com/fourmolu/fourmolu/releases
+#   Zig      NAMARA_ZIG          (zig)           0.17.0  ziglang.org/download
 
 set -euo pipefail
 
@@ -57,14 +63,16 @@ ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 CLANG_FORMAT="${NAMARA_CLANG_FORMAT:-clang-format}"
 RUSTFMT="${NAMARA_RUSTFMT:-rustfmt}"
 FOURMOLU="${NAMARA_FOURMOLU:-fourmolu}"
+ZIG="${NAMARA_ZIG:-zig}"
 
 # Keep in step with .github/actions/toolchains/action.yml. A mismatch stops
 # here, loudly, instead of formatting differently from CI.
 CLANG_FORMAT_VERSION=23.1.2
 FOURMOLU_VERSION=0.21.0.0
+ZIG_VERSION=0.17.0
 
 usage() {
-  sed -n '2,50p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+  sed -n '2,57p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
 }
 
 file_lang() {
@@ -73,6 +81,7 @@ file_lang() {
     *.cpp) echo cpp ;;
     *.rs) echo rust ;;
     *.hs) echo haskell ;;
+    *.zig) echo zig ;;
     *) return 1 ;;
   esac
 }
@@ -101,6 +110,13 @@ require() {
         return 1
       }
       ;;
+    zig)
+      v="$("$ZIG" version 2> /dev/null)" || true
+      [ "$v" = "$ZIG_VERSION" ] || {
+        echo "error: need zig $ZIG_VERSION, found ${v:-none} ($ZIG)" >&2
+        return 1
+      }
+      ;;
   esac
 }
 
@@ -110,6 +126,7 @@ format_to() {
     c|cpp) "$CLANG_FORMAT" --style="file:$ROOT_DIR/.clang-format" "$2" ;;
     rust) "$RUSTFMT" --edition 2024 --config-path "$ROOT_DIR/rustfmt.toml" < "$2" ;;
     haskell) "$FOURMOLU" --quiet --no-cabal --config "$ROOT_DIR/fourmolu.yaml" "$2" ;;
+    zig) "$ZIG" fmt --stdin < "$2" ;;
   esac > "$3"
 }
 
@@ -123,7 +140,7 @@ main() {
 
   local f lang ready=" " unreadable=0 changed=0
   for f in "$@"; do
-    lang="$(file_lang "$f")" || { echo "error: not a .c, .cpp, .rs or .hs file: $f" >&2; exit 2; }
+    lang="$(file_lang "$f")" || { echo "error: not a .c, .cpp, .rs, .hs or .zig file: $f" >&2; exit 2; }
     [ -f "$f" ] || { echo "error: no such file: $f" >&2; exit 2; }
     case "$ready" in
       *" $lang "*) ;;

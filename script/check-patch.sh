@@ -17,7 +17,7 @@
 #   than the day's draw said.
 #
 # A patch passes only if all of the following hold:
-#   * DATE is YYYY-MM-DD and every LANG/TYPE is one of the 12 combos
+#   * DATE is YYYY-MM-DD and every LANG/TYPE is one of the 15 combos
 #   * it is a plain text git diff: no binary hunks, renames, copies,
 #     deletions or mode changes
 #   * every file it touches is, for one of the given combos, either
@@ -56,7 +56,7 @@ import sys
 from html.parser import HTMLParser
 
 SITE = "https://namaran.jocarium.productions"
-LANGS = ("c", "cpp", "rust", "haskell")
+LANGS = ("c", "cpp", "rust", "haskell", "zig")
 TYPES = ("read", "write", "debug")
 LEVELS = ("hedgehog", "peacock", "bison", "whale")
 

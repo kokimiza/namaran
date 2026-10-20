@@ -35,7 +35,7 @@
 // The root path "/" is not handled here. index.html is a real page and is
 // served like any other static file; there is nothing dynamic to resolve.
 
-const LANG = "c|cpp|rust|haskell";
+const LANG = "c|cpp|rust|haskell|zig";
 const TYPE = "read|write|debug";
 
 const datedPath = new RegExp(

@@ -2,7 +2,8 @@ name: Namaran toolchains
 description: >-
   Installs the compilers, linters and formatters script/verify.sh uses: GCC 14
   (C23 and C++26), stable Rust with clippy and rustfmt, the runner's
-  preinstalled GHC, HLint, and pinned clang-format and Fourmolu.
+  preinstalled GHC, HLint, pinned clang-format and Fourmolu, and pinned Zig
+  (compiler and zig fmt in one).
 
 runs:
   using: composite
@@ -73,3 +74,42 @@ runs:
         chmod +x "$dir/bin/fourmolu"
         echo "$dir/bin" >> "$GITHUB_PATH"
         "$dir/bin/clang-format" --version && "$dir/bin/fourmolu" --version
+
+    # Zig is pinned to one release, which is both the compiler and zig fmt,
+    # so the version must match script/format.sh (it refuses any other) and
+    # CLAUDE.md's version table. ziglang.org asks CI to download from the
+    # community mirrors instead of from it
+    # (https://ziglang.org/download/community-mirrors/), so they are tried
+    # in random order, with ziglang.org itself last. The tarball's sha256 is
+    # pinned: that fixes the exact bytes whichever mirror served them, a
+    # stronger check than the minisign signature the mirror guide asks for,
+    # which any signed release would pass. No actions/cache here (and no
+    # mlugg/setup-zig, which caches by default): a Zig cache saved by the
+    # write job, where Claude runs arbitrary code, must never be restored
+    # into the verify job.
+    - name: Install Zig (pinned)
+      shell: bash
+      env:
+        ZIG_VERSION: 0.17.0
+        ZIG_SHA256: 1cbe9df9f27e6b78d14ccbca43b6703a404ef79ef1c463de901d7f088d4e2026
+      run: |
+        set -euo pipefail
+        dir="$RUNNER_TEMP/namara-zig"
+        name="zig-x86_64-linux-$ZIG_VERSION"
+        mkdir -p "$dir"
+        mirrors="$(curl -fsSL --max-time 20 https://ziglang.org/download/community-mirrors.txt | shuf)" || mirrors=""
+        got=""
+        for base in $mirrors "https://ziglang.org/download/$ZIG_VERSION"; do
+          if curl -fsSL --max-time 300 -o "$dir/zig.tar.xz" "$base/$name.tar.xz?source=github-kokimiza-namara" &&
+            echo "$ZIG_SHA256  $dir/zig.tar.xz" | sha256sum -c --quiet - 2> /dev/null; then
+            got="$base"
+            break
+          fi
+          echo "no good $name.tar.xz from $base; trying the next one"
+        done
+        [ -n "$got" ] || { echo "::error::no mirror served $name.tar.xz with the pinned sha256"; exit 1; }
+        echo "downloaded $name.tar.xz from $got"
+        tar -xJf "$dir/zig.tar.xz" -C "$dir"
+        rm "$dir/zig.tar.xz"
+        echo "$dir/$name" >> "$GITHUB_PATH"
+        "$dir/$name/zig" version

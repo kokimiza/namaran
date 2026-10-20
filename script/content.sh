@@ -15,7 +15,7 @@
 #   script/content.sh undo [DATE] [LANG/TYPE ...]
 #
 #   DATE defaults to today in Asia/Tokyo (matches functions/_middleware.js).
-#   LANG/TYPE pairs default to all 12 (4 languages x 3 exercise types) when
+#   LANG/TYPE pairs default to all 15 (5 languages x 3 exercise types) when
 #   omitted, e.g.: script/content.sh new 2026-08-25 c/read rust/debug
 #
 # `new`  creates {lang}/{type}/YYYY/MM/{date}.html (doc/basic-design.md §4)
@@ -36,7 +36,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-ALL_LANGS=(c cpp rust haskell)
+ALL_LANGS=(c cpp rust haskell zig)
 ALL_TYPES=(read write debug)
 
 lang_label() {
@@ -45,6 +45,7 @@ lang_label() {
     cpp) echo "C++" ;;
     rust) echo "Rust" ;;
     haskell) echo "Haskell" ;;
+    zig) echo "Zig" ;;
     *) echo "unknown language: $1" >&2; exit 1 ;;
   esac
 }
@@ -71,6 +72,7 @@ code_ext() {
     cpp) echo "cpp" ;;
     rust) echo "rs" ;;
     haskell) echo "hs" ;;
+    zig) echo "zig" ;;
   esac
 }
 
@@ -84,6 +86,7 @@ lang_nav_label() {
     cpp) echo "C++26" ;;
     rust) echo "Rust 2024" ;;
     haskell) echo "Haskell 2010" ;;
+    zig) echo "Zig 0.17" ;;
     *) echo "unknown language: $1" >&2; exit 1 ;;
   esac
 }
@@ -165,7 +168,7 @@ validate_date() {
 }
 
 # Parses trailing LANG/TYPE args into the COMBOS array ("lang type" pairs,
-# one per line-ish entry via parallel arrays). Defaults to all 12.
+# one per line-ish entry via parallel arrays). Defaults to all 15.
 parse_combos() {
   COMBO_LANGS=()
   COMBO_TYPES=()
