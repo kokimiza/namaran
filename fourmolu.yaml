@@ -1,0 +1,17 @@
+indentation: 2
+column-limit: 100
+
+function-arrows: leading
+comma-style: leading
+import-export-style: diff-friendly
+record-style: aligned
+
+indent-wheres: false
+newlines-between-decls: 1
+
+sort-constraints: true
+sort-derived-classes: true
+sort-deriving-clauses: true
+
+unicode: never
+respectful: false

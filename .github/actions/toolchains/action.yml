@@ -1,7 +1,8 @@
 name: Namaran toolchains
 description: >-
-  Installs the compilers and linters script/verify.sh uses: GCC 14 (C23 and
-  C++26), stable Rust with clippy, the runner's preinstalled GHC, and HLint.
+  Installs the compilers, linters and formatters script/verify.sh uses: GCC 14
+  (C23 and C++26), stable Rust with clippy and rustfmt, the runner's
+  preinstalled GHC, HLint, and pinned clang-format and Fourmolu.
 
 runs:
   using: composite
@@ -15,12 +16,15 @@ runs:
         # of recent Ubuntu kernels.
         sudo sysctl -w vm.mmap_rnd_bits=28
 
-    - name: Install Rust (stable, clippy)
+    # rustfmt is not pinned: its output is fixed by style_edition in
+    # rustfmt.toml, which every stable release has to keep formatting the
+    # same way.
+    - name: Install Rust (stable, clippy, rustfmt)
       shell: bash
       run: |
-        rustup toolchain install stable --profile minimal --component clippy
+        rustup toolchain install stable --profile minimal --component clippy,rustfmt
         rustup default stable
-        rustc --version && clippy-driver --version
+        rustc --version && clippy-driver --version && rustfmt --version
 
     # The ubuntu-24.04 image already ships GHCup and a recent GHC. Pinning a
     # different version made haskell-actions/setup unpack and install GHC on
@@ -44,3 +48,28 @@ runs:
     # read-only, and verify/publish re-check everything).
     - name: Install HLint
       uses: haskell-actions/hlint-setup@main
+
+    # The formatters are pinned to exact versions, because a new release
+    # formats differently and script/verify.sh compares byte for byte. The
+    # versions must match script/format.sh, which refuses any other. Only
+    # the two binaries go on PATH, not the venv's python3.
+    - name: Install clang-format and Fourmolu (pinned)
+      shell: bash
+      env:
+        CLANG_FORMAT_VERSION: 23.1.2
+        FOURMOLU_VERSION: 0.21.0.0
+        FOURMOLU_SHA256: aadf6931653df7b96f52014cf8eb4285a3e8778cd0b531499fc3ee013e1e00c7
+      run: |
+        set -euo pipefail
+        dir="$RUNNER_TEMP/namara-formatters"
+        mkdir -p "$dir/bin"
+        python3 -m venv "$dir/venv"
+        "$dir/venv/bin/pip" install --quiet --disable-pip-version-check "clang-format==$CLANG_FORMAT_VERSION"
+        ln -s "$dir/venv/bin/clang-format" "$dir/bin/clang-format"
+        curl -fsSL -o "$dir/fourmolu.zip" \
+          "https://github.com/fourmolu/fourmolu/releases/download/v$FOURMOLU_VERSION/fourmolu-$FOURMOLU_VERSION-linux-x86_64.zip"
+        echo "$FOURMOLU_SHA256  $dir/fourmolu.zip" | sha256sum -c -
+        unzip -q -j "$dir/fourmolu.zip" -d "$dir/bin"
+        chmod +x "$dir/bin/fourmolu"
+        echo "$dir/bin" >> "$GITHUB_PATH"
+        "$dir/bin/clang-format" --version && "$dir/bin/fourmolu" --version

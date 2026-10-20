@@ -41,6 +41,11 @@
 # Per combo, at least: READ one file of any kind; WRITE one ok file; DEBUG
 # one ok file plus one bug file, and no ng file.
 #
+# Every ok, ng and bug file must also be laid out exactly as
+# script/format.sh writes it (the repository's .clang-format, rustfmt.toml
+# and fourmolu.yaml). The only exemption is an ng file the formatter cannot
+# read at all, since a syntax error may be what a READ drill asks about.
+#
 # Page checks, for {lang}/{type}/DATE.html: JSON-LD parses, no TODO left,
 # the topic metadata is there and agrees with itself (<main>'s data-topic —
 # at most 15 characters and the page's whole <title> — plus data-tags, which
@@ -50,9 +55,10 @@
 # difficulty animals (hedgehog, peacock, bison, whale — §7.1),
 # lang-nav/type-nav point at the same date, the archive.html line exists,
 # <code> contents are HTML-escaped (the highlighter's <span>s aside), every
-# non-comment line of every <pre class="code"> block appears (ignoring
-# indentation) in one of that combo's ok/ng/bug files — so the code readers
-# see is the code that was checked — READ/DEBUG question code (outside
+# non-comment line of every <pre class="code"> block appears in one of that
+# combo's ok/ng/bug files, indented as it is there (a block may be shifted
+# left as a whole, nothing more) — so the code readers see is the code that
+# was checked and formatted — READ/DEBUG question code (outside
 # <details>) is at most 21 lines, a WRITE page's examples sit in
 # <div class="examples">, a DEBUG answer is Wrong + listing then Right +
 # listing, the Japanese prose has none of the patterns the humanizer-ja-tech
@@ -66,6 +72,7 @@
 #   C++      NAMARA_CXX    (g++-14)   -std=c++26 -Wall -Wextra -Wpedantic -Werror
 #   Rust     NAMARA_CLIPPY (clippy-driver) / NAMARA_RUSTC (rustc)  --edition 2024, clippy -D warnings
 #   Haskell  NAMARA_GHC    (ghc) / NAMARA_HLINT (hlint)  -XHaskell2010 -Wall -Werror, hlint warnings/errors
+#   Formatters: see script/format.sh (clang-format, rustfmt, fourmolu; pinned versions).
 #
 # The language versions here must match CLAUDE.md's version table.
 
@@ -85,7 +92,7 @@ GHC="${NAMARA_GHC:-ghc}"
 HLINT="${NAMARA_HLINT:-hlint}"
 
 usage() {
-  sed -n '2,67p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+  sed -n '2,77p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
 }
 
 code_ext() {
@@ -178,6 +185,27 @@ check_only() {
   esac
 }
 
+# check_format KIND SRC BASE — is SRC laid out as script/format.sh writes it?
+# ok and bug files compile, so their formatter can always read them; an ng
+# file it cannot read (a syntax error) is the one exemption.
+check_format() {
+  local kind="$1" src="$2" base="$3" status=0
+  run_logged "$SCRIPT_DIR/format.sh" --check "$src" || status=$?
+  case "$status" in
+    0) pass "$base (formatting)"; return ;;
+    1) fail "$base is not formatted as script/format.sh writes it (run it on the file, then copy the lines to the page again):" ;;
+    3)
+      if [ "$kind" = ng ]; then
+        pass "$base (formatting not checked: the formatter cannot read it)"
+        return
+      fi
+      fail "$base: the formatter cannot read it:"
+      ;;
+    *) fail "$base: script/format.sh could not run:" ;;
+  esac
+  show_log
+}
+
 verify_sources() {
   local lang="$1" type="$2" src_dir="$3" work="$4"
   local ext n_ok=0 n_ng=0 n_bug=0 n_any=0 f base name kind stdout_file bin out
@@ -208,6 +236,8 @@ verify_sources() {
     mkdir -p "$out"
     bin="$out/prog"
     LOG="$out/log.txt"
+
+    check_format "$kind" "$f" "$base"
 
     case "$kind" in
       ok)
@@ -391,16 +421,33 @@ for code in re.findall(r"<code>(.*?)</code>", s, re.S):
 
 ext = exts[lang]
 kinds = ("ok", "ng", "bug")
-verified = set()
+# Each verified line (stripped) -> the indentations it has in the sources.
+verified = {}
+def indent(line):
+    return len(line) - len(line.lstrip())
 for f in pathlib.Path(src_dir).glob(f"*.{ext}"):
     if any(f.name.endswith(f".{k}.{ext}") for k in kinds):
-        verified.update(line.strip() for line in f.read_text(encoding="utf-8").splitlines())
+        for line in f.read_text(encoding="utf-8").splitlines():
+            verified.setdefault(line.strip(), set()).add(indent(line))
 comment = re.compile(r"^(--( |$)|\{-)" if lang == "haskell" else r"^(//|/\*|\*/|\*( |$))")
 for block in re.findall(r'<pre class="code"><code>(.*?)</code></pre>', s, re.S):
+    # The sources are formatted (script/format.sh), so the page has to keep
+    # their layout: an excerpt may move left as a whole, by one shift that
+    # fits every line of the block, but no line may move on its own.
+    shifts = None
     for line in html.unescape(spans.sub("", block)).splitlines():
         t = line.strip()
-        if t and not comment.match(t) and t not in verified:
+        if not t or comment.match(t):
+            continue
+        if t not in verified:
             problems.append(f"published code line is in no ok/ng/bug file: {t!r}")
+            continue
+        fits = {i - indent(line) for i in verified[t] if i >= indent(line)}
+        shifts = fits if shifts is None else shifts & fits
+    if shifts is not None and not shifts:
+        first = html.unescape(spans.sub("", block)).strip().splitlines()[0]
+        problems.append(f"code block starting {first!r} is not indented as in its verification source: "
+                        "copy the lines from the formatted source (shifting the whole block left is fine)")
 
 # READ/DEBUG code is read in full before answering, so it must stay small
 # (doc/requirements.md §12). Over the limit is a badly chosen problem: pick

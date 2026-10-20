@@ -155,6 +155,9 @@ namara/
 ├── index.html               # ルートページ本体。実コンテンツ（§6）。_redirectsは使わない
 ├── style.css                 # 全ページ共通スタイル（1枚のみ）
 ├── _headers                   # Cloudflare Pages のセキュリティヘッダ定義（§3.3）
+├── .clang-format              # ドリルのコードの整形規則。C/C++（§9.6）
+├── rustfmt.toml               # 同じく Rust
+├── fourmolu.yaml              # 同じく Haskell
 ├── 404.html                   # 存在しないパスに来た人向けの最小ページ
 ├── levels.html                # 生成物。難易度の一覧（§7.3）
 ├── level/
@@ -183,6 +186,7 @@ namara/
 │   ├── template-write.html
 │   ├── template-debug.html
 │   ├── verify.sh               # 問題ページと検証用ソースの検証（§9.2）
+│   ├── format.sh               # 検証用ソースの整形（§9.6）
 │   ├── highlight.sh            # コードのシンタックスハイライト（§9.4）
 │   ├── check-patch.sh          # 公開前のパッチ検査（§9.2）
 │   ├── odai.sh                 # odai.txt からの言語ごとのお題抽選（§9.2）
@@ -682,6 +686,7 @@ CSSファイルは1枚のみとし、ページ側の `<link>` は共通で `/sty
    - TODOになっている code / question / answer を埋める
    - TODOになっている title / meta description / data-topic / data-tags / data-concepts も埋める（§7.1、§7.4）
    - code-filename にお題に沿ったファイル名（対象言語の命名規則）を書く
+   - 検証用ソースを script/format.sh で整形し、整形後の行をページに写す（§9.6）
    - コードは HTML エスケープし、script/highlight.sh でハイライトを付ける（§9.4）
    - script/verify.sh で、ページの形式と、コードの挙動（コンパイル・実行・静的解析）を検証する
 3. git commit（このとき script/topics.sh が索引を、script/sitemap.sh が sitemap.xml を組み直す。§9.5・§9.3）
@@ -719,7 +724,7 @@ write ジョブ（読み取り権限のみ。Claudeが任意のコマンドを�
   4. 差分をパッチにし、検証用ソースと一緒に受け渡す
 verify ジョブ（読み取り権限のみ。Claudeが触っていない新しいランナー。シークレットなし）
   5. script/check-patch.sh: パッチが変更してよいファイルと中身の形か、各ページの data-level が抽選どおりかを確認する
-  6. パッチを当て、script/verify.sh（ゲート）でコンパイル・静的解析・実行結果・ハイライトを確認する
+  6. パッチを当て、script/verify.sh（ゲート）でコンパイル・静的解析・整形・実行結果・ハイライトを確認する
 publish ジョブ（書き込み権限。Claudeも問題のコードも動かさない）
   7. パッチを再度 check-patch.sh にかけ、最新の main に日付ページを当てる
   8. archive.html の行は content.sh で入れ直し、sitemap.sh で sitemap.xml を作り直す
@@ -797,6 +802,29 @@ script/topics.sh [--check|--tags]
 * **日次パッチには入らない。** `namara-daily.yml` の `write` ジョブが出すパッチに含められるのは日付ページ、`archive.html` の1行、そして `script/tags.tsv` への追記だけで（`check-patch.sh` がそれ以外を拒否する）、索引は `publish` ジョブが main 側のスクリプトで組み直す。生成物が信頼できない経路から来ることがない
 * **走る場所は §9.3 と同じ3か所**（日次の `publish`、`.github/workflows/sitemap.yml`、手元）。`--check` で最新かどうかだけ確かめられる
 * `--tags` は現在のタグ語彙を使用数の多い順に出す。新しいドリルにタグを付けるとき、既存の語を使うために見る（§7.4）
+
+### 9.6 コードの整形（`script/format.sh`）
+
+```text
+script/format.sh [--check] FILE ...
+```
+
+ドリルのコードは、言語ごとに1つの整形規則で書く。規則はリポジトリ直下の3枚の設定ファイルにある。
+
+| 言語 | 設定 | ツール |
+|---|---|---|
+| C / C++ | `.clang-format` | clang-format 23.1.2 |
+| Rust | `rustfmt.toml` | rustfmt（stable） |
+| Haskell | `fourmolu.yaml` | Fourmolu 0.21.0.0 |
+
+方針は4言語で共通である：1行100字まで、1要素の追加が1行の差分で済む形（引数を1行に1つ、先頭カンマ）、詰めるより明示的に（短い関数・if・ループも1行にしない）、そしてどこで実行しても同じ結果になること。
+
+* **整形するのは検証用ソースで、ページではない。** ページのコードは検証用ソースから写した行で、§9.2 の照合がそれを保証している。整形済みのソースから写せば、ページも整形済みになる。照合は行どうしの相対的なインデントも見る（ブロック全体を左に詰めるのは可）。HTMLの中のコードを直接整形しないのは、ページのコードが関数の一部やシグネチャだけの断片で、整形ツールが構文として読めないことが多いからである
+* **公開の条件にする。** `script/verify.sh` が ok/ng/bug のすべてのファイルに `--check` をかけ、違えば差分を出して落ちる。§9.4 のハイライトと同じ関係である。例外は整形ツールが読めない ng ファイルだけで、構文エラーそのものを問うREADがありうるからである
+* **設定ファイルはパスで渡す。** 検証用ソースはリポジトリの外（CIでは `$RUNNER_TEMP`）に置かれるので、clang-format や Fourmolu の設定ファイル探索では見つからない。`script/format.sh` が3枚をリポジトリから明示的に読ませる。パッチは設定ファイルを変更できない（`check-patch.sh` の許可リストに無い）ので、規則をClaudeが緩めることもできない
+* **版を固定する。** 整形結果はツールの版で変わり、検証はバイト単位で比べるので、clang-format と Fourmolu は版を固定し、`script/format.sh` が違う版を拒否する。版は `.github/actions/toolchains/action.yml`（インストール）と `script/format.sh`（確認）の2か所にあり、片方だけ上げると最初の実行で止まる——黙ってずれることはない。rustfmt は固定しない：`style_edition` を決めれば、stable のどの版でも同じ整形になることが保証されている。Rust の構文の版（edition）は `rustfmt.toml` には書かず、`script/verify.sh` のビルドと同じ `--edition 2024` を `script/format.sh` が渡す
+* **整形を止めてよいのは、レイアウトそのものが問題のときだけ。** ぶら下がりelseを誤解させるインデントや Haskell のレイアウト規則は、整形すると問題が消える。その部分だけ各ツールの無効化コメント（`// clang-format off` など）で止め、理由をコメントに残す。lint の抑制（namara-daily Skill §4）と同じ扱いで、21行の制限（要件定義 §12）に収めるために使ってはいけない
+* **公開済みのページには適用しない。** 整形は2026-10-21分から始めた。それ以前のページの検証用ソースはリポジトリに残っておらず、ページを書き換えれば「公開後は編集しない」（§7.1）の例外が増える。変わるのは見た目だけで答えは変わらないので、例外にする理由がない
 
 ---
 

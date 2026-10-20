@@ -61,14 +61,14 @@ Claudeが動くジョブは読み取り権限しか持ちません。公開す�
 
 検証では、ページに載ったコードをそのままコンパイルして確かめます。
 
-| 言語 | ツール |
-|---|---|
-| C | `gcc-14 -std=c23 -Werror -fanalyzer`、ASan/UBSan付きで実行 |
-| C++ | `g++-14 -std=c++26 -Werror`、ASan/UBSan付きで実行 |
-| Rust | `clippy-driver --edition 2024 -D warnings` |
-| Haskell | `ghc -XHaskell2010 -Wall -Werror`、`hlint` |
+| 言語 | ツール | 整形 |
+|---|---|---|
+| C | `gcc-14 -std=c23 -Werror -fanalyzer`、ASan/UBSan付きで実行 | `clang-format` 23.1.2([.clang-format](.clang-format)) |
+| C++ | `g++-14 -std=c++26 -Werror`、ASan/UBSan付きで実行 | `clang-format` 23.1.2([.clang-format](.clang-format)) |
+| Rust | `clippy-driver --edition 2024 -D warnings` | `rustfmt`、stable([rustfmt.toml](rustfmt.toml)) |
+| Haskell | `ghc -XHaskell2010 -Wall -Werror`、`hlint` | `fourmolu` 0.21.0.0([fourmolu.yaml](fourmolu.yaml)) |
 
-READの答えの出力は実際の実行結果と照合し、「コンパイルエラーになる」という答えは実際に失敗することを確かめます。DEBUGの問題文が「いまはこう出力される」と書くときは、壊れたプログラムを実際に動かしてその出力と照合します。
+コードは整形ツールの出力どおりでなければ公開しません。整形の版は固定してあり、CIでも手元でも同じ結果になります。READの答えの出力は実際の実行結果と照合し、「コンパイルエラーになる」という答えは実際に失敗することを確かめます。DEBUGの問題文が「いまはこう出力される」と書くときは、壊れたプログラムを実際に動かしてその出力と照合します。
 
 ## ディレクトリ構成
 
@@ -83,6 +83,8 @@ levels.html, level/*.html                    生成物。難易度から過去�
 functions/_middleware.js                     日付なしURLの解決・未来日の404
 script/content.sh                            問題ページの雛形生成とアーカイブへの追記
 script/verify.sh                             問題ページと検証用ソースの検証
+script/format.sh                             検証用ソースの整形
+.clang-format, rustfmt.toml, fourmolu.yaml   ドリルのコードの整形規則(C/C++、Rust、Haskell)
 script/highlight.sh                          コードのシンタックスハイライト
 script/odai.sh                               お題の抽選
 script/level.sh                              難易度の抽選
@@ -108,6 +110,7 @@ Skillを使わずに手で書く場合は、次の順です。
 ```bash
 ./script/content.sh new 2026-09-20 rust/debug   # 雛形を作り、archive.html に1行追加
 # rust/debug/2026-09-20.html の TODO を埋め、検証用ソースを用意する
+./script/format.sh /path/to/verify-dir/rust/debug/*.rs   # 整形してから、整形後の行をページに写す
 ./script/highlight.sh rust/debug/2026-09-20.html   # コードを直したら再実行
 ./script/verify.sh 2026-09-20 /path/to/verify-dir rust/debug
 ```
