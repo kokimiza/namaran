@@ -1,3 +1,4 @@
+0-1-bfs	0-1 BFS
 a-star-search	A*探索
 abi	ABI
 aggregate-initialization	集成体初期化
@@ -102,6 +103,7 @@ default	デフォルト値
 default-argument	デフォルト引数
 default-argument-promotion	既定の実引数拡張
 depth-first-search	深さ優先探索
+deque	両端キュー
 deref-coercion	Deref型強制
 deriving	自動導出
 design-by-contract	契約による設計

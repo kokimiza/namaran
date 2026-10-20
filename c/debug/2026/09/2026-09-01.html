@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="無料の道と有料の道が混ざった道路網で、有料道路の最小本数を両端キュー（deque）で求めるCのコードが、最初に見つけた費用を確定扱いして大きい答えを返す欠陥を直します。0-1 BFSで費用を更新し直す条件を扱う2026-09-01のC DEBUGです。">
+<title>見つけた順は安い順か</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-09-01">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-01" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-09-01",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-09-01",
+      "datePublished": "2026-09-01",
+      "dateModified": "2026-09-01",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "見つけた順は安い順か" },
+      "keywords": "0-1-bfs, shortest-path, deque, breadth-first-search",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "無料の道と有料の道が混ざった道路網で、有料道路の最小本数を両端キュー（deque）で求めるCのコードが、最初に見つけた費用を確定扱いして大きい答えを返す欠陥を直します。0-1 BFSで費用を更新し直す条件を扱う2026-09-01のC DEBUGです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-01" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-09-01">C++26</a>
+  <a href="/rust/debug/2026-09-01">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-01">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-09-01">READ</a>
+  <a href="/c/write/2026-09-01">WRITE</a>
+  <a href="/c/debug/2026-09-01" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="見つけた順は安い順か"
+  data-tags="0-1-bfs shortest-path deque breadth-first-search"
+  data-concepts="0-1 BFS, 両端キュー, 最短経路, 距離の更新, 緩和, deque, shortest path, edge relaxation"
+  data-level="hedgehog"
+>
+  <h2>2026-09-01</h2>
+  <div class="code-frame">
+    <p class="code-filename">tolls.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">static</span> <span class="kw">const</span> <span class="ty">int</span> roads[][<span class="nu">3</span>] = {{<span class="nu">0</span>, <span class="nu">1</span>, <span class="nu">1</span>}, {<span class="nu">0</span>, <span class="nu">2</span>, <span class="nu">0</span>}, {<span class="nu">2</span>, <span class="nu">1</span>, <span class="nu">0</span>}, {<span class="nu">1</span>, <span class="nu">3</span>, <span class="nu">1</span>}};
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="ty">int</span> dist[<span class="nu">4</span>] = {<span class="nu">0</span>, -<span class="nu">1</span>, -<span class="nu">1</span>, -<span class="nu">1</span>}, dq[<span class="nu">16</span>], head = <span class="nu">8</span>, tail = <span class="nu">8</span>;
+    dq[tail++] = <span class="nu">0</span>;
+    <span class="kw">while</span> (head &lt; tail) {
+        <span class="ty">int</span> v = dq[head++];
+        <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; <span class="nu">4</span>; i++) {
+            <span class="ty">int</span> from = roads[i][<span class="nu">0</span>], to = roads[i][<span class="nu">1</span>], toll = roads[i][<span class="nu">2</span>];
+            <span class="kw">if</span> (from == v &amp;&amp; dist[to] == -<span class="nu">1</span>) {
+                dist[to] = dist[v] + toll;
+                dq[toll == <span class="nu">0</span> ? --head : tail++] = to;
+            }
+        }
+    }
+    <span class="fn">printf</span>(<span class="st">"%d\n"</span>, dist[<span class="nu">3</span>]);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    都市0から都市3まで、通る有料道路の本数の最小値を求めるつもりのコードです。道は <code>roads</code> の4本で、各行は <code>{出発する都市, 着く都市, 通行料}</code> の一方通行の道を表し、通行料1が有料道路、0が無料の道です。いまの出力は <code>2</code> で、本来の出力は <code>1</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">if</span> (from == v &amp;&amp; dist[to] == -<span class="nu">1</span>) {
+    dist[to] = dist[v] + toll;
+    dq[toll == <span class="nu">0</span> ? --head : tail++] = to;
+}
+</code></pre>
+      <p>
+        都市0を取り出すと、<code>roads</code> の順に、都市1が有料の道で見つかって <code>dist[1] = 1</code> で末尾に、都市2が無料の道で見つかって <code>dist[2] = 0</code> で先頭に入ります。次に取り出す都市2からは、無料の道 <code>{2, 1, 0}</code> で都市1へ費用0で行けます。ところが <code>dist[1]</code> はもう <code>-1</code> ではないので、条件が偽になって更新されません。都市1の費用は1のまま残り、都市3は 1 + 1 = 2 になります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">if</span> (from == v &amp;&amp; (dist[to] == -<span class="nu">1</span> || dist[v] + toll &lt; dist[to])) {
+    dist[to] = dist[v] + toll;
+    dq[toll == <span class="nu">0</span> ? --head : tail++] = to;
+}
+</code></pre>
+      <p>
+        すでに見つけた都市でも、今の道のほうが安ければ費用を書き換え、キューに入れ直します。都市1は費用0に下がって先頭に入り直し、そこから都市3は 0 + 1 = 1 になります。費用がすべて1の幅優先探索なら、先に見つけた都市ほど近いので、見つけた時点で費用が決まります。無料の道があると、あとから見つかった道のほうが安いことがあり、その性質は成り立ちません<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>直したあとの都市1はキューに2回入ります。末尾に残った古いほうを取り出したときは、どの都市の費用も下がらないので、何も起きずに次へ進みます。1つの都市が入るのは多くても2回で、<code>dq</code> の16個で足ります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

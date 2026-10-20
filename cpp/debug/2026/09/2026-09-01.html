@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="2つのスレッドで std::atomic&lt;int&gt; のカウンタを増やすC++のコードが、hits = hits + 1 と書いたせいで合計を数え落とす欠陥を直します。読み出しと書き込みが別々の操作になる競合状態と、データ競合との違いを扱う2026-09-01のC++ DEBUGです。">
+<title>atomicなのに数え落とす</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-09-01">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-01" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-09-01",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-09-01",
+      "datePublished": "2026-09-01",
+      "dateModified": "2026-09-01",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "atomicなのに数え落とす" },
+      "keywords": "atomic, race-condition, data-race, thread",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "2つのスレッドで std::atomic<int> のカウンタを増やすC++のコードが、hits = hits + 1 と書いたせいで合計を数え落とす欠陥を直します。読み出しと書き込みが別々の操作になる競合状態と、データ競合との違いを扱う2026-09-01のC++ DEBUGです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-01">C23</a>
+  <a href="/cpp/debug/2026-09-01" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-09-01">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-01">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-01">READ</a>
+  <a href="/cpp/write/2026-09-01">WRITE</a>
+  <a href="/cpp/debug/2026-09-01" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="atomicなのに数え落とす"
+  data-tags="atomic race-condition data-race thread"
+  data-concepts="アトミック操作, 失われた更新, 読み出しと書き込みの分離, 競合状態, lost update, read-modify-write, std::atomic, race condition"
+  data-level="hedgehog"
+>
+  <h2>2026-09-01</h2>
+  <div class="code-frame">
+    <p class="code-filename">hits.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;atomic&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;print&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;thread&gt;</span>
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    std::<span class="ty">atomic</span>&lt;<span class="ty">int</span>&gt; hits{<span class="nu">0</span>};
+    {
+        <span class="kw">auto</span> work = [&amp;] {
+            <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; <span class="nu">100000</span>; i++) {
+                hits = hits + <span class="nu">1</span>;
+            }
+        };
+        std::<span class="ty">jthread</span> <span class="fn">a</span>(work), <span class="fn">b</span>(work);
+    }
+    std::<span class="fn">println</span>(<span class="st">"{}"</span>, hits.<span class="fn">load</span>());
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    2つのスレッドがそれぞれ100000回ずつ <code>hits</code> を1増やし、合計を表示するつもりのコードです。入力はありません。いまの出力は実行のたびに変わり、手元では <code>164436</code>、<code>128407</code>、<code>150223</code> のように200000より小さい値が出ました。本来の出力は <code>200000</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code>hits = hits + <span class="nu">1</span>;
+</code></pre>
+      <p>
+        右辺の <code>hits</code> は <code>load</code>、代入は <code>store</code> で、この1行は「読む」と「書く」の2つの操作に分かれています。スレッドAが100を読み、101を書く前にスレッドBも100を読むと、AもBも101を書くので、2回足したのに1しか増えません。この取りこぼしが実行中に何万回も起き、起きる回数は2つのスレッドの進み方で毎回変わります<sup class="fn-ref">1</sup>。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code>hits += <span class="nu">1</span>;
+</code></pre>
+      <p>
+        <code>std::atomic&lt;int&gt;</code> の <code>+=</code> は <code>hits.fetch_add(1)</code> と同じで、読む、足す、書くを1つの不可分な操作として行います。その間にほかのスレッドの書き込みは入れないので、200000回の加算がすべて残ります。<code>hits++</code> と書いても同じです。
+      </p>
+      <ol class="footnotes">
+        <li><code>hits</code> が <code>std::atomic</code> なので、1回ずつの読み書きは不可分で、データ競合（同期のない読み書きの衝突。C++では未定義動作）にはなっていません。<code>int</code> のままなら未定義動作でした。ここで起きているのは、正しく定義された操作の組み合わせで結果が足りなくなる競合状態（race condition）です。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

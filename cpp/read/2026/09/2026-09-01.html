@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="2つのスレッドが std::atomic の fetch_add で番号を受け取り、偶数を受け取った回数を数えるC++のコードです。スレッドの進み方が毎回変わる中で何が表示されるかを、fetch_add の戻り値と std::jthread の join から考える2026-09-01のC++ READです。">
+<title>番号札は1枚ずつ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-09-01">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-01" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-09-01",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-09-01",
+      "datePublished": "2026-09-01",
+      "dateModified": "2026-09-01",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "番号札は1枚ずつ" },
+      "keywords": "atomic, thread, concurrency, raii",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "2つのスレッドが std::atomic の fetch_add で番号を受け取り、偶数を受け取った回数を数えるC++のコードです。スレッドの進み方が毎回変わる中で何が表示されるかを、fetch_add の戻り値と std::jthread の join から考える2026-09-01のC++ READです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-01">C23</a>
+  <a href="/cpp/read/2026-09-01" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-09-01">Rust 2024</a>
+  <a href="/haskell/read/2026-09-01">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-09-01" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-09-01">WRITE</a>
+  <a href="/cpp/debug/2026-09-01">DEBUG</a>
+</nav>
+
+<main
+  data-topic="番号札は1枚ずつ"
+  data-tags="atomic thread concurrency raii"
+  data-concepts="アトミック操作, fetch_add, std::jthread, join, 番号札, std::atomic, atomic fetch_add, ticket counter"
+  data-level="peacock"
+>
+  <h2>2026-09-01</h2>
+  <div class="code-frame">
+    <p class="code-filename">tickets.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;atomic&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;print&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;thread&gt;</span>
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    std::<span class="ty">atomic</span>&lt;<span class="ty">int</span>&gt; next{<span class="nu">0</span>}, evens{<span class="nu">0</span>};
+    {
+        <span class="kw">auto</span> work = [&amp;] {
+            <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; <span class="nu">1000</span>; i++) {
+                <span class="kw">if</span> (next.<span class="fn">fetch_add</span>(<span class="nu">1</span>) % <span class="nu">2</span> == <span class="nu">0</span>) {
+                    evens++;
+                }
+            }
+        };
+        std::<span class="ty">jthread</span> <span class="fn">a</span>(work), <span class="fn">b</span>(work);
+    }
+    std::<span class="fn">println</span>(<span class="st">"{} {}"</span>, next.<span class="fn">load</span>(), evens.<span class="fn">load</span>());
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>2000 1000</code> です。
+      </p>
+      <p>
+        <code>next.fetch_add(1)</code> は、<code>next</code> に1を足すことと足す前の値を返すことを、ほかのスレッドが割り込めない1つの操作として行います。2つのスレッドが合わせて2000回呼ぶので、返る値は0から1999までの整数がちょうど1回ずつです。実行のたびに変わるのは、どちらのスレッドがどの値を受け取るかだけです。
+      </p>
+      <p>
+        <code>evens</code> が数えるのは、受け取った値が偶数だった回数です。0から1999までの偶数は1000個あり、どれも一度だけどちらかのスレッドに渡るので、配られ方が変わっても合計は1000になります。<code>evens++</code> も <code>std::atomic</code> への1回の操作なので、2つのスレッドが同時に足しても数え落としません。
+      </p>
+      <p>
+        表示は、2つの <code>std::jthread</code> を作ったブロックを抜けたあとに行われます。<code>std::jthread</code> はデストラクタでスレッドの終了を待つ（join する）ので、<code>std::println</code> に着いた時点で2000回の <code>fetch_add</code> はすべて終わっています。スレッドの進み方しだいで値が変わると考えるのも、表示がスレッドより先に走って小さい値が出ると考えるのも誤りです。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

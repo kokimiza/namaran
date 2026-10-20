@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="命令の列を foldl&#x27; で実行するHaskellのコードが、状態の型を newtype にしたせいで、あとで置き換えられるはずの値まで読み取って例外で落ちる欠陥を直します。foldl&#x27; と弱頭部正規形、newtype と data の違いを扱う2026-09-01のHaskell DEBUGです。">
+<title>newtypeは箱にならない</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-09-01">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-01" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-09-01",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-09-01",
+      "datePublished": "2026-09-01",
+      "dateModified": "2026-09-01",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "newtypeは箱にならない" },
+      "keywords": "newtype, strictness, weak-head-normal-form, fold, laziness",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "命令の列を foldl' で実行するHaskellのコードが、状態の型を newtype にしたせいで、あとで置き換えられるはずの値まで読み取って例外で落ちる欠陥を直します。foldl' と弱頭部正規形、newtype と data の違いを扱う2026-09-01のHaskell DEBUGです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-01">C23</a>
+  <a href="/cpp/debug/2026-09-01">C++26</a>
+  <a href="/rust/debug/2026-09-01">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-01" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-09-01">READ</a>
+  <a href="/haskell/write/2026-09-01">WRITE</a>
+  <a href="/haskell/debug/2026-09-01" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="newtypeは箱にならない"
+  data-tags="newtype strictness weak-head-normal-form fold laziness"
+  data-concepts="newtypeとdataの違い, foldl&#x27;, 弱頭部正規形, 正格な畳み込み, 遅延評価, newtype vs data, WHNF, strict left fold"
+  data-level="peacock"
+>
+  <h2>2026-09-01</h2>
+  <div class="code-frame">
+    <p class="code-filename">Replay.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Data.List</span> (foldl')
+
+<span class="kw">newtype</span> <span class="ty">Value</span> = <span class="ty">Value</span> <span class="ty">Int</span>
+
+<span class="fn">step</span> <span class="op">::</span> <span class="ty">Value</span> <span class="op">-&gt;</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">Value</span>
+<span class="fn">step</span> (<span class="ty">Value</span> n) <span class="st">"inc"</span> = <span class="ty">Value</span> (n + <span class="nu">1</span>)
+<span class="fn">step</span> _ s = <span class="ty">Value</span> (read s)
+
+<span class="fn">run</span> <span class="op">::</span> [<span class="ty">String</span>] <span class="op">-&gt;</span> <span class="ty">Int</span>
+<span class="fn">run</span> cmds = <span class="kw">case</span> foldl' step (<span class="ty">Value</span> <span class="nu">0</span>) cmds <span class="kw">of</span>
+  <span class="ty">Value</span> n <span class="op">-&gt;</span> n
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (run [<span class="st">"oops"</span>, <span class="st">"5"</span>, <span class="st">"inc"</span>])
+</code></pre>
+  </div>
+
+  <p class="question">
+    数を表す文字列と <code>"inc"</code> からなる命令の列を先頭から実行し、最後の値を返すつもりの <code>run</code> です。数の命令は値をその数で置き換え、<code>"inc"</code> は値を1増やします。状態は <code>foldl'</code> で1手ずつ進めますが、あとの命令で置き換えられた数は使われないので、読み取れない文字列が混ざっていても答えには関係しないはずです。<code>run ["oops", "5", "inc"]</code> を表示すると、いまは何も出力されずに <code>Prelude.read: no parse</code> という例外で終了します。本来の出力は <code>6</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">newtype</span> <span class="ty">Value</span> = <span class="ty">Value</span> <span class="ty">Int</span>
+</code></pre>
+      <p>
+        <code>foldl'</code> は、次の要素へ進む前に、途中の状態を外側のコンストラクタが分かる形（弱頭部正規形、WHNF）まで評価します。1手目の状態 <code>step (Value 0) "oops"</code> は <code>Value (read "oops")</code> です。<code>Value</code> が <code>newtype</code> だと、コンストラクタは実行時には消えていて、この値の弱頭部正規形は中の <code>read "oops"</code> を評価した結果そのものになります。そのため1手目で <code>read "oops"</code> が評価され、<code>"5"</code> で置き換わる前に例外が起きます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">data</span> <span class="ty">Value</span> = <span class="ty">Value</span> <span class="ty">Int</span>
+</code></pre>
+      <p>
+        <code>data</code> のコンストラクタは実行時にも残るので、<code>foldl'</code> の評価は外側の <code>Value</code> が見えたところで止まり、中の <code>read "oops"</code> は評価されないまま残ります。2手目の <code>"5"</code> がその状態を <code>Value (read "5")</code> に置き換えるので、<code>"oops"</code> を読み取る式は一度も評価されずに捨てられます。最後の <code>"inc"</code> で5に1が足され、<code>6</code> が表示されます<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>HLint は直したあとの <code>data Value = Value Int</code> に「<code>newtype</code> にせよ」という提案を出し、注記に「decreases laziness」（遅延性が下がる）と添えます。この問題のコードは、その注記が指す違いで壊れていました。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

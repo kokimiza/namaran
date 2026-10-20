@@ -7,6 +7,7 @@
   <url><loc>https://namaran.jocarium.productions/level/peacock</loc></url>
   <url><loc>https://namaran.jocarium.productions/level/bison</loc></url>
   <url><loc>https://namaran.jocarium.productions/level/whale</loc></url>
+  <url><loc>https://namaran.jocarium.productions/tag/0-1-bfs</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/a-star-search</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/aggregate-initialization</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/algebraic-data-type</loc></url>
@@ -66,6 +67,8 @@
   <url><loc>https://namaran.jocarium.productions/tag/csv</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/cycle-detection</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/dangling-pointer</loc></url>
+  <url><loc>https://namaran.jocarium.productions/tag/data-race</loc></url>
+  <url><loc>https://namaran.jocarium.productions/tag/database-index</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/date-time</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/de-bruijn-index</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/decompression-bomb</loc></url>
@@ -73,6 +76,7 @@
   <url><loc>https://namaran.jocarium.productions/tag/deep-copy</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/default</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/depth-first-search</loc></url>
+  <url><loc>https://namaran.jocarium.productions/tag/deque</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/deref-coercion</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/deriving</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/design-by-contract</loc></url>
@@ -185,6 +189,7 @@
   <url><loc>https://namaran.jocarium.productions/tag/mutex</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/n-plus-one-query</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/narrowing-conversion</loc></url>
+  <url><loc>https://namaran.jocarium.productions/tag/newtype</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/null-pointer</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/null-terminated-string</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/number-theory</loc></url>
@@ -286,6 +291,8 @@
   <url><loc>https://namaran.jocarium.productions/tag/temporary</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/ternary-search</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/testing</loc></url>
+  <url><loc>https://namaran.jocarium.productions/tag/thread-safety</loc></url>
+  <url><loc>https://namaran.jocarium.productions/tag/thread</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/thunk</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/timeout</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/toctou</loc></url>
@@ -294,6 +301,7 @@
   <url><loc>https://namaran.jocarium.productions/tag/trait-object</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/tree</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/twos-complement</loc></url>
+  <url><loc>https://namaran.jocarium.productions/tag/tying-the-knot</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/type-conversion</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/type-deduction</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/type-erasure</loc></url>
@@ -371,6 +379,7 @@
   <url><loc>https://namaran.jocarium.productions/c/read/2026-09-04</loc><lastmod>2026-09-04</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/c/read/2026-09-03</loc><lastmod>2026-09-03</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/c/read/2026-09-02</loc><lastmod>2026-09-02</lastmod></url>
+  <url><loc>https://namaran.jocarium.productions/c/read/2026-09-01</loc><lastmod>2026-09-01</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/c/read/2026-08-27</loc><lastmod>2026-08-27</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/c/read/2026-08-25</loc><lastmod>2026-08-25</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/c/read/2026-08-24</loc><lastmod>2026-08-24</lastmod></url>
@@ -428,6 +437,7 @@
   <url><loc>https://namaran.jocarium.productions/c/write/2026-09-04</loc><lastmod>2026-09-04</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/c/write/2026-09-03</loc><lastmod>2026-09-03</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/c/write/2026-09-02</loc><lastmod>2026-09-02</lastmod></url>
+  <url><loc>https://namaran.jocarium.productions/c/write/2026-09-01</loc><lastmod>2026-09-01</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/c/write/2026-08-27</loc><lastmod>2026-08-27</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/c/write/2026-08-25</loc><lastmod>2026-08-25</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/c/write/2026-08-24</loc><lastmod>2026-08-24</lastmod></url>
@@ -485,6 +495,7 @@
   <url><loc>https://namaran.jocarium.productions/c/debug/2026-09-04</loc><lastmod>2026-09-04</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/c/debug/2026-09-03</loc><lastmod>2026-09-03</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/c/debug/2026-09-02</loc><lastmod>2026-09-02</lastmod></url>
+  <url><loc>https://namaran.jocarium.productions/c/debug/2026-09-01</loc><lastmod>2026-09-01</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/c/debug/2026-08-27</loc><lastmod>2026-08-27</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/c/debug/2026-08-25</loc><lastmod>2026-08-25</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/c/debug/2026-08-24</loc><lastmod>2026-08-24</lastmod></url>
@@ -542,6 +553,7 @@
   <url><loc>https://namaran.jocarium.productions/cpp/read/2026-09-04</loc><lastmod>2026-09-04</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/cpp/read/2026-09-03</loc><lastmod>2026-09-03</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/cpp/read/2026-09-02</loc><lastmod>2026-09-02</lastmod></url>
+  <url><loc>https://namaran.jocarium.productions/cpp/read/2026-09-01</loc><lastmod>2026-09-01</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/cpp/read/2026-08-27</loc><lastmod>2026-08-27</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/cpp/read/2026-08-25</loc><lastmod>2026-08-25</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/cpp/read/2026-08-24</loc><lastmod>2026-08-24</lastmod></url>
@@ -599,6 +611,7 @@
   <url><loc>https://namaran.jocarium.productions/cpp/write/2026-09-04</loc><lastmod>2026-09-04</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/cpp/write/2026-09-03</loc><lastmod>2026-09-03</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/cpp/write/2026-09-02</loc><lastmod>2026-09-02</lastmod></url>
+  <url><loc>https://namaran.jocarium.productions/cpp/write/2026-09-01</loc><lastmod>2026-09-01</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/cpp/write/2026-08-27</loc><lastmod>2026-08-27</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/cpp/write/2026-08-25</loc><lastmod>2026-08-25</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/cpp/write/2026-08-24</loc><lastmod>2026-08-24</lastmod></url>
@@ -656,6 +669,7 @@
   <url><loc>https://namaran.jocarium.productions/cpp/debug/2026-09-04</loc><lastmod>2026-09-04</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/cpp/debug/2026-09-03</loc><lastmod>2026-09-03</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/cpp/debug/2026-09-02</loc><lastmod>2026-09-02</lastmod></url>
+  <url><loc>https://namaran.jocarium.productions/cpp/debug/2026-09-01</loc><lastmod>2026-09-01</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/cpp/debug/2026-08-27</loc><lastmod>2026-08-27</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/cpp/debug/2026-08-25</loc><lastmod>2026-08-25</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/cpp/debug/2026-08-24</loc><lastmod>2026-08-24</lastmod></url>
@@ -713,6 +727,7 @@
   <url><loc>https://namaran.jocarium.productions/rust/read/2026-09-04</loc><lastmod>2026-09-04</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/rust/read/2026-09-03</loc><lastmod>2026-09-03</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/rust/read/2026-09-02</loc><lastmod>2026-09-02</lastmod></url>
+  <url><loc>https://namaran.jocarium.productions/rust/read/2026-09-01</loc><lastmod>2026-09-01</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/rust/read/2026-08-27</loc><lastmod>2026-08-27</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/rust/read/2026-08-25</loc><lastmod>2026-08-25</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/rust/read/2026-08-24</loc><lastmod>2026-08-24</lastmod></url>
@@ -770,6 +785,7 @@
   <url><loc>https://namaran.jocarium.productions/rust/write/2026-09-04</loc><lastmod>2026-09-04</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/rust/write/2026-09-03</loc><lastmod>2026-09-03</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/rust/write/2026-09-02</loc><lastmod>2026-09-02</lastmod></url>
+  <url><loc>https://namaran.jocarium.productions/rust/write/2026-09-01</loc><lastmod>2026-09-01</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/rust/write/2026-08-27</loc><lastmod>2026-08-27</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/rust/write/2026-08-25</loc><lastmod>2026-08-25</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/rust/write/2026-08-24</loc><lastmod>2026-08-24</lastmod></url>
@@ -827,6 +843,7 @@
   <url><loc>https://namaran.jocarium.productions/rust/debug/2026-09-04</loc><lastmod>2026-09-04</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/rust/debug/2026-09-03</loc><lastmod>2026-09-03</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/rust/debug/2026-09-02</loc><lastmod>2026-09-02</lastmod></url>
+  <url><loc>https://namaran.jocarium.productions/rust/debug/2026-09-01</loc><lastmod>2026-09-01</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/rust/debug/2026-08-27</loc><lastmod>2026-08-27</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/rust/debug/2026-08-25</loc><lastmod>2026-08-25</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/rust/debug/2026-08-24</loc><lastmod>2026-08-24</lastmod></url>
@@ -884,6 +901,7 @@
   <url><loc>https://namaran.jocarium.productions/haskell/read/2026-09-04</loc><lastmod>2026-09-04</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/haskell/read/2026-09-03</loc><lastmod>2026-09-03</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/haskell/read/2026-09-02</loc><lastmod>2026-09-02</lastmod></url>
+  <url><loc>https://namaran.jocarium.productions/haskell/read/2026-09-01</loc><lastmod>2026-09-01</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/haskell/read/2026-08-27</loc><lastmod>2026-08-27</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/haskell/read/2026-08-25</loc><lastmod>2026-08-25</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/haskell/read/2026-08-24</loc><lastmod>2026-08-24</lastmod></url>
@@ -941,6 +959,7 @@
   <url><loc>https://namaran.jocarium.productions/haskell/write/2026-09-04</loc><lastmod>2026-09-04</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/haskell/write/2026-09-03</loc><lastmod>2026-09-03</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/haskell/write/2026-09-02</loc><lastmod>2026-09-02</lastmod></url>
+  <url><loc>https://namaran.jocarium.productions/haskell/write/2026-09-01</loc><lastmod>2026-09-01</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/haskell/write/2026-08-27</loc><lastmod>2026-08-27</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/haskell/write/2026-08-25</loc><lastmod>2026-08-25</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/haskell/write/2026-08-24</loc><lastmod>2026-08-24</lastmod></url>
@@ -998,6 +1017,7 @@
   <url><loc>https://namaran.jocarium.productions/haskell/debug/2026-09-04</loc><lastmod>2026-09-04</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/haskell/debug/2026-09-03</loc><lastmod>2026-09-03</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/haskell/debug/2026-09-02</loc><lastmod>2026-09-02</lastmod></url>
+  <url><loc>https://namaran.jocarium.productions/haskell/debug/2026-09-01</loc><lastmod>2026-09-01</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/haskell/debug/2026-08-27</loc><lastmod>2026-08-27</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/haskell/debug/2026-08-25</loc><lastmod>2026-08-25</lastmod></url>
   <url><loc>https://namaran.jocarium.productions/haskell/debug/2026-08-24</loc><lastmod>2026-08-24</lastmod></url>

@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="自分自身を case で調べる再帰的な定義を、newtype の Box と data の Cell で書いたHaskellのコードを読みます。newtype の照合が値を評価しないことと、data のコンストラクタが引数を評価せずに出来上がることを組み合わせる2026-09-01のHaskell READです。">
+<title>自分自身をcaseで調べる</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-09-01">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-01" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-09-01",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-09-01",
+      "datePublished": "2026-09-01",
+      "dateModified": "2026-09-01",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "自分自身をcaseで調べる" },
+      "keywords": "newtype, strictness, laziness, weak-head-normal-form, tying-the-knot, pattern-matching",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "自分自身を case で調べる再帰的な定義を、newtype の Box と data の Cell で書いたHaskellのコードを読みます。newtype の照合が値を評価しないことと、data のコンストラクタが引数を評価せずに出来上がることを組み合わせる2026-09-01のHaskell READです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-09-01">C23</a>
+  <a href="/cpp/read/2026-09-01">C++26</a>
+  <a href="/rust/read/2026-09-01">Rust 2024</a>
+  <a href="/haskell/read/2026-09-01" class="active" aria-current="page">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-09-01" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-09-01">WRITE</a>
+  <a href="/haskell/debug/2026-09-01">DEBUG</a>
+</nav>
+
+<main
+  data-topic="自分自身をcaseで調べる"
+  data-tags="newtype strictness laziness weak-head-normal-form tying-the-knot pattern-matching"
+  data-concepts="newtypeとdataの違い, 弱頭部正規形, 結び目を作る, 遅延評価, 正格フィールド, newtype vs data, WHNF, tying the knot"
+  data-level="whale"
+>
+  <h2>2026-09-01</h2>
+  <div class="code-frame">
+    <p class="code-filename">Knot.hs</p>
+    <pre class="code"><code><span class="kw">newtype</span> <span class="ty">Box</span> = <span class="ty">Box</span> [<span class="ty">Int</span>]
+
+<span class="kw">data</span> <span class="ty">Cell</span> = <span class="ty">Cell</span> [<span class="ty">Int</span>]
+
+<span class="fn">boxes</span> <span class="op">::</span> <span class="ty">Box</span>
+<span class="fn">boxes</span> = <span class="kw">case</span> boxes <span class="kw">of</span>
+  <span class="ty">Box</span> xs <span class="op">-&gt;</span> <span class="ty">Box</span> (<span class="nu">1</span> : xs)
+
+<span class="fn">cells</span> <span class="op">::</span> <span class="ty">Cell</span>
+<span class="fn">cells</span> = <span class="ty">Cell</span> (<span class="kw">case</span> cells <span class="kw">of</span> <span class="ty">Cell</span> xs <span class="op">-&gt;</span> <span class="nu">2</span> : xs)
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = <span class="kw">do</span>
+  <span class="kw">let</span> <span class="ty">Box</span> b = boxes
+      <span class="ty">Cell</span> c = cells
+  print (take <span class="nu">3</span> b, take <span class="nu">3</span> c)
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>([1,1,1],[2,2,2])</code> です。どちらの定義も止まり、<code>b</code> と <code>c</code> は同じ数が無限に続くリストになります。
+      </p>
+      <p>
+        <code>main</code> の <code>let Box b = boxes</code> と <code>Cell c = cells</code> は、<code>let</code> の中の照合なので、<code>b</code> や <code>c</code> が使われるまで行われません。最初に評価が始まるのは、<code>print</code> が <code>take 3 b</code> を表示しようとして <code>b</code> を求めたときです。
+      </p>
+      <p>
+        <code>boxes</code> は、右辺の <code>case</code> で <code>boxes</code> 自身を調べています。<code>Box</code> が <code>data</code> なら、<code>case</code> は調べる値を、外側のコンストラクタが分かる形（弱頭部正規形、WHNF）まで評価します。<code>boxes</code> を求めるのに <code>boxes</code> が要るので止まりません。しかし <code>Box</code> は <code>newtype</code> です。<code>newtype</code> のコンストラクタは型を区別するためだけのもので、実行時の値は中の <code>[Int]</code> と同じなので、<code>Box xs</code> との照合は何も評価せずに成功します。<code>xs</code> は <code>boxes</code> の中身のリストそのものを指し、<code>b</code> は先頭の1のあとに自分自身が続く <code>1 : b</code> になります。
+      </p>
+      <p>
+        ここで「<code>data</code> の <code>case</code> は値を評価する」と当てはめると、<code>cells</code> は止まらないと読めます。<code>cells</code> の <code>case</code> は確かに <code>cells</code> を評価しますが、その <code>case</code> は <code>Cell</code> の引数の中にあります。コンストラクタは引数を評価しないまま値になるので、<code>cells</code> は中身が未評価の <code>Cell</code> としてすぐに出来上がります。<code>case</code> が動くのは <code>take</code> が <code>c</code> の要素を求めたときで、その時点の <code>cells</code> はもう <code>Cell</code> の形なので照合はすぐに成功し、<code>c</code> は <code>2 : c</code> になります。
+      </p>
+      <p>
+        「<code>newtype</code> は <code>data</code> より遅延的だから、<code>boxes</code> だけが止まる」と考えても間違えます。<code>newtype</code> が効くのは照合の側で、<code>cells</code> が止まるのは、自分自身を調べる <code>case</code> がコンストラクタの引数として後回しにされるからです。<code>Box</code> を <code>data</code> にすると <code>boxes</code> は止まらなくなり、<code>Cell</code> の引数を正格フィールド <code>![Int]</code> にすると、今度は <code>cells</code> が止まらなくなります<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>正格フィールドは、コンストラクタを適用する時点でその引数を弱頭部正規形まで評価させます。<code>Cell</code> を作る前に <code>case cells of ...</code> が評価され、その <code>case</code> は作りかけの <code>cells</code> を必要とします。GHC は、値が自分自身の評価の終わりを待つこの状態を実行時に見つけると、<code>&lt;&lt;loop&gt;&gt;</code> という例外を投げてプログラムを終了します。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

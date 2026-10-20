@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="(user, time) の組を並べた BTreeSet から、利用者を問わず時刻が40以上の記録を range で取り出そうとしたRustのコードが、全件を返してしまう欠陥を直します。複合インデックスの先頭の列を飛ばして2番目の列で探せない理由を扱う2026-09-01のRust DEBUGです。">
+<title>先頭の列を飛ばした検索</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-09-01">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-09-01" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-09-01",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-09-01",
+      "datePublished": "2026-09-01",
+      "dateModified": "2026-09-01",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "先頭の列を飛ばした検索" },
+      "keywords": "database-index, ordered-map, comparison",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "(user, time) の組を並べた BTreeSet から、利用者を問わず時刻が40以上の記録を range で取り出そうとしたRustのコードが、全件を返してしまう欠陥を直します。複合インデックスの先頭の列を飛ばして2番目の列で探せない理由を扱う2026-09-01のRust DEBUGです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-09-01">C23</a>
+  <a href="/cpp/debug/2026-09-01">C++26</a>
+  <a href="/rust/debug/2026-09-01" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-09-01">Haskell 2010</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-09-01">READ</a>
+  <a href="/rust/write/2026-09-01">WRITE</a>
+  <a href="/rust/debug/2026-09-01" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="先頭の列を飛ばした検索"
+  data-tags="database-index ordered-map comparison"
+  data-concepts="複合インデックス, 先頭の列の省略, 辞書式順序, BTreeSet::range, composite index, leftmost prefix, lexicographic order"
+  data-level="hedgehog"
+>
+  <h2>2026-09-01</h2>
+  <div class="code-frame">
+    <p class="code-filename">late.rs</p>
+    <pre class="code"><code><span class="kw">use</span> std::collections::<span class="ty">BTreeSet</span>;
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="cm">// index on (user, time)</span>
+    <span class="kw">let</span> index = <span class="ty">BTreeSet</span>::<span class="fn">from</span>([(<span class="nu">1</span>, <span class="nu">30</span>), (<span class="nu">1</span>, <span class="nu">70</span>), (<span class="nu">2</span>, <span class="nu">10</span>), (<span class="nu">2</span>, <span class="nu">50</span>), (<span class="nu">3</span>, <span class="nu">20</span>)]);
+    <span class="kw">let</span> late: <span class="ty">Vec</span>&lt;_&gt; = index.<span class="fn">range</span>((<span class="nu">0</span>, <span class="nu">40</span>)..).<span class="fn">collect</span>();
+    <span class="mc">println!</span>(<span class="st">"{late:?}"</span>);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>index</code> は、どの利用者がいつ操作したかの記録を <code>(user, time)</code> の組で持つ <code>BTreeSet</code> です。このコードは、利用者を問わず、時刻が40以上の記録だけを取り出して表示するつもりのものです。入力はありません。いまの出力は <code>[(1, 30), (1, 70), (2, 10), (2, 50), (3, 20)]</code> で、本来の出力は <code>[(1, 70), (2, 50)]</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">let</span> late: <span class="ty">Vec</span>&lt;_&gt; = index.<span class="fn">range</span>((<span class="nu">0</span>, <span class="nu">40</span>)..).<span class="fn">collect</span>();
+</code></pre>
+      <p>
+        <code>range((0, 40)..)</code> は、<code>(0, 40)</code> 以上の要素をすべて返します。タプルの大小は辞書式順序（lexicographic order）で、1つ目の要素を先に比べ、等しいときだけ2つ目を比べます。<code>user</code> が1以上の要素は <code>time</code> がいくつでも <code>(0, 40)</code> より大きいので、40が効くのは <code>user</code> が0の要素だけです。<code>user</code> が0の記録は無いため、5件すべてが返ります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">let</span> late: <span class="ty">Vec</span>&lt;_&gt; = index.<span class="fn">iter</span>().<span class="fn">filter</span>(|&amp;&amp;(_, time)| time &gt;= <span class="nu">40</span>).<span class="fn">collect</span>();
+</code></pre>
+      <p>
+        <code>(user, time)</code> の順の並びでは、時刻が40以上の記録は利用者ごとの区間に散らばり、一続きになりません。この並びのままでは全件をたどって <code>time</code> を1つずつ確かめるしかなく、<code>filter</code> はそれをそのまま書いたものです。時刻だけで探すことが多いなら、<code>(time, user)</code> の順に並べた別の <code>BTreeSet</code> を持てば、<code>range((40, 0)..)</code> で一続きの区間として取り出せます<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>データベースの複合インデックスも同じで、<code>(user, time)</code> のインデックスは <code>WHERE time &gt;= 40</code> だけの問い合わせでは範囲を絞れません。先頭の列から順に条件が付いているときだけ範囲を絞れるという性質は、leftmost prefix（左端からの接頭辞）の規則と呼ばれます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
