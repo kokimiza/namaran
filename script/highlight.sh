@@ -8,7 +8,7 @@
 # Usage:
 #   script/highlight.sh [--check] FILE ...
 #
-#   FILE is a drill page, {lang}/{type}/*.html; the language is read from the
+#   FILE is a drill page, {lang}/{type}/YYYY/MM/*.html; the language is read from the
 #   path. Every <pre class="code"><code>…</code></pre> block is re-lexed and its
 #   tokens wrapped in <span class="…">. Existing spans are stripped first, so
 #   running it again — after editing the code, or on an already highlighted
@@ -282,9 +282,10 @@ def render(lang, raw):
 
 
 def highlight(path):
-    lang = path.resolve().parent.parent.name
+    parents = path.resolve().parents
+    lang = parents[3].name if len(parents) > 3 else ""
     if lang not in LANGS:
-        sys.exit(f"error: {path}: not a drill page ({{lang}}/{{type}}/*.html)")
+        sys.exit(f"error: {path}: not a drill page ({{lang}}/{{type}}/YYYY/MM/*.html)")
     before = path.read_text(encoding="utf-8")
     after = BLOCK.sub(lambda m: m.group(1) + render(lang, m.group(2)) + m.group(3), before)
     return before, after

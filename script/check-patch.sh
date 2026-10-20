@@ -21,7 +21,7 @@
 #   * it is a plain text git diff: no binary hunks, renames, copies,
 #     deletions or mode changes
 #   * every file it touches is, for one of the given combos, either
-#       {lang}/{type}/DATE.html   created as a new regular file (100644), or
+#       {lang}/{type}/YYYY/MM/DATE.html   created as a new regular file (100644), or
 #       {lang}/{type}/archive.html   modified, only by adding lines of the
 #                                    exact form content.sh writes for DATE,
 #     or script/tags.tsv, modified only by adding "slug<TAB>name" lines for
@@ -81,8 +81,8 @@ for combo in combos:
         sys.exit(f"error: not a LANG/TYPE combo: {combo!r}")
     if level and level not in LEVELS:
         sys.exit(f"error: not a level ({', '.join(LEVELS)}): {level!r}")
-    allowed_pages[f"{lang}/{typ}/{date}.html"] = (lang, typ)
-    drawn_levels[f"{lang}/{typ}/{date}.html"] = level
+    allowed_pages[f"{lang}/{typ}/{date[:4]}/{date[5:7]}/{date}.html"] = (lang, typ)
+    drawn_levels[f"{lang}/{typ}/{date[:4]}/{date[5:7]}/{date}.html"] = level
     allowed_archives[f"{lang}/{typ}/archive.html"] = (lang, typ)
 
 with open(patch_file, "rb") as f:

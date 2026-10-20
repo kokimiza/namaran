@@ -19,7 +19,7 @@ on:
     branches: [main]
     paths:
       - "*/*/archive.html"
-      - "*/*/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9].html"
+      - "*/*/[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9].html"
   schedule:
     # 00:05 in Asia/Tokyo, before the daily drill run.
     - cron: "5 15 * * *"

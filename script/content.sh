@@ -18,7 +18,8 @@
 #   LANG/TYPE pairs default to all 12 (4 languages x 3 exercise types) when
 #   omitted, e.g.: script/content.sh new 2026-08-25 c/read rust/debug
 #
-# `new`  creates {lang}/{type}/{date}.html from script/template-{type}.html and
+# `new`  creates {lang}/{type}/YYYY/MM/{date}.html (doc/basic-design.md §4)
+#        from script/template-{type}.html and
 #        prepends a matching <li> to {lang}/{type}/archive.html. It never
 #        overwrites an existing dated file (doc/basic-design.md: published
 #        pages are never edited), and skips an archive line that's already
@@ -55,6 +56,13 @@ type_label() {
     debug) echo "DEBUG" ;;
     *) echo "unknown exercise type: $1" >&2; exit 1 ;;
   esac
+}
+
+# page_file LANG TYPE DATE — the dated page's path, relative to the repository
+# root. Pages are split by year and month; the URL stays /LANG/TYPE/DATE
+# (functions/_middleware.js maps one onto the other).
+page_file() {
+  echo "$1/$2/${3:0:4}/${3:5:2}/$3.html"
 }
 
 code_ext() {
@@ -193,17 +201,19 @@ cmd_new() {
   for i in "${!COMBO_LANGS[@]}"; do
     local lang="${COMBO_LANGS[$i]}" type="${COMBO_TYPES[$i]}"
     local dir="$ROOT_DIR/$lang/$type"
-    local file="$dir/$date.html"
+    local rel
+    rel="$(page_file "$lang" "$type" "$date")"
+    local file="$ROOT_DIR/$rel"
     local archive="$dir/archive.html"
 
-    mkdir -p "$dir"
+    mkdir -p "$(dirname "$file")"
 
     if [ -e "$file" ]; then
-      echo "skip (already exists): $lang/$type/$date.html"
+      echo "skip (already exists): $rel"
       skipped_file=$((skipped_file + 1))
     else
       render "$lang" "$type" "$date" > "$file"
-      echo "created: $lang/$type/$date.html"
+      echo "created: $rel"
       created=$((created + 1))
     fi
 
@@ -254,16 +264,20 @@ cmd_undo() {
   for i in "${!COMBO_LANGS[@]}"; do
     local lang="${COMBO_LANGS[$i]}" type="${COMBO_TYPES[$i]}"
     local dir="$ROOT_DIR/$lang/$type"
-    local file="$dir/$date.html"
+    local rel
+    rel="$(page_file "$lang" "$type" "$date")"
+    local file="$ROOT_DIR/$rel"
     local archive="$dir/archive.html"
 
     if [ -f "$file" ]; then
       if grep -q 'TODO:' "$file"; then
         rm "$file"
-        echo "removed: $lang/$type/$date.html"
+        # The month and year directories go too if this was their only page.
+        { rmdir "$(dirname "$file")" && rmdir "$(dirname "$(dirname "$file")")"; } 2> /dev/null || true
+        echo "removed: $rel"
         removed=$((removed + 1))
       else
-        echo "keep (has been edited, no TODO markers left): $lang/$type/$date.html" >&2
+        echo "keep (has been edited, no TODO markers left): $rel" >&2
         kept=$((kept + 1))
         continue
       fi
@@ -283,7 +297,7 @@ cmd_undo() {
 }
 
 usage() {
-  sed -n '2,25p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+  sed -n '2,26p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
 }
 
 main() {

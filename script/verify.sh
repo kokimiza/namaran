@@ -46,7 +46,7 @@
 # and fourmolu.yaml). The only exemption is an ng file the formatter cannot
 # read at all, since a syntax error may be what a READ drill asks about.
 #
-# Page checks, for {lang}/{type}/DATE.html: JSON-LD parses, no TODO left,
+# Page checks, for {lang}/{type}/YYYY/MM/DATE.html: JSON-LD parses, no TODO left,
 # the topic metadata is there and agrees with itself (<main>'s data-topic —
 # at most 15 characters and the page's whole <title> — plus data-tags, which
 # must all be named in script/tags.tsv, data-concepts, the meta description
@@ -93,6 +93,12 @@ HLINT="${NAMARA_HLINT:-hlint}"
 
 usage() {
   sed -n '2,77p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+}
+
+# page_file LANG TYPE DATE — the dated page, relative to the repository root
+# (split by year and month; the URL stays /LANG/TYPE/DATE).
+page_file() {
+  echo "$1/$2/${3:0:4}/${3:5:2}/$3.html"
 }
 
 code_ext() {
@@ -312,12 +318,13 @@ verify_sources() {
 
 verify_page() {
   local lang="$1" type="$2" date="$3" src_dir="$4"
-  local result
+  local result page
+  page="$(page_file "$lang" "$type" "$date")"
   if result="$(python3 - "$ROOT_DIR" "$lang" "$type" "$date" "$src_dir" <<'PY'
 import html, json, pathlib, re, sys
 
 root, lang, typ, date, src_dir = sys.argv[1:]
-page = pathlib.Path(root, lang, typ, f"{date}.html")
+page = pathlib.Path(root, lang, typ, date[:4], date[5:7], f"{date}.html")
 archive = pathlib.Path(root, lang, typ, "archive.html")
 exts = {"c": "c", "cpp": "cpp", "rust": "rs", "haskell": "hs"}
 # The only markup allowed inside <code>: script/highlight.sh's token spans.
@@ -516,16 +523,16 @@ print("\n".join(problems))
 sys.exit(1 if problems else 0)
 PY
 )"; then
-    pass "$lang/$type/$date.html (page checks)"
+    pass "$page (page checks)"
   else
-    fail "$lang/$type/$date.html page checks:"
+    fail "$page page checks:"
     printf '%s\n' "$result" | sed 's/^/        /'
   fi
 
-  if result="$("$SCRIPT_DIR/highlight.sh" --check "$ROOT_DIR/$lang/$type/$date.html" 2>&1)"; then
-    pass "$lang/$type/$date.html (highlighting)"
+  if result="$("$SCRIPT_DIR/highlight.sh" --check "$ROOT_DIR/$page" 2>&1)"; then
+    pass "$page (highlighting)"
   else
-    fail "$lang/$type/$date.html is not highlighted as script/highlight.sh writes it:"
+    fail "$page is not highlighted as script/highlight.sh writes it:"
     printf '%s\n' "$result" | sed 's/^/        /'
   fi
 }
@@ -559,8 +566,8 @@ main() {
     case "$type" in read|write|debug) ;; *) echo "unknown exercise type: $type" >&2; exit 2 ;; esac
 
     echo "== $lang/$type/$date"
-    if [ ! -f "$ROOT_DIR/$lang/$type/$date.html" ]; then
-      fail "$lang/$type/$date.html does not exist"
+    if [ ! -f "$ROOT_DIR/$(page_file "$lang" "$type" "$date")" ]; then
+      fail "$(page_file "$lang" "$type" "$date") does not exist"
       continue
     fi
     if [ ! -d "$verify_dir/$lang/$type" ]; then

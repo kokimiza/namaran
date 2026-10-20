@@ -1,12 +1,19 @@
 // Cloudflare Pages Functions middleware.
 //
-// Two responsibilities need request-time logic that plain static files
+// Three responsibilities need request-time logic that plain static files
 // cannot express on their own:
 //
 //   1. 404 any dated URL whose date is in the future. A static file's mere
 //      existence can't encode "not yet" — this is a data-integrity rule,
 //      not a UI nicety, so it stays here (doc/basic-design.md §5.1).
-//   2. Serve the latest *published* dated page's bytes at the bare
+//   2. Map a dated URL, /{lang}/{type}/YYYY-MM-DD, onto the file that holds
+//      it, {lang}/{type}/YYYY/MM/YYYY-MM-DD.html (doc/basic-design.md §5).
+//      The files are split by year and month so that no directory grows
+//      without bound; the URLs were never changed, so no link, bookmark,
+//      canonical or sitemap entry had to be. The file's own path is not a
+//      URL of the site: it 404s, or it would be a second address for every
+//      page and a way around rule 1.
+//   3. Serve the latest *published* dated page's bytes at the bare
 //      /{lang}/{type} URL (the "today" alias), without a redirect, so
 //      publishing a new day means adding one new dated file and nothing
 //      else (doc/basic-design.md §5.2). "Latest published" is read off the
@@ -16,7 +23,7 @@
 //      mid-way through reading 404 out from under them just because that
 //      day hasn't been published yet.
 //
-// A third rule below is a permanent redirect for link shapes this site
+// A fourth rule below is a permanent redirect for link shapes this site
 // used to have and no longer does: a period where every page lived under
 // a /ja/ or /en/ locale prefix, and — earlier still — a period where the
 // DEBUG exercise type was named "fix". Both were retired by folding
@@ -32,10 +39,13 @@ const LANG = "c|cpp|rust|haskell";
 const TYPE = "read|write|debug";
 
 const datedPath = new RegExp(
-  `^/(?:${LANG})/(?:${TYPE})/(\\d{4}-\\d{2}-\\d{2})(?:\\.html)?/?$`
+  `^/(${LANG})/(${TYPE})/(\\d{4}-\\d{2}-\\d{2})(?:\\.html)?/?$`
 );
 
 const latestAliasPath = new RegExp(`^/(${LANG})/(${TYPE})(?:\\.html)?/?$`);
+
+// {lang}/{type}/YYYY/... is where dated pages are stored, not a URL.
+const storagePath = new RegExp(`^/(?:${LANG})/(?:${TYPE})/\\d{4}(?:/|$)`);
 
 // Matches any old link into the retired /ja/ or /en/ trees, and/or the old
 // "fix" type name, in any combination: /en/c/fix, /ja/rust/debug/2026-08-20,
@@ -59,13 +69,29 @@ export async function onRequest(context) {
     }
   }
 
+  if (storagePath.test(pathname)) {
+    return new Response("Not Found", { status: 404 });
+  }
+
   const match = pathname.match(datedPath);
   if (match) {
-    const today = todayInJapan();
+    const [, lang, type, date] = match;
 
-    if (match[1] > today) {
+    if (date > todayInJapan()) {
       return new Response("Not Found", { status: 404 });
     }
+
+    // One address per page: /c/read/2026-08-21.html and a trailing slash
+    // used to be normalized by Pages' own .html handling, which never sees
+    // these URLs now that no file sits at them.
+    const canonicalPath = `/${lang}/${type}/${date}`;
+    if (pathname !== canonicalPath) {
+      return Response.redirect(`${url.origin}${canonicalPath}${url.search}`, 308);
+    }
+
+    return context.env.ASSETS.fetch(
+      new Request(new URL(storedPage(lang, type, date), url.origin), context.request)
+    );
   }
 
   const latestMatch = pathname.match(latestAliasPath);
@@ -77,7 +103,7 @@ export async function onRequest(context) {
       return new Response("Not Found", { status: 404 });
     }
 
-    const target = new URL(`/${lang}/${type}/${latest}`, url.origin);
+    const target = new URL(storedPage(lang, type, latest), url.origin);
 
     // Serves the dated page's bytes as-is at the bare category URL. Its own
     // <link rel="canonical"> already points at the dated URL, so this never
@@ -87,6 +113,12 @@ export async function onRequest(context) {
   }
 
   return context.next();
+}
+
+// Where the page for a dated URL is stored (extensionless, as Pages serves
+// it): /c/read/2026-08-21 -> /c/read/2026/08/2026-08-21.
+function storedPage(lang, type, date) {
+  return `/${lang}/${type}/${date.slice(0, 4)}/${date.slice(5, 7)}/${date}`;
 }
 
 // Reads the newest date off {lang}/{type}/archive.html rather than trusting

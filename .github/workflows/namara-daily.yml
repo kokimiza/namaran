@@ -86,7 +86,7 @@ jobs:
           combos=""
           for lang in c cpp rust haskell; do
             for type in read write debug; do
-              [ -e "$lang/$type/$date.html" ] || combos+="$lang/$type "
+              [ -e "$lang/$type/${date:0:4}/${date:5:2}/$date.html" ] || combos+="$lang/$type "
             done
           done
           combos="${combos% }"
@@ -263,13 +263,15 @@ jobs:
           # (doc/basic-design.md §7.4); check-patch.sh bounds what it may say.
           allowed=(script/tags.tsv) missing=()
           for pair in $COMBOS; do
-            allowed+=("$pair/$DATE.html" "$pair/archive.html")
+            # Pages are filed by year and month (doc/basic-design.md §4).
+            page="$pair/${DATE:0:4}/${DATE:5:2}/$DATE.html"
+            allowed+=("$page" "$pair/archive.html")
             # One page at a time: `git add -N` with any missing path adds
             # nothing at all, which silently dropped the pages that did exist.
-            if [ -f "$pair/$DATE.html" ]; then
-              git add -N -- "$pair/$DATE.html"
+            if [ -f "$page" ]; then
+              git add -N -- "$page"
             else
-              missing+=("$pair/$DATE.html")
+              missing+=("$page")
             fi
           done
           # Fail here with the real reason instead of handing on a patch that

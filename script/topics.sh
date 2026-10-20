@@ -147,10 +147,16 @@ def read_labels():
     return labels
 
 
+def page_file(lang, typ, date):
+    """The dated page, relative to the root: filed by year and month, while
+    its URL stays /{lang}/{typ}/{date} (functions/_middleware.js)."""
+    return f"{lang}/{typ}/{date[:4]}/{date[5:7]}/{date}.html"
+
+
 def read_drill(lang, typ, date):
     """topic, tags and concepts for one published page."""
-    page = root / lang / typ / f"{date}.html"
-    where = f"{lang}/{typ}/{date}.html"
+    where = page_file(lang, typ, date)
+    page = root / where
     s = page.read_text(encoding="utf-8")
 
     m = re.search(r"<main\b[^>]*>", s)
@@ -188,7 +194,7 @@ def published_dates(lang, typ):
         return []
     dates = re.findall(rf'href="/{lang}/{typ}/(\d{{4}}-\d{{2}}-\d{{2}})"',
                        archive.read_text(encoding="utf-8"))
-    return [d for d in dates if (root / lang / typ / f"{d}.html").is_file()]
+    return [d for d in dates if (root / page_file(lang, typ, d)).is_file()]
 
 
 def e(text):

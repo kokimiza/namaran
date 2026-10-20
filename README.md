@@ -42,7 +42,7 @@ AIコーディングツールで仕事の生産性は上がった一方、自分
 
 ## 仕組み
 
-サイトは **HTML と CSS だけ**の静的サイトです。ブラウザ向けのJavaScript、ビルド、CMS、データベースは使っていません。Cloudflare Pagesで配信し、日付なしのURL(`/rust/read` など)を最新の公開日のページに解決する部分だけを Pages Functions([functions/_middleware.js](functions/_middleware.js))が担っています。
+サイトは **HTML と CSS だけ**の静的サイトです。ブラウザ向けのJavaScript、ビルド、CMS、データベースは使っていません。Cloudflare Pagesで配信し、日付なしのURL(`/rust/read` など)を最新の公開日のページに解決する部分と、日付つきのURL(`/rust/read/2026-10-20`)を年・月のフォルダにあるファイル(`rust/read/2026/10/2026-10-20.html`)へ読み替える部分だけを Pages Functions([functions/_middleware.js](functions/_middleware.js))が担っています。
 
 問題は**AIが毎日作り、人間の承認なしに公開します**。
 
@@ -76,11 +76,11 @@ Claudeが動くジョブは読み取り権限しか持ちません。公開す�
 index.html, style.css, 404.html, _headers   サイト本体
 level/*.svg                                  難易度の動物(手描きのSVG)。style.css がマスクとして使う
 {c,cpp,rust,haskell}/{read,write,debug}/
-  YYYY-MM-DD.html                            日付ごとの問題ページ(公開後は編集しない。ハイライトの付け直しだけは例外)
+  YYYY/MM/YYYY-MM-DD.html                    日付ごとの問題ページ(年・月で分ける。URLは /{lang}/{type}/YYYY-MM-DD。公開後は編集しない)
   archive.html                               その言語・種別の過去問一覧(日付とお題)
 topics.html, tag/                            生成物。お題から過去問を辿る索引
 levels.html, level/*.html                    生成物。難易度から過去問を辿る索引
-functions/_middleware.js                     日付なしURLの解決・未来日の404
+functions/_middleware.js                     日付URLからファイルへの読み替え・日付なしURLの解決・未来日の404
 script/content.sh                            問題ページの雛形生成とアーカイブへの追記
 script/verify.sh                             問題ページと検証用ソースの検証
 script/format.sh                             検証用ソースの整形
@@ -109,9 +109,9 @@ Skillを使わずに手で書く場合は、次の順です。
 
 ```bash
 ./script/content.sh new 2026-09-20 rust/debug   # 雛形を作り、archive.html に1行追加
-# rust/debug/2026-09-20.html の TODO を埋め、検証用ソースを用意する
+# rust/debug/2026/09/2026-09-20.html の TODO を埋め、検証用ソースを用意する
 ./script/format.sh /path/to/verify-dir/rust/debug/*.rs   # 整形してから、整形後の行をページに写す
-./script/highlight.sh rust/debug/2026-09-20.html   # コードを直したら再実行
+./script/highlight.sh rust/debug/2026/09/2026-09-20.html   # コードを直したら再実行
 ./script/verify.sh 2026-09-20 /path/to/verify-dir rust/debug
 ```
 

@@ -157,7 +157,7 @@ Bashで実行する。上書きはしない・冪等なので、同じ日付で�
 
 ## 2. 直近ページをスタイルの参考にする
 
-同じ `{lang}/{type}/` ディレクトリの直近1〜2件（`ls {lang}/{type}/2*.html | sort | tail -2`）を
+同じ `{lang}/{type}/` の直近1〜2件（`ls {lang}/{type}/*/*/*.html | sort | tail -2`。ページは年・月のディレクトリに分かれている）を
 読み、次を体で覚える：
 
 * `code-filename` の命名規則（C/C++/Rustはsnake_case、Haskellはモジュール名慣習のPascalCase）
@@ -175,7 +175,7 @@ Bashで実行する。上書きはしない・冪等なので、同じ日付で�
 
 ## 3. 中身を書く（唯一の創造的な作業）
 
-雛形ファイル（`{lang}/{type}/{date}.html`）の `TODO:` を全て埋める。Editツールを使うこと
+雛形ファイル（`{lang}/{type}/{年}/{月}/{date}.html`）の `TODO:` を全て埋める。Editツールを使うこと
 （雛形全体をWriteで作り直さない——nav/JSON-LD/footerは既に正しく生成済み）。
 
 **言語の使い分け（このリポジトリの確定ルール、doc/basic-design.md §1.5 参照）**:
@@ -480,7 +480,7 @@ Wrong/Right の `<pre class="code">` は `<details>` の中なので21行の制�
 コードを書き終えたら、そのページに対して実行する：
 
 ```bash
-./script/highlight.sh <lang>/<type>/<DATE>.html
+./script/highlight.sh <lang>/<type>/<YYYY>/<MM>/<DATE>.html
 ```
 
 * 既存の `<span>` を剥がしてから付け直すので、何度実行してもよい。**コードを直したら毎回再実行する**
