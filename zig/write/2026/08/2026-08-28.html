@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="型のそろっていない整数を並べたタプルを anytype で受け取り、要素の和を i64 で返す sum を inline for で書きます。空のタプル .{} では 0 を返します。2026-08-28のZig WRITEです。">
+<title>タプルの要素を足す</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/write/2026-08-28">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / WRITE", "item": "https://namaran.jocarium.productions/zig/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-28" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / WRITE — 2026-08-28",
+      "url": "https://namaran.jocarium.productions/zig/write/2026-08-28",
+      "datePublished": "2026-08-28",
+      "dateModified": "2026-08-28",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "タプルの要素を足す" },
+      "keywords": "tuple, loop",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "型のそろっていない整数を並べたタプルを anytype で受け取り、要素の和を i64 で返す sum を inline for で書きます。空のタプル .{} では 0 を返します。2026-08-28のZig WRITEです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-08-28">C23</a>
+  <a href="/cpp/write/2026-08-28">C++26</a>
+  <a href="/rust/write/2026-08-28">Rust 2024</a>
+  <a href="/haskell/write/2026-08-28">Haskell 2010</a>
+  <a href="/zig/write/2026-08-28" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-08-28">READ</a>
+  <a href="/zig/write/2026-08-28" class="active" aria-current="page">WRITE</a>
+  <a href="/zig/debug/2026-08-28">DEBUG</a>
+</nav>
+
+<main
+  data-topic="タプルの要素を足す"
+  data-tags="tuple loop"
+  data-concepts="inline for, タプルの要素を回す, 型の違う要素の和, anytype 引数, tuple iteration, inline for loop, heterogeneous tuple"
+  data-level="hedgehog"
+>
+  <h2>2026-08-28</h2>
+  <div class="code-frame">
+    <p class="code-filename">sum.zig</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">sum</span>(args: <span class="kw">anytype</span>) <span class="ty">i64</span> {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    整数を並べたタプル <code>args</code> を受け取り、要素の和を <code>i64</code> で返す <code>sum</code> を書いてください。要素の型はそろっていなくてもよく、どの要素も <code>i64</code> に収まる整数とします。空のタプル <code>.{}</code> なら0を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>sum(.{ 1, 2, 3 })</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>6</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>sum(.{ -4, @as(u8, 10) })</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>6</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>sum(.{})</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">sum</span>(args: <span class="kw">anytype</span>) <span class="ty">i64</span> {
+    <span class="kw">var</span> total: <span class="ty">i64</span> = <span class="nu">0</span>;
+    <span class="kw">inline</span> <span class="kw">for</span> (args) |x| total += x;
+    <span class="kw">return</span> total;
+}
+</code></pre>
+      <p>
+        タプルは要素ごとに型が違ってよいので、入力例 2 の <code>args</code> は <code>comptime_int</code> の <code>-4</code> と <code>u8</code> の <code>10</code> を持ちます。ループ変数 <code>x</code> の型が回ごとに変わるため、配列のような <code>for</code> では回せません。<code>inline for</code> はループ本体を要素の数だけコンパイル時に展開し、展開したそれぞれで <code>x</code> がその要素の型になります。<code>total += x</code> では、どちらの型の値も <code>i64</code> に変換されて足されます。
+      </p>
+      <p>
+        空のタプル <code>.{}</code> はフィールドを1つも持たないので、<code>inline for</code> は本体を1回も展開せず、<code>total</code> の初期値の0がそのまま返ります。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。タプルは同じ長さの配列に変換できるので、<code>const values: [args.len]i64 = args;</code> で <code>i64</code> の配列にしてから、ふつうの <code>for</code> で足す書き方もあります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/write">Today</a></li>
+    <li><a href="/zig/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

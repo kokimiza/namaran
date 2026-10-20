@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="固定長の配列と積んだ個数 top で作るスタックの push と pop を、添字の中で後置の top++ と前置の --top を使い分けて書きます。2026-08-28のC WRITEです。">
+<title>配列のスタックとtop++</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-08-28">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-28" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-08-28",
+      "url": "https://namaran.jocarium.productions/c/write/2026-08-28",
+      "datePublished": "2026-08-28",
+      "dateModified": "2026-08-28",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "配列のスタックとtop++" },
+      "keywords": "increment-decrement, stack, array, struct",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "固定長の配列と積んだ個数 top で作るスタックの push と pop を、添字の中で後置の top++ と前置の --top を使い分けて書きます。2026-08-28のC WRITEです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-08-28" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-08-28">C++26</a>
+  <a href="/rust/write/2026-08-28">Rust 2024</a>
+  <a href="/haskell/write/2026-08-28">Haskell 2010</a>
+  <a href="/zig/write/2026-08-28">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-08-28">READ</a>
+  <a href="/c/write/2026-08-28" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-08-28">DEBUG</a>
+</nav>
+
+<main
+  data-topic="配列のスタックとtop++"
+  data-tags="increment-decrement stack array struct"
+  data-concepts="前置インクリメント, 後置インクリメント, 配列で作るスタック, push と pop, prefix increment, postfix increment, array-based stack"
+  data-level="hedgehog"
+>
+  <h2>2026-08-28</h2>
+  <div class="code-frame">
+    <p class="code-filename">stack.c</p>
+    <pre class="code"><code><span class="kw">struct</span> <span class="ty">Stack</span> {
+    <span class="ty">int</span> items[<span class="nu">16</span>];
+    <span class="ty">int</span> top;
+};
+
+<span class="ty">void</span> <span class="fn">push</span>(<span class="kw">struct</span> <span class="ty">Stack</span>* s, <span class="ty">int</span> x) {
+}
+
+<span class="ty">int</span> <span class="fn">pop</span>(<span class="kw">struct</span> <span class="ty">Stack</span>* s) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    配列 <code>items</code> と、積んである個数 <code>top</code> で作るスタックの <code>push</code> と <code>pop</code> を書いてください。<code>push</code> は <code>x</code> を積み、<code>pop</code> は最後に積んだ値を取り除いて返します。空のスタックは <code>top</code> が0で、空のときに <code>pop</code> を呼ぶことと、16個を超えて <code>push</code> することはないものとします。例の <code>s</code> は空のスタックで、出力例は入力例の最後の式の値です。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>push(&amp;s, 4); push(&amp;s, 9); pop(&amp;s)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>9</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>push(&amp;s, 4); push(&amp;s, 9); pop(&amp;s); pop(&amp;s)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>4</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>push(&amp;s, 5); pop(&amp;s); s.top</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="ty">void</span> <span class="fn">push</span>(<span class="kw">struct</span> <span class="ty">Stack</span>* s, <span class="ty">int</span> x) {
+    s-&gt;items[s-&gt;top++] = x;
+}
+
+<span class="ty">int</span> <span class="fn">pop</span>(<span class="kw">struct</span> <span class="ty">Stack</span>* s) {
+    <span class="kw">return</span> s-&gt;items[--s-&gt;top];
+}
+</code></pre>
+      <p>
+        <code>top</code> は積んである個数なので、次に書き込む空きの位置の添字でもあります。<code>push</code> の <code>s-&gt;items[s-&gt;top++]</code> では、後置の <code>++</code> が増やす前の <code>top</code> を添字として返すので、空きの位置に <code>x</code> を書いてから <code>top</code> が1増えます。
+      </p>
+      <p>
+        <code>pop</code> では、最後に積んだ値は <code>top - 1</code> の位置にあります。前置の <code>--</code> は減らしたあとの値を返すので、<code>s-&gt;items[--s-&gt;top]</code> は <code>top</code> を1減らしてから、その位置の値を読みます。2つを入れ替えて <code>push</code> に <code>++s-&gt;top</code> を書くと、<code>items[0]</code> を飛ばして <code>items[1]</code> から積むことになります。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>s-&gt;items[s-&gt;top] = x;</code> と <code>s-&gt;top++;</code> の2文に分けても同じ動きになります。<code>++</code> を単独の文として書くなら、前置でも後置でも結果は変わりません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

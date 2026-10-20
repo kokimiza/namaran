@@ -5,6 +5,7 @@ aggregate-initialization	集成体初期化
 algebraic-data-type	代数的データ型
 aliasing	エイリアシング
 amortized-analysis	償却計算量
+anonymous-struct-literal	匿名構造体リテラル
 applicative	Applicative
 arbitrary-precision	多倍長整数
 arena-allocator	アリーナアロケータ
@@ -416,6 +417,7 @@ trampoline	トランポリン
 transaction	トランザクション
 tree	木構造
 trie	トライ木
+tuple	タプル
 two-pointer-technique	しゃくとり法
 twos-complement	2の補数
 tying-the-knot	結び目を作る

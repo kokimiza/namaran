@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="点 (x, y) を原点の周りに90度回す rotate を p.* = .{ .x = -p.y, .y = p.x } と書いたら、(1, 2) が (-2, 1) ではなく (-2, -2) になってしまう欠陥を直します。2026-08-28のZig DEBUGです。">
+<title>回したはずの点が崩れる</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/debug/2026-08-28">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / DEBUG", "item": "https://namaran.jocarium.productions/zig/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-28" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / DEBUG — 2026-08-28",
+      "url": "https://namaran.jocarium.productions/zig/debug/2026-08-28",
+      "datePublished": "2026-08-28",
+      "dateModified": "2026-08-28",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "回したはずの点が崩れる" },
+      "keywords": "anonymous-struct-literal, aliasing, struct",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "点 (x, y) を原点の周りに90度回す rotate を p.* = .{ .x = -p.y, .y = p.x } と書いたら、(1, 2) が (-2, 1) ではなく (-2, -2) になってしまう欠陥を直します。2026-08-28のZig DEBUGです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-08-28">C23</a>
+  <a href="/cpp/debug/2026-08-28">C++26</a>
+  <a href="/rust/debug/2026-08-28">Rust 2024</a>
+  <a href="/haskell/debug/2026-08-28">Haskell 2010</a>
+  <a href="/zig/debug/2026-08-28" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-08-28">READ</a>
+  <a href="/zig/write/2026-08-28">WRITE</a>
+  <a href="/zig/debug/2026-08-28" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="回したはずの点が崩れる"
+  data-tags="anonymous-struct-literal aliasing struct"
+  data-concepts="結果の置き場所, result location semantics, 匿名構造体リテラルへの代入, 自分自身を読む代入, 点の回転, aliasing, struct field swap"
+  data-level="bison"
+>
+  <h2>2026-08-28</h2>
+  <div class="code-frame">
+    <p class="code-filename">rotate.zig</p>
+    <pre class="code"><code><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);
+
+<span class="kw">const</span> <span class="ty">Point</span> = <span class="kw">struct</span> { x: <span class="ty">i32</span>, y: <span class="ty">i32</span> };
+
+<span class="kw">fn</span> <span class="fn">rotate</span>(p: *<span class="ty">Point</span>) <span class="ty">void</span> {
+    p.* = .{ .x = -p.y, .y = p.x };
+}
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {
+    <span class="kw">var</span> buf: [<span class="nu">256</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;
+    <span class="kw">var</span> stdout_writer = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;buf);
+    <span class="kw">const</span> stdout = &amp;stdout_writer.interface;
+    <span class="kw">var</span> p: <span class="ty">Point</span> = .{ .x = <span class="nu">1</span>, .y = <span class="nu">2</span> };
+    <span class="fn">rotate</span>(&amp;p);
+    <span class="kw">try</span> stdout.<span class="fn">print</span>(<span class="st">"({d}, {d})\n"</span>, .{ p.x, p.y });
+    <span class="kw">try</span> stdout.<span class="fn">flush</span>();
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>rotate</code> は、<code>p</code> の指す点 (x, y) を原点の周りに反時計回りに90度回し、(-y, x) に移すつもりの関数です。<code>main</code> は点 (1, 2) を回して出力します。いまの出力は <code>(-2, -2)</code> で、本来の出力は <code>(-2, 1)</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">rotate</span>(p: *<span class="ty">Point</span>) <span class="ty">void</span> {
+    p.* = .{ .x = -p.y, .y = p.x };
+}
+</code></pre>
+      <p>
+        右辺の型名を省いた構造体リテラル（anonymous struct literal）には、代入先の <code>p.*</code> が値を直接書き込む場所（result location）として渡され、各フィールドの式はその場所のフィールドへ直接書き込まれます。この代入は <code>p.x = -p.y;</code> と <code>p.y = p.x;</code> の2文と同じです。1文目で <code>p.x</code> が -2 に書き換わり、2文目はその書き換わった <code>p.x</code> を読むので、<code>p.y</code> も -2 になります。
+      </p>
+      <p>
+        右辺でいったん新しい構造体ができ、それが丸ごとコピーされると考えると、正しく回るはずに見えます。タプルの分割代入 <code>p.x, p.y = .{ -p.y, p.x };</code> に書き換えても、タプルの各要素が <code>p.x</code> と <code>p.y</code> を書き込む場所として受け取るので、結果は同じ <code>(-2, -2)</code> です。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">rotate</span>(p: *<span class="ty">Point</span>) <span class="ty">void</span> {
+    <span class="kw">const</span> old = p.*;
+    p.* = .{ .x = -old.y, .y = old.x };
+}
+</code></pre>
+      <p>
+        先に <code>p.*</code> を <code>old</code> にコピーし、右辺は <code>old</code> だけを読みます。書き込む先の <code>p.*</code> と読む元の <code>old</code> が別の場所になるので、1つ目のフィールドへの書き込みが2つ目の式の値を変えることはなく、(1, 2) は (-2, 1) に移ります<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>言語リファレンスの Result Location Semantics の節は、配列の2要素を <code>arr = .{ arr[1], arr[0] };</code> で入れ替えようとして失敗する例でこの挙動を示しています。<code>Point{ .x = -p.y, .y = p.x }</code> のように型名を書いた初期化は書き込む場所を受け取らないので、この形でも正しく回りますが、<code>.{</code> と型名の有無だけで結果が変わる書き方は読み手に伝わりにくくなります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/debug">Today</a></li>
+    <li><a href="/zig/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

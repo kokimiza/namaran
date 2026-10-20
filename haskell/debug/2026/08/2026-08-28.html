@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="購読者の一覧から配信停止した人を Data.List の \\ で取り除いたのに、二度登録していた人だけが送信先に残ってしまう欠陥を直します。2026-08-28のHaskell DEBUGです。">
+<title>配信停止が一人残る</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-08-28">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-28" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-08-28",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-08-28",
+      "datePublished": "2026-08-28",
+      "dateModified": "2026-08-28",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "配信停止が一人残る" },
+      "keywords": "list, set, deduplication",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "購読者の一覧から配信停止した人を Data.List の \\\\ で取り除いたのに、二度登録していた人だけが送信先に残ってしまう欠陥を直します。2026-08-28のHaskell DEBUGです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-08-28">C23</a>
+  <a href="/cpp/debug/2026-08-28">C++26</a>
+  <a href="/rust/debug/2026-08-28">Rust 2024</a>
+  <a href="/haskell/debug/2026-08-28" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/debug/2026-08-28">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-08-28">READ</a>
+  <a href="/haskell/write/2026-08-28">WRITE</a>
+  <a href="/haskell/debug/2026-08-28" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="配信停止が一人残る"
+  data-tags="list set deduplication"
+  data-concepts="Data.List の \\ 演算子, リストの差と重複, 配信停止の除外, filter と notElem, list difference, duplicates, multiset difference"
+  data-level="peacock"
+>
+  <h2>2026-08-28</h2>
+  <div class="code-frame">
+    <p class="code-filename">Mailing.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Data.List</span> ((\\))
+
+<span class="fn">subscribers</span> <span class="op">::</span> [<span class="ty">String</span>]
+<span class="fn">subscribers</span> = [<span class="st">"ann"</span>, <span class="st">"bob"</span>, <span class="st">"ann"</span>, <span class="st">"cy"</span>]
+
+<span class="fn">unsubscribed</span> <span class="op">::</span> [<span class="ty">String</span>]
+<span class="fn">unsubscribed</span> = [<span class="st">"ann"</span>]
+
+<span class="fn">recipients</span> <span class="op">::</span> [<span class="ty">String</span>]
+<span class="fn">recipients</span> = subscribers \\ unsubscribed
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print recipients
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>recipients</code> は、購読者の一覧 <code>subscribers</code> から配信停止した人 <code>unsubscribed</code> を除いた送信先を、購読者の順に並べるつもりの定義です。<code>subscribers</code> には、二度登録した <code>"ann"</code> が2回入っています。いまの出力は <code>["bob","ann","cy"]</code> で、本来の出力は <code>["bob","cy"]</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="fn">recipients</span> = subscribers \\ unsubscribed
+</code></pre>
+      <p>
+        <code>xs \\ ys</code> は、<code>ys</code> の要素1つにつき、<code>xs</code> に最初に現れるものを1つだけ取り除きます。<code>unsubscribed</code> の <code>"ann"</code> は1つなので、取り除かれるのは <code>subscribers</code> の先頭の <code>"ann"</code> だけで、3番目の <code>"ann"</code> は残ります。配信停止した人に、メールがまだ届きます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="fn">recipients</span> = filter (`notElem` unsubscribed) subscribers
+</code></pre>
+      <p>
+        <code>filter (`notElem` unsubscribed)</code> は、購読者を1人ずつ調べて、<code>unsubscribed</code> に現れる人をすべて落とします。同じ <code>"ann"</code> が何回入っていても、どれも <code>notElem</code> が <code>False</code> を返すので結果に残らず、購読者の順も変わりません<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li><code>\\</code> が取るのは、同じ要素が何個あるかまで区別する集まりどうしの差です。このような集まりを多重集合（multiset）といい、<code>[1,1,2] \\ [1]</code> が <code>[1,2]</code> になるのは、1が2個から1個に減るからです。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="重複を含む2つのリストに Data.List の intersect と union を左右を入れ替えて適用し、どちらの重複が残り、何が結果の後ろに足されるかを追います。2026-08-28のHaskell READです。">
+<title>リストの和集合と積集合</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-08-28">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-28" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-08-28",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-08-28",
+      "datePublished": "2026-08-28",
+      "dateModified": "2026-08-28",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "リストの和集合と積集合" },
+      "keywords": "set, list, deduplication",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "重複を含む2つのリストに Data.List の intersect と union を左右を入れ替えて適用し、どちらの重複が残り、何が結果の後ろに足されるかを追います。2026-08-28のHaskell READです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-08-28">C23</a>
+  <a href="/cpp/read/2026-08-28">C++26</a>
+  <a href="/rust/read/2026-08-28">Rust 2024</a>
+  <a href="/haskell/read/2026-08-28" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/read/2026-08-28">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-08-28" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-08-28">WRITE</a>
+  <a href="/haskell/debug/2026-08-28">DEBUG</a>
+</nav>
+
+<main
+  data-topic="リストの和集合と積集合"
+  data-tags="set list deduplication"
+  data-concepts="Data.List.union, Data.List.intersect, リストで表す集合と重複, 和集合と積集合, set union, set intersection, duplicates in lists"
+  data-level="bison"
+>
+  <h2>2026-08-28</h2>
+  <div class="code-frame">
+    <p class="code-filename">Reconcile.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Data.List</span> (intersect, union)
+
+<span class="fn">mine</span>, theirs <span class="op">::</span> [<span class="ty">Int</span>]
+<span class="fn">mine</span> = [<span class="nu">3</span>, <span class="nu">1</span>, <span class="nu">3</span>]
+<span class="fn">theirs</span> = [<span class="nu">3</span>, <span class="nu">2</span>, <span class="nu">2</span>]
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = <span class="kw">do</span>
+  print (mine `intersect` theirs, theirs `intersect` mine)
+  print (mine `union` theirs, theirs `union` mine)
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        1行目に <code>([3,3],[3])</code>、2行目に <code>([3,1,3,2],[3,2,2,1])</code> を出力します。
+      </p>
+      <p>
+        <code>Data.List</code> の <code>intersect</code> と <code>union</code> は、名前は積集合（intersection）と和集合（union）ですが、引数をリストのまま扱い、左のリストの並びと重複をそのまま残します。<code>intersect xs ys</code> は、<code>xs</code> の要素のうち <code>ys</code> にも現れるものを、<code>xs</code> の順に残します。<code>mine `intersect` theirs</code> では <code>mine</code> の 3、1、3 を順に調べ、<code>theirs</code> に現れる2つの3が残って <code>[3,3]</code> になります。左右を入れ替えた <code>theirs `intersect` mine</code> は 3、2、2 のうち3だけが残り、<code>[3]</code> です。
+      </p>
+      <p>
+        <code>union xs ys</code> は <code>xs</code> を丸ごと残し、その後ろに、<code>ys</code> から重複を除いたうえで <code>xs</code> に現れない要素を足します。<code>mine `union` theirs</code> は <code>[3,1,3]</code> の後ろに、<code>theirs</code> の 3 と 2 のうち <code>mine</code> に無い2を足して <code>[3,1,3,2]</code> です。<code>theirs `union` mine</code> は <code>[3,2,2]</code> の後ろに1を足して <code>[3,2,2,1]</code> になり、左の <code>2,2</code> の重複は消えません。どちらの関数も、左に置いたリストの重複は残り、右に置いたリストの重複は結果に入らないので、引数を入れ替えると結果が変わります<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>要素の重複を持たない集合として照合したいときは、<code>Data.Set</code> の <code>union</code> と <code>intersection</code> を使います。こちらは引数を入れ替えても同じ集合を返します。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

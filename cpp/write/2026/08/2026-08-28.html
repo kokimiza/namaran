@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="3通りの Size と2通りの Color を組にした Shirt の6通りの値に、0から5までの番号を重複なく振る index を enum class の値から計算して書きます。2026-08-28のC++ WRITEです。">
+<title>組の値に番号を振る</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-08-28">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-28" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-08-28",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-08-28",
+      "datePublished": "2026-08-28",
+      "dateModified": "2026-08-28",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "組の値に番号を振る" },
+      "keywords": "cartesian-product, enum, struct",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "3通りの Size と2通りの Color を組にした Shirt の6通りの値に、0から5までの番号を重複なく振る index を enum class の値から計算して書きます。2026-08-28のC++ WRITEです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-08-28">C23</a>
+  <a href="/cpp/write/2026-08-28" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-08-28">Rust 2024</a>
+  <a href="/haskell/write/2026-08-28">Haskell 2010</a>
+  <a href="/zig/write/2026-08-28">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-08-28">READ</a>
+  <a href="/cpp/write/2026-08-28" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-08-28">DEBUG</a>
+</nav>
+
+<main
+  data-topic="組の値に番号を振る"
+  data-tags="cartesian-product enum struct"
+  data-concepts="直積型の値の数, 組に通し番号を振る, 列挙型と整数, enum class, scoped enumeration, product type, mixed radix"
+  data-level="hedgehog"
+>
+  <h2>2026-08-28</h2>
+  <div class="code-frame">
+    <p class="code-filename">shirt_index.cpp</p>
+    <pre class="code"><code><span class="kw">enum</span> <span class="kw">class</span> <span class="ty">Size</span> { <span class="ty">S</span>, <span class="ty">M</span>, <span class="ty">L</span> };
+<span class="kw">enum</span> <span class="kw">class</span> <span class="ty">Color</span> { <span class="ty">Red</span>, <span class="ty">Blue</span> };
+
+<span class="kw">struct</span> <span class="ty">Shirt</span> {
+    <span class="ty">Size</span> size;
+    <span class="ty">Color</span> color;
+};
+
+<span class="ty">int</span> <span class="fn">index</span>(<span class="ty">Shirt</span> s) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>Shirt</code> の値は、3通りの <code>size</code> と2通りの <code>color</code> の組で、全部で6通りあります。この6通りに0から5までの番号を重複なく振る <code>index</code> を書いてください。番号は <code>size</code> が <code>S</code>、<code>M</code>、<code>L</code> の順に小さく、<code>size</code> が同じなら <code>color</code> が <code>Red</code> のほうを小さくします。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>index({Size::S, Color::Red})</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>index({Size::M, Color::Blue})</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>3</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>index({Size::L, Color::Blue})</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>5</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="ty">int</span> <span class="fn">index</span>(<span class="ty">Shirt</span> s) {
+    <span class="kw">return</span> <span class="kw">static_cast</span>&lt;<span class="ty">int</span>&gt;(s.size) * <span class="nu">2</span> + <span class="kw">static_cast</span>&lt;<span class="ty">int</span>&gt;(s.color);
+}
+</code></pre>
+      <p>
+        <code>enum class</code> の値は整数へ暗黙には変換されないので、<code>static_cast&lt;int&gt;</code> で取り出します。列挙子は宣言の順に0から番号を持つので、<code>size</code> は0から2、<code>color</code> は0か1になります。
+      </p>
+      <p>
+        同じ <code>size</code> の <code>Shirt</code> は <code>color</code> の数と同じ2つずつあるので、<code>size</code> ごとに連続した2つの番号を割り当てます。<code>size</code> の区画は <code>size * 2</code> から始まり、その中で <code>color</code> を足します。最大は <code>L</code> と <code>Blue</code> の 2 × 2 + 1 = 5 で、0から5までの6個の番号が隙間なく埋まります。6は3と2の積で、組の値の数が要素ごとの数の積になることと対応しています。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。6通りを <code>switch</code> で並べても同じ番号を返せますが、<code>Size</code> に列挙子を1つ足すたびに書き足す行が増えます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
