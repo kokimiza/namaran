@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="数字の文字を値に変える digit を書き、不正な文字はコンパイル時の呼び出しならコンパイルエラー、実行時の呼び出しなら panic にします。@inComptime と @compileError の組み合わせを扱う2026-10-21のZig WRITEです。">
+<title>不正な数字の報告先</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/write/2026-10-21">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / WRITE", "item": "https://namaran.jocarium.productions/zig/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-21" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / WRITE — 2026-10-21",
+      "url": "https://namaran.jocarium.productions/zig/write/2026-10-21",
+      "datePublished": "2026-10-21",
+      "dateModified": "2026-10-21",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "不正な数字の報告先" },
+      "keywords": "comptime, builtin-function, panic, error-handling",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "数字の文字を値に変える digit を書き、不正な文字はコンパイル時の呼び出しならコンパイルエラー、実行時の呼び出しなら panic にします。@inComptime と @compileError の組み合わせを扱う2026-10-21のZig WRITEです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-21">C23</a>
+  <a href="/cpp/write/2026-10-21">C++26</a>
+  <a href="/rust/write/2026-10-21">Rust 2024</a>
+  <a href="/haskell/write/2026-10-21">Haskell 2010</a>
+  <a href="/zig/write/2026-10-21" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-10-21">READ</a>
+  <a href="/zig/write/2026-10-21" class="active" aria-current="page">WRITE</a>
+  <a href="/zig/debug/2026-10-21">DEBUG</a>
+</nav>
+
+<main
+  data-topic="不正な数字の報告先"
+  data-tags="comptime builtin-function panic error-handling"
+  data-concepts="@inComptime, @compileError, std.fmt.comptimePrint, std.debug.panic, コンパイル時と実行時の切り替え, compile error, runtime panic"
+  data-level="peacock"
+>
+  <h2>2026-10-21</h2>
+  <div class="code-frame">
+    <p class="code-filename">digit.zig</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">digit</span>(c: <span class="ty">u8</span>) <span class="ty">u4</span> {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    数字の文字 <code>'0'</code> から <code>'9'</code> を受け取り、その値を返す <code>digit</code> を書いてください。数字でない文字を受け取ったときは、呼び出しがコンパイル時に評価されているならコンパイルエラーに、実行時なら panic にします。どちらのメッセージも、文字が <code>x</code> なら <code>not a digit: 'x'</code> とします。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>comptime digit('7')</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>7</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>comptime digit('x')</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>error: not a digit: 'x'</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>digit("4x"[1])</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>panic: not a digit: 'x'</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">digit</span>(c: <span class="ty">u8</span>) <span class="ty">u4</span> {
+    <span class="kw">if</span> (c &lt; <span class="st">'0'</span> <span class="kw">or</span> c &gt; <span class="st">'9'</span>) {
+        <span class="kw">if</span> (<span class="mc">@inComptime</span>()) <span class="mc">@compileError</span>(std.fmt.<span class="fn">comptimePrint</span>(<span class="st">"not a digit: '{c}'"</span>, .{c}));
+        std.debug.<span class="fn">panic</span>(<span class="st">"not a digit: '{c}'"</span>, .{c});
+    }
+    <span class="kw">return</span> <span class="mc">@intCast</span>(c - <span class="st">'0'</span>);
+}
+</code></pre>
+      <p>
+        <code>@compileError</code> は、コンパイラがその式を解析した時点でコンパイルを失敗させます。範囲の判定の中にそのまま置くと、実行時に呼ばれる <code>digit</code> を解析するときにも <code>@compileError</code> にたどり着き、<code>c</code> の値と関係なく、プログラム全体がコンパイルできなくなります。<code>if (@inComptime())</code> の条件はコンパイル時に決まる定数なので、実行時用の本体を解析するときは <code>false</code> で、この枝は解析されません。コンパイル時に評価される呼び出しでだけ枝に入り、そのときは <code>c</code> もコンパイル時にわかっているので、<code>std.fmt.comptimePrint</code> で文字を埋め込んだメッセージを作れます。
+      </p>
+      <p>
+        <code>std.debug.panic</code> はコンパイル時には呼べないので、<code>@inComptime</code> の枝が無いと、入力例 2 はメッセージの代わりに、標準ライブラリの奥で「コンパイル時に値を決められない」というエラーで止まります。入力例 3 の <code>"4x"[1]</code> は値がコンパイル時にわかる式ですが、<code>comptime</code> を付けない呼び出しは実行時に評価されるので、<code>@inComptime()</code> は <code>false</code> になり、panic で知らせます。範囲内の文字なら、<code>c - '0'</code> は0から9の <code>u8</code> で、<code>@intCast</code> で戻り値の <code>u4</code> に収めます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。実行時の側は panic ではなく <code>error.InvalidCharacter</code> を返す設計もあり、その場合は戻り値の型を <code>!u4</code> にします<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>標準ライブラリの <code>std.testing</code> にも同じ形があり、テストの失敗を報告する関数は、コンパイル時なら <code>@compileError</code> に、実行時なら標準エラーへの出力に切り替えています。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/write">Today</a></li>
+    <li><a href="/zig/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

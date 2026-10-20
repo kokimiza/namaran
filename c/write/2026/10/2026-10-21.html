@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="浮動小数点の計算結果を単体テストで == ではなく相対誤差で比べる nearly_equal を書きます。0.1 + 0.2 と 0.3、ごく小さい2つの値、0どうしの比較を扱う2026-10-21のC WRITEです。">
+<title>相対誤差で比べるテスト</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-10-21">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-21" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-10-21",
+      "url": "https://namaran.jocarium.productions/c/write/2026-10-21",
+      "datePublished": "2026-10-21",
+      "dateModified": "2026-10-21",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "相対誤差で比べるテスト" },
+      "keywords": "floating-point, testing, comparison",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "浮動小数点の計算結果を単体テストで == ではなく相対誤差で比べる nearly_equal を書きます。0.1 + 0.2 と 0.3、ごく小さい2つの値、0どうしの比較を扱う2026-10-21のC WRITEです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-21" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-10-21">C++26</a>
+  <a href="/rust/write/2026-10-21">Rust 2024</a>
+  <a href="/haskell/write/2026-10-21">Haskell 2010</a>
+  <a href="/zig/write/2026-10-21">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-21">READ</a>
+  <a href="/c/write/2026-10-21" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-10-21">DEBUG</a>
+</nav>
+
+<main
+  data-topic="相対誤差で比べるテスト"
+  data-tags="floating-point testing comparison"
+  data-concepts="浮動小数点数の比較, 相対誤差, 許容誤差, 単体テストの期待値, relative tolerance, floating point comparison, approximately equal"
+  data-level="hedgehog"
+>
+  <h2>2026-10-21</h2>
+  <div class="code-frame">
+    <p class="code-filename">nearly_equal.c</p>
+    <pre class="code"><code><span class="ty">bool</span> <span class="fn">nearly_equal</span>(<span class="ty">double</span> a, <span class="ty">double</span> b, <span class="ty">double</span> rel_tol) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    単体テストで浮動小数点数の計算結果を期待値と比べるための <code>nearly_equal</code> を書いてください。<code>a</code> と <code>b</code> の差の絶対値が、<code>a</code> と <code>b</code> の絶対値の大きいほうの <code>rel_tol</code> 倍以下なら <code>true</code> を、そうでなければ <code>false</code> を返します。<code>a</code> と <code>b</code> がどちらも0のときは <code>true</code> です。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>nearly_equal(0.1 + 0.2, 0.3, 1e-9)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>true</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>nearly_equal(1e-12, 2e-12, 1e-9)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>false</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>nearly_equal(0.0, 0.0, 1e-9)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>true</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="ty">bool</span> <span class="fn">nearly_equal</span>(<span class="ty">double</span> a, <span class="ty">double</span> b, <span class="ty">double</span> rel_tol) {
+    <span class="ty">double</span> larger = <span class="fn">fabs</span>(a) &gt; <span class="fn">fabs</span>(b) ? <span class="fn">fabs</span>(a) : <span class="fn">fabs</span>(b);
+    <span class="kw">return</span> <span class="fn">fabs</span>(a - b) &lt;= rel_tol * larger;
+}
+</code></pre>
+      <p>
+        0.1も0.2も0.3も、2進数の <code>double</code> では丸めた近い値でしか表せません。足し算の結果にも丸めが入るので、<code>0.1 + 0.2 == 0.3</code> は偽になります。期待値を <code>==</code> で比べるテストは、計算が正しくても失敗します。そこで差の大きさを見ますが、許す幅を <code>1e-9</code> のような固定の値にすると、入力例 2 の <code>1e-12</code> と <code>2e-12</code> は差が <code>1e-12</code> しかないので等しいと判定されてしまいます。2倍も違う値です。
+      </p>
+      <p>
+        許す幅を値の大きさに比例させれば、この問題は起きません。差を値の大きさで割った比を相対誤差（relative error）といい、<code>nearly_equal</code> は相対誤差が <code>rel_tol</code> 以下かを、割り算をせずに掛け算の形で確かめています。割らないので、入力例 3 のように両方が0でも0で割ることにならず、<code>0 &lt;= 0</code> で <code>true</code> になります。比較を <code>&lt;</code> にすると、この場合が <code>false</code> になります。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。大きいほうの絶対値は <code>&lt;math.h&gt;</code> の <code>fmax(fabs(a), fabs(b))</code> でも求められます。相対誤差だけでは、期待値が0のとき（たとえば <code>0.1 + 0.2 - 0.3</code> の結果と0）は、計算結果がちょうど0でない限り等しいと判定できないので、実際のテストでは絶対誤差の下限を足した形もよく使われます<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>Python の <code>math.isclose(a, b, rel_tol=1e-09, abs_tol=0.0)</code> は、差の絶対値が <code>rel_tol</code> 倍の幅と <code>abs_tol</code> の大きいほう以下かで判定します。<code>abs_tol</code> を0のままにすると、この問題の <code>nearly_equal</code> と同じ判定です。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

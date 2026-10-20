@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="先頭の1バイトが本体の長さを表すメッセージが続くバイト列を、メッセージのリストに区切る frames を書きます。splitAt で切り出し、途中で切れた最後のメッセージを捨てる2026-10-21のHaskell WRITEです。">
+<title>長さ付きメッセージの区切り</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-10-21">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-21" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-10-21",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-10-21",
+      "datePublished": "2026-10-21",
+      "dateModified": "2026-10-21",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "長さ付きメッセージの区切り" },
+      "keywords": "parsing, recursion, list, guard",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "先頭の1バイトが本体の長さを表すメッセージが続くバイト列を、メッセージのリストに区切る frames を書きます。splitAt で切り出し、途中で切れた最後のメッセージを捨てる2026-10-21のHaskell WRITEです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-21">C23</a>
+  <a href="/cpp/write/2026-10-21">C++26</a>
+  <a href="/rust/write/2026-10-21">Rust 2024</a>
+  <a href="/haskell/write/2026-10-21" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/write/2026-10-21">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-21">READ</a>
+  <a href="/haskell/write/2026-10-21" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-10-21">DEBUG</a>
+</nav>
+
+<main
+  data-topic="長さ付きメッセージの区切り"
+  data-tags="parsing recursion list guard"
+  data-concepts="長さプレフィックス, メッセージの区切り, splitAt, TCPのバイト列, length-prefixed framing, message framing, byte stream"
+  data-level="hedgehog"
+>
+  <h2>2026-10-21</h2>
+  <div class="code-frame">
+    <p class="code-filename">LengthPrefix.hs</p>
+    <pre class="code"><code><span class="fn">frames</span> <span class="op">::</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> [[<span class="ty">Int</span>]]
+</code></pre>
+  </div>
+
+  <p class="question">
+    TCP で受け取ったバイト列（0から255の <code>Int</code> のリスト）を、メッセージの本体のリストに区切る <code>frames</code> を書いてください。バイト列にはメッセージが隙間なく並んでいて、各メッセージは先頭の1バイトが本体の長さを表し、そのあとにその長さの本体が続きます。最後のメッセージが途中で切れていて、本体が長さに足りなければ、そのメッセージは結果に含めません。長さが0のメッセージは空のリストになります。バイト列が空なら空のリストを返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>frames [2, 7, 8, 0, 1, 5]</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>[[7,8],[],[5]]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>frames [1, 9, 4, 1, 2]</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>[[9]]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>frames [3, 1, 2]</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>[]</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="fn">frames</span> <span class="op">::</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> [[<span class="ty">Int</span>]]
+<span class="fn">frames</span> (n : rest)
+  | length body == n = body : frames more
+ <span class="kw">where</span>
+  (body, more) = splitAt n rest
+<span class="fn">frames</span> _ = []
+</code></pre>
+      <p>
+        先頭の1バイト <code>n</code> を取り、残りを <code>splitAt n</code> で本体と後続に分け、後続にまた <code>frames</code> を適用します。<code>splitAt</code> はリストが <code>n</code> 個に足りなくてもエラーにせず、あるだけを返します。入力例 2 の2つ目のメッセージは長さ4なのに本体が <code>[1, 2]</code> の2個しかなく、<code>splitAt</code> はそのまま <code>[1, 2]</code> を返します。本体の長さが <code>n</code> と等しいかをガードで確かめるのはこのためで、確かめないと途中で切れた <code>[1,2]</code> がメッセージとして出てしまいます。
+      </p>
+      <p>
+        ガードが偽になると、照合は <code>frames</code> の次の定義式に進み、<code>frames _ = []</code> がそこで打ち切ります。空のリストもこの式に来ます。<code>where</code> の <code>body</code> と <code>more</code> はガードからも本体からも使えるので、切り出しは1回で済みます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。実際の受信処理では、切れた最後のメッセージを捨てずに次に届くバイト列の前へつなぐ必要があるので、メッセージのリストと一緒に残りのバイト列も返す形にします。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

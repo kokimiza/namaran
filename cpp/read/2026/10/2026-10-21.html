@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="関数を2回適用する高階関数 twice に、変数をコピーで捕まえたラムダ式を渡します。捕まえたあとで元の変数を書き換えたとき、何が足されるかを追う2026-10-21のC++ READです。">
+<title>コピーで捕まえた値</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-10-21">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-21" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-10-21",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-10-21",
+      "datePublished": "2026-10-21",
+      "dateModified": "2026-10-21",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "コピーで捕まえた値" },
+      "keywords": "lambda, capture, higher-order",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "関数を2回適用する高階関数 twice に、変数をコピーで捕まえたラムダ式を渡します。捕まえたあとで元の変数を書き換えたとき、何が足されるかを追う2026-10-21のC++ READです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-21">C23</a>
+  <a href="/cpp/read/2026-10-21" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-10-21">Rust 2024</a>
+  <a href="/haskell/read/2026-10-21">Haskell 2010</a>
+  <a href="/zig/read/2026-10-21">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-21" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-10-21">WRITE</a>
+  <a href="/cpp/debug/2026-10-21">DEBUG</a>
+</nav>
+
+<main
+  data-topic="コピーで捕まえた値"
+  data-tags="lambda capture higher-order"
+  data-concepts="ラムダ式, コピーキャプチャ, 高階関数, 関数を2回適用, lambda capture by value, higher-order function, generic lambda"
+  data-level="hedgehog"
+>
+  <h2>2026-10-21</h2>
+  <div class="code-frame">
+    <p class="code-filename">twice.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="kw">auto</span> twice = [](<span class="kw">auto</span> f, <span class="ty">int</span> x) {
+        <span class="kw">return</span> <span class="fn">f</span>(<span class="fn">f</span>(x));
+    };
+    <span class="ty">int</span> step = <span class="nu">1</span>;
+    <span class="kw">auto</span> add = [step](<span class="ty">int</span> x) {
+        <span class="kw">return</span> x + step;
+    };
+    step = <span class="nu">10</span>;
+    std::cout &lt;&lt; <span class="fn">twice</span>(add, <span class="nu">0</span>) &lt;&lt; <span class="st">' '</span> &lt;&lt; <span class="fn">twice</span>(add, step) &lt;&lt; <span class="st">'\n'</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>2 12</code> です。
+      </p>
+      <p>
+        <code>add</code> の捕捉リスト <code>[step]</code> はコピーによる捕捉で、ラムダ式を評価したその時点の <code>step</code> の値1が、ラムダ式のオブジェクトの中にメンバとして写し取られます。そのあとで <code>step = 10</code> と書き換えても、変わるのは <code>main</code> の変数だけで、<code>add</code> が持っている1は変わりません。<code>add</code> は呼ばれるたびに、引数に1を足して返します。
+      </p>
+      <p>
+        <code>twice</code> は受け取った関数を2回続けて適用するので、<code>twice(add, 0)</code> は0に1を2回足して2です。<code>twice(add, step)</code> では、引数の <code>step</code> は呼び出しの時点で読まれるので10が渡り、それに1を2回足して12になります。同じ <code>step</code> という名前でも、捕捉した1と引数で渡した10は別の値です。<code>[&amp;step]</code> と参照で捕捉していれば、足すのも10になり、出力は <code>20 30</code> になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

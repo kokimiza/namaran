@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「テスト」を扱ったNamaranのコーディングドリル3問。境界値、範囲外、テストケース、boundary test、単体テスト、空リスト。">
+<meta name="description" content="「テスト」を扱ったNamaranのコーディングドリル7問。@inComptime、メモ化、二項係数、パスカルの三角形、コンパイル時と実行時の食い違い、memoization。">
 <title>テスト</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/testing">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,14 @@
   <h2>テスト</h2>
 
   <p class="lede">
-    「テスト」を扱った3問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「テスト」を扱った7問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/debug/2026-10-21">Zig / DEBUG · 2026-10-21</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">実行時だけのメモ化</span> <span class="past-concepts">@inComptime, メモ化, 二項係数, パスカルの三角形, コンパイル時と実行時の食い違い, memoization, binomial coefficient, runtime-only cache</span></li>
+    <li><a href="/c/write/2026-10-21">C / WRITE · 2026-10-21</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">相対誤差で比べるテスト</span> <span class="past-concepts">浮動小数点数の比較, 相対誤差, 許容誤差, 単体テストの期待値, relative tolerance, floating point comparison, approximately equal</span></li>
+    <li><a href="/c/read/2026-10-21">C / READ · 2026-10-21</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">失敗を数えるテストマクロ</span> <span class="past-concepts">テスト用マクロ, マクロ引数の括弧, 論理否定の優先順位, 単体テスト, macro argument parentheses, logical not precedence, unit test assertion</span></li>
+    <li><a href="/c/debug/2026-10-21">C / DEBUG · 2026-10-21</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">表のテストが回らない</span> <span class="past-concepts">テーブル駆動テスト, 配列引数のポインタ化, 関数の中のsizeof, 閏年, table-driven test, array parameter decay, sizeof pointer</span></li>
     <li><a href="/haskell/write/2026-09-21">Haskell / WRITE · 2026-09-21</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">範囲外までテスト</span> <span class="past-concepts">境界値, 範囲外, テストケース, boundary test</span></li>
     <li><a href="/haskell/read/2026-09-21">Haskell / READ · 2026-09-21</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">境界値のテスト</span> <span class="past-concepts">単体テスト, 境界値, 空リスト, unit test</span></li>
     <li><a href="/haskell/debug/2026-09-21">Haskell / DEBUG · 2026-09-21</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">自分と比べるテスト</span> <span class="past-concepts">恒真, 期待値, テストの意味, tautological test</span></li>

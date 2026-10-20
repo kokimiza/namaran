@@ -42,6 +42,7 @@ boundary	境界条件
 breadth-first-search	幅優先探索
 buffer-overflow	バッファ溢れ
 buffering	バッファリング
+builtin-function	組み込み関数
 cache	キャッシュ
 cache-locality	キャッシュ局所性
 call-stack	コールスタック
@@ -63,6 +64,7 @@ command-line-argument	コマンドライン引数
 comparison	比較
 compound-literal	複合リテラル
 compression	圧縮
+comptime	コンパイル時実行
 computational-geometry	計算幾何
 concept	コンセプト
 concurrency	並行処理

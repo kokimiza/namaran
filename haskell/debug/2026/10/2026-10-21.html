@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="TCP で細切れに届くバイト列から、先頭1バイトが長さを表すメッセージを組み直すつもりが、でたらめなメッセージが1つ出てくる原因を探します。mapAccumL に渡す関数の引数の順を扱う2026-10-21のHaskell DEBUGです。">
+<title>持ち越しとの連結順</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-10-21">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-21" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-10-21",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-10-21",
+      "datePublished": "2026-10-21",
+      "dateModified": "2026-10-21",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "持ち越しとの連結順" },
+      "keywords": "buffering, fold, parsing, function-parameter, newtype",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "TCP で細切れに届くバイト列から、先頭1バイトが長さを表すメッセージを組み直すつもりが、でたらめなメッセージが1つ出てくる原因を探します。mapAccumL に渡す関数の引数の順を扱う2026-10-21のHaskell DEBUGです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-21">C23</a>
+  <a href="/cpp/debug/2026-10-21">C++26</a>
+  <a href="/rust/debug/2026-10-21">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-21" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/debug/2026-10-21">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-21">READ</a>
+  <a href="/haskell/write/2026-10-21">WRITE</a>
+  <a href="/haskell/debug/2026-10-21" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="持ち越しとの連結順"
+  data-tags="buffering fold parsing function-parameter newtype"
+  data-concepts="メッセージの区切り, 長さプレフィックス, mapAccumL の引数の順, 受信バッファの持ち越し, length-prefixed framing, accumulator order, stream reassembly"
+  data-level="whale"
+>
+  <h2>2026-10-21</h2>
+  <div class="code-frame">
+    <p class="code-filename">Reassemble.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Data.List</span> (mapAccumL)
+
+<span class="fn">parse</span> <span class="op">::</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> ([[<span class="ty">Int</span>]], [<span class="ty">Int</span>])
+<span class="fn">parse</span> (n : rest)
+  | length body == n = <span class="kw">let</span> (ms, left) = parse more <span class="kw">in</span> (body : ms, left)
+ <span class="kw">where</span>
+  (body, more) = splitAt n rest
+<span class="fn">parse</span> buf = ([], buf)
+
+<span class="fn">step</span> <span class="op">::</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> ([<span class="ty">Int</span>], [[<span class="ty">Int</span>]])
+<span class="fn">step</span> chunk buf = <span class="kw">let</span> (ms, left) = parse (buf ++ chunk) <span class="kw">in</span> (left, ms)
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (concat (snd (mapAccumL step [] [[<span class="nu">2</span>, <span class="nu">7</span>], [<span class="nu">8</span>, <span class="nu">1</span>], [<span class="nu">5</span>, <span class="nu">0</span>]])))
+</code></pre>
+  </div>
+
+  <p class="question">
+    TCP で細切れに届くバイト列から、メッセージの本体を順に取り出すつもりのプログラムです。各メッセージは先頭の1バイトが本体の長さを表し、そのあとにその長さの本体が続きます。<code>parse</code> は区切れたメッセージと、途中で切れていて次の塊を待つ残りを返し、<code>step</code> はその残りを次の塊に持ち越します。3つの塊 <code>[2, 7]</code>、<code>[8, 1]</code>、<code>[5, 0]</code> を与えると、いまは <code>[[0,8,1,2,7]]</code> と出力されます。本来の出力は <code>[[7,8],[5],[]]</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="fn">step</span> <span class="op">::</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> ([<span class="ty">Int</span>], [[<span class="ty">Int</span>]])
+<span class="fn">step</span> chunk buf = <span class="kw">let</span> (ms, left) = parse (buf ++ chunk) <span class="kw">in</span> (left, ms)
+</code></pre>
+      <p>
+        <code>parse</code> に誤りはなく、つないだバイト列が正しければ正しく区切ります。<code>buf ++ chunk</code> も、名前だけ見れば「持ち越した残りのあとに新しい塊」で正しい順です。ところが <code>mapAccumL</code> は、渡された関数を <code>step 持ち越し 新しい要素</code> の順で呼びます。<code>step</code> の仮引数は <code>chunk</code>、<code>buf</code> の順なので、<code>chunk</code> に持ち越しが、<code>buf</code> に新しい塊が入り、<code>buf ++ chunk</code> は実際には「新しい塊のあとに持ち越し」をつなぎます。どちらも <code>[Int]</code> なので、型検査はこの取り違えを見逃します。
+      </p>
+      <p>
+        1つ目の塊では持ち越しが空なので、取り違えても結果は同じです。<code>[2, 7]</code> は長さ2に対して本体が1個しかなく、全体が持ち越されます。2つ目でつながるのは <code>[8, 1] ++ [2, 7]</code> で、先頭の8が長さと読まれ、足りないので4バイトとも持ち越されます。3つ目は <code>[5, 0] ++ [8, 1, 2, 7]</code> で、先頭の5を長さと読むと、うしろにちょうど5バイトあるので、<code>[0,8,1,2,7]</code> がメッセージとして出てしまいます。正しいメッセージを取りこぼすだけでなく、長さとして読む位置がずれたせいで、でたらめな本体が正規のメッセージとして通ります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="fn">step</span> <span class="op">::</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> ([<span class="ty">Int</span>], [[<span class="ty">Int</span>]])
+<span class="fn">step</span> buf chunk = <span class="kw">let</span> (ms, left) = parse (buf ++ chunk) <span class="kw">in</span> (left, ms)
+</code></pre>
+      <p>
+        仮引数を <code>mapAccumL</code> が渡す順に合わせ、1つ目を持ち越しの <code>buf</code>、2つ目を新しい塊の <code>chunk</code> にします。2つ目の塊では <code>[2, 7] ++ [8, 1]</code> から <code>[7,8]</code> が区切れて <code>[1]</code> が残り、3つ目では <code>[1] ++ [5, 0]</code> から <code>[5]</code> と、長さ0の <code>[]</code> が区切れます<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>本体を <code>parse (chunk ++ buf)</code> に変えても出力は直りますが、名前と中身が食い違ったまま残ります。持ち越しと新しい塊を <code>newtype</code> で別の型にしておけば、同じ取り違えは型エラーとして見つかります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

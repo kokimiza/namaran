@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="TCP から細切れに届く文字列を、改行を区切りにしてメッセージへ組み直します。mapAccumL で持ち越す残りと、break が空のメッセージをどう切り出すかを追う2026-10-21のHaskell READです。">
+<title>改行で区切るメッセージ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-10-21">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-21" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-10-21",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-10-21",
+      "datePublished": "2026-10-21",
+      "dateModified": "2026-10-21",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "改行で区切るメッセージ" },
+      "keywords": "buffering, list, fold, parsing",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "TCP から細切れに届く文字列を、改行を区切りにしてメッセージへ組み直します。mapAccumL で持ち越す残りと、break が空のメッセージをどう切り出すかを追う2026-10-21のHaskell READです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-21">C23</a>
+  <a href="/cpp/read/2026-10-21">C++26</a>
+  <a href="/rust/read/2026-10-21">Rust 2024</a>
+  <a href="/haskell/read/2026-10-21" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/read/2026-10-21">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-21" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-10-21">WRITE</a>
+  <a href="/haskell/debug/2026-10-21">DEBUG</a>
+</nav>
+
+<main
+  data-topic="改行で区切るメッセージ"
+  data-tags="buffering list fold parsing"
+  data-concepts="メッセージの区切り, TCPのストリーム, 改行区切り, mapAccumL, break, message framing, newline delimited, stream reassembly"
+  data-level="peacock"
+>
+  <h2>2026-10-21</h2>
+  <div class="code-frame">
+    <p class="code-filename">Frames.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Data.List</span> (mapAccumL)
+
+<span class="fn">split</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> ([<span class="ty">String</span>], <span class="ty">String</span>)
+<span class="fn">split</span> s = <span class="kw">case</span> break (== <span class="st">'\n'</span>) s <span class="kw">of</span>
+  (msg, _ : rest) <span class="op">-&gt;</span> <span class="kw">let</span> (ms, left) = split rest <span class="kw">in</span> (msg : ms, left)
+  (partial, _) <span class="op">-&gt;</span> ([], partial)
+
+<span class="fn">step</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">String</span> <span class="op">-&gt;</span> (<span class="ty">String</span>, [<span class="ty">String</span>])
+<span class="fn">step</span> buf chunk = <span class="kw">let</span> (ms, left) = split (buf ++ chunk) <span class="kw">in</span> (left, ms)
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (mapAccumL step <span class="st">""</span> [<span class="st">"HE"</span>, <span class="st">"LLO\nWO"</span>, <span class="st">"RLD\n\nBY"</span>])
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>("BY",[[],["HELLO"],["WORLD",""]])</code> です。
+      </p>
+      <p>
+        <code>mapAccumL</code> は、リストの要素を左から順に <code>step</code> に渡しながら、1つ目の引数（ここでは届いたのにまだ区切れていない残り）を次の呼び出しへ持ち越します。結果は「最後に残った持ち越し」と「各要素に対する出力のリスト」の組で、持ち越しが組の左に来ます。<code>step</code> は、前回の残りに今回の塊をつなげ、<code>split</code> で改行ごとに切り出したメッセージを出力にし、改行のあとに残った途中の部分を次へ渡します。
+      </p>
+      <p>
+        1つ目の塊 <code>"HE"</code> には改行がないので、メッセージは出ず、<code>"HE"</code> が持ち越されます。2つ目でつながった <code>"HELLO\nWO"</code> からは <code>"HELLO"</code> が切り出され、<code>"WO"</code> が残ります。3つ目の <code>"WORLD\n\nBY"</code> では、<code>"WORLD"</code> を切り出したあとの残り <code>"\nBY"</code> が改行で始まります。<code>break</code> は改行の前の空文字列と改行以降に分けるので、<code>""</code> も1つのメッセージになります。最後の <code>"BY"</code> は改行で終わっていないので、どのメッセージにもならず、最後の持ち越しとして組の左に残ります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

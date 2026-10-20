@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="閏年の判定を表で回す単体テストが、誤りのある is_leap を素通りさせる原因を探します。配列の引数に sizeof を使ったときに何件のケースが回るかを扱う2026-10-21のC DEBUGです。">
+<title>表のテストが回らない</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-10-21">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-21" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-10-21",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-10-21",
+      "datePublished": "2026-10-21",
+      "dateModified": "2026-10-21",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "表のテストが回らない" },
+      "keywords": "pointer-decay, sizeof, testing, function-parameter, leap-year",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "閏年の判定を表で回す単体テストが、誤りのある is_leap を素通りさせる原因を探します。配列の引数に sizeof を使ったときに何件のケースが回るかを扱う2026-10-21のC DEBUGです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-21" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-10-21">C++26</a>
+  <a href="/rust/debug/2026-10-21">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-21">Haskell 2010</a>
+  <a href="/zig/debug/2026-10-21">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-21">READ</a>
+  <a href="/c/write/2026-10-21">WRITE</a>
+  <a href="/c/debug/2026-10-21" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="表のテストが回らない"
+  data-tags="pointer-decay sizeof testing function-parameter leap-year"
+  data-concepts="テーブル駆動テスト, 配列引数のポインタ化, 関数の中のsizeof, 閏年, table-driven test, array parameter decay, sizeof pointer"
+  data-level="whale"
+>
+  <h2>2026-10-21</h2>
+  <div class="code-frame">
+    <p class="code-filename">leap_cases.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">static</span> <span class="ty">int</span> <span class="fn">is_leap</span>(<span class="ty">int</span> y) {
+    <span class="kw">return</span> y % <span class="nu">4</span> == <span class="nu">0</span> &amp;&amp; y % <span class="nu">100</span> != <span class="nu">0</span>;
+}
+
+<span class="kw">static</span> <span class="ty">int</span> <span class="fn">run</span>(<span class="kw">const</span> <span class="ty">int</span> cases[][<span class="nu">2</span>]) {
+    <span class="ty">int</span> failed = <span class="nu">0</span>;
+    <span class="kw">for</span> (<span class="ty">size_t</span> i = <span class="nu">0</span>; i &lt; <span class="kw">sizeof</span> cases / <span class="kw">sizeof</span> cases[<span class="nu">0</span>]; i++) {
+        <span class="kw">if</span> (<span class="fn">is_leap</span>(cases[i][<span class="nu">0</span>]) != cases[i][<span class="nu">1</span>]) {
+            <span class="fn">printf</span>(<span class="st">"FAIL %d\n"</span>, cases[i][<span class="nu">0</span>]);
+            failed++;
+        }
+    }
+    <span class="kw">return</span> failed;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="kw">const</span> <span class="ty">int</span> cases[][<span class="nu">2</span>] = {{<span class="nu">2024</span>, <span class="nu">1</span>}, {<span class="nu">1900</span>, <span class="nu">0</span>}, {<span class="nu">2000</span>, <span class="nu">1</span>}};
+    <span class="fn">printf</span>(<span class="st">"%d failed\n"</span>, <span class="fn">run</span>(cases));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>run</code> は、年と期待値（閏年なら1）の組を並べた表で <code>is_leap</code> を確かめる単体テストです。グレゴリオ暦では、4で割り切れる年を閏年とし、そのうち100で割り切れる年は除き、さらに400で割り切れる年は閏年に戻します。x86-64 の Linux で実行すると、いまは <code>0 failed</code> と出てテストが通ります。本来は <code>is_leap</code> の誤りを捕まえ、<code>FAIL 2000</code> と <code>1 failed</code> の2行を出力するはずです。直すのは <code>is_leap</code> ではなくテストの側です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">static</span> <span class="ty">int</span> <span class="fn">run</span>(<span class="kw">const</span> <span class="ty">int</span> cases[][<span class="nu">2</span>]) {
+    <span class="ty">int</span> failed = <span class="nu">0</span>;
+    <span class="kw">for</span> (<span class="ty">size_t</span> i = <span class="nu">0</span>; i &lt; <span class="kw">sizeof</span> cases / <span class="kw">sizeof</span> cases[<span class="nu">0</span>]; i++) {
+</code></pre>
+      <p>
+        <code>is_leap</code> は400で割り切れる年を閏年に戻していないので、2000年に0を返し、表の3行目で失敗するはずです。それが報告されないのは、3行目までループが届いていないからです。関数の引数に配列の形で書いた <code>const int cases[][2]</code> は、配列ではなく先頭要素を指すポインタ <code>const int (*)[2]</code> として宣言されます。<code>main</code> では表全体の大きさだった <code>sizeof cases</code> が、<code>run</code> の中ではポインタの大きさになり、x86-64 では8です。
+      </p>
+      <p>
+        割る側の <code>sizeof cases[0]</code> は <code>int</code> 2つ分の行の大きさで、こちらも8です。8 / 8 は1なので、ループは0回ではなく1回だけ回り、1行目の2024年だけを確かめます。2024年は閏年で <code>is_leap</code> も1を返すので、失敗は0件です。ケースが1つも回らないなら気付けたかもしれませんが、1件は回っているので、テストは正しく動いているように見えます<sup class="fn-ref">1</sup>。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">static</span> <span class="ty">int</span> <span class="fn">run</span>(<span class="kw">const</span> <span class="ty">int</span> cases[][<span class="nu">2</span>], <span class="ty">size_t</span> n) {
+    <span class="ty">int</span> failed = <span class="nu">0</span>;
+    <span class="kw">for</span> (<span class="ty">size_t</span> i = <span class="nu">0</span>; i &lt; n; i++) {
+</code></pre>
+      <pre class="code"><code>    <span class="fn">printf</span>(<span class="st">"%d failed\n"</span>, <span class="fn">run</span>(cases, <span class="kw">sizeof</span> cases / <span class="kw">sizeof</span> cases[<span class="nu">0</span>]));
+</code></pre>
+      <p>
+        表の行数は、配列の型がまだ残っている <code>main</code> で <code>sizeof</code> を使って求め、<code>run</code> に引数で渡します。<code>main</code> の <code>sizeof cases</code> は <code>int</code> 6つ分の24なので、24 / 8 で3行すべてが回り、2000年の行で <code>FAIL 2000</code> が出て、最後に <code>1 failed</code> が出ます。
+      </p>
+      <ol class="footnotes">
+        <li>ポインタが4バイトの32ビット環境では 4 / 8 が0になり、ループは1回も回りません。どちらの環境でも、GCC は既定で有効な <code>-Wsizeof-array-argument</code> で、配列の形の引数に <code>sizeof</code> を使った箇所を警告します。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

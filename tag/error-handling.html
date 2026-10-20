@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「エラー処理」を扱ったNamaranのコーディングドリル20問。終了コード、exitWith、SomeException、handle、例外を捕まえすぎる、exit status。">
+<meta name="description" content="「エラー処理」を扱ったNamaranのコーディングドリル21問。@inComptime、@compileError、std.fmt.comptimePrint、std.debug.panic、コンパイル時と実行時の切り替え、compile error。">
 <title>エラー処理</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/error-handling">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>エラー処理</h2>
 
   <p class="lede">
-    「エラー処理」を扱った20問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「エラー処理」を扱った21問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/write/2026-10-21">Zig / WRITE · 2026-10-21</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">不正な数字の報告先</span> <span class="past-concepts">@inComptime, @compileError, std.fmt.comptimePrint, std.debug.panic, コンパイル時と実行時の切り替え, compile error, runtime panic</span></li>
     <li><a href="/haskell/debug/2026-10-17">Haskell / DEBUG · 2026-10-17</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">失敗したのに終了コード0</span> <span class="past-concepts">終了コード, exitWith, SomeException, handle, 例外を捕まえすぎる, exit status, catch-all handler, ExitCode exception</span></li>
     <li><a href="/c/debug/2026-10-06">C / DEBUG · 2026-10-06</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">失敗した決済の再送</span> <span class="past-concepts">冪等性キー, 再送, リトライ, 二重決済の防止, idempotency key, retry after failure</span></li>
     <li><a href="/rust/read/2026-10-02">Rust / READ · 2026-10-02</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">巻き戻る時計のラップ</span> <span class="past-concepts">壁時計, 単調増加時計, SystemTime の巻き戻り, duration_since のエラー, wall clock, monotonic clock, SystemTimeError</span></li>

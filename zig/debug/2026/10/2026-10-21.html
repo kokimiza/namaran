@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="実行時だけメモ化する二項係数の関数で、comptime で計算した値は正しいのに実行時の値が食い違う原因を探します。@inComptime で分けた2つの経路と、メモの添字を扱う2026-10-21のZig DEBUGです。">
+<title>実行時だけのメモ化</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/debug/2026-10-21">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / DEBUG", "item": "https://namaran.jocarium.productions/zig/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-21" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / DEBUG — 2026-10-21",
+      "url": "https://namaran.jocarium.productions/zig/debug/2026-10-21",
+      "datePublished": "2026-10-21",
+      "dateModified": "2026-10-21",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "実行時だけのメモ化" },
+      "keywords": "comptime, builtin-function, memoization, combinatorics, testing",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "実行時だけメモ化する二項係数の関数で、comptime で計算した値は正しいのに実行時の値が食い違う原因を探します。@inComptime で分けた2つの経路と、メモの添字を扱う2026-10-21のZig DEBUGです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-21">C23</a>
+  <a href="/cpp/debug/2026-10-21">C++26</a>
+  <a href="/rust/debug/2026-10-21">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-21">Haskell 2010</a>
+  <a href="/zig/debug/2026-10-21" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-10-21">READ</a>
+  <a href="/zig/write/2026-10-21">WRITE</a>
+  <a href="/zig/debug/2026-10-21" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="実行時だけのメモ化"
+  data-tags="comptime builtin-function memoization combinatorics testing"
+  data-concepts="@inComptime, メモ化, 二項係数, パスカルの三角形, コンパイル時と実行時の食い違い, memoization, binomial coefficient, runtime-only cache"
+  data-level="bison"
+>
+  <h2>2026-10-21</h2>
+  <div class="code-frame">
+    <p class="code-filename">binom.zig</p>
+    <pre class="code"><code><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);
+
+<span class="kw">var</span> memo: [<span class="nu">32</span>]<span class="ty">u64</span> = <span class="mc">@splat</span>(<span class="nu">0</span>);
+
+<span class="kw">fn</span> <span class="fn">binom</span>(n: <span class="ty">u5</span>, k: <span class="ty">u5</span>) <span class="ty">u64</span> {
+    <span class="kw">if</span> (k == <span class="nu">0</span> <span class="kw">or</span> k == n) <span class="kw">return</span> <span class="nu">1</span>;
+    <span class="kw">if</span> (<span class="mc">@inComptime</span>()) <span class="kw">return</span> <span class="fn">binom</span>(n - <span class="nu">1</span>, k - <span class="nu">1</span>) + <span class="fn">binom</span>(n - <span class="nu">1</span>, k);
+    <span class="kw">if</span> (memo[n] == <span class="nu">0</span>) memo[n] = <span class="fn">binom</span>(n - <span class="nu">1</span>, k - <span class="nu">1</span>) + <span class="fn">binom</span>(n - <span class="nu">1</span>, k);
+    <span class="kw">return</span> memo[n];
+}
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {
+    <span class="kw">var</span> buf: [<span class="nu">256</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;
+    <span class="kw">var</span> stdout_writer = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;buf);
+    <span class="kw">const</span> stdout = &amp;stdout_writer.interface;
+    <span class="kw">try</span> stdout.<span class="fn">print</span>(<span class="st">"{d} {d} {d}\n"</span>, .{ <span class="kw">comptime</span> <span class="fn">binom</span>(<span class="nu">4</span>, <span class="nu">2</span>), <span class="fn">binom</span>(<span class="nu">4</span>, <span class="nu">1</span>), <span class="fn">binom</span>(<span class="nu">4</span>, <span class="nu">2</span>) });
+    <span class="kw">try</span> stdout.<span class="fn">flush</span>();
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>binom(n, k)</code> は、異なる <code>n</code> 個から <code>k</code> 個を選ぶ組合せの数、二項係数（binomial coefficient）<sub>n</sub>C<sub>k</sub> を返すつもりの関数です。実行時は一度計算した値をグローバル変数の <code>memo</code> に覚えて再計算を省き、<code>memo</code> を読み書きできないコンパイル時は、そのまま再帰で計算します。<code>main</code> は <sub>4</sub>C<sub>2</sub> をコンパイル時に計算した値と、<sub>4</sub>C<sub>1</sub>、<sub>4</sub>C<sub>2</sub> を実行時に計算した値を並べます。いまは <code>6 4 4</code> と出力されます。本来の出力は <code>6 4 6</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">var</span> memo: [<span class="nu">32</span>]<span class="ty">u64</span> = <span class="mc">@splat</span>(<span class="nu">0</span>);
+</code></pre>
+      <pre class="code"><code>    <span class="kw">if</span> (memo[n] == <span class="nu">0</span>) memo[n] = <span class="fn">binom</span>(n - <span class="nu">1</span>, k - <span class="nu">1</span>) + <span class="fn">binom</span>(n - <span class="nu">1</span>, k);
+    <span class="kw">return</span> memo[n];
+</code></pre>
+      <p>
+        <code>binom</code> の値は <code>n</code> と <code>k</code> の2つで決まるのに、<code>memo</code> は <code>n</code> だけを添字にしています。先に呼ばれる <code>binom(4, 1)</code> は、<sub>n</sub>C<sub>k</sub> = <sub>n-1</sub>C<sub>k-1</sub> + <sub>n-1</sub>C<sub>k</sub>（パスカルの三角形の関係）で <code>binom(3, 1)</code>、<code>binom(2, 1)</code> とたどり、<code>memo[2]</code> に2、<code>memo[3]</code> に3、<code>memo[4]</code> に4を書きます。続く実行時の <code>binom(4, 2)</code> は <code>memo[4]</code> が0でないので計算せず、<code>k</code> が違うのに4を返します。
+      </p>
+      <p>
+        同じ <code>binom(4, 2)</code> でも、<code>comptime</code> を付けた1つ目は正しく6になります。コンパイル時の呼び出しでは <code>@inComptime()</code> が <code>true</code> になり、再帰の途中も含めて <code>memo</code> を使う行に一度も届かないからです。コンパイル時の結果だけを見て関数を確かめると、実行時の経路の誤りは同じ関数の中にあっても見つかりません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">var</span> memo: [<span class="nu">32</span>][<span class="nu">32</span>]<span class="ty">u64</span> = <span class="mc">@splat</span>(<span class="mc">@splat</span>(<span class="nu">0</span>));
+</code></pre>
+      <pre class="code"><code>    <span class="kw">if</span> (memo[n][k] == <span class="nu">0</span>) memo[n][k] = <span class="fn">binom</span>(n - <span class="nu">1</span>, k - <span class="nu">1</span>) + <span class="fn">binom</span>(n - <span class="nu">1</span>, k);
+    <span class="kw">return</span> memo[n][k];
+</code></pre>
+      <p>
+        <code>memo</code> を <code>n</code> と <code>k</code> の2次元にすれば、<code>binom(4, 1)</code> の4は <code>memo[4][1]</code> に入り、<code>binom(4, 2)</code> は空の <code>memo[4][2]</code> を見て計算し直すので6を返します。二項係数は1以上なので、0を「まだ計算していない」の印に使えます。<code>@inComptime</code> で経路を分けた関数は、コンパイル時と実行時の両方で呼んで確かめる必要があります<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li><code>@inComptime</code> の枝を消して両方の経路を1つにすると、<code>comptime binom(4, 2)</code> は <code>memo</code> を読むところで「unable to evaluate comptime expression」というコンパイルエラーになります。グローバルな <code>var</code> は実行時の値なので、コンパイル時には読めません。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/debug">Today</a></li>
+    <li><a href="/zig/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
