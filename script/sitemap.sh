@@ -53,8 +53,11 @@ published_dates() {
   archive="$ROOT_DIR/$lang/$type/archive.html"
   [ -f "$archive" ] || return 0
 
-  { grep -oE "href=\"/$lang/$type/[0-9]{4}-[0-9]{2}-[0-9]{2}\"" "$archive" || true; } |
-    grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' |
+  # An archive with no dated entries yet (a language added ahead of its
+  # first date) makes both greps match nothing. Under pipefail that would
+  # fail the caller's $(...) and stop the script, so it is not an error here.
+  { grep -oE "href=\"/$lang/$type/[0-9]{4}-[0-9]{2}-[0-9]{2}\"" "$archive" |
+      grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' || true; } |
     sort -ru |
     while IFS= read -r date; do
       [[ "$date" =~ ^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$ ]] || continue
