@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="-0.0 を +0.0 に置き換え、ほかの値はそのまま返す関数を書きます。-0.0 と 0.0 が比較では等しいことを使います。2026-10-22のC WRITEです。">
+<title>負の0を正の0に揃える</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-10-22">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-22" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-10-22",
+      "url": "https://namaran.jocarium.productions/c/write/2026-10-22",
+      "datePublished": "2026-10-22",
+      "dateModified": "2026-10-22",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "負の0を正の0に揃える" },
+      "keywords": "floating-point, signed-zero, comparison",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "-0.0 を +0.0 に置き換え、ほかの値はそのまま返す関数を書きます。-0.0 と 0.0 が比較では等しいことを使います。2026-10-22のC WRITEです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-22" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-10-22">C++26</a>
+  <a href="/rust/write/2026-10-22">Rust 2024</a>
+  <a href="/haskell/write/2026-10-22">Haskell 2010</a>
+  <a href="/zig/write/2026-10-22">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-22">READ</a>
+  <a href="/c/write/2026-10-22" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-10-22">DEBUG</a>
+</nav>
+
+<main
+  data-topic="負の0を正の0に揃える"
+  data-tags="floating-point signed-zero comparison"
+  data-concepts="負のゼロの正規化, 符号付きゼロ, -0.0と+0.0, 浮動小数点数の比較, normalize negative zero, signed zero"
+  data-level="hedgehog"
+>
+  <h2>2026-10-22</h2>
+  <div class="code-frame">
+    <p class="code-filename">normalize_zero.c</p>
+    <pre class="code"><code><span class="ty">double</span> <span class="fn">normalize_zero</span>(<span class="ty">double</span> x) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>double</code> の値を受け取り、それが <code>-0.0</code> なら <code>+0.0</code> を、それ以外なら受け取った値をそのまま返す <code>normalize_zero</code> を書いてください。<code>+0.0</code> を受け取ったときは <code>+0.0</code> を返します。出力例は、返り値を <code>printf("%g", ...)</code> で書いたものです。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>normalize_zero(-0.0)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>normalize_zero(0.0)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>normalize_zero(-2.5)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>-2.5</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="ty">double</span> <span class="fn">normalize_zero</span>(<span class="ty">double</span> x) {
+    <span class="kw">return</span> x == <span class="nu">0.0</span> ? <span class="nu">0.0</span> : x;
+}
+</code></pre>
+      <p>
+        <code>-0.0</code> を見分けようとして <code>x &lt; 0.0</code> と書くと、<code>-0.0 &lt; 0.0</code> は偽なので、負の0はそのまま返ってしまいます。比較演算は <code>+0.0</code> と <code>-0.0</code> を等しい値として扱うからです。この規則を逆に使えば、<code>x == 0.0</code> は2つの0のどちらでも真になります。そのときは符号を気にせず、リテラルの <code>0.0</code>(正の0)を返せば揃います。0でない値は比較が偽になり、そのまま返ります。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>return x + 0.0;</code> の1行でも同じ結果になります。IEEE 754 の既定の丸めでは、<code>-0.0 + 0.0</code> の和は <code>+0.0</code> と決まっているからです<sup class="fn-ref">1</sup>。符号だけを調べたいときは、<code>&lt;math.h&gt;</code> の <code>signbit</code> が <code>-0.0</code> に対して0でない値を返します。
+      </p>
+      <ol class="footnotes">
+        <li>符号の違う0どうしの和は、最も近い値への丸め(既定の丸めモード)では <code>+0.0</code>、負の無限大方向への丸めでは <code>-0.0</code> と IEEE 754 が定めています。丸めモードを <code>fesetround</code> で変えるプログラムでは、<code>x + 0.0</code> の書き方は使えません。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

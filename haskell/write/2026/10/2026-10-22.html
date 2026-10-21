@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="文字列の同じ文字の連続を、文字とその個数に置き換える関数を書きます。個数が1のときは数字を省きます。2026-10-22のHaskell WRITEです。">
+<title>連続を文字と回数に縮める</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-10-22">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-22" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-10-22",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-10-22",
+      "datePublished": "2026-10-22",
+      "dateModified": "2026-10-22",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "連続を文字と回数に縮める" },
+      "keywords": "run-length-encoding, compression, list-comprehension, string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "文字列の同じ文字の連続を、文字とその個数に置き換える関数を書きます。個数が1のときは数字を省きます。2026-10-22のHaskell WRITEです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-22">C23</a>
+  <a href="/cpp/write/2026-10-22">C++26</a>
+  <a href="/rust/write/2026-10-22">Rust 2024</a>
+  <a href="/haskell/write/2026-10-22" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/write/2026-10-22">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-22">READ</a>
+  <a href="/haskell/write/2026-10-22" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-10-22">DEBUG</a>
+</nav>
+
+<main
+  data-topic="連続を文字と回数に縮める"
+  data-tags="run-length-encoding compression list-comprehension string"
+  data-concepts="ランレングス圧縮, group, リスト内包表記, 文字列の圧縮, run-length encoding, Data.List.group, list comprehension"
+  data-level="hedgehog"
+>
+  <h2>2026-10-22</h2>
+  <div class="code-frame">
+    <p class="code-filename">Encode.hs</p>
+    <pre class="code"><code><span class="fn">encode</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">String</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    文字列の中で同じ文字が続く区間を、その文字と、続く個数の10進表記に置き換えた文字列を返す <code>encode</code> を書いてください。個数が1の区間は文字だけにして、数字を付けません。空文字列には空文字列を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>encode "aaabcc"</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>"a3bc2"</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>encode "x"</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>"x"</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>encode ""</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>""</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">import</span> <span class="ty">Data.List</span> (group)
+
+<span class="fn">encode</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">String</span>
+<span class="fn">encode</span> s = concat [c : <span class="kw">if</span> n == <span class="nu">1</span> <span class="kw">then</span> <span class="st">""</span> <span class="kw">else</span> show n | g@(c : _) <span class="op">&lt;-</span> group s, <span class="kw">let</span> n = length g]
+</code></pre>
+      <p>
+        同じ値の連続を「値と個数」で表すこの方法を、ランレングス圧縮(run-length encoding)といいます。連続を見つける仕事は <code>Data.List</code> の <code>group</code> に任せられます。<code>group "aaabcc"</code> は隣り合う等しい文字をまとめた <code>["aaa","b","cc"]</code> を返すので、あとはグループごとに文字と個数を書けば済みます。
+      </p>
+      <p>
+        内包表記の <code>g@(c : _)</code> は、グループ全体を <code>g</code>、その先頭の文字を <code>c</code> に束縛します。<code>group</code> が空のグループを返すことはないので、このパターンは必ず当てはまり、部分関数の <code>head</code> を使わずに先頭を取り出せます。<code>let n = length g</code> で個数を一度だけ数え、1なら空文字列、それ以外なら <code>show n</code> を文字の後ろに付けます。<code>show</code> は個数が10以上でも全部の桁を書くので、12個の連続は <code>"12"</code> になります。最後に <code>concat</code> で全グループの文字列をつなぎます。
+      </p>
+      <p>
+        空文字列では <code>group</code> が空リストを返し、結果も空文字列です。掲載したのは参考実装で、唯一の正解ではありません。<code>concatMap</code> と補助関数で書いても同じです。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

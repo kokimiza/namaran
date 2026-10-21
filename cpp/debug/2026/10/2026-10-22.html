@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="ファザが作った300バイトの入力でタイムアウトする、バイトの合計を求めるループを、添字の型の範囲から直します。2026-10-22のC++ DEBUGです。">
+<title>長い入力で止まる合計</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-10-22">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-22" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-10-22",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-10-22",
+      "datePublished": "2026-10-22",
+      "dateModified": "2026-10-22",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "長い入力で止まる合計" },
+      "keywords": "fuzzing, infinite-loop, loop, integer-promotion",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "ファザが作った300バイトの入力でタイムアウトする、バイトの合計を求めるループを、添字の型の範囲から直します。2026-10-22のC++ DEBUGです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-22">C23</a>
+  <a href="/cpp/debug/2026-10-22" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-10-22">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-22">Haskell 2010</a>
+  <a href="/zig/debug/2026-10-22">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-22">READ</a>
+  <a href="/cpp/write/2026-10-22">WRITE</a>
+  <a href="/cpp/debug/2026-10-22" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="長い入力で止まる合計"
+  data-tags="fuzzing infinite-loop loop integer-promotion"
+  data-concepts="ファジングで見つかるタイムアウト, uint8_tのループ変数, 符号なし整数の折り返し, 無限ループ, fuzzing timeout, uint8_t loop counter, unsigned wraparound"
+  data-level="hedgehog"
+>
+  <h2>2026-10-22</h2>
+  <div class="code-frame">
+    <p class="code-filename">checksum.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;cstdint&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+
+<span class="ty">int</span> <span class="fn">checksum</span>(<span class="kw">const</span> std::<span class="ty">string</span>&amp; data) {
+    <span class="ty">int</span> sum = <span class="nu">0</span>;
+    <span class="kw">for</span> (std::<span class="ty">uint8_t</span> i = <span class="nu">0</span>; i &lt; data.<span class="fn">size</span>(); ++i) {
+        sum += data[i];
+    }
+    <span class="kw">return</span> sum % <span class="nu">256</span>;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    std::<span class="ty">string</span> <span class="fn">input</span>(<span class="nu">300</span>, <span class="st">'x'</span>);
+    std::cout &lt;&lt; <span class="fn">checksum</span>(input) &lt;&lt; <span class="st">'\n'</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>checksum</code> は、入力のバイトの値をすべて足し、256で割った余りを返す関数です。ファザが <code>'x'</code> を300個並べた入力を作ったところ、<code>main</code> のように呼ぶと何も出力されず、タイムアウトするまで終わりません。本来は <code>160</code> と出力されるはずです。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">for</span> (std::<span class="ty">uint8_t</span> i = <span class="nu">0</span>; i &lt; data.<span class="fn">size</span>(); ++i) {
+</code></pre>
+      <p>
+        添字の <code>i</code> は <code>std::uint8_t</code> で、0から255までしか表せません。255のときの <code>++i</code> は、<code>int</code> に昇格して計算した256を <code>std::uint8_t</code> に戻します。符号なし整数への変換は256で割った余りを取るので、<code>i</code> は0に戻ります。比較の <code>i &lt; data.size()</code> では <code>i</code> が変換されて300と比べられますが、<code>i</code> は255を超えないので、条件は常に真です。256バイト未満の入力ならループは正しく終わるので、手で書いた短いテストでは見つかりません。長さも中身も選ばずに入力を作るファザが、300バイトの入力で初めてこの欠陥を踏みました。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">for</span> (std::<span class="ty">size_t</span> i = <span class="nu">0</span>; i &lt; data.<span class="fn">size</span>(); ++i) {
+</code></pre>
+      <p>
+        添字を <code>data.size()</code> と同じ <code>std::size_t</code> にすれば、<code>i</code> はどの長さの文字列でも最後の添字まで数えられ、300回で抜けます。<code>'x'</code> は120なので合計は36000、256で割った余りは160です。<code>&lt;cstdint&gt;</code> の代わりに、<code>std::size_t</code> を宣言する <code>&lt;cstddef&gt;</code> を読み込みます<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>libFuzzer は、1つの入力の実行が <code>-timeout</code> の秒数(既定は1200秒)を超えるとその入力を保存し、timeout として報告します。<code>-max_len</code> で入力の長さの上限も変えられ、長い入力でしか起きない欠陥を探すときはこれを大きくします。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="ファジングの基本の変異である、入力のバイト列の1ビットを反転する関数を、ビットの番号からバイトとビットの位置を求めて書きます。2026-10-22のC++ WRITEです。">
+<title>1ビットだけ壊す変異</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-10-22">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-22" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-10-22",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-10-22",
+      "datePublished": "2026-10-22",
+      "dateModified": "2026-10-22",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "1ビットだけ壊す変異" },
+      "keywords": "fuzzing, bit-operation, string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "ファジングの基本の変異である、入力のバイト列の1ビットを反転する関数を、ビットの番号からバイトとビットの位置を求めて書きます。2026-10-22のC++ WRITEです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-22">C23</a>
+  <a href="/cpp/write/2026-10-22" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-10-22">Rust 2024</a>
+  <a href="/haskell/write/2026-10-22">Haskell 2010</a>
+  <a href="/zig/write/2026-10-22">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-22">READ</a>
+  <a href="/cpp/write/2026-10-22" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-10-22">DEBUG</a>
+</nav>
+
+<main
+  data-topic="1ビットだけ壊す変異"
+  data-tags="fuzzing bit-operation string"
+  data-concepts="ビット反転の変異, ファジングの変異戦略, 排他的論理和, bit flip mutation, fuzzing mutator, xor"
+  data-level="hedgehog"
+>
+  <h2>2026-10-22</h2>
+  <div class="code-frame">
+    <p class="code-filename">flip_bit.cpp</p>
+    <pre class="code"><code>std::<span class="ty">string</span> <span class="fn">flip_bit</span>(std::<span class="ty">string</span> s, std::<span class="ty">size_t</span> bit) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    ファジングの入力 <code>s</code> の、<code>bit</code> 番目のビットだけを反転した文字列を返す <code>flip_bit</code> を書いてください。ビットの番号は、<code>s[0]</code> の最下位ビットを0番、<code>s[0]</code> の最上位ビットを7番とし、8番から先は <code>s[1]</code> の最下位ビットから同じ順に数えます。<code>bit</code> は <code>s.size() * 8</code> より小さいものとし、空の <code>s</code> では呼びません。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>flip_bit("a", 5)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>"A"</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>flip_bit("ab", 8)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>"ac"</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>flip_bit("1", 0)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>"0"</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code>std::<span class="ty">string</span> <span class="fn">flip_bit</span>(std::<span class="ty">string</span> s, std::<span class="ty">size_t</span> bit) {
+    s[bit / <span class="nu">8</span>] ^= <span class="nu">1</span> &lt;&lt; (bit % <span class="nu">8</span>);
+    <span class="kw">return</span> s;
+}
+</code></pre>
+      <p>
+        ビットの番号を8で割った商が何バイト目か、余りがそのバイトの何番目のビットかを表します。入力例 2 の8番は、商が1、余りが0なので <code>s[1]</code> の最下位ビットです。<code>'b'</code>(0x62)の最下位ビットを反転すると0x63の <code>'c'</code> になります。反転には排他的論理和(exclusive OR、XOR)を使います。<code>1 &lt;&lt; (bit % 8)</code> は目的の位置だけが1のマスクで、<code>^=</code> はマスクが1の位置を反転し、0の位置はそのまま残します。入力例 1 の <code>'a'</code>(0x61)は5番のビットが反転して0x41の <code>'A'</code> になります。
+      </p>
+      <p>
+        <code>s</code> は値で受け取っているので、関数の中で書き換えても呼び出し側の文字列は変わりません。元の入力を残したまま変異した入力を作れます。掲載したのは参考実装で、唯一の正解ではありません。AFL などのファザは、こうして1ビットずつ反転した入力を順に試す段階から変異を始めます<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>AFL の決定的な変異の最初の段階は bitflip 1/1 と呼ばれ、入力の全ビットを1つずつ反転して実行します。続いて隣り合う2ビット、4ビット、1バイトと、反転する幅を広げていきます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

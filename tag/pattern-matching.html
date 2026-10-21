@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「パターンマッチ」を扱ったNamaranのコーディングドリル32問。De Bruijnインデックス、自由変数、閉じた項、λ計算、de Bruijn index、free variable。">
+<meta name="description" content="「パターンマッチ」を扱ったNamaranのコーディングドリル36問。タプルへのmatch、orパターン、Option型の組み合わせ、網羅性、match on tuple、or-pattern。">
 <title>パターンマッチ</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/pattern-matching">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,14 @@
   <h2>パターンマッチ</h2>
 
   <p class="lede">
-    「パターンマッチ」を扱った32問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「パターンマッチ」を扱った36問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/write/2026-10-22">Rust / WRITE · 2026-10-22</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">2つのOptionを足す</span> <span class="past-concepts">タプルへのmatch, orパターン, Option型の組み合わせ, 網羅性, match on tuple, or-pattern, Option combination</span></li>
+    <li><a href="/rust/read/2026-10-22">Rust / READ · 2026-10-22</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">先に当たった腕が勝つ</span> <span class="past-concepts">スライスパターン, matchの腕の順序, 残りのパターン.., slice pattern, match arm order, rest pattern</span></li>
+    <li><a href="/rust/debug/2026-10-22">Rust / DEBUG · 2026-10-22</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">どのコードも再試行になる</span> <span class="past-concepts">パターン中の識別子は束縛, 変数との比較はガードで, matchのシャドーイング, identifier pattern, match guard, binding shadows parameter</span></li>
+    <li><a href="/haskell/debug/2026-10-22">Haskell / DEBUG · 2026-10-22</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">2桁の回数が読めない展開</span> <span class="past-concepts">ランレングス圧縮の展開, 複数桁の数の読み取り, span, digitToInt, run-length decoding, multi-digit count</span></li>
     <li><a href="/rust/write/2026-10-19">Rust / WRITE · 2026-10-19</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">自由変数のない項か</span> <span class="past-concepts">De Bruijnインデックス, 自由変数, 閉じた項, λ計算, de Bruijn index, free variable, closed term</span></li>
     <li><a href="/haskell/write/2026-10-18">Haskell / WRITE · 2026-10-18</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">共同名義も含めて改名</span> <span class="past-concepts">レコード更新, 部分関数, フィールドセレクタ, 構成子パターン, record update, partial record field, partial function</span></li>
     <li><a href="/haskell/write/2026-10-12">Haskell / WRITE · 2026-10-12</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">C流の整数リテラルを読む</span> <span class="past-concepts">8進数リテラル, 16進数リテラル, 先頭が0の整数, 基数変換, octal literal, hexadecimal literal, leading zero, strtol base 0</span></li>

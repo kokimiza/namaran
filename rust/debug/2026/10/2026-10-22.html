@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="引数で受け取った値と比べるつもりの match の腕が、どの値にも当てはまる新しい変数の束縛になっている欠陥を直します。2026-10-22のRust DEBUGです。">
+<title>どのコードも再試行になる</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-10-22">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-22" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-10-22",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-10-22",
+      "datePublished": "2026-10-22",
+      "dateModified": "2026-10-22",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "どのコードも再試行になる" },
+      "keywords": "pattern-matching, binding, shadowing, guard",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "引数で受け取った値と比べるつもりの match の腕が、どの値にも当てはまる新しい変数の束縛になっている欠陥を直します。2026-10-22のRust DEBUGです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-22">C23</a>
+  <a href="/cpp/debug/2026-10-22">C++26</a>
+  <a href="/rust/debug/2026-10-22" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-22">Haskell 2010</a>
+  <a href="/zig/debug/2026-10-22">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-22">READ</a>
+  <a href="/rust/write/2026-10-22">WRITE</a>
+  <a href="/rust/debug/2026-10-22" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="どのコードも再試行になる"
+  data-tags="pattern-matching binding shadowing guard"
+  data-concepts="パターン中の識別子は束縛, 変数との比較はガードで, matchのシャドーイング, identifier pattern, match guard, binding shadows parameter"
+  data-level="hedgehog"
+>
+  <h2>2026-10-22</h2>
+  <div class="code-frame">
+    <p class="code-filename">status.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">label</span>(code: <span class="ty">u16</span>, retry_code: <span class="ty">u16</span>) -&gt; &amp;<span class="lt">'static</span> <span class="ty">str</span> {
+    <span class="kw">match</span> code {
+        <span class="nu">200</span> =&gt; <span class="st">"ok"</span>,
+        retry_code =&gt; <span class="st">"retry"</span>,
+        _ =&gt; <span class="st">"fail"</span>,
+    }
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">for</span> code <span class="kw">in</span> [<span class="nu">200</span>, <span class="nu">503</span>, <span class="nu">404</span>] {
+        <span class="mc">println!</span>(<span class="st">"{code} {}"</span>, <span class="fn">label</span>(code, <span class="nu">503</span>));
+    }
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>label</code> は HTTP のステータスコード <code>code</code> を、200なら <code>ok</code>、引数 <code>retry_code</code> と等しければ <code>retry</code>、それ以外なら <code>fail</code> に分類します。<code>main</code> は <code>retry_code</code> を503にして、200、503、404を分類します。いまの出力は <code>200 ok</code>、<code>503 retry</code>、<code>404 retry</code> の3行です。本来は3行目が <code>404 fail</code> になるはずです。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code>retry_code =&gt; <span class="st">"retry"</span>,
+</code></pre>
+      <p>
+        パターンの中に小文字の名前を書くと、それは外の変数を参照する式ではなく、照合する値を束縛する新しい変数になります。この腕の <code>retry_code</code> はどんな <code>u16</code> にも当てはまり、その値を同じ名前の新しい変数に入れて、引数の <code>retry_code</code> を隠します。200以外のコードはすべてこの腕に入るので、404も <code>retry</code> になり、下の <code>_</code> の腕には何も届きません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code>c <span class="kw">if</span> c == retry_code =&gt; <span class="st">"retry"</span>,
+</code></pre>
+      <p>
+        実行時に決まる値と比べるには、どの値にも当てはまる束縛 <code>c</code> にガードの <code>if c == retry_code</code> を付けます。ガードが偽になった値は次の腕へ進むので、404は <code>_</code> の腕で <code>fail</code> になります。比べたい値がコンパイル時に決まる定数なら、<code>const RETRY: u16 = 503;</code> と宣言した名前をパターンに書けば、束縛ではなく定数との比較になります<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>欠陥のある版をコンパイルすると、rustc は <code>_</code> の腕に <code>unreachable pattern</code> の警告を出し、引数の <code>retry_code</code> が使われていないことも警告します。どちらも、パターンの名前が新しい束縛になっていることの手がかりです。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

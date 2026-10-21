@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="2つの Option&lt;i32&gt; を組にして match し、両方ある、片方だけある、どちらも無いの3つの形で返す値を分ける関数を書きます。2026-10-22のRust WRITEです。">
+<title>2つのOptionを足す</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-10-22">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-22" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-10-22",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-10-22",
+      "datePublished": "2026-10-22",
+      "dateModified": "2026-10-22",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "2つのOptionを足す" },
+      "keywords": "pattern-matching, tuple, exhaustiveness",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "2つの Option<i32> を組にして match し、両方ある、片方だけある、どちらも無いの3つの形で返す値を分ける関数を書きます。2026-10-22のRust WRITEです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-22">C23</a>
+  <a href="/cpp/write/2026-10-22">C++26</a>
+  <a href="/rust/write/2026-10-22" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-10-22">Haskell 2010</a>
+  <a href="/zig/write/2026-10-22">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-22">READ</a>
+  <a href="/rust/write/2026-10-22" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-10-22">DEBUG</a>
+</nav>
+
+<main
+  data-topic="2つのOptionを足す"
+  data-tags="pattern-matching tuple exhaustiveness"
+  data-concepts="タプルへのmatch, orパターン, Option型の組み合わせ, 網羅性, match on tuple, or-pattern, Option combination"
+  data-level="hedgehog"
+>
+  <h2>2026-10-22</h2>
+  <div class="code-frame">
+    <p class="code-filename">combine.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">combine</span>(a: <span class="ty">Option</span>&lt;<span class="ty">i32</span>&gt;, b: <span class="ty">Option</span>&lt;<span class="ty">i32</span>&gt;) -&gt; <span class="ty">Option</span>&lt;<span class="ty">i32</span>&gt; {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    2つの <code>Option&lt;i32&gt;</code> を受け取る <code>combine</code> を書いてください。両方が <code>Some</code> なら2つの値の和を <code>Some</code> で、片方だけが <code>Some</code> ならその値を <code>Some</code> で返し、両方が <code>None</code> なら <code>None</code> を返します。和は <code>i32</code> に収まるものとします。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>combine(Some(2), Some(3))</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>Some(5)</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>combine(None, Some(4))</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>Some(4)</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>combine(None, None)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>None</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">combine</span>(a: <span class="ty">Option</span>&lt;<span class="ty">i32</span>&gt;, b: <span class="ty">Option</span>&lt;<span class="ty">i32</span>&gt;) -&gt; <span class="ty">Option</span>&lt;<span class="ty">i32</span>&gt; {
+    <span class="kw">match</span> (a, b) {
+        (<span class="fn">Some</span>(x), <span class="fn">Some</span>(y)) =&gt; <span class="fn">Some</span>(x + y),
+        (<span class="fn">Some</span>(x), <span class="ty">None</span>) | (<span class="ty">None</span>, <span class="fn">Some</span>(x)) =&gt; <span class="fn">Some</span>(x),
+        (<span class="ty">None</span>, <span class="ty">None</span>) =&gt; <span class="ty">None</span>,
+    }
+}
+</code></pre>
+      <p>
+        <code>a</code> と <code>b</code> を別々に <code>if let</code> で調べると、分岐が入れ子になります。2つを <code>(a, b)</code> のタプルにまとめて <code>match</code> すれば、2つの値の形の組み合わせ4通りを、1段の腕として並べられます。片方だけが <code>Some</code> の2通りは、<code>|</code> でつないだ or パターン1つで書けます。<code>|</code> の両側で同じ名前の <code>x</code> を同じ型に束縛しているので、どちらに当てはまっても腕の中では <code>x</code> を使えます。
+      </p>
+      <p>
+        4通りのどれかを書き忘れると、<code>match</code> が網羅的でないとしてコンパイルエラーになるので、「両方 <code>None</code>」の扱いを決めずに済ませることはできません。掲載したのは参考実装で、唯一の正解ではありません。<code>a.zip(b).map(|(x, y)| x + y).or(a).or(b)</code> のように <code>Option</code> のメソッドをつないでも書けますが、3つの形を並べて読めるのは <code>match</code> のほうです。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

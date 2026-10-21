@@ -192,6 +192,7 @@ infinite-loop	無限ループ
 inheritance	継承
 init-statement	初期化文
 initialization-order	初期化順序
+inline-else	inline else
 inline-function	インライン関数
 insertion-sort	挿入ソート
 integer-arithmetic	整数の演算
@@ -345,6 +346,7 @@ retry	再試行
 ring-buffer	リングバッファ
 rolling-hash	ローリングハッシュ
 rounding	丸め
+run-length-encoding	ランレングス圧縮
 rvalue-reference	右辺値参照
 sampling	サンプリング
 satisfiability	充足可能性問題
@@ -362,6 +364,7 @@ side-effect	副作用
 sieve-of-eratosthenes	エラトステネスの篩
 signal	シグナル
 signed-unsigned	符号あり・なし
+signed-zero	符号付きゼロ
 simd	SIMD
 sizeof	sizeof演算子
 skip-list	スキップリスト

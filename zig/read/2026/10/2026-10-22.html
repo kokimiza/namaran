@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="タグ付き共用体を inline else で分岐し、同じ v / 2 の式が整数と浮動小数点数のそれぞれで何を出力するかを読みます。2026-10-22のZig READです。">
+<title>同じ腕の割り算が2通り</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/read/2026-10-22">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / READ", "item": "https://namaran.jocarium.productions/zig/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-22" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / READ — 2026-10-22",
+      "url": "https://namaran.jocarium.productions/zig/read/2026-10-22",
+      "datePublished": "2026-10-22",
+      "dateModified": "2026-10-22",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "同じ腕の割り算が2通り" },
+      "keywords": "inline-else, switch, union, comptime, division",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "タグ付き共用体を inline else で分岐し、同じ v / 2 の式が整数と浮動小数点数のそれぞれで何を出力するかを読みます。2026-10-22のZig READです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-22">C23</a>
+  <a href="/cpp/read/2026-10-22">C++26</a>
+  <a href="/rust/read/2026-10-22">Rust 2024</a>
+  <a href="/haskell/read/2026-10-22">Haskell 2010</a>
+  <a href="/zig/read/2026-10-22" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-10-22" class="active" aria-current="page">READ</a>
+  <a href="/zig/write/2026-10-22">WRITE</a>
+  <a href="/zig/debug/2026-10-22">DEBUG</a>
+</nav>
+
+<main
+  data-topic="同じ腕の割り算が2通り"
+  data-tags="inline-else switch union comptime division"
+  data-concepts="inline else, inline switch prong, タグ付き共用体, 腕ごとのペイロードの型, 整数除算, tagged union, payload capture"
+  data-level="hedgehog"
+>
+  <h2>2026-10-22</h2>
+  <div class="code-frame">
+    <p class="code-filename">half.zig</p>
+    <pre class="code"><code><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);
+
+<span class="kw">const</span> <span class="ty">Num</span> = <span class="kw">union</span>(<span class="kw">enum</span>) {
+    int: <span class="ty">u32</span>,
+    float: <span class="ty">f64</span>,
+};
+
+<span class="kw">fn</span> <span class="fn">half</span>(n: <span class="ty">Num</span>, w: *std.<span class="ty">Io</span>.<span class="ty">Writer</span>) !<span class="ty">void</span> {
+    <span class="kw">switch</span> (n) {
+        <span class="kw">inline</span> <span class="kw">else</span> =&gt; |v| <span class="kw">try</span> w.<span class="fn">print</span>(<span class="st">"{d}\n"</span>, .{v / <span class="nu">2</span>}),
+    }
+}
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {
+    <span class="kw">var</span> buf: [<span class="nu">256</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;
+    <span class="kw">var</span> stdout_writer = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;buf);
+    <span class="kw">const</span> stdout = &amp;stdout_writer.interface;
+    <span class="kw">try</span> <span class="fn">half</span>(.{ .int = <span class="nu">7</span> }, stdout);
+    <span class="kw">try</span> <span class="fn">half</span>(.{ .float = <span class="nu">7</span> }, stdout);
+    <span class="kw">try</span> stdout.<span class="fn">flush</span>();
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>3</code> と <code>3.5</code> の2行です。
+      </p>
+      <p>
+        <code>Num</code> はタグ付き共用体(tagged union)で、<code>int</code> なら <code>u32</code> を、<code>float</code> なら <code>f64</code> を持ちます。ふつうの <code>else</code> の腕は1つの本体を1回だけ解析するので、型の違う2つのペイロードを1つの <code>v</code> に入れられません。<code>|v|</code> には <code>Num</code> の値がそのまま入り、<code>v / 2</code> はコンパイルエラーになります。<code>inline else</code> にすると、コンパイラは残ったタグの1つずつについて腕を別々に展開し、それぞれの腕で <code>v</code> はそのタグのペイロードの型になります(langref の Inline Switch Prongs)。
+      </p>
+      <p>
+        同じ <code>v / 2</code> と書いてあっても、展開された腕ごとに別の式として型が付きます。<code>int</code> の腕では <code>v</code> が <code>u32</code> なので整数の割り算になり、7 / 2 は小数部を切り捨てた3です。<code>float</code> の腕では <code>v</code> が <code>f64</code> で、2は <code>f64</code> の2.0として扱われ、結果は3.5になります。<code>{d}</code> はどちらの型も10進で書くので、1行目が <code>3</code>、2行目が <code>3.5</code> です。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/read">Today</a></li>
+    <li><a href="/zig/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
