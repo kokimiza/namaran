@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="区切りのハイフンを飛ばして数字を読む while ループが、ハイフンを含む入力で返ってこなくなります。continue が添字を進める行まで飛ばしてしまう誤りを直します。2026-10-23のRust DEBUGです。">
+<title>ハイフンで止まる読み取り</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-10-23">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-23" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-10-23",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-10-23",
+      "datePublished": "2026-10-23",
+      "dateModified": "2026-10-23",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "ハイフンで止まる読み取り" },
+      "keywords": "continue-break, infinite-loop, loop, parsing",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "区切りのハイフンを飛ばして数字を読む while ループが、ハイフンを含む入力で返ってこなくなります。continue が添字を進める行まで飛ばしてしまう誤りを直します。2026-10-23のRust DEBUGです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-23">C23</a>
+  <a href="/cpp/debug/2026-10-23">C++26</a>
+  <a href="/rust/debug/2026-10-23" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-23">Haskell 2010</a>
+  <a href="/zig/debug/2026-10-23">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-23">READ</a>
+  <a href="/rust/write/2026-10-23">WRITE</a>
+  <a href="/rust/debug/2026-10-23" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="ハイフンで止まる読み取り"
+  data-tags="continue-break infinite-loop loop parsing"
+  data-concepts="continue と添字の更新, while ループの無限ループ, ハイフン区切りの数字, continue skips increment, infinite loop"
+  data-level="hedgehog"
+>
+  <h2>2026-10-23</h2>
+  <div class="code-frame">
+    <p class="code-filename">parse_id.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">parse_id</span>(s: &amp;<span class="ty">str</span>) -&gt; <span class="ty">Option</span>&lt;<span class="ty">u64</span>&gt; {
+    <span class="kw">let</span> bytes = s.<span class="fn">as_bytes</span>();
+    <span class="kw">let</span> <span class="kw">mut</span> i = <span class="nu">0</span>;
+    <span class="kw">let</span> <span class="kw">mut</span> id = <span class="nu">0</span>;
+    <span class="kw">while</span> i &lt; bytes.<span class="fn">len</span>() {
+        <span class="kw">let</span> b = bytes[i];
+        <span class="kw">if</span> b == <span class="st">b'-'</span> {
+            <span class="kw">continue</span>;
+        }
+        <span class="kw">if</span> !b.<span class="fn">is_ascii_digit</span>() {
+            <span class="kw">return</span> <span class="ty">None</span>;
+        }
+        id = id * <span class="nu">10</span> + <span class="ty">u64</span>::<span class="fn">from</span>(b - <span class="st">b'0'</span>);
+        i += <span class="nu">1</span>;
+    }
+    <span class="fn">Some</span>(id)
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>parse_id</code> は、<code>1234-5678</code> のようにハイフンで区切って書かれた会員番号から数字だけを読み、1つの数にする関数です。数字とハイフン以外の文字があれば <code>None</code> を返します。<code>parse_id("12345678")</code> はいまも <code>Some(12345678)</code> を返しますが、<code>parse_id("1234-5678")</code> を呼ぶと関数から返ってこなくなります。本来はこちらも <code>Some(12345678)</code> を返します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">if</span> b == <span class="st">b'-'</span> {
+    <span class="kw">continue</span>;
+}
+</code></pre>
+      <p>
+        <code>continue</code> は、ループ本体の残りを飛ばして <code>while</code> の条件の判定に戻ります。飛ばされる残りには、最後の <code>i += 1;</code> も入っています。<code>"1234-5678"</code> では <code>i</code> が4のときに <code>b</code> が <code>b'-'</code> になり、<code>i</code> を進めないまま条件に戻るので、次の周も同じ <code>bytes[4]</code> を読み、また <code>continue</code> します。ハイフンを含む入力では、この繰り返しが終わりません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">if</span> b == <span class="st">b'-'</span> {
+    i += <span class="nu">1</span>;
+    <span class="kw">continue</span>;
+}
+</code></pre>
+      <p>
+        <code>continue</code> の前で添字を進めます。ハイフンを読み飛ばした次の周は <code>bytes[5]</code> の <code>'5'</code> から読むので、ループは文字列の終わりで止まります。<code>while</code> で添字を自分で進めるループでは、<code>continue</code> のたびに更新を書き足す必要があります。<code>for &amp;b in bytes</code> のように書けば、<code>continue</code> しても次の要素へ進むのはイテレータの役目になるので、同じ誤りは起きません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

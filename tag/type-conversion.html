@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「型変換」を扱ったNamaranのコーディングドリル15問。inline else、ポインタのキャプチャ、std.math.cast、範囲を確かめる整数の変換、tagged union、pointer capture。">
+<meta name="description" content="「型変換」を扱ったNamaranのコーディングドリル18問。数字の文字コード、繰り上がり、走行距離計、10進文字列のインクリメント、digit arithmetic、carry。">
 <title>型変換</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/type-conversion">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>型変換</h2>
 
   <p class="lede">
-    「型変換」を扱った15問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「型変換」を扱った18問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/c/write/2026-10-23">C / WRITE · 2026-10-23</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">文字のまま1を足す</span> <span class="past-concepts">数字の文字コード, 繰り上がり, 走行距離計, 10進文字列のインクリメント, digit arithmetic, carry, odometer</span></li>
+    <li><a href="/c/read/2026-10-23">C / READ · 2026-10-23</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">下の桁から詰める文字</span> <span class="past-concepts">数字の文字への変換, '0' + n, 剰余で桁を取り出す, digit to char, n % 10, 整数から文字列</span></li>
+    <li><a href="/c/debug/2026-10-23">C / DEBUG · 2026-10-23</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">unsignedに移す前の反転</span> <span class="past-concepts">INT_MIN の符号反転, 符号付き整数のオーバーフロー, 条件演算子の型, 整数から文字列, negating INT_MIN, signed overflow, itoa</span></li>
     <li><a href="/zig/write/2026-10-22">Zig / WRITE · 2026-10-22</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">収まるときだけ書き込む</span> <span class="past-concepts">inline else, ポインタのキャプチャ, std.math.cast, 範囲を確かめる整数の変換, tagged union, pointer capture, checked integer cast</span></li>
     <li><a href="/haskell/debug/2026-10-20">Haskell / DEBUG · 2026-10-20</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">Integerで入れた設定値</span> <span class="past-concepts">型消去, Data.Dynamic, fromDynamic, Int と Integer, type erasure, dynamic typing, Typeable</span></li>
     <li><a href="/cpp/debug/2026-10-16">C++ / DEBUG · 2026-10-16</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">一周した通し番号</span> <span class="past-concepts">通し番号の一周, 再送の検出, 剰余での比較, 整数昇格, serial number arithmetic, sequence number wraparound, RFC 1982</span></li>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「ループ」を扱ったNamaranのコーディングドリル55問。ファジングで見つかるタイムアウト、uint8_tのループ変数、符号なし整数の折り返し、無限ループ、fuzzing timeout、uint8_t loop counter。">
+<meta name="description" content="「ループ」を扱ったNamaranのコーディングドリル60問。break と continue と return の使い分け、ループの中の ? 演算子、飛ばした行も数える行番号、enumerate、early return、match の中の break。">
 <title>ループ</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/loop">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,15 @@
   <h2>ループ</h2>
 
   <p class="lede">
-    「ループ」を扱った55問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「ループ」を扱った60問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/write/2026-10-23">Rust / WRITE · 2026-10-23</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">予算を超えた行の番号</span> <span class="past-concepts">break と continue と return の使い分け, ループの中の ? 演算子, 飛ばした行も数える行番号, enumerate, early return</span></li>
+    <li><a href="/rust/read/2026-10-23">Rust / READ · 2026-10-23</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">matchの腕から抜ける先</span> <span class="past-concepts">match の中の break, match の中の continue, ループの残りを飛ばす, break inside match, continue inside match</span></li>
+    <li><a href="/rust/debug/2026-10-23">Rust / DEBUG · 2026-10-23</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">ハイフンで止まる読み取り</span> <span class="past-concepts">continue と添字の更新, while ループの無限ループ, ハイフン区切りの数字, continue skips increment, infinite loop</span></li>
+    <li><a href="/cpp/read/2026-10-23">C++ / READ · 2026-10-23</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">1周目で届く距離</span> <span class="past-concepts">ベルマン-フォード法, 辺の緩和, 負の重みの辺, 辺の順序と収束, Bellman-Ford, edge relaxation, negative edge weight</span></li>
+    <li><a href="/c/write/2026-10-23">C / WRITE · 2026-10-23</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">文字のまま1を足す</span> <span class="past-concepts">数字の文字コード, 繰り上がり, 走行距離計, 10進文字列のインクリメント, digit arithmetic, carry, odometer</span></li>
     <li><a href="/cpp/debug/2026-10-22">C++ / DEBUG · 2026-10-22</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">長い入力で止まる合計</span> <span class="past-concepts">ファジングで見つかるタイムアウト, uint8_tのループ変数, 符号なし整数の折り返し, 無限ループ, fuzzing timeout, uint8_t loop counter, unsigned wraparound</span></li>
     <li><a href="/rust/write/2026-10-20">Rust / WRITE · 2026-10-20</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">根号の外に出す</span> <span class="past-concepts">素因数分解, 平方因子をもたない数, 根号の簡約, 試し割り, prime factorization, squarefree integer, simplifying square roots</span></li>
     <li><a href="/cpp/read/2026-10-20">C++ / READ · 2026-10-20</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">区間を塊で数える</span> <span class="past-concepts">平方分割, 区間和, 塊ごとの和, 半開区間, sqrt decomposition, range sum query, bucket</span></li>

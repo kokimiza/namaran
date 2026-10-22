@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「構文解析」を扱ったNamaranのコーディングドリル13問。ランレングス圧縮の展開、複数桁の数の読み取り、span、digitToInt、run-length decoding、multi-digit count。">
+<meta name="description" content="「構文解析」を扱ったNamaranのコーディングドリル16問。break と continue と return の使い分け、ループの中の ? 演算子、飛ばした行も数える行番号、enumerate、early return、continue と添字の更新。">
 <title>構文解析</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/parsing">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>構文解析</h2>
 
   <p class="lede">
-    「構文解析」を扱った13問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「構文解析」を扱った16問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/write/2026-10-23">Rust / WRITE · 2026-10-23</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">予算を超えた行の番号</span> <span class="past-concepts">break と continue と return の使い分け, ループの中の ? 演算子, 飛ばした行も数える行番号, enumerate, early return</span></li>
+    <li><a href="/rust/debug/2026-10-23">Rust / DEBUG · 2026-10-23</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">ハイフンで止まる読み取り</span> <span class="past-concepts">continue と添字の更新, while ループの無限ループ, ハイフン区切りの数字, continue skips increment, infinite loop</span></li>
+    <li><a href="/haskell/write/2026-10-23">Haskell / WRITE · 2026-10-23</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">バージョンを比べるキー</span> <span class="past-concepts">導出された Ord, 構築子の宣言順, Maybe の順序, リストとタプルの辞書式比較, バージョン番号の比較, semantic versioning, derived Ord</span></li>
     <li><a href="/haskell/debug/2026-10-22">Haskell / DEBUG · 2026-10-22</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">2桁の回数が読めない展開</span> <span class="past-concepts">ランレングス圧縮の展開, 複数桁の数の読み取り, span, digitToInt, run-length decoding, multi-digit count</span></li>
     <li><a href="/haskell/write/2026-10-21">Haskell / WRITE · 2026-10-21</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">長さ付きメッセージの区切り</span> <span class="past-concepts">長さプレフィックス, メッセージの区切り, splitAt, TCPのバイト列, length-prefixed framing, message framing, byte stream</span></li>
     <li><a href="/haskell/read/2026-10-21">Haskell / READ · 2026-10-21</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">改行で区切るメッセージ</span> <span class="past-concepts">メッセージの区切り, TCPのストリーム, 改行区切り, mapAccumL, break, message framing, newline delimited, stream reassembly</span></li>

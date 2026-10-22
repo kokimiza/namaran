@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="1.10.0 や 2.0.0-rc のようなバージョン文字列を比べる関数を、比較のキーになる型を作って導出された Ord に任せて書きます。構築子の宣言順と Maybe の順序がどう効くかを扱います。2026-10-23のHaskell WRITEです。">
+<title>バージョンを比べるキー</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-10-23">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-23" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-10-23",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-10-23",
+      "datePublished": "2026-10-23",
+      "dateModified": "2026-10-23",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "バージョンを比べるキー" },
+      "keywords": "deriving, algebraic-data-type, comparison, maybe, tuple, parsing",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "1.10.0 や 2.0.0-rc のようなバージョン文字列を比べる関数を、比較のキーになる型を作って導出された Ord に任せて書きます。構築子の宣言順と Maybe の順序がどう効くかを扱います。2026-10-23のHaskell WRITEです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-23">C23</a>
+  <a href="/cpp/write/2026-10-23">C++26</a>
+  <a href="/rust/write/2026-10-23">Rust 2024</a>
+  <a href="/haskell/write/2026-10-23" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/write/2026-10-23">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-23">READ</a>
+  <a href="/haskell/write/2026-10-23" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-10-23">DEBUG</a>
+</nav>
+
+<main
+  data-topic="バージョンを比べるキー"
+  data-tags="deriving algebraic-data-type comparison maybe tuple parsing"
+  data-concepts="導出された Ord, 構築子の宣言順, Maybe の順序, リストとタプルの辞書式比較, バージョン番号の比較, semantic versioning, derived Ord"
+  data-level="whale"
+>
+  <h2>2026-10-23</h2>
+  <div class="code-frame">
+    <p class="code-filename">Version.hs</p>
+    <pre class="code"><code><span class="fn">compareVersion</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">Ordering</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    バージョンを表す2つの文字列を比べ、1つ目が古ければ <code>LT</code>、同じなら <code>EQ</code>、新しければ <code>GT</code> を返す <code>compareVersion</code> を書いてください。バージョンは <code>.</code> で区切った3つの0以上の整数で、その後ろに <code>-</code> と英小文字のラベルが付くことがあります(<code>2.0.0-rc</code>)。比べ方は次のとおりです。まず3つの整数を左から数として比べます。整数がすべて等しければ、ラベルの付いたもの(正式版の前の版)はラベルのないもの(正式版)より古く、ラベルどうしは文字列として辞書順に比べます。入力はこの形のものだけです。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>compareVersion "1.10.0" "1.9.0"</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>GT</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>compareVersion "2.0.0-rc" "2.0.0"</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>LT</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>compareVersion "2.0.0-alpha" "2.0.0-beta"</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>LT</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">data</span> <span class="ty">Stage</span> = <span class="ty">Pre</span> <span class="ty">String</span> | <span class="ty">Final</span>
+  <span class="kw">deriving</span> (<span class="ty">Eq</span>, <span class="ty">Ord</span>)
+
+<span class="fn">compareVersion</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">Ordering</span>
+<span class="fn">compareVersion</span> a b = compare (key a) (key b)
+
+<span class="fn">key</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> ([<span class="ty">Int</span>], <span class="ty">Stage</span>)
+<span class="fn">key</span> s = (map read (splitDots core), stage)
+ <span class="kw">where</span>
+  (core, rest) = break (== <span class="st">'-'</span>) s
+  stage = <span class="kw">if</span> null rest <span class="kw">then</span> <span class="ty">Final</span> <span class="kw">else</span> <span class="ty">Pre</span> (drop <span class="nu">1</span> rest)
+
+<span class="fn">splitDots</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> [<span class="ty">String</span>]
+<span class="fn">splitDots</span> s = <span class="kw">case</span> break (== <span class="st">'.'</span>) s <span class="kw">of</span>
+  (w, []) <span class="op">-&gt;</span> [w]
+  (w, _ : rest) <span class="op">-&gt;</span> w : splitDots rest
+</code></pre>
+      <p>
+        比べ方を自分で書く代わりに、比べ方がそのまま導出された <code>Ord</code> になる値(キー)に文字列を変換し、<code>compare</code> に任せます。ただし、すぐに思いつくキーの形には、順序を誤るものがいくつかあります。文字列のまま比べると、<code>"1.10.0"</code> と <code>"1.9.0"</code> は3文字目の <code>'1'</code> と <code>'9'</code> で決まり、<code>LT</code> になります。そこで数字の部分を <code>[Int]</code> にします。リストの <code>Ord</code> は先頭から1要素ずつ比べる辞書式なので、<code>[1,10,0]</code> と <code>[1,9,0]</code> は2番目の要素で <code>GT</code> に決まります。
+      </p>
+      <p>
+        次はラベルです。ラベルがあるかないかは <code>Maybe String</code> で表したくなりますが、導出された <code>Ord</code> では <code>Nothing</code> が <code>Just</code> のどの値よりも小さいので、正式版のほうが古いことになり、入力例 2 が <code>GT</code> になります。<code>Maybe</code> の <code>Ord</code> も、<code>data Maybe a = Nothing | Just a</code> と宣言された構築子の順で決まっているからです。そこで、同じ規則を逆向きに使う型を作ります。<code>Stage</code> は <code>Pre</code> を先に宣言したので、どの <code>Pre</code> も <code>Final</code> より小さくなります。<code>Pre</code> どうしは、導出された <code>Ord</code> が中の <code>String</code> を比べるので、<code>"alpha" &lt; "beta"</code> の辞書順がそのまま使われます。<code>data Stage = Final | Pre String</code> と書くと、入力例 2 がまた逆になります。
+      </p>
+      <p>
+        最後に、2つをタプル <code>([Int], Stage)</code> にまとめます。タプルの <code>Ord</code> も左の要素から比べるので、整数が等しいときに限ってラベルが比べられ、問題の比べ方の順と一致します。掲載したのは参考実装で、唯一の正解ではありません。<code>Ord</code> を自分で書くインスタンスにしても同じ順序は作れますが、構築子とフィールドの並べ方で順序を決めておけば、比べる処理を1行も書かずに済みます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

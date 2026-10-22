@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="支出を1行ずつ足し、予算を超えた行の番号を返す関数を書きます。コメント行は continue で飛ばし、終わりの印で break し、読めない行では ? で関数ごと抜けます。2026-10-23のRust WRITEです。">
+<title>予算を超えた行の番号</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-10-23">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-23" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-10-23",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-10-23",
+      "datePublished": "2026-10-23",
+      "dateModified": "2026-10-23",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "予算を超えた行の番号" },
+      "keywords": "continue-break, loop, question-mark-operator, iterator, parsing",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "支出を1行ずつ足し、予算を超えた行の番号を返す関数を書きます。コメント行は continue で飛ばし、終わりの印で break し、読めない行では ? で関数ごと抜けます。2026-10-23のRust WRITEです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-23">C23</a>
+  <a href="/cpp/write/2026-10-23">C++26</a>
+  <a href="/rust/write/2026-10-23" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-10-23">Haskell 2010</a>
+  <a href="/zig/write/2026-10-23">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-23">READ</a>
+  <a href="/rust/write/2026-10-23" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-10-23">DEBUG</a>
+</nav>
+
+<main
+  data-topic="予算を超えた行の番号"
+  data-tags="continue-break loop question-mark-operator iterator parsing"
+  data-concepts="break と continue と return の使い分け, ループの中の ? 演算子, 飛ばした行も数える行番号, enumerate, early return"
+  data-level="bison"
+>
+  <h2>2026-10-23</h2>
+  <div class="code-frame">
+    <p class="code-filename">over_budget.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">over_budget</span>(lines: &amp;[&amp;<span class="ty">str</span>], budget: <span class="ty">i64</span>) -&gt; <span class="ty">Option</span>&lt;<span class="ty">usize</span>&gt; {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>lines</code> は家計簿の行で、1行に支出の金額が1つ書いてあります。上の行から金額を足していき、合計が <code>budget</code> を初めて超えた行の番号(先頭の行を1とする)を <code>Some</code> で返す <code>over_budget</code> を書いてください。空の行と <code>#</code> で始まる行は金額として読まずに飛ばしますが、行の番号には数えます。<code>"__END__"</code> の行があればそこで読むのをやめ、それより後ろの行は見ません。最後まで(または <code>"__END__"</code> まで)読んでも予算を超えなかったとき、数として読めない行に出会ったときは <code>None</code> を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>over_budget(&amp;["# lunch", "800", "", "1200", "300"], 1500)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>Some(4)</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>over_budget(&amp;["800", "__END__", "1200"], 1500)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>None</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>over_budget(&amp;["800", "1,200", "300"], 1500)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>None</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">over_budget</span>(lines: &amp;[&amp;<span class="ty">str</span>], budget: <span class="ty">i64</span>) -&gt; <span class="ty">Option</span>&lt;<span class="ty">usize</span>&gt; {
+    <span class="kw">let</span> <span class="kw">mut</span> total = <span class="nu">0</span>;
+    <span class="kw">for</span> (i, line) <span class="kw">in</span> lines.<span class="fn">iter</span>().<span class="fn">enumerate</span>() {
+        <span class="kw">if</span> *line == <span class="st">"__END__"</span> {
+            <span class="kw">break</span>;
+        }
+        <span class="kw">if</span> line.<span class="fn">is_empty</span>() || line.<span class="fn">starts_with</span>(<span class="st">'#'</span>) {
+            <span class="kw">continue</span>;
+        }
+        total += line.<span class="fn">parse</span>::&lt;<span class="ty">i64</span>&gt;().<span class="fn">ok</span>()?;
+        <span class="kw">if</span> total &gt; budget {
+            <span class="kw">return</span> <span class="fn">Some</span>(i + <span class="nu">1</span>);
+        }
+    }
+    <span class="ty">None</span>
+}
+</code></pre>
+      <p>
+        このループには、行の途中で処理を切り上げる書き方が4つあり、行き先がそれぞれ違います。<code>continue</code> はその行の残りを飛ばして次の行へ、<code>break</code> はループを抜けて後ろの <code>None</code> へ進みます。<code>return Some(i + 1)</code> と、読めない行での <code>?</code> は、ループだけでなく関数そのものから抜けます。<code>?</code> は <code>Option</code> が <code>None</code> ならその場で <code>None</code> を返すので、<code>"1,200"</code> の行では足し算に進まずに <code>None</code> が返ります。<code>"__END__"</code> での <code>break</code> と行き先が同じ <code>None</code> になるので、<code>break</code> を <code>return None</code> と書いても結果は変わりません。
+      </p>
+      <p>
+        行の番号を飛ばした行も含めて数えるには、<code>enumerate</code> を飛ばす判定より前に置きます。<code>continue</code> で飛ばしても <code>enumerate</code> はすでにその行の番号を払い出しているので、入力例 1 の <code>"1200"</code> は4行目のままです。イテレータで <code>.filter(...)</code> してから <code>.enumerate()</code> すると、コメントと空行が数から抜けて <code>Some(2)</code> を返してしまいます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>take_while</code> で <code>"__END__"</code> の手前まで切り、<code>enumerate</code>、<code>filter</code>、<code>scan</code> と組み合わせても書けますが、読めない行で止める処理まで入れると、<code>for</code> と <code>break</code>・<code>continue</code> で書いたほうが行き先を追いやすくなります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

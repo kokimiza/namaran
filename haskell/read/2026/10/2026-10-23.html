@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="High | Medium | Low と並べた優先度の型に deriving (Ord) を付けたとき、maximum がどの構築子を返すかを、導出された比較の順序から読みます。2026-10-23のHaskell READです。">
+<title>いちばん大きい優先度</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-10-23">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-23" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-10-23",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-10-23",
+      "datePublished": "2026-10-23",
+      "dateModified": "2026-10-23",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "いちばん大きい優先度" },
+      "keywords": "deriving, algebraic-data-type, comparison, typeclass",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "High | Medium | Low と並べた優先度の型に deriving (Ord) を付けたとき、maximum がどの構築子を返すかを、導出された比較の順序から読みます。2026-10-23のHaskell READです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-23">C23</a>
+  <a href="/cpp/read/2026-10-23">C++26</a>
+  <a href="/rust/read/2026-10-23">Rust 2024</a>
+  <a href="/haskell/read/2026-10-23" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/read/2026-10-23">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-23" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-10-23">WRITE</a>
+  <a href="/haskell/debug/2026-10-23">DEBUG</a>
+</nav>
+
+<main
+  data-topic="いちばん大きい優先度"
+  data-tags="deriving algebraic-data-type comparison typeclass"
+  data-concepts="導出された Ord, 構築子の宣言順, deriving Ord, derived instance, constructor order, maximum"
+  data-level="hedgehog"
+>
+  <h2>2026-10-23</h2>
+  <div class="code-frame">
+    <p class="code-filename">Priority.hs</p>
+    <pre class="code"><code><span class="kw">data</span> <span class="ty">Priority</span> = <span class="ty">High</span> | <span class="ty">Medium</span> | <span class="ty">Low</span>
+  <span class="kw">deriving</span> (<span class="ty">Eq</span>, <span class="ty">Ord</span>, <span class="ty">Show</span>)
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (maximum [<span class="ty">Medium</span>, <span class="ty">High</span>, <span class="ty">Low</span>])
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>Low</code> です。
+      </p>
+      <p>
+        導出された <code>Ord</code> は、構築子を <code>data</code> 宣言に書いた順に小さいほうから並べます。名前の意味は見ないので、<code>Priority</code> では先に書いた <code>High</code> がいちばん小さく、<code>High &lt; Medium &lt; Low</code> になります。<code>maximum</code> はこの順序でいちばん大きい値を返すので、リストの並びに関係なく <code>Low</code> を選びます。
+      </p>
+      <p>
+        優先度の高いものを選ぶつもりなら、<code>minimum</code> を使うか、宣言の順を <code>Low | Medium | High</code> に入れ替えます。<code>print</code> は導出された <code>Show</code> で構築子の名前をそのまま書くので、出力は <code>Low</code> の1行です。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

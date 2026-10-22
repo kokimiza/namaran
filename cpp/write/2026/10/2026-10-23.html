@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="負の重みの辺を含む有向グラフで、頂点0から各頂点への最短距離を std::optional で返す関数を書きます。届かない頂点を std::nullopt のまま残して辺を緩和します。2026-10-23のC++ WRITEです。">
+<title>負の辺がある最短距離</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-10-23">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-23" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-10-23",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-10-23",
+      "datePublished": "2026-10-23",
+      "dateModified": "2026-10-23",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "負の辺がある最短距離" },
+      "keywords": "shortest-path, graph, optional, structured-binding",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "負の重みの辺を含む有向グラフで、頂点0から各頂点への最短距離を std::optional で返す関数を書きます。届かない頂点を std::nullopt のまま残して辺を緩和します。2026-10-23のC++ WRITEです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-23">C23</a>
+  <a href="/cpp/write/2026-10-23" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-10-23">Rust 2024</a>
+  <a href="/haskell/write/2026-10-23">Haskell 2010</a>
+  <a href="/zig/write/2026-10-23">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-23">READ</a>
+  <a href="/cpp/write/2026-10-23" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-10-23">DEBUG</a>
+</nav>
+
+<main
+  data-topic="負の辺がある最短距離"
+  data-tags="shortest-path graph optional structured-binding"
+  data-concepts="ベルマン-フォード法, 辺の緩和, 負の重みの辺, 到達できない頂点, Bellman-Ford, edge relaxation, std::optional"
+  data-level="hedgehog"
+>
+  <h2>2026-10-23</h2>
+  <div class="code-frame">
+    <p class="code-filename">shortest.cpp</p>
+    <pre class="code"><code><span class="kw">struct</span> <span class="ty">Edge</span> {
+    <span class="ty">int</span> from, to, weight;
+};
+
+std::<span class="ty">vector</span>&lt;std::<span class="ty">optional</span>&lt;<span class="ty">int</span>&gt;&gt; <span class="fn">shortest</span>(<span class="ty">int</span> n, <span class="kw">const</span> std::<span class="ty">vector</span>&lt;<span class="ty">Edge</span>&gt;&amp; edges) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    頂点に <code>0</code> から <code>n - 1</code> の番号が付いたグラフがあり、<code>edges</code> の各要素は頂点 <code>from</code> から <code>to</code> へ一方向にだけ進める辺で、<code>weight</code> はその辺を通るときにかかる重みです。重みは負のこともあります。辺をたどって頂点 <code>0</code> から各頂点へ行く道のうち、重みの合計が最小のものの合計を、頂点の番号順に並べて返す <code>shortest</code> を書いてください。頂点 <code>0</code> 自身は <code>0</code> で、たどり着けない頂点は <code>std::nullopt</code> にします。一周して元の頂点に戻る道で重みの合計が負になるものは、入力にありません。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>shortest(4, {{2, 3, 1}, {1, 2, -3}, {0, 1, 2}, {0, 2, 5}})</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>{0, 2, -1, 0}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>shortest(3, {{0, 1, 4}, {2, 1, -9}})</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>{0, 4, std::nullopt}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>shortest(1, {})</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>{0}</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code>std::<span class="ty">vector</span>&lt;std::<span class="ty">optional</span>&lt;<span class="ty">int</span>&gt;&gt; <span class="fn">shortest</span>(<span class="ty">int</span> n, <span class="kw">const</span> std::<span class="ty">vector</span>&lt;<span class="ty">Edge</span>&gt;&amp; edges) {
+    std::<span class="ty">vector</span>&lt;std::<span class="ty">optional</span>&lt;<span class="ty">int</span>&gt;&gt; <span class="fn">dist</span>(n);
+    dist[<span class="nu">0</span>] = <span class="nu">0</span>;
+    <span class="kw">for</span> (<span class="ty">int</span> round = <span class="nu">1</span>; round &lt; n; ++round) {
+        <span class="kw">for</span> (<span class="kw">const</span> <span class="kw">auto</span>&amp; [from, to, weight] : edges) {
+            <span class="kw">if</span> (dist[from] &amp;&amp; (!dist[to] || *dist[from] + weight &lt; *dist[to])) {
+                dist[to] = *dist[from] + weight;
+            }
+        }
+    }
+    <span class="kw">return</span> dist;
+}
+</code></pre>
+      <p>
+        参考実装は Bellman-Ford 法です。辺 <code>from</code>→<code>to</code> について、<code>from</code> までの見積もりにその辺の重みを足したほうが <code>to</code> の見積もりより小さければ書き換えます。この操作を辺の緩和(relaxation)といいます。最短の道は同じ頂点を2度通らないので、使う辺は多くても <code>n - 1</code> 本です。すべての辺を緩和する周回を1回すると、最短の道の辺が少なくとも1本ぶん先まで正しくなるので、<code>n - 1</code> 周で全頂点の距離が決まります。
+      </p>
+      <p>
+        重みが負でもよいのが、この方法を使う理由です。入力例 1 では頂点2へ直接行く辺の重みは5ですが、頂点1を経由すると 2 + (-3) = -1 で、そちらが短くなります。近い頂点から順に距離を確定させるダイクストラ法(Dijkstra's algorithm)は、確定した距離が後から短くならないことを前提にしています。負の重みの辺があるとこの前提が崩れるので、どの頂点の見積もりも最後の周まで書き換えられる Bellman-Ford 法を使います。
+      </p>
+      <p>
+        まだ届いていない頂点は <code>std::nullopt</code> のままにし、そこから出る辺は緩和しません。入力例 2 の頂点2がそうで、<code>dist[from]</code> が空の辺 2→1 は <code>if</code> の最初の条件で飛ばされます。<code>INT_MAX</code> のような大きな数を「届かない」の代わりにすると、そこに負の重みを足した値が本物の距離のように見えたり、正の重みを足してオーバーフローしたりします。<code>std::optional</code> なら、届かないことが値の範囲とは別に表せます。掲載したのは参考実装で、唯一の正解ではありません。1周の中で書き換えが1つも起きなければ、その時点でループを抜けてもかまいません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

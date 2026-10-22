@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="負の重みの辺を含むグラフで、辺を並べた順に距離を緩和していく Bellman-Ford 法のループが、1周ごとにどの距離を確定させるかを読みます。2026-10-23のC++ READです。">
+<title>1周目で届く距離</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-10-23">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-23" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-10-23",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-10-23",
+      "datePublished": "2026-10-23",
+      "dateModified": "2026-10-23",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "1周目で届く距離" },
+      "keywords": "shortest-path, graph, loop, structured-binding",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "負の重みの辺を含むグラフで、辺を並べた順に距離を緩和していく Bellman-Ford 法のループが、1周ごとにどの距離を確定させるかを読みます。2026-10-23のC++ READです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-23">C23</a>
+  <a href="/cpp/read/2026-10-23" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-10-23">Rust 2024</a>
+  <a href="/haskell/read/2026-10-23">Haskell 2010</a>
+  <a href="/zig/read/2026-10-23">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-23" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-10-23">WRITE</a>
+  <a href="/cpp/debug/2026-10-23">DEBUG</a>
+</nav>
+
+<main
+  data-topic="1周目で届く距離"
+  data-tags="shortest-path graph loop structured-binding"
+  data-concepts="ベルマン-フォード法, 辺の緩和, 負の重みの辺, 辺の順序と収束, Bellman-Ford, edge relaxation, negative edge weight"
+  data-level="bison"
+>
+  <h2>2026-10-23</h2>
+  <div class="code-frame">
+    <p class="code-filename">relax_rounds.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;array&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;print&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="kw">const</span> std::<span class="ty">vector</span>&lt;std::<span class="ty">array</span>&lt;<span class="ty">int</span>, <span class="nu">3</span>&gt;&gt; edges{{<span class="nu">0</span>, <span class="nu">1</span>, <span class="nu">2</span>}, {<span class="nu">2</span>, <span class="nu">3</span>, <span class="nu">1</span>}, {<span class="nu">1</span>, <span class="nu">2</span>, -<span class="nu">3</span>}, {<span class="nu">0</span>, <span class="nu">2</span>, <span class="nu">5</span>}};
+    <span class="kw">const</span> <span class="ty">int</span> inf = <span class="nu">1'000'000</span>;
+    std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt; dist{<span class="nu">0</span>, inf, inf, inf};
+    <span class="kw">for</span> (<span class="ty">int</span> round = <span class="nu">0</span>; round &lt; <span class="nu">3</span>; ++round) {
+        <span class="kw">for</span> (<span class="kw">const</span> <span class="kw">auto</span>&amp; [from, to, w] : edges) {
+            <span class="kw">if</span> (dist[from] != inf &amp;&amp; dist[from] + w &lt; dist[to]) {
+                dist[to] = dist[from] + w;
+            }
+        }
+        std::<span class="fn">println</span>(<span class="st">"{} {}"</span>, dist[<span class="nu">2</span>], dist[<span class="nu">3</span>]);
+    }
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>-1 1000000</code>、<code>-1 0</code>、<code>-1 0</code> の3行です。
+      </p>
+      <p>
+        <code>edges</code> の各要素は「始点、終点、重み」の辺で、<code>dist</code> は頂点0からの距離の見積もりです。内側のループは辺を書いた順に1本ずつ見て、始点まで来てその辺を通るほうが短ければ、終点の見積もりをその場で書き換えます。この操作を辺の緩和(relaxation)といい、すべての辺を緩和する周回を頂点の数より1少ない回数だけ繰り返す方法を Bellman-Ford 法といいます。負の重みの辺があっても、負の閉路(一周して元の頂点に戻る経路のうち、重みの合計が負のもの)がなければ最短距離が求まります。
+      </p>
+      <p>
+        1周目は、まず辺 0→1 で <code>dist[1]</code> が2になります。次の辺 2→3 は、この時点で <code>dist[2]</code> がまだ <code>inf</code> なので飛ばされます。3本目の辺 1→2 は、直前に書き換わったばかりの <code>dist[1]</code> を同じ周のうちに使い、<code>dist[2]</code> を 2 + (-3) = -1 にします。最後の辺 0→2 の5は -1 より大きいので、<code>dist[2]</code> は一度も5になりません。周の終わりに <code>dist[3]</code> は <code>inf</code> のままで、1行目は <code>-1 1000000</code> です。
+      </p>
+      <p>
+        頂点3の見積もりが入るのは2周目で、辺 2→3 が -1 + 1 = 0 にします。3周目に書き換わる見積もりはありません。周の前の値だけを使って周ごとに一斉に更新すると考えると、1周目は <code>5 1000000</code>、2周目は <code>-1 6</code> になり、3周目でようやく <code>-1 0</code> に追いつきます。このコードは書き換えた値をその周の残りの辺がすぐ使うので、辺の並びが経路の順に合っている部分は1周で何段も先へ進み、合っていない 2→3 のところで1周待たされます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

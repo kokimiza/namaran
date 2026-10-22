@@ -338,6 +338,7 @@ reentrancy	再入可能性
 reference	参照
 reference-counting	参照カウント
 referential-transparency	参照透過性
+reflection	リフレクション
 regular-expression	正規表現
 reservoir-sampling	リザーバサンプリング
 resource-management	資源の後始末

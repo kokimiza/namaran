@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「整数オーバーフロー」を扱ったNamaranのコーディングドリル18問。素因数分解、試し割り、整数オーバーフロー、掛け算の桁あふれ、prime factorization、trial division。">
+<meta name="description" content="「整数オーバーフロー」を扱ったNamaranのコーディングドリル20問。@TypeOf、@typeInfo、@Int、型を返す関数、幅を広げてから掛ける、widening multiplication。">
 <title>整数オーバーフロー</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/integer-overflow">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,12 @@
   <h2>整数オーバーフロー</h2>
 
   <p class="lede">
-    「整数オーバーフロー」を扱った18問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「整数オーバーフロー」を扱った20問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/write/2026-10-23">Zig / WRITE · 2026-10-23</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">2倍の幅で掛ける</span> <span class="past-concepts">@TypeOf, @typeInfo, @Int, 型を返す関数, 幅を広げてから掛ける, widening multiplication, type reflection, anytype</span></li>
+    <li><a href="/c/debug/2026-10-23">C / DEBUG · 2026-10-23</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">unsignedに移す前の反転</span> <span class="past-concepts">INT_MIN の符号反転, 符号付き整数のオーバーフロー, 条件演算子の型, 整数から文字列, negating INT_MIN, signed overflow, itoa</span></li>
     <li><a href="/rust/debug/2026-10-20">Rust / DEBUG · 2026-10-20</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">u32の上限近くの素数</span> <span class="past-concepts">素因数分解, 試し割り, 整数オーバーフロー, 掛け算の桁あふれ, prime factorization, trial division, integer overflow panic</span></li>
     <li><a href="/rust/write/2026-10-15">Rust / WRITE · 2026-10-15</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">最適化に消されない反復</span> <span class="past-concepts">std::hint::black_box, ベンチマーク, 最適化による削除, wrapping_add, dead code elimination, benchmark</span></li>
     <li><a href="/c/write/2026-10-10">C / WRITE · 2026-10-10</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">整数平方根の事後条件</span> <span class="past-concepts">事後条件, 整数平方根, 表明する式のオーバーフロー, 符号なし整数の巻き戻り, postcondition, integer square root, unsigned wraparound</span></li>

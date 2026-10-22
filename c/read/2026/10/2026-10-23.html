@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="'0' + n % 10 で整数を1桁ずつ文字に直して配列に詰めるループが、どの順で文字を並べるかを読みます。2026-10-23のC READです。">
+<title>下の桁から詰める文字</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-10-23">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-23" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-10-23",
+      "url": "https://namaran.jocarium.productions/c/read/2026-10-23",
+      "datePublished": "2026-10-23",
+      "dateModified": "2026-10-23",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "下の桁から詰める文字" },
+      "keywords": "type-conversion, division, null-terminated-string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "'0' + n % 10 で整数を1桁ずつ文字に直して配列に詰めるループが、どの順で文字を並べるかを読みます。2026-10-23のC READです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-23" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-10-23">C++26</a>
+  <a href="/rust/read/2026-10-23">Rust 2024</a>
+  <a href="/haskell/read/2026-10-23">Haskell 2010</a>
+  <a href="/zig/read/2026-10-23">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-23" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-10-23">WRITE</a>
+  <a href="/c/debug/2026-10-23">DEBUG</a>
+</nav>
+
+<main
+  data-topic="下の桁から詰める文字"
+  data-tags="type-conversion division null-terminated-string"
+  data-concepts="数字の文字への変換, '0' + n, 剰余で桁を取り出す, digit to char, n % 10, 整数から文字列"
+  data-level="hedgehog"
+>
+  <h2>2026-10-23</h2>
+  <div class="code-frame">
+    <p class="code-filename">digits.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="ty">char</span> buf[<span class="nu">8</span>];
+    <span class="ty">int</span> len = <span class="nu">0</span>;
+    <span class="kw">for</span> (<span class="ty">int</span> n = <span class="nu">120</span>; n &gt; <span class="nu">0</span>; n /= <span class="nu">10</span>) {
+        buf[len++] = (<span class="ty">char</span>)(<span class="st">'0'</span> + n % <span class="nu">10</span>);
+    }
+    buf[len] = <span class="st">'\0'</span>;
+    <span class="fn">printf</span>(<span class="st">"%s\n"</span>, buf);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>021</code> です。
+      </p>
+      <p>
+        <code>n % 10</code> は <code>n</code> の一の位なので、ループは数の下の桁から順に取り出します。<code>n</code> は120、12、1と進み、そのたびに一の位の0、2、1が <code>buf[0]</code>、<code>buf[1]</code>、<code>buf[2]</code> へ入ります。<code>n</code> が0になった時点でループを抜けるので、詰まった文字は3つです。
+      </p>
+      <p>
+        <code>'0' + n % 10</code> が数字の文字になるのは、C の規格が <code>'0'</code> から <code>'9'</code> までの文字コードを連続して並べるよう定めているからです。0から9の値を <code>'0'</code> に足せば、どの文字コードでもその値の数字になります。このプログラムは詰めた文字を逆順に並べ直していないので、<code>buf</code> は下の桁から読んだ <code>"021"</code> のままです。先頭の <code>0</code> も文字の1つなので、<code>%s</code> はそれも省かずに出力します。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
