@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="並び順を表すゼロサイズ型をフィールドに持つ整列済みの列に、順序を保ったまま要素を挿入するメソッドを書くドリルです。partition_point で挿入位置を二分探索します。2026-10-24のRust WRITE。">
+<title>大きさ0の並び順を持つ列</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-10-24">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-24" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-10-24",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-10-24",
+      "datePublished": "2026-10-24",
+      "dateModified": "2026-10-24",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "大きさ0の並び順を持つ列" },
+      "keywords": "zero-sized-type, trait, static-dispatch, binary-search",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "並び順を表すゼロサイズ型をフィールドに持つ整列済みの列に、順序を保ったまま要素を挿入するメソッドを書くドリルです。partition_point で挿入位置を二分探索します。2026-10-24のRust WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-24">C23</a>
+  <a href="/cpp/write/2026-10-24">C++26</a>
+  <a href="/rust/write/2026-10-24" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-10-24">Haskell 2010</a>
+  <a href="/zig/write/2026-10-24">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-24">READ</a>
+  <a href="/rust/write/2026-10-24" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-10-24">DEBUG</a>
+</nav>
+
+<main
+  data-topic="大きさ0の並び順を持つ列"
+  data-tags="zero-sized-type trait static-dispatch binary-search"
+  data-concepts="ゼロサイズ型, ユニット構造体, 並び順をトレイトで渡す, partition_point, 挿入位置の二分探索, unit struct, zero-sized type, sorted insert"
+  data-level="peacock"
+>
+  <h2>2026-10-24</h2>
+  <div class="code-frame">
+    <p class="code-filename">sorted.rs</p>
+    <pre class="code"><code><span class="kw">trait</span> <span class="ty">Order</span> {
+    <span class="kw">fn</span> <span class="fn">before</span>(&amp;<span class="kw">self</span>, a: <span class="ty">i32</span>, b: <span class="ty">i32</span>) -&gt; <span class="ty">bool</span>;
+}
+
+<span class="kw">struct</span> <span class="ty">Desc</span>;
+
+<span class="kw">impl</span> <span class="ty">Order</span> <span class="kw">for</span> <span class="ty">Desc</span> {
+    <span class="kw">fn</span> <span class="fn">before</span>(&amp;<span class="kw">self</span>, a: <span class="ty">i32</span>, b: <span class="ty">i32</span>) -&gt; <span class="ty">bool</span> {
+        a &gt; b
+    }
+}
+
+<span class="kw">struct</span> <span class="ty">Sorted</span>&lt;<span class="ty">O</span>&gt; {
+    items: <span class="ty">Vec</span>&lt;<span class="ty">i32</span>&gt;,
+    order: <span class="ty">O</span>,
+}
+
+<span class="kw">impl</span>&lt;<span class="ty">O</span>: <span class="ty">Order</span>&gt; <span class="ty">Sorted</span>&lt;<span class="ty">O</span>&gt; {
+    <span class="kw">fn</span> <span class="fn">insert</span>(&amp;<span class="kw">mut</span> <span class="kw">self</span>, x: <span class="ty">i32</span>) {
+    }
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>Sorted&lt;O&gt;</code> は、<code>items</code> を並び順 <code>order</code> に従って常に整列させておく列です。<code>a</code> を <code>b</code> より前に置くべきときに <code>order.before(a, b)</code> が <code>true</code> を返します。<code>items</code> が整列済みであるとして、<code>x</code> を順序が崩れない位置に挿入する <code>insert</code> を書いてください。<code>items</code> が空なら <code>x</code> だけの列になります。<code>items</code> の長さを <code>n</code> として、挿入位置は O(log <code>n</code>) 回の比較で見つけます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>let mut s = Sorted { items: vec![5, 3, 1], order: Desc };
+s.insert(4);
+s.items</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>[5, 4, 3, 1]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>let mut s = Sorted { items: vec![5, 4, 3, 1], order: Desc };
+s.insert(3);
+s.items</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>[5, 4, 3, 3, 1]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>let mut s = Sorted { items: Vec::new(), order: Desc };
+s.insert(7);
+s.items</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>[7]</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">impl</span>&lt;<span class="ty">O</span>: <span class="ty">Order</span>&gt; <span class="ty">Sorted</span>&lt;<span class="ty">O</span>&gt; {
+    <span class="kw">fn</span> <span class="fn">insert</span>(&amp;<span class="kw">mut</span> <span class="kw">self</span>, x: <span class="ty">i32</span>) {
+        <span class="kw">let</span> i = <span class="kw">self</span>.items.<span class="fn">partition_point</span>(|&amp;y| !<span class="kw">self</span>.order.<span class="fn">before</span>(x, y));
+        <span class="kw">self</span>.items.<span class="fn">insert</span>(i, x);
+    }
+}
+</code></pre>
+      <p>
+        <code>partition_point</code> は、述語が前半で <code>true</code>、後半で <code>false</code> に分かれているスライスについて、最初に <code>false</code> になる位置を二分探索で返します。整列済みの <code>items</code> では、<code>!before(x, y)</code> を満たす <code>y</code>(<code>x</code> を前に置かなくてよい要素)が先頭側にまとまり、<code>x</code> を前に置くべき要素が後ろ側にまとまります。境目が <code>x</code> を入れる位置で、<code>x</code> と等しい要素の直後にあたります。全要素が前半に入れば末尾に、<code>items</code> が空なら位置0に入ります。
+      </p>
+      <p>
+        <code>Desc</code> はフィールドを持たないユニット構造体で、大きさ0の型です。<code>order</code> フィールドとして持たせても <code>Sorted&lt;Desc&gt;</code> は <code>Vec&lt;i32&gt;</code> と同じ大きさのままで、並び順は値ではなく型 <code>O</code> として渡ります。<code>self.order.before</code> の呼び出し先はコンパイル時に決まり、<code>Box&lt;dyn Fn&gt;</code> で比較関数を持たせた場合と違い、関数の番地を持つことも、それを通して呼ぶこともありません。クロージャが借りるのは <code>self.order</code> と <code>x</code> だけで、<code>partition_point</code> が返った時点でその借用は終わるので、続く <code>self.items.insert</code> で <code>items</code> を可変で借りられます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>binary_search_by</code> で位置を探す書き方もありますが、等しい要素があるとそのどれかの位置を返すので、<code>Ok</code> と <code>Err</code> の両方から位置を取り出す必要があります。先頭から順に比べる書き方は O(<code>n</code>) 回の比較になり、条件を満たしません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「スライス」を扱ったNamaranのコーディングドリル13問。@typeInfo、構造体のフィールドの走査、inline for、型の等値比較、[]const u8、メモリリーク。">
+<meta name="description" content="「スライス」を扱ったNamaranのコーディングドリル14問。inline else、@sizeOf、スライスの大きさ、個別の腕を足す、slice length、tagged union。">
 <title>スライス</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/slice">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>スライス</h2>
 
   <p class="lede">
-    「スライス」を扱った13問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「スライス」を扱った14問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/debug/2026-10-24">Zig / DEBUG · 2026-10-24</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">文字列も@sizeOfで測る</span> <span class="past-concepts">inline else, @sizeOf, スライスの大きさ, 個別の腕を足す, slice length, tagged union, switch prong</span></li>
     <li><a href="/zig/debug/2026-10-23">Zig / DEBUG · 2026-10-23</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">constの付いた型は別の型</span> <span class="past-concepts">@typeInfo, 構造体のフィールドの走査, inline for, 型の等値比較, []const u8, メモリリーク, type reflection, memory leak</span></li>
     <li><a href="/rust/read/2026-10-22">Rust / READ · 2026-10-22</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">先に当たった腕が勝つ</span> <span class="past-concepts">スライスパターン, matchの腕の順序, 残りのパターン.., slice pattern, match arm order, rest pattern</span></li>
     <li><a href="/rust/write/2026-10-16">Rust / WRITE · 2026-10-16</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">スライスの末尾n要素</span> <span class="past-concepts">スライス, 部分スライス, saturating_sub, 末尾の要素, ライフタイム省略, subslice, slice length, saturating subtraction</span></li>

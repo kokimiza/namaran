@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="2^53+1 を double に入れたときの丸めと、long long と double を比べるときの型の変換を追うドリルです。2026-10-24のC READ。">
+<title>2^53+1の往復</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-10-24">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-24" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-10-24",
+      "url": "https://namaran.jocarium.productions/c/read/2026-10-24",
+      "datePublished": "2026-10-24",
+      "dateModified": "2026-10-24",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "2^53+1の往復" },
+      "keywords": "floating-point, implicit-conversion, rounding, comparison",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "2^53+1 を double に入れたときの丸めと、long long と double を比べるときの型の変換を追うドリルです。2026-10-24のC READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-24" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-10-24">C++26</a>
+  <a href="/rust/read/2026-10-24">Rust 2024</a>
+  <a href="/haskell/read/2026-10-24">Haskell 2010</a>
+  <a href="/zig/read/2026-10-24">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-24" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-10-24">WRITE</a>
+  <a href="/c/debug/2026-10-24">DEBUG</a>
+</nav>
+
+<main
+  data-topic="2^53+1の往復"
+  data-tags="floating-point implicit-conversion rounding comparison"
+  data-concepts="2^53, 倍精度で表せる整数, 通常の算術型変換, 最近接偶数丸め, usual arithmetic conversions, round half to even, double precision integer"
+  data-level="bison"
+>
+  <h2>2026-10-24</h2>
+  <div class="code-frame">
+    <p class="code-filename">round_trip.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="ty">long</span> <span class="ty">long</span> n = (<span class="nu">1LL</span> &lt;&lt; <span class="nu">53</span>) + <span class="nu">1</span>;
+    <span class="ty">double</span> d = (<span class="ty">double</span>)n;
+    <span class="fn">printf</span>(<span class="st">"%d %lld\n"</span>, n == d, (<span class="ty">long</span> <span class="ty">long</span>)d - n);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>1 -1</code> です。
+      </p>
+      <p>
+        <code>double</code> を IEEE 754 の倍精度(binary64)とすると<sup class="fn-ref">1</sup>、仮数部は53ビットなので、2<sup>53</sup> 以上 2<sup>54</sup> 未満の範囲で表せる値は2おきになります。<code>n</code> の 2<sup>53</sup>+1 は、隣り合う2つの値 2<sup>53</sup> と 2<sup>53</sup>+2 のちょうど中間にあります。既定の丸めは最も近い値を選び、中間なら仮数の最下位ビットが0になる方を選ぶ最近接偶数丸め(round half to even)なので、<code>d</code> は 2<sup>53</sup> になります。
+      </p>
+      <p>
+        <code>n == d</code> は <code>long long</code> と <code>double</code> の比較で、通常の算術型変換により <code>n</code> のほうが <code>double</code> に変換されてから比べられます。この変換も <code>d</code> を作ったときと同じ丸めを通るので、左辺も 2<sup>53</sup> になり、比較は真で <code>1</code> です。<code>d</code> は精度を失ったのだから <code>n</code> とは等しくないはずだ、と読むと <code>0</code> と答えることになります。
+      </p>
+      <p>
+        <code>(long long)d - n</code> では向きが逆になり、<code>d</code> が整数に戻ってから <code>long long</code> の引き算が行われます。2<sup>53</sup> は <code>long long</code> で正確に表せるので、結果は 2<sup>53</sup> - (2<sup>53</sup>+1) の <code>-1</code> です。比較の <code>==</code> は失われた1を見つけられませんが、整数の側で計算すればその1が差として現れます。
+      </p>
+      <ol class="footnotes">
+        <li>C の規格は <code>double</code> の形式を決めておらず、表せない整数を浮動小数点数へ変換するときに上下どちらへ丸めるかも処理系定義です。付属書F(IEC 60559)に従う処理系は <code>__STDC_IEC_559__</code> を定義し、変換を現在の丸めモードで行います。丸めモードの既定は最近接偶数丸めです。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

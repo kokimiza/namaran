@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="小さい方から k 個を任意の順で返す関数のテストで、出力が正しいかを判定する関数を書くドリルです。順序と重複のある結果を、並べ替えて多重集合として比べます。2026-10-24のC++ WRITE。">
+<title>答えが一つでない結果の検査</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-10-24">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-24" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-10-24",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-10-24",
+      "datePublished": "2026-10-24",
+      "dateModified": "2026-10-24",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "答えが一つでない結果の検査" },
+      "keywords": "testing, sorting, span, selection-algorithm",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "小さい方から k 個を任意の順で返す関数のテストで、出力が正しいかを判定する関数を書くドリルです。順序と重複のある結果を、並べ替えて多重集合として比べます。2026-10-24のC++ WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-24">C23</a>
+  <a href="/cpp/write/2026-10-24" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-10-24">Rust 2024</a>
+  <a href="/haskell/write/2026-10-24">Haskell 2010</a>
+  <a href="/zig/write/2026-10-24">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-24">READ</a>
+  <a href="/cpp/write/2026-10-24" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-10-24">DEBUG</a>
+</nav>
+
+<main
+  data-topic="答えが一つでない結果の検査"
+  data-tags="testing sorting span selection-algorithm"
+  data-concepts="テストオラクル, 正解が一つに決まらない出力, 多重集合の比較, 小さい方から k 個, test oracle, multiset equality, k smallest elements"
+  data-level="whale"
+>
+  <h2>2026-10-24</h2>
+  <div class="code-frame">
+    <p class="code-filename">k_smallest_test.cpp</p>
+    <pre class="code"><code><span class="ty">bool</span> <span class="fn">is_k_smallest</span>(std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt; in, std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt; out, std::<span class="ty">size_t</span> k) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    テストしたい関数は、整数の列 <code>in</code> から小さい方の <code>k</code> 個を取り出して返します。<code>k</code> が要素数以上なら全要素を返し、返す順序は問いません。この関数が返した <code>out</code> が正しい結果の1つなら <code>true</code>、そうでなければ <code>false</code> を返す判定 <code>is_k_smallest</code> を書いてください。<code>in</code> には同じ値が何度現れてもよく、<code>in</code> が空なら正しい結果は空の列だけです。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>is_k_smallest({5, 1, 3, 1}, {1, 1}, 2)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>true</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>is_k_smallest({5, 1, 3, 1}, {3, 1}, 2)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>false</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>is_k_smallest({2, 1}, {1, 2}, 5)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>true</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="ty">bool</span> <span class="fn">is_k_smallest</span>(std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt; in, std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt; out, std::<span class="ty">size_t</span> k) {
+    k = std::<span class="fn">min</span>(k, in.<span class="fn">size</span>());
+    std::ranges::<span class="fn">sort</span>(in);
+    std::ranges::<span class="fn">sort</span>(out);
+    <span class="kw">return</span> std::ranges::<span class="fn">equal</span>(out, std::<span class="ty">span</span>(in).<span class="fn">first</span>(k));
+}
+</code></pre>
+      <p>
+        正しい <code>out</code> は1通りではありません。<code>{5, 1, 3, 1}</code> から2個なら <code>{1, 1}</code> でも並べ方は自由で、<code>std::partial_sort</code> のような1つの実装の出力と <code>==</code> で比べると、順序が違うだけの正しい結果を失敗にしてしまいます。取り出した値を順序のない集まりとして見れば、答えは1つに決まります。同じ値が何度現れてもよい集まりを多重集合(multiset)といい、<code>in</code> の小さい方の <code>k</code> 個がなす多重集合は、同じ値が並んでいても変わりません。
+      </p>
+      <p>
+        そこで両方を昇順に並べ替え、順序の自由を消してから比べます。並べ替えた <code>in</code> の先頭 <code>k</code> 個がその多重集合で、並べ替えた <code>out</code> がこれと要素ごとに一致すれば正しい結果です。<code>std::ranges::equal</code> は長さも比べるので、<code>out</code> の個数が足りない場合や多すぎる場合もここで <code>false</code> になります。<code>k</code> を <code>in.size()</code> で抑えておかないと、<code>first(k)</code> が範囲を超えて未定義動作になります。引数を値で受け取っているので、並べ替えても呼び出し側の列は変わりません。
+      </p>
+      <p>
+        もっともらしい書き方の多くは、条件のどれかを確かめ損ねます。<code>out</code> の各要素が <code>in</code> に含まれ、<code>k</code> 番目に小さい値以下であることだけを調べると、<code>{5, 1, 3, 2}</code> と <code>k = 2</code> に対する <code>{1, 1}</code> のように、1つしかない値を2度返した誤りを通します。個数をそろえて値ごとに <code>std::find</code> で探す書き方も、重複を数えないので同じ誤りを見逃します。掲載したのは参考実装で、唯一の正解ではありません。並べ替えずに値ごとの出現回数を数えて比べる書き方もあります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

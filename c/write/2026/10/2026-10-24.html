@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="int64_t の値が double へ誤差なく変換できるかを判定する関数を書くドリルです。53ビットの仮数部と指数の関係、往復変換での判定の落とし穴を扱います。2026-10-24のC WRITE。">
+<title>doubleに正確に入る整数</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-10-24">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-24" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-10-24",
+      "url": "https://namaran.jocarium.productions/c/write/2026-10-24",
+      "datePublished": "2026-10-24",
+      "dateModified": "2026-10-24",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "doubleに正確に入る整数" },
+      "keywords": "floating-point, implicit-conversion, twos-complement, bit-operation",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "int64_t の値が double へ誤差なく変換できるかを判定する関数を書くドリルです。53ビットの仮数部と指数の関係、往復変換での判定の落とし穴を扱います。2026-10-24のC WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-24" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-10-24">C++26</a>
+  <a href="/rust/write/2026-10-24">Rust 2024</a>
+  <a href="/haskell/write/2026-10-24">Haskell 2010</a>
+  <a href="/zig/write/2026-10-24">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-24">READ</a>
+  <a href="/c/write/2026-10-24" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-10-24">DEBUG</a>
+</nav>
+
+<main
+  data-topic="doubleに正確に入る整数"
+  data-tags="floating-point implicit-conversion twos-complement bit-operation"
+  data-concepts="2^53, 倍精度で表せる整数, 仮数部53ビット, INT64_MIN の符号反転, exactly representable integer, double precision, significand"
+  data-level="bison"
+>
+  <h2>2026-10-24</h2>
+  <div class="code-frame">
+    <p class="code-filename">exact_in_double.c</p>
+    <pre class="code"><code><span class="ty">bool</span> <span class="fn">exact_in_double</span>(<span class="ty">int64_t</span> n) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>int64_t</code> の値 <code>n</code> を <code>double</code> に変換したとき、丸めが起きずに同じ値のまま表せるなら <code>true</code>、そうでなければ <code>false</code> を返す <code>exact_in_double</code> を書いてください。<code>double</code> は IEEE 754 の倍精度(binary64)とします。<code>n</code> は <code>INT64_MIN</code> から <code>INT64_MAX</code> までのどの値でもよく、<code>0</code> は <code>true</code> です。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>exact_in_double(9007199254740993)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>false</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>exact_in_double(9007199254740994)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>true</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>exact_in_double(INT64_MIN)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>true</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="ty">bool</span> <span class="fn">exact_in_double</span>(<span class="ty">int64_t</span> n) {
+    <span class="ty">uint64_t</span> m = n &lt; <span class="nu">0</span> ? -(<span class="ty">uint64_t</span>)n : (<span class="ty">uint64_t</span>)n;
+    <span class="kw">while</span> (m &gt; (<span class="fn">UINT64_C</span>(<span class="nu">1</span>) &lt;&lt; <span class="nu">53</span>) &amp;&amp; m % <span class="nu">2</span> == <span class="nu">0</span>) {
+        m /= <span class="nu">2</span>;
+    }
+    <span class="kw">return</span> m &lt;= (<span class="fn">UINT64_C</span>(<span class="nu">1</span>) &lt;&lt; <span class="nu">53</span>);
+}
+</code></pre>
+      <p>
+        倍精度の <code>double</code> は、53ビットの整数(仮数)に2の累乗(指数)を掛けた形で値を持ちます。整数 <code>m</code> がこの形で表せるのは、<code>m</code> を2で割れるだけ割って残った奇数が53ビットに収まるとき、すなわち 2<sup>53</sup> 未満のときです。入力例1の 2<sup>53</sup>+1 は奇数で、それ以上割れないまま 2<sup>53</sup> を超えるので表せません。入力例2の 2<sup>53</sup>+2 は2で割ると 2<sup>52</sup>+1 になって収まるので、2<sup>53</sup> を超える整数でも表せます。参考実装のループは、<code>m</code> が 2<sup>53</sup> 以下になるか奇数になるまで2で割ります。2<sup>53</sup> ちょうどは 1×2<sup>53</sup> と表せるので、最後の比較は <code>&lt;=</code> です。<code>int64_t</code> の絶対値は 2<sup>63</sup> 以下なので、指数の範囲が足りなくなることはありません。
+      </p>
+      <p>
+        符号は仮数とは別の1ビットで持つので、判定には絶対値を使います。ただし <code>INT64_MIN</code> の絶対値 2<sup>63</sup> は <code>int64_t</code> に収まらず、<code>-n</code> はオーバーフローして未定義動作になります。先に <code>uint64_t</code> へ変換してから反転すれば、計算は 2<sup>64</sup> を法として行われ、<code>-(uint64_t)n</code> は正しく 2<sup>63</sup> になります。2<sup>63</sup> は2で割り切っていくと1になるので、入力例3は <code>true</code> です。
+      </p>
+      <p>
+        変換した値を元の値と比べる書き方は、どちらの向きでも判定になりません。<code>(double)n == n</code> は、比較の前に右辺の <code>n</code> も <code>double</code> に変換されて同じ丸めを受けるので、どの <code>n</code> でも真になります。<code>(int64_t)(double)n == n</code> のほうは、<code>INT64_MAX</code> が丸められて 2<sup>63</sup> になったとき、それを <code>int64_t</code> に戻す変換が範囲外になり、未定義動作です。掲載したのは参考実装で、唯一の正解ではありません。2<sup>53</sup> 以下かどうかを先に調べ、超えた分だけ下位ビットが0かを確かめる書き方もあります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

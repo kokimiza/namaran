@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「テスト」を扱ったNamaranのコーディングドリル7問。@inComptime、メモ化、二項係数、パスカルの三角形、コンパイル時と実行時の食い違い、memoization。">
+<meta name="description" content="「テスト」を扱ったNamaranのコーディングドリル10問。テストオラクル、正解が一つに決まらない出力、多重集合の比較、小さい方から k 個、test oracle、multiset equality。">
 <title>テスト</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/testing">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>テスト</h2>
 
   <p class="lede">
-    「テスト」を扱った7問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「テスト」を扱った10問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/cpp/write/2026-10-24">C++ / WRITE · 2026-10-24</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">答えが一つでない結果の検査</span> <span class="past-concepts">テストオラクル, 正解が一つに決まらない出力, 多重集合の比較, 小さい方から k 個, test oracle, multiset equality, k smallest elements</span></li>
+    <li><a href="/cpp/read/2026-10-24">C++ / READ · 2026-10-24</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">文字列を比べるテスト</span> <span class="past-concepts">テストの比較関数, const char* の比較, 配列からポインタへの変換, 文字列の等値比較, pointer comparison, string literal, expect_eq</span></li>
+    <li><a href="/cpp/debug/2026-10-24">C++ / DEBUG · 2026-10-24</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">値が無いと通るテスト</span> <span class="past-concepts">テストの判定, std::optional の比較, nullopt を見逃すテスト, from_chars, optional comparison, vacuous pass, test helper</span></li>
     <li><a href="/zig/debug/2026-10-21">Zig / DEBUG · 2026-10-21</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">実行時だけのメモ化</span> <span class="past-concepts">@inComptime, メモ化, 二項係数, パスカルの三角形, コンパイル時と実行時の食い違い, memoization, binomial coefficient, runtime-only cache</span></li>
     <li><a href="/c/write/2026-10-21">C / WRITE · 2026-10-21</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">相対誤差で比べるテスト</span> <span class="past-concepts">浮動小数点数の比較, 相対誤差, 許容誤差, 単体テストの期待値, relative tolerance, floating point comparison, approximately equal</span></li>
     <li><a href="/c/read/2026-10-21">C / READ · 2026-10-21</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">失敗を数えるテストマクロ</span> <span class="past-concepts">テスト用マクロ, マクロ引数の括弧, 論理否定の優先順位, 単体テスト, macro argument parentheses, logical not precedence, unit test assertion</span></li>

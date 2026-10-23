@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="ナノ秒の時刻を double に変換してから引き算すると、2^53 を超える整数が丸められて経過時間が狂うことを直すドリルです。2026-10-24のC DEBUG。">
+<title>ナノ秒の差をdoubleで</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-10-24">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-24" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-10-24",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-10-24",
+      "datePublished": "2026-10-24",
+      "dateModified": "2026-10-24",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "ナノ秒の差をdoubleで" },
+      "keywords": "floating-point, type-conversion, unix-time, rounding",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "ナノ秒の時刻を double に変換してから引き算すると、2^53 を超える整数が丸められて経過時間が狂うことを直すドリルです。2026-10-24のC DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-24" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-10-24">C++26</a>
+  <a href="/rust/debug/2026-10-24">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-24">Haskell 2010</a>
+  <a href="/zig/debug/2026-10-24">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-24">READ</a>
+  <a href="/c/write/2026-10-24">WRITE</a>
+  <a href="/c/debug/2026-10-24" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="ナノ秒の差をdoubleで"
+  data-tags="floating-point type-conversion unix-time rounding"
+  data-concepts="2^53, 倍精度で表せる整数, 桁落ち, ナノ秒タイムスタンプ, nanosecond timestamp, catastrophic cancellation, int64 to double"
+  data-level="peacock"
+>
+  <h2>2026-10-24</h2>
+  <div class="code-frame">
+    <p class="code-filename">elapsed.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdint.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="ty">double</span> <span class="fn">elapsed_ms</span>(<span class="ty">int64_t</span> start_ns, <span class="ty">int64_t</span> end_ns) {
+    <span class="ty">double</span> start = (<span class="ty">double</span>)start_ns;
+    <span class="ty">double</span> end = (<span class="ty">double</span>)end_ns;
+    <span class="kw">return</span> (end - start) / <span class="nu">1e6</span>;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="fn">printf</span>(<span class="st">"%.6f\n"</span>, <span class="fn">elapsed_ms</span>(<span class="nu">1761264000000000000</span>, <span class="nu">1761264000001234567</span>));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>elapsed_ms</code> は、ナノ秒単位の2つの時刻 <code>start_ns</code> と <code>end_ns</code> から、経過時間をミリ秒の <code>double</code> で返すつもりの関数です。<code>main</code> は2026年の時刻と、その1234567ナノ秒後の時刻を渡します。いまの出力は <code>1.234688</code> です。本来の出力は <code>1.234567</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="ty">double</span> start = (<span class="ty">double</span>)start_ns;
+<span class="ty">double</span> end = (<span class="ty">double</span>)end_ns;
+<span class="kw">return</span> (end - start) / <span class="nu">1e6</span>;
+</code></pre>
+      <p>
+        <code>double</code> の仮数部は53ビットなので、整数を正確に表せるのは 2<sup>53</sup>(約9.0×10<sup>15</sup>)までです。2026年のナノ秒の時刻は約1.76×10<sup>18</sup> で、2<sup>60</sup> 以上 2<sup>61</sup> 未満にあり、この範囲の <code>double</code> は256おきの値しか表せません。<code>start_ns</code> はたまたま256の倍数なので正確に変換されますが、<code>end_ns</code> は近い方の256の倍数へ丸められ、121ナノ秒大きくなります。
+      </p>
+      <p>
+        引き算は丸めたあとの値どうしで行われるので、差は 1234567 ではなく 1234688 になります。経過時間そのものは7桁なので <code>double</code> で正確に表せますが、その前に19桁の時刻を <code>double</code> に入れた時点で下の桁が失われています。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">return</span> (<span class="ty">double</span>)(end_ns - start_ns) / <span class="nu">1e6</span>;
+</code></pre>
+      <p>
+        引き算を <code>int64_t</code> のまま先に行います。整数の引き算は誤差なく 1234567 を出し、この値は 2<sup>53</sup> よりずっと小さいので、<code>double</code> へ変換しても丸めは起きません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="IORef から読み出したリストを取っておき、そのあと IORef の中身を書き換えたとき、取っておいた値がどうなるかを読むドリルです。2026-10-24のHaskell READ。">
+<title>書き換える前に読んだ値</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-10-24">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-24" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-10-24",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-10-24",
+      "datePublished": "2026-10-24",
+      "dateModified": "2026-10-24",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "書き換える前に読んだ値" },
+      "keywords": "ioref, immutability, mutability, io",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "IORef から読み出したリストを取っておき、そのあと IORef の中身を書き換えたとき、取っておいた値がどうなるかを読むドリルです。2026-10-24のHaskell READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-24">C23</a>
+  <a href="/cpp/read/2026-10-24">C++26</a>
+  <a href="/rust/read/2026-10-24">Rust 2024</a>
+  <a href="/haskell/read/2026-10-24" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/read/2026-10-24">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-24" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-10-24">WRITE</a>
+  <a href="/haskell/debug/2026-10-24">DEBUG</a>
+</nav>
+
+<main
+  data-topic="書き換える前に読んだ値"
+  data-tags="ioref immutability mutability io"
+  data-concepts="IORef のスナップショット, 不変な値, readIORef, modifyIORef, immutable value, mutable reference, snapshot"
+  data-level="hedgehog"
+>
+  <h2>2026-10-24</h2>
+  <div class="code-frame">
+    <p class="code-filename">Snapshot.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Data.IORef</span>
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = <span class="kw">do</span>
+  ref <span class="op">&lt;-</span> newIORef [<span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">3</span> <span class="op">::</span> <span class="ty">Int</span>]
+  before <span class="op">&lt;-</span> readIORef ref
+  modifyIORef ref (map (* <span class="nu">10</span>))
+  after <span class="op">&lt;-</span> readIORef ref
+  print (before, after)
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>([1,2,3],[10,20,30])</code> です。
+      </p>
+      <p>
+        書き換えられるのは <code>IORef</code> という箱だけで、箱に入っているリストは不変な値です。<code>readIORef ref</code> はその時点で箱に入っているリスト <code>[1,2,3]</code> を返し、<code>before</code> はこの値に束縛されます。<code>modifyIORef ref (map (* 10))</code> は、いまのリストから <code>map</code> で新しいリスト <code>[10,20,30]</code> を作り、箱の中身をそれに差し替えます。元のリスト <code>[1,2,3]</code> 自体はどこも書き換えられないので、<code>before</code> は <code>[1,2,3]</code> のままで、2回目の <code>readIORef</code> で読んだ <code>after</code> だけが新しいリストになります。
+      </p>
+      <p>
+        Java や Python のように、読み出した値が箱の中のリストと同じ可変なオブジェクトを指していると考えると、<code>before</code> も書き換わって <code>([10,20,30],[10,20,30])</code> と答えることになります。Haskell のリストは作ったあとに変わらないので、読み出した値は、コピーを取らなくてもその時点の中身として残ります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
