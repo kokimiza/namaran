@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="atomic_flag で再計算を1本に絞るキャッシュで、&amp;&amp; の左側に置いた test_and_set が鍵を取ったまま戻らなくなり、期限が切れても誰も再計算しなくなる様子を読むドリルです。2026-10-25のC READ。">
+<title>取ったまま返さない鍵</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-10-25">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-25" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-10-25",
+      "url": "https://namaran.jocarium.productions/c/read/2026-10-25",
+      "datePublished": "2026-10-25",
+      "dateModified": "2026-10-25",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "取ったまま返さない鍵" },
+      "keywords": "cache, short-circuit, atomic, side-effect",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "atomic_flag で再計算を1本に絞るキャッシュで、&& の左側に置いた test_and_set が鍵を取ったまま戻らなくなり、期限が切れても誰も再計算しなくなる様子を読むドリルです。2026-10-25のC READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-25" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-10-25">C++26</a>
+  <a href="/rust/read/2026-10-25">Rust 2024</a>
+  <a href="/haskell/read/2026-10-25">Haskell 2010</a>
+  <a href="/zig/read/2026-10-25">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-25" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-10-25">WRITE</a>
+  <a href="/c/debug/2026-10-25">DEBUG</a>
+</nav>
+
+<main
+  data-topic="取ったまま返さない鍵"
+  data-tags="cache short-circuit atomic side-effect"
+  data-concepts="キャッシュの一斉失効, 再計算を1つに絞る, atomic_flag_test_and_set, 短絡評価, cache stampede, single flight, lock leak"
+  data-level="bison"
+>
+  <h2>2026-10-25</h2>
+  <div class="code-frame">
+    <p class="code-filename">single_flight.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdatomic.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">struct</span> <span class="ty">entry</span> {
+    <span class="ty">int</span> loaded_at;
+    atomic_flag busy;
+};
+
+<span class="ty">int</span> <span class="fn">get</span>(<span class="kw">struct</span> <span class="ty">entry</span>* e, <span class="ty">int</span> now) {
+    <span class="kw">if</span> (!<span class="fn">atomic_flag_test_and_set</span>(&amp;e-&gt;busy) &amp;&amp; now - e-&gt;loaded_at &gt;= <span class="nu">2</span>) {
+        e-&gt;loaded_at = now;
+        <span class="fn">atomic_flag_clear</span>(&amp;e-&gt;busy);
+    }
+    <span class="kw">return</span> e-&gt;loaded_at;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="kw">struct</span> <span class="ty">entry</span> e = {-<span class="nu">2</span>, <span class="nu">ATOMIC_FLAG_INIT</span>};
+    <span class="kw">for</span> (<span class="ty">int</span> now = <span class="nu">0</span>; now &lt; <span class="nu">6</span>; now++)
+        <span class="fn">printf</span>(<span class="st">"%d\n"</span>, <span class="fn">get</span>(&amp;e, now));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>0</code> が6行出ます。
+      </p>
+      <p>
+        <code>atomic_flag_test_and_set</code> は、フラグを立てたうえで、立てる前の値を返します。返り値が <code>false</code> なら自分が鍵を取ったことになり、<code>true</code> なら誰かがすでに持っています。どちらの場合も、呼んだあとのフラグは立っています。
+      </p>
+      <p>
+        <code>now</code> が <code>0</code> のときは、鍵を取り、<code>0 - (-2)</code> が <code>2</code> なので期限切れと判定されます。<code>loaded_at</code> を <code>0</code> にし、鍵を返します。<code>now</code> が <code>1</code> のときも、<code>&amp;&amp;</code> の左側が先に評価されて鍵を取ります。ところが右側の <code>1 - 0 &gt;= 2</code> は偽なので、ブロックの中には入りません。鍵を返す <code>atomic_flag_clear</code> はブロックの中にしかないので、フラグは立ったまま残ります。
+      </p>
+      <p>
+        <code>now</code> が <code>2</code> 以降では、<code>test_and_set</code> が <code>true</code> を返し、<code>!</code> で偽になります。<code>&amp;&amp;</code> は左側が偽なら右側を評価しないので、期限の確認まで進みません。再計算している人は誰もいないのに、鍵だけが残って全員が古い値を受け取り続けます。<code>get</code> は最後まで <code>0</code> を返します。
+      </p>
+      <p>
+        「期限が切れていたら鍵を取る」と読むと、2秒ごとに再計算されて <code>0 0 2 2 4 4</code> と答えることになります。そう動かすには <code>now - e-&gt;loaded_at &gt;= 2</code> を <code>&amp;&amp;</code> の左側に置き、期限切れのときだけ鍵を取りにいく順にします。副作用のある式を <code>&amp;&amp;</code> の左側に置くと、右側が偽だった場合にもその副作用だけが残ります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

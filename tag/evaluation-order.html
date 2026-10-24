@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「評価順序」を扱ったNamaranのコーディングドリル9問。std::mem::take、文字列の連結、早期リターン、オペランドの評価順、データの消失、string concatenation。">
+<meta name="description" content="「評価順序」を扱ったNamaranのコーディングドリル10問。キャッシュの一斉失効、有効期限のばらつき、整数除算の切り捨て、演算の順序、cache stampede、TTL jitter。">
 <title>評価順序</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/evaluation-order">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>評価順序</h2>
 
   <p class="lede">
-    「評価順序」を扱った9問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「評価順序」を扱った10問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/c/debug/2026-10-25">C / DEBUG · 2026-10-25</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">消えたばらつき</span> <span class="past-concepts">キャッシュの一斉失効, 有効期限のばらつき, 整数除算の切り捨て, 演算の順序, cache stampede, TTL jitter, integer division</span></li>
     <li><a href="/rust/debug/2026-10-13">Rust / DEBUG · 2026-10-13</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">取り出したまま帰る</span> <span class="past-concepts">std::mem::take, 文字列の連結, 早期リターン, オペランドの評価順, データの消失, string concatenation, early return, evaluation order</span></li>
     <li><a href="/cpp/debug/2026-10-11">C++ / DEBUG · 2026-10-11</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">メモ化したコラッツの歩数</span> <span class="past-concepts">参照の無効化, vector の再確保, 再帰とメモ化, 代入の評価順序, reference invalidation, vector reallocation, recursive memoization, use after free</span></li>
     <li><a href="/haskell/read/2026-09-26">Haskell / READ · 2026-09-26</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">関数で書くif</span> <span class="past-concepts">遅延評価, 使われない引数, 非正格な関数, 自作の制御構造, lazy evaluation, non-strict function</span></li>

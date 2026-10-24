@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="キャッシュの有効期限にキーごとのばらつきを足して一斉失効を避けるつもりが、整数除算を先に計算したせいでばらつきが0になり、全キーが同じ時刻に切れる欠陥を直すドリルです。2026-10-25のC DEBUG。">
+<title>消えたばらつき</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-10-25">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-25" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-10-25",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-10-25",
+      "datePublished": "2026-10-25",
+      "dateModified": "2026-10-25",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "消えたばらつき" },
+      "keywords": "cache, integer-arithmetic, division, evaluation-order",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "キャッシュの有効期限にキーごとのばらつきを足して一斉失効を避けるつもりが、整数除算を先に計算したせいでばらつきが0になり、全キーが同じ時刻に切れる欠陥を直すドリルです。2026-10-25のC DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-25" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-10-25">C++26</a>
+  <a href="/rust/debug/2026-10-25">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-25">Haskell 2010</a>
+  <a href="/zig/debug/2026-10-25">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-25">READ</a>
+  <a href="/c/write/2026-10-25">WRITE</a>
+  <a href="/c/debug/2026-10-25" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="消えたばらつき"
+  data-tags="cache integer-arithmetic division evaluation-order"
+  data-concepts="キャッシュの一斉失効, 有効期限のばらつき, 整数除算の切り捨て, 演算の順序, cache stampede, TTL jitter, integer division"
+  data-level="hedgehog"
+>
+  <h2>2026-10-25</h2>
+  <div class="code-frame">
+    <p class="code-filename">jittered_ttl.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="ty">long</span> <span class="fn">expires_at</span>(<span class="ty">long</span> now, <span class="ty">long</span> ttl, <span class="ty">unsigned</span> key) {
+    <span class="kw">return</span> now + ttl + ttl / <span class="nu">100</span> * (key % <span class="nu">10</span>);
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="kw">for</span> (<span class="ty">unsigned</span> key = <span class="nu">3</span>; key &lt;= <span class="nu">7</span>; key += <span class="nu">2</span>)
+        <span class="fn">printf</span>(<span class="st">"%ld\n"</span>, <span class="fn">expires_at</span>(<span class="nu">0</span>, <span class="nu">60</span>, key));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>expires_at</code> は、時刻 <code>now</code> に保存したキャッシュの有効期限を返すつもりの関数です。同じ時刻に保存した項目が一斉に切れないよう、<code>ttl</code> 秒にキーの1の位に応じたばらつき(<code>ttl</code> の0〜9%)を足します。<code>main</code> は <code>now</code> を <code>0</code>、<code>ttl</code> を <code>60</code> として、キー <code>3</code>、<code>5</code>、<code>7</code> の期限を1行ずつ出力します。いまの出力は <code>60</code>、<code>60</code>、<code>60</code> です。本来の出力は <code>61</code>、<code>63</code>、<code>64</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">return</span> now + ttl + ttl / <span class="nu">100</span> * (key % <span class="nu">10</span>);
+</code></pre>
+      <p>
+        <code>/</code> と <code>*</code> は優先順位が同じで左から結合するので、<code>ttl / 100</code> が先に計算されます。<code>ttl</code> も <code>100</code> も整数なので、この割り算は小数部を切り捨てた整数除算で、<code>60 / 100</code> は <code>0</code> です。どのキーでも <code>0 * (key % 10)</code> が足されるだけになり、期限は全部 <code>60</code> に揃います。<code>ttl</code> が100秒未満のキャッシュでは、ばらつきが常に消え、一斉に切れた項目をすべての呼び出しが同時に計算し直すことになります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">return</span> now + ttl + ttl * (key % <span class="nu">10</span>) / <span class="nu">100</span>;
+</code></pre>
+      <p>
+        掛け算を先にします。キー <code>5</code> なら <code>60 * 5</code> の <code>300</code> を <code>100</code> で割って <code>3</code> になり、切り捨てられるのは最後の割り算の端数だけです。キー <code>3</code> と <code>7</code> では <code>180 / 100</code> と <code>420 / 100</code> がそれぞれ <code>1</code> と <code>4</code> になり、期限は <code>61</code>、<code>63</code>、<code>64</code> とずれます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

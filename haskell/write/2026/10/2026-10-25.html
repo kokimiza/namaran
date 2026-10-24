@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="2つの文字列のレーベンシュタイン距離を、表の1行前だけを持って foldl&#x27; と scanl で次の行を作る形で、O(mn) の時間で求める関数を書くドリルです。2026-10-25のHaskell WRITE。">
+<title>1行ずつ畳む編集距離</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-10-25">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-25" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-10-25",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-10-25",
+      "datePublished": "2026-10-25",
+      "dateModified": "2026-10-25",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "1行ずつ畳む編集距離" },
+      "keywords": "edit-distance, dynamic-programming, fold, list",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "2つの文字列のレーベンシュタイン距離を、表の1行前だけを持って foldl' と scanl で次の行を作る形で、O(mn) の時間で求める関数を書くドリルです。2026-10-25のHaskell WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-25">C23</a>
+  <a href="/cpp/write/2026-10-25">C++26</a>
+  <a href="/rust/write/2026-10-25">Rust 2024</a>
+  <a href="/haskell/write/2026-10-25" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/write/2026-10-25">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-25">READ</a>
+  <a href="/haskell/write/2026-10-25" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-10-25">DEBUG</a>
+</nav>
+
+<main
+  data-topic="1行ずつ畳む編集距離"
+  data-tags="edit-distance dynamic-programming fold list"
+  data-concepts="編集距離, レーベンシュタイン距離, 動的計画法, 1行ずつの表, scanl, foldl&#x27;, zip3, Levenshtein distance, dynamic programming"
+  data-level="whale"
+>
+  <h2>2026-10-25</h2>
+  <div class="code-frame">
+    <p class="code-filename">EditDistance.hs</p>
+    <pre class="code"><code><span class="fn">editDistance</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">Int</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    1文字の挿入・削除・置換をそれぞれ1回の操作と数え、文字列 <code>a</code> を <code>b</code> に変えるのに要る最小の操作回数を、<code>a</code> と <code>b</code> のレーベンシュタイン距離(Levenshtein distance)といいます。これを返す <code>editDistance</code> を書いてください。片方が空なら、距離はもう一方の長さです。<code>a</code> と <code>b</code> の長さを <code>m</code> と <code>n</code> として、計算量は O(<code>m</code> × <code>n</code>) に収めます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>editDistance "kitten" "sitting"</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>3</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>editDistance "flaw" "lawn"</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>2</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>editDistance "" "abc"</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>3</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="fn">editDistance</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">Int</span>
+<span class="fn">editDistance</span> a b = last (foldl' step [<span class="nu">0</span> .. length a] (zip [<span class="nu">1</span> ..] b))
+ <span class="kw">where</span>
+  step prev (i, c) = scanl (cell c) i (zip3 a prev (drop <span class="nu">1</span> prev))
+  cell c left (x, diag, up) = minimum [up + <span class="nu">1</span>, left + <span class="nu">1</span>, diag + fromEnum (x /= c)]
+</code></pre>
+      <p>
+        <code>b</code> の先頭 <code>i</code> 文字と <code>a</code> の先頭 <code>j</code> 文字の距離を <code>d(i, j)</code> とすると、<code>d(i, j)</code> は <code>d(i-1, j) + 1</code>(上)、<code>d(i, j-1) + 1</code>(左)、<code>d(i-1, j-1)</code> に2つの文字が違えば1を足したもの(斜め)の最小です。これを表の行ごとに埋めていく解き方を動的計画法(dynamic programming)といいます。素直に再帰で書くと同じ <code>d(i, j)</code> を何度も計算し直し、時間は長さに対して指数的に増えます。ある行を作るのに要るのは1つ前の行だけなので、行を順に作り替えていけば O(<code>m</code> × <code>n</code>) で済みます。
+      </p>
+      <p>
+        最初の行は <code>a</code> の先頭 <code>j</code> 文字を空文字列に変える回数で、<code>[0 .. length a]</code> です。<code>foldl'</code> は <code>b</code> の文字を1つずつ見て、前の行 <code>prev</code> から次の行を作ります。<code>zip3 a prev (drop 1 prev)</code> は、列 <code>j</code> ごとに <code>a</code> の <code>j</code> 文字目、斜めの値 <code>d(i-1, j-1)</code>、上の値 <code>d(i-1, j)</code> を組にした列です。左の値は同じ行のすぐ前で計算したばかりの値なので、<code>scanl</code> が受け持ちます。<code>scanl</code> は直前に作った値を次の計算に渡しながら途中の値をすべて並べるので、その出力がそのまま新しい行になります。行の先頭は空文字列を <code>b</code> の先頭 <code>i</code> 文字に変える回数 <code>i</code> で、<code>scanl</code> の初期値にあたります。
+      </p>
+      <p>
+        最後の行の最後の要素が <code>d(n, m)</code> です。<code>b</code> が空なら畳み込みは1度も進まず、最初の行の最後の <code>length a</code> が返ります。<code>a</code> が空なら各行は <code>[i]</code> だけになり、最後に <code>length b</code> が残ります。掲載したのは参考実装で、唯一の正解ではありません。<code>Data.Array</code> で表全体を遅延評価の配列として定義し、各要素がほかの要素を参照する形で書いても、同じ計算量になります。<sup class="fn-ref">1</sup>
+      </p>
+      <ol class="footnotes">
+        <li><code>foldl'</code> は、Haskell 2010 の報告書では <code>Data.List</code> から import する関数です。GHC 9.10 以降の base では <code>Prelude</code> からも export されているので、ここでは import を書いていません(書くと未使用の import として警告されます)。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

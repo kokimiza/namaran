@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="std::minmax の結果を auto で構造化束縛して2つの変数を小さい順に並べ替えるつもりが、束縛した名前が元の変数を指したままで、片方の値が失われる欠陥を直すドリルです。2026-10-25のC++ DEBUG。">
+<title>minmaxで並べ替え</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-10-25">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-25" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-10-25",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-10-25",
+      "datePublished": "2026-10-25",
+      "dateModified": "2026-10-25",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "minmaxで並べ替え" },
+      "keywords": "structured-binding, reference, aliasing, tuple",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "std::minmax の結果を auto で構造化束縛して2つの変数を小さい順に並べ替えるつもりが、束縛した名前が元の変数を指したままで、片方の値が失われる欠陥を直すドリルです。2026-10-25のC++ DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-25">C23</a>
+  <a href="/cpp/debug/2026-10-25" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-10-25">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-25">Haskell 2010</a>
+  <a href="/zig/debug/2026-10-25">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-25">READ</a>
+  <a href="/cpp/write/2026-10-25">WRITE</a>
+  <a href="/cpp/debug/2026-10-25" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="minmaxで並べ替え"
+  data-tags="structured-binding reference aliasing tuple"
+  data-concepts="構造化束縛, std::minmax, 参照の組, 別名による上書き, structured binding, aliasing, pair of references"
+  data-level="peacock"
+>
+  <h2>2026-10-25</h2>
+  <div class="code-frame">
+    <p class="code-filename">order_pair.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;algorithm&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+
+<span class="ty">void</span> <span class="fn">order</span>(<span class="ty">int</span>&amp; a, <span class="ty">int</span>&amp; b) {
+    <span class="kw">auto</span> [lo, hi] = std::<span class="fn">minmax</span>(a, b);
+    a = lo;
+    b = hi;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="ty">int</span> a = <span class="nu">5</span>, b = <span class="nu">2</span>;
+    <span class="fn">order</span>(a, b);
+    std::cout &lt;&lt; a &lt;&lt; <span class="st">' '</span> &lt;&lt; b &lt;&lt; <span class="st">'\n'</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>order</code> は、2つの変数 <code>a</code> と <code>b</code> を、<code>a</code> が小さいほうになるよう並べ替えるつもりの関数です。<code>main</code> は <code>a = 5</code>、<code>b = 2</code> を渡し、並べ替えたあとの2つを出力します。いまの出力は <code>2 2</code> です。本来の出力は <code>2 5</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">auto</span> [lo, hi] = std::<span class="fn">minmax</span>(a, b);
+a = lo;
+b = hi;
+</code></pre>
+      <p>
+        2つの引数を取る <code>std::minmax</code> は、値ではなく引数への参照の組 <code>std::pair&lt;const int&amp;, const int&amp;&gt;</code> を返します。<code>auto</code> で構造化束縛すると、この組は写しになりますが、写しの要素も参照のままです。<code>a = 5</code>、<code>b = 2</code> では <code>lo</code> が <code>b</code> を、<code>hi</code> が <code>a</code> を指します。
+      </p>
+      <p>
+        <code>a = lo</code> で <code>a</code> は <code>2</code> になります。続く <code>b = hi</code> の <code>hi</code> は <code>a</code> を指しているので、読み出されるのは書き換えたばかりの <code>2</code> です。元の <code>5</code> はどこにも残っておらず、出力は <code>2 2</code> になります。<code>auto</code> だから値がコピーされた、と読むとこの上書きを見落とします。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">auto</span> [lo, hi] = std::<span class="fn">minmax</span>({a, b});
+</code></pre>
+      <p>
+        波括弧で囲むと、<code>std::initializer_list</code> を受け取る版の <code>std::minmax</code> が選ばれます。この版は値の組 <code>std::pair&lt;int, int&gt;</code> を返すので、<code>lo</code> と <code>hi</code> は <code>a</code> と <code>b</code> から切り離された <code>2</code> と <code>5</code> を持ちます。そのあとで <code>a</code> を書き換えても <code>hi</code> は変わらず、<code>b</code> に <code>5</code> が入ります。<code>if (a &gt; b) std::swap(a, b);</code> と書いても同じように直ります。<sup class="fn-ref">1</sup>
+      </p>
+      <ol class="footnotes">
+        <li><code>std::tie(a, b) = std::minmax(a, b);</code> も同じ理由で壊れます。<code>std::tie</code> への代入は要素を先頭から順に代入するので、<code>b</code> へ代入するときには、参照先の <code>a</code> がもう書き換わっています。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

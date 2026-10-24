@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="std::map の値のうち下限に届かないものを下限まで引き上げ、変えた件数を返す関数を、範囲forと参照の構造化束縛で書くドリルです。2026-10-25のC++ WRITE。">
+<title>在庫を下限まで補充</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-10-25">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-25" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-10-25",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-10-25",
+      "datePublished": "2026-10-25",
+      "dateModified": "2026-10-25",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "在庫を下限まで補充" },
+      "keywords": "structured-binding, reference, range-for, ordered-map",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "std::map の値のうち下限に届かないものを下限まで引き上げ、変えた件数を返す関数を、範囲forと参照の構造化束縛で書くドリルです。2026-10-25のC++ WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-25">C23</a>
+  <a href="/cpp/write/2026-10-25" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-10-25">Rust 2024</a>
+  <a href="/haskell/write/2026-10-25">Haskell 2010</a>
+  <a href="/zig/write/2026-10-25">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-25">READ</a>
+  <a href="/cpp/write/2026-10-25" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-10-25">DEBUG</a>
+</nav>
+
+<main
+  data-topic="在庫を下限まで補充"
+  data-tags="structured-binding reference range-for ordered-map"
+  data-concepts="構造化束縛, 参照で束縛して書き換える, 範囲for, std::map, structured binding, auto&amp;, range-based for"
+  data-level="hedgehog"
+>
+  <h2>2026-10-25</h2>
+  <div class="code-frame">
+    <p class="code-filename">top_up.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;map&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+
+<span class="ty">int</span> <span class="fn">top_up</span>(std::<span class="ty">map</span>&lt;std::<span class="ty">string</span>, <span class="ty">int</span>&gt;&amp; stock, <span class="ty">int</span> min) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>stock</code> は商品名から在庫数への対応です。在庫数が <code>min</code> より少ない商品をすべて <code>min</code> に書き換え、書き換えた商品の数を返す <code>top_up</code> を書いてください。<code>min</code> 以上の商品は変えません。<code>stock</code> が空なら <code>0</code> を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>stock = {{"apple", 2}, {"pear", 7}, {"plum", 0}}
+top_up(stock, 5)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>2
+stock == {{"apple", 5}, {"pear", 7}, {"plum", 5}}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>stock = {}
+top_up(stock, 5)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="ty">int</span> <span class="fn">top_up</span>(std::<span class="ty">map</span>&lt;std::<span class="ty">string</span>, <span class="ty">int</span>&gt;&amp; stock, <span class="ty">int</span> min) {
+    <span class="ty">int</span> changed = <span class="nu">0</span>;
+    <span class="kw">for</span> (<span class="kw">auto</span>&amp; [name, qty] : stock) {
+        <span class="kw">if</span> (qty &lt; min) {
+            qty = min;
+            ++changed;
+        }
+    }
+    <span class="kw">return</span> changed;
+}
+</code></pre>
+      <p>
+        <code>std::map</code> を範囲forで回すと、要素は <code>std::pair&lt;const std::string, int&gt;</code> として1つずつ取り出されます。<code>auto&amp; [name, qty]</code> と書くと、構造化束縛の名前のない変数がその要素への参照になり、<code>qty</code> は map の中の在庫数そのものを指します。<code>qty = min</code> がそのまま <code>stock</code> を書き換えるのはこのためです。
+      </p>
+      <p>
+        <code>&amp;</code> を付け忘れて <code>auto [name, qty]</code> と書いても、コンパイルは通り、数えた件数も正しく返ります。書き換わるのは要素ごとに作られた写しのほうで、<code>stock</code> は何も変わりません。返り値だけを確かめるテストでは見つからない誤りです。<code>name</code> は使いませんが、構造化束縛では要素の数だけ名前を書く必要があります。掲載したのは参考実装で、唯一の正解ではありません。<code>for (auto&amp; entry : stock)</code> として <code>entry.second</code> を書き換えても同じ動きになります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

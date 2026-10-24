@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="上位32ビットに版番号、下位32ビットに値を詰めた AtomicU64 を、衝突したら読み直して再試行する compare_exchange のループで更新する関数を書くドリルです。2026-10-25のRust WRITE。">
+<title>版と値を1語でCAS</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-10-25">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-25" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-10-25",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-10-25",
+      "datePublished": "2026-10-25",
+      "dateModified": "2026-10-25",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "版と値を1語でCAS" },
+      "keywords": "optimistic-locking, atomic, retry, bit-operation, closure",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "上位32ビットに版番号、下位32ビットに値を詰めた AtomicU64 を、衝突したら読み直して再試行する compare_exchange のループで更新する関数を書くドリルです。2026-10-25のRust WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-25">C23</a>
+  <a href="/cpp/write/2026-10-25">C++26</a>
+  <a href="/rust/write/2026-10-25" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-10-25">Haskell 2010</a>
+  <a href="/zig/write/2026-10-25">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-25">READ</a>
+  <a href="/rust/write/2026-10-25" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-10-25">DEBUG</a>
+</nav>
+
+<main
+  data-topic="版と値を1語でCAS"
+  data-tags="optimistic-locking atomic retry bit-operation closure"
+  data-concepts="楽観的ロック, 版番号, compare_exchange_weak, 再試行ループ, ビットの詰め込み, optimistic locking, CAS loop, versioned word"
+  data-level="whale"
+>
+  <h2>2026-10-25</h2>
+  <div class="code-frame">
+    <p class="code-filename">versioned_cell.rs</p>
+    <pre class="code"><code><span class="kw">use</span> std::sync::atomic::{<span class="ty">AtomicU64</span>, <span class="ty">Ordering</span>};
+
+<span class="kw">fn</span> <span class="fn">update</span>(cell: &amp;<span class="ty">AtomicU64</span>, f: <span class="kw">impl</span> <span class="fn">Fn</span>(<span class="ty">u32</span>) -&gt; <span class="ty">u32</span>) -&gt; <span class="ty">u32</span> {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>cell</code> の64ビットのうち、上位32ビットは版番号、下位32ビットは値です。いまの値に <code>f</code> を適用した結果を新しい値とし、版番号を1つ進めて <code>cell</code> に書き込む <code>update</code> を書き、進めたあとの版番号を返してください。版番号が <code>u32::MAX</code> のときは <code>0</code> に戻ります。読んでから書くまでの間にほかのスレッドが <code>cell</code> を書き換えていたら、その新しい内容から計算をやり直します。複数のスレッドが同時に <code>update</code> を呼んでも、更新が1つも失われてはいけません。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>let cell = AtomicU64::new(5 &lt;&lt; 32 | 10);
+update(&amp;cell, |v| v + 1)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>6
+cell の中身は 6 &lt;&lt; 32 | 11</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>let cell = AtomicU64::new((u32::MAX as u64) &lt;&lt; 32 | 7);
+update(&amp;cell, |v| v * 2)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>0
+cell の中身は 0 &lt;&lt; 32 | 14</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>let cell = AtomicU64::new(0);
+8スレッドがそれぞれ1000回 update(&amp;cell, |v| v + 1)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>cell の中身は 8000 &lt;&lt; 32 | 8000</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">update</span>(cell: &amp;<span class="ty">AtomicU64</span>, f: <span class="kw">impl</span> <span class="fn">Fn</span>(<span class="ty">u32</span>) -&gt; <span class="ty">u32</span>) -&gt; <span class="ty">u32</span> {
+    <span class="kw">let</span> <span class="kw">mut</span> cur = cell.<span class="fn">load</span>(<span class="ty">Ordering</span>::<span class="ty">Acquire</span>);
+    <span class="kw">loop</span> {
+        <span class="kw">let</span> version = ((cur &gt;&gt; <span class="nu">32</span>) <span class="kw">as</span> <span class="ty">u32</span>).<span class="fn">wrapping_add</span>(<span class="nu">1</span>);
+        <span class="kw">let</span> next = (version <span class="kw">as</span> <span class="ty">u64</span>) &lt;&lt; <span class="nu">32</span> | <span class="fn">f</span>(cur <span class="kw">as</span> <span class="ty">u32</span>) <span class="kw">as</span> <span class="ty">u64</span>;
+        <span class="kw">match</span> cell.<span class="fn">compare_exchange_weak</span>(cur, next, <span class="ty">Ordering</span>::<span class="ty">AcqRel</span>, <span class="ty">Ordering</span>::<span class="ty">Acquire</span>) {
+            <span class="fn">Ok</span>(_) =&gt; <span class="kw">return</span> version,
+            <span class="fn">Err</span>(actual) =&gt; cur = actual,
+        }
+    }
+}
+</code></pre>
+      <p>
+        版番号と値を1つの <code>AtomicU64</code> に詰めているので、両方を一度の不可分な操作で読み書きできます。<code>compare_exchange_weak(cur, next, ..)</code> は、<code>cell</code> の中身がまだ <code>cur</code> と等しいときだけ <code>next</code> を書き込んで <code>Ok</code> を返し、等しくなければ書き込まずに、そのときの中身を <code>Err(actual)</code> で返します。読んでから書くまでの間に誰かが更新していれば版番号が違うので、この比較で衝突が見つかります。値だけを比べると、ほかのスレッドが値を変えて元に戻した場合に、更新があったことを見逃します(ABA問題と呼ばれる取り違えです)。
+      </p>
+      <p>
+        衝突したら、<code>actual</code> を新しい <code>cur</code> として計算し直します。<code>Err</code> がいまの中身を返してくれるので、<code>load</code> し直す必要はありません。<code>_weak</code> 版は、中身が等しくても失敗を返すことがあります。どうせループで再試行するので、その場合も同じ道をもう一度通るだけです。再試行のたびに <code>f</code> を呼ぶので、引数の型は一度しか呼べない <code>FnOnce</code> ではなく <code>Fn</code> にしてあります。<code>f</code> に副作用があると、それが何回起きるかは衝突の回数で変わります。
+      </p>
+      <p>
+        取り出しと詰め直しはキャストで書けます。<code>cur as u32</code> は上位を切り捨てて下位32ビットの値を、<code>(cur &gt;&gt; 32) as u32</code> は版番号を取り出します。版番号の足し算に <code>+ 1</code> を使うと、<code>u32::MAX</code> のときにデバッグビルドでは panic し、リリースビルドでは黙って <code>0</code> に戻ります。<code>wrapping_add</code> なら、どちらのビルドでも <code>0</code> に戻ります。<code>&lt;&lt;</code> は <code>|</code> より先に結合するので、<code>next</code> の式に括弧は要りません。掲載したのは参考実装で、唯一の正解ではありません。<code>AtomicU64::fetch_update</code> を使うと、同じ再試行のループを標準ライブラリに任せられます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「静的記憶域」を扱ったNamaranのコーディングドリル14問。sync_with_stdio、戻り値は以前の状態、関数内static変数、一度だけの初期化、CとC++の入出力の混在、previous synchronization state。">
+<meta name="description" content="「静的記憶域」を扱ったNamaranのコーディングドリル15問。comptime var、連番のID、一度だけの評価、コンテナレベルの var、comptime evaluation、global counter。">
 <title>静的記憶域</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/static-storage">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>静的記憶域</h2>
 
   <p class="lede">
-    「静的記憶域」を扱った14問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「静的記憶域」を扱った15問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/debug/2026-10-25">Zig / DEBUG · 2026-10-25</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">一度しか数えないID</span> <span class="past-concepts">comptime var, 連番のID, 一度だけの評価, コンテナレベルの var, comptime evaluation, global counter, unique id</span></li>
     <li><a href="/cpp/read/2026-10-17">C++ / READ · 2026-10-17</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">同期を切る関数の戻り値</span> <span class="past-concepts">sync_with_stdio, 戻り値は以前の状態, 関数内static変数, 一度だけの初期化, CとC++の入出力の混在, previous synchronization state, function-local static</span></li>
     <li><a href="/cpp/read/2026-10-11">C++ / READ · 2026-10-11</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">静的バッファを返す関数</span> <span class="past-concepts">静的バッファ, 再入不可能な関数, auto の型推論, const char* と std::string, static buffer, non-reentrant function, auto type deduction</span></li>
     <li><a href="/cpp/debug/2026-10-11">C++ / DEBUG · 2026-10-11</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">メモ化したコラッツの歩数</span> <span class="past-concepts">参照の無効化, vector の再確保, 再帰とメモ化, 代入の評価順序, reference invalidation, vector reallocation, recursive memoization, use after free</span></li>

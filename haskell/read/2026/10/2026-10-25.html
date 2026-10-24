@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="打ち間違えた単語に最も近い候補を編集距離とタプルの minimum で選ぶ関数の出力を読むドリルです。入れ替えの扱いと、距離が並んだときの選ばれ方の2つが答えを決めます。2026-10-25のHaskell READ。">
+<title>近い候補を選ぶ組の比較</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-10-25">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-25" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-10-25",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-10-25",
+      "datePublished": "2026-10-25",
+      "dateModified": "2026-10-25",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "近い候補を選ぶ組の比較" },
+      "keywords": "edit-distance, comparison, tuple, list-comprehension",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "打ち間違えた単語に最も近い候補を編集距離とタプルの minimum で選ぶ関数の出力を読むドリルです。入れ替えの扱いと、距離が並んだときの選ばれ方の2つが答えを決めます。2026-10-25のHaskell READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-25">C23</a>
+  <a href="/cpp/read/2026-10-25">C++26</a>
+  <a href="/rust/read/2026-10-25">Rust 2024</a>
+  <a href="/haskell/read/2026-10-25" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/read/2026-10-25">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-25" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-10-25">WRITE</a>
+  <a href="/haskell/debug/2026-10-25">DEBUG</a>
+</nav>
+
+<main
+  data-topic="近い候補を選ぶ組の比較"
+  data-tags="edit-distance comparison tuple list-comprehension"
+  data-concepts="編集距離, レーベンシュタイン距離, 隣り合う文字の入れ替え, タプルの辞書式順序, minimum, Levenshtein distance, spelling suggestion, lexicographic order"
+  data-level="peacock"
+>
+  <h2>2026-10-25</h2>
+  <div class="code-frame">
+    <p class="code-filename">Suggest.hs</p>
+    <pre class="code"><code><span class="fn">dist</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">Int</span>
+<span class="fn">dist</span> [] ys = length ys
+<span class="fn">dist</span> xs [] = length xs
+<span class="fn">dist</span> (x : xs) (y : ys)
+  | x == y = dist xs ys
+  | otherwise = <span class="nu">1</span> + minimum [dist xs ys, dist xs (y : ys), dist (x : xs) ys]
+
+<span class="fn">suggest</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> [<span class="ty">String</span>] <span class="op">-&gt;</span> <span class="ty">String</span>
+<span class="fn">suggest</span> typo ws = snd (minimum [(dist typo w, w) | w <span class="op">&lt;-</span> ws])
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = putStrLn (suggest <span class="st">"nad"</span> [<span class="st">"mad"</span>, <span class="st">"and"</span>, <span class="st">"bad"</span>])
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>bad</code> です。
+      </p>
+      <p>
+        <code>dist</code> は、1文字の挿入・削除・置換をそれぞれ1回と数えて、一方の文字列をもう一方に変える最小の回数を求めます。この値をレーベンシュタイン距離(Levenshtein distance)といいます。先頭の文字が違うときの3つの再帰呼び出しが、置換・削除・挿入にあたります。<code>"mad"</code> と <code>"bad"</code> は、どちらも <code>"nad"</code> の先頭を1文字置き換えれば作れるので、距離は <code>1</code> です。
+      </p>
+      <p>
+        <code>"and"</code> は <code>"nad"</code> の先頭2文字を入れ替えた語ですが、<code>dist</code> の操作に入れ替えはありません。<code>n</code> と <code>a</code> を2回置き換えるか、先頭の <code>n</code> を消して <code>d</code> の前に <code>n</code> を挿入するかで、どちらも2回かかります。入れ替えを1回と数えると <code>"and"</code> も距離 <code>1</code> になり、3つの中で最小の <code>(1, "and")</code> を選んで <code>and</code> と答えることになります。
+      </p>
+      <p>
+        <code>minimum</code> が比べるのは <code>(距離, 候補)</code> のタプルで、タプルの順序は1つ目の要素で比べ、等しければ2つ目の要素で比べる辞書式順序(lexicographic order)です。<code>(1, "mad")</code> と <code>(1, "bad")</code> は距離が並ぶので文字列どうしの比較になり、<code>"bad"</code> のほうが小さくなります。候補の並び順は結果に関係しません。距離が同じなら先に並んでいる候補が選ばれると読むと、<code>mad</code> と答えることになります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

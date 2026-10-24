@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「コンパイル時実行」を扱ったNamaranのコーディングドリル10問。inline else、@field、@tagName、実行時の値でフィールドを選ぶ、comptime field access、enum to field。">
+<meta name="description" content="「コンパイル時実行」を扱ったNamaranのコーディングドリル13問。comptime var、inline for、@typeInfo、フィールドの型を数える、コンパイル時の集計、type reflection。">
 <title>コンパイル時実行</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/comptime">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>コンパイル時実行</h2>
 
   <p class="lede">
-    「コンパイル時実行」を扱った10問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「コンパイル時実行」を扱った13問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/write/2026-10-25">Zig / WRITE · 2026-10-25</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">型の合うフィールドを数える</span> <span class="past-concepts">comptime var, inline for, @typeInfo, フィールドの型を数える, コンパイル時の集計, type reflection, comptime_int</span></li>
+    <li><a href="/zig/read/2026-10-25">Zig / READ · 2026-10-25</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">展開ごとに焼き込む値</span> <span class="past-concepts">comptime var, inline for, ループの展開, コンパイル時に決まる値, loop unrolling, comptime-known value</span></li>
+    <li><a href="/zig/debug/2026-10-25">Zig / DEBUG · 2026-10-25</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">一度しか数えないID</span> <span class="past-concepts">comptime var, 連番のID, 一度だけの評価, コンテナレベルの var, comptime evaluation, global counter, unique id</span></li>
     <li><a href="/zig/write/2026-10-24">Zig / WRITE · 2026-10-24</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">列挙子の名前でフィールドへ</span> <span class="past-concepts">inline else, @field, @tagName, 実行時の値でフィールドを選ぶ, comptime field access, enum to field, switch prong expansion</span></li>
     <li><a href="/zig/read/2026-10-24">Zig / READ · 2026-10-24</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">腕ごとに違う型の上限</span> <span class="past-concepts">inline else, タグ付き共用体, 腕ごとの型, std.math.maxInt, @TypeOf, tagged union, comptime switch prong</span></li>
     <li><a href="/zig/write/2026-10-23">Zig / WRITE · 2026-10-23</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">2倍の幅で掛ける</span> <span class="past-concepts">@TypeOf, @typeInfo, @Int, 型を返す関数, 幅を広げてから掛ける, widening multiplication, type reflection, anytype</span></li>

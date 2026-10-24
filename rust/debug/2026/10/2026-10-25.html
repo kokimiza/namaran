@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="版番号を確かめてから書き込む楽観的な更新で、確認に使った RefCell の借用がスコープの終わりまで残り、版が一致したときだけ borrow_mut が panic する欠陥を直すドリルです。2026-10-25のRust DEBUG。">
+<title>版を確かめた借用が残る</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-10-25">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-25" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-10-25",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-10-25",
+      "datePublished": "2026-10-25",
+      "dateModified": "2026-10-25",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "版を確かめた借用が残る" },
+      "keywords": "optimistic-locking, interior-mutability, drop-scope, panic",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "版番号を確かめてから書き込む楽観的な更新で、確認に使った RefCell の借用がスコープの終わりまで残り、版が一致したときだけ borrow_mut が panic する欠陥を直すドリルです。2026-10-25のRust DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-25">C23</a>
+  <a href="/cpp/debug/2026-10-25">C++26</a>
+  <a href="/rust/debug/2026-10-25" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-25">Haskell 2010</a>
+  <a href="/zig/debug/2026-10-25">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-25">READ</a>
+  <a href="/rust/write/2026-10-25">WRITE</a>
+  <a href="/rust/debug/2026-10-25" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="版を確かめた借用が残る"
+  data-tags="optimistic-locking interior-mutability drop-scope panic"
+  data-concepts="楽観的ロック, 版番号の確認, RefCell の二重借用, Ref の生存期間, BorrowMutError, optimistic locking, already borrowed"
+  data-level="bison"
+>
+  <h2>2026-10-25</h2>
+  <div class="code-frame">
+    <p class="code-filename">commit_row.rs</p>
+    <pre class="code"><code><span class="kw">use</span> std::cell::<span class="ty">RefCell</span>;
+
+<span class="kw">struct</span> <span class="ty">Row</span> {
+    version: <span class="ty">u64</span>,
+    stock: <span class="ty">i32</span>,
+}
+
+<span class="kw">fn</span> <span class="fn">commit</span>(row: &amp;<span class="ty">RefCell</span>&lt;<span class="ty">Row</span>&gt;, expected: <span class="ty">u64</span>, stock: <span class="ty">i32</span>) -&gt; <span class="ty">Result</span>&lt;<span class="ty">u64</span>, <span class="ty">u64</span>&gt; {
+    <span class="kw">let</span> current = row.<span class="fn">borrow</span>();
+    <span class="kw">if</span> current.version != expected {
+        <span class="kw">return</span> <span class="fn">Err</span>(current.version);
+    }
+    *row.<span class="fn">borrow_mut</span>() = <span class="ty">Row</span> { version: expected + <span class="nu">1</span>, stock };
+    <span class="fn">Ok</span>(expected + <span class="nu">1</span>)
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> row = <span class="ty">RefCell</span>::<span class="fn">new</span>(<span class="ty">Row</span> { version: <span class="nu">3</span>, stock: <span class="nu">10</span> });
+    <span class="mc">println!</span>(<span class="st">"{:?}"</span>, <span class="fn">commit</span>(&amp;row, <span class="nu">2</span>, <span class="nu">7</span>));
+    <span class="mc">println!</span>(<span class="st">"{:?}"</span>, <span class="fn">commit</span>(&amp;row, <span class="nu">3</span>, <span class="nu">7</span>));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>commit</code> は、行を読んだときの版番号 <code>expected</code> がいまの版番号と一致すれば在庫を書き換えて新しい版番号を <code>Ok</code> で返し、一致しなければ書き換えずにいまの版番号を <code>Err</code> で返すつもりの関数です。<code>main</code> は版番号 <code>3</code> の行に対し、古い版 <code>2</code> と正しい版 <code>3</code> で1回ずつ呼びます。いまの出力は <code>Err(3)</code> の1行だけで、2回目の呼び出しが <code>RefCell already borrowed</code> の panic で止まります。本来の出力は <code>Err(3)</code> と <code>Ok(4)</code> の2行です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">let</span> current = row.<span class="fn">borrow</span>();
+<span class="kw">if</span> current.version != expected {
+    <span class="kw">return</span> <span class="fn">Err</span>(current.version);
+}
+*row.<span class="fn">borrow_mut</span>() = <span class="ty">Row</span> { version: expected + <span class="nu">1</span>, stock };
+</code></pre>
+      <p>
+        <code>row.borrow()</code> が返す <code>Ref</code> は、共有の借用が続いていることを <code>RefCell</code> に知らせる番人の値で、捨てられるときに借用を返します。<code>current</code> という変数に入れた <code>Ref</code> が捨てられるのは、<code>current</code> を最後に使った行ではなく、関数のブロックの終わりです。参照の借用ならコンパイラが最後の使用までで終わらせますが、<code>Drop</code> を持つ値の破棄はスコープの終わりまで延びません。
+      </p>
+      <p>
+        版が一致しない1回目は、<code>return</code> で関数を抜けるときに <code>current</code> も捨てられるので、何も起きずに <code>Err(3)</code> が返ります。版が一致した2回目は、<code>current</code> を持ったまま <code>borrow_mut()</code> に進みます。共有の借用が残っている <code>RefCell</code> は可変の借用を許さないので、ここで panic します。必ず落ちるのは衝突しなかった更新のほうで、本来いちばん多く通るはずの道です。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">let</span> current = row.<span class="fn">borrow</span>().version;
+<span class="kw">if</span> current != expected {
+    <span class="kw">return</span> <span class="fn">Err</span>(current);
+}
+*row.<span class="fn">borrow_mut</span>() = <span class="ty">Row</span> { version: expected + <span class="nu">1</span>, stock };
+</code></pre>
+      <p>
+        版番号の <code>u64</code> だけをコピーして取り出します。<code>row.borrow()</code> が返した <code>Ref</code> は文の中の一時的な値になり、<code>let</code> の文が終わったところで捨てられます。<code>borrow_mut()</code> に着いたときには借用が残っていないので、書き込みが通って <code>Ok(4)</code> が返ります。元のコードの <code>if</code> の後ろに <code>drop(current);</code> を置き、書き込む前に借用を返しても直ります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

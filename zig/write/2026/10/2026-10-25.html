@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="構造体のフィールドのうち指定した型を持つものの数を、@typeInfo と inline for と comptime var を使ってコンパイル時に数える関数を書くドリルです。2026-10-25のZig WRITE。">
+<title>型の合うフィールドを数える</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/write/2026-10-25">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / WRITE", "item": "https://namaran.jocarium.productions/zig/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-25" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / WRITE — 2026-10-25",
+      "url": "https://namaran.jocarium.productions/zig/write/2026-10-25",
+      "datePublished": "2026-10-25",
+      "dateModified": "2026-10-25",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "型の合うフィールドを数える" },
+      "keywords": "comptime, reflection, struct, loop",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "構造体のフィールドのうち指定した型を持つものの数を、@typeInfo と inline for と comptime var を使ってコンパイル時に数える関数を書くドリルです。2026-10-25のZig WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-25">C23</a>
+  <a href="/cpp/write/2026-10-25">C++26</a>
+  <a href="/rust/write/2026-10-25">Rust 2024</a>
+  <a href="/haskell/write/2026-10-25">Haskell 2010</a>
+  <a href="/zig/write/2026-10-25" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-10-25">READ</a>
+  <a href="/zig/write/2026-10-25" class="active" aria-current="page">WRITE</a>
+  <a href="/zig/debug/2026-10-25">DEBUG</a>
+</nav>
+
+<main
+  data-topic="型の合うフィールドを数える"
+  data-tags="comptime reflection struct loop"
+  data-concepts="comptime var, inline for, @typeInfo, フィールドの型を数える, コンパイル時の集計, type reflection, comptime_int"
+  data-level="hedgehog"
+>
+  <h2>2026-10-25</h2>
+  <div class="code-frame">
+    <p class="code-filename">count_fields.zig</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">countOf</span>(<span class="kw">comptime</span> <span class="ty">T</span>: <span class="ty">type</span>, <span class="kw">comptime</span> <span class="ty">F</span>: <span class="ty">type</span>) <span class="ty">comptime_int</span> {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    構造体の型 <code>T</code> のフィールドのうち、型がちょうど <code>F</code> であるものの数を返す <code>countOf</code> を書いてください。結果は配列の長さにも使えるよう、コンパイル時に決まる値として返します。<code>F</code> 型のフィールドが1つも無ければ、フィールドの無い構造体も含めて <code>0</code> を返します。<code>T</code> には構造体だけが渡されるものとします。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>const Point = struct { x: f32, y: f32, id: u32 };
+countOf(Point, f32)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>2</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>countOf(Point, bool)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>var coords: [countOf(Point, f32)]f32 = undefined;
+coords.len</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>2</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">countOf</span>(<span class="kw">comptime</span> <span class="ty">T</span>: <span class="ty">type</span>, <span class="kw">comptime</span> <span class="ty">F</span>: <span class="ty">type</span>) <span class="ty">comptime_int</span> {
+    <span class="kw">comptime</span> <span class="kw">var</span> n = <span class="nu">0</span>;
+    <span class="kw">inline</span> <span class="kw">for</span> (<span class="mc">@typeInfo</span>(<span class="ty">T</span>).@"struct".field_types) |t| {
+        <span class="kw">if</span> (t == <span class="ty">F</span>) n += <span class="nu">1</span>;
+    }
+    <span class="kw">return</span> n;
+}
+</code></pre>
+      <p>
+        Zig 0.17 の <code>@typeInfo(T).@"struct"</code> は、フィールドの名前と型を <code>field_names</code> と <code>field_types</code> という別々のスライスで持ちます。型の値はコンパイル時にしか存在しないので、<code>field_types</code> を回すループは <code>inline for</code> にし、要素ごとに本体を展開させます。展開された本体の中では <code>t == F</code> がコンパイル時に決まり、真になる回だけ <code>n += 1</code> が残ります。
+      </p>
+      <p>
+        <code>comptime var</code> の <code>n</code> は、この展開を解析する間に増えていく変数で、<code>return n</code> に着いたときには数え終わった値を持っています。返り値の型 <code>comptime_int</code> はコンパイル時にしか扱えない整数型なので、<code>countOf</code> の呼び出しはまるごとコンパイル時に評価され、<code>[countOf(Point, f32)]f32</code> のように配列の長さに書けます。そのため、この関数の中に限っては <code>comptime</code> を省いて <code>var n = 0;</code> と書いてもコンパイルが通ります。<code>comptime var</code> と書いておくと、<code>n</code> がコンパイル時に数えられる値であることを、返り値の型まで見なくても宣言から読み取れます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>inline for</code> の代わりに <code>comptime { ... }</code> のブロックの中で普通の <code>for</code> を回しても、同じ数を求められます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/write">Today</a></li>
+    <li><a href="/zig/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

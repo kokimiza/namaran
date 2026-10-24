@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="呼ぶたびに新しい連番を返すつもりの関数で、カウンタを comptime var にしたため加算がコンパイル時に一度だけ行われ、毎回同じIDが返る欠陥を直すドリルです。2026-10-25のZig DEBUG。">
+<title>一度しか数えないID</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/debug/2026-10-25">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / DEBUG", "item": "https://namaran.jocarium.productions/zig/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-25" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / DEBUG — 2026-10-25",
+      "url": "https://namaran.jocarium.productions/zig/debug/2026-10-25",
+      "datePublished": "2026-10-25",
+      "dateModified": "2026-10-25",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "一度しか数えないID" },
+      "keywords": "comptime, static-storage, side-effect",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "呼ぶたびに新しい連番を返すつもりの関数で、カウンタを comptime var にしたため加算がコンパイル時に一度だけ行われ、毎回同じIDが返る欠陥を直すドリルです。2026-10-25のZig DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-25">C23</a>
+  <a href="/cpp/debug/2026-10-25">C++26</a>
+  <a href="/rust/debug/2026-10-25">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-25">Haskell 2010</a>
+  <a href="/zig/debug/2026-10-25" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-10-25">READ</a>
+  <a href="/zig/write/2026-10-25">WRITE</a>
+  <a href="/zig/debug/2026-10-25" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="一度しか数えないID"
+  data-tags="comptime static-storage side-effect"
+  data-concepts="comptime var, 連番のID, 一度だけの評価, コンテナレベルの var, comptime evaluation, global counter, unique id"
+  data-level="hedgehog"
+>
+  <h2>2026-10-25</h2>
+  <div class="code-frame">
+    <p class="code-filename">next_id.zig</p>
+    <pre class="code"><code><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);
+
+<span class="kw">fn</span> <span class="fn">nextId</span>() <span class="ty">u32</span> {
+    <span class="kw">comptime</span> <span class="kw">var</span> id: <span class="ty">u32</span> = <span class="nu">0</span>;
+    id += <span class="nu">1</span>;
+    <span class="kw">return</span> id;
+}
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {
+    <span class="kw">var</span> buf: [<span class="nu">256</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;
+    <span class="kw">var</span> stdout_writer = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;buf);
+    <span class="kw">const</span> stdout = &amp;stdout_writer.interface;
+    <span class="kw">try</span> stdout.<span class="fn">print</span>(<span class="st">"{d} {d} {d}\n"</span>, .{ <span class="fn">nextId</span>(), <span class="fn">nextId</span>(), <span class="fn">nextId</span>() });
+    <span class="kw">try</span> stdout.<span class="fn">flush</span>();
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>nextId</code> は、呼ぶたびに1から始まる連番を1つずつ進めて返し、注文などに重ならないIDを振るつもりの関数です。<code>main</code> は <code>nextId</code> を3回呼んで結果を並べます。いまの出力は <code>1 1 1</code> です。本来の出力は <code>1 2 3</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">nextId</span>() <span class="ty">u32</span> {
+    <span class="kw">comptime</span> <span class="kw">var</span> id: <span class="ty">u32</span> = <span class="nu">0</span>;
+    id += <span class="nu">1</span>;
+    <span class="kw">return</span> id;
+}
+</code></pre>
+      <p>
+        <code>comptime var</code> の読み書きは、プログラムを実行するときではなく、コンパイラが関数の本体を解析するときに行われます。<code>nextId</code> はコンパイル時の引数を持たないので、本体の解析は1回だけです。その1回で <code>id</code> は <code>0</code> から <code>1</code> になり、<code>return id</code> は定数の <code>1</code> を返す命令としてコンパイルされます。実行時に何度呼んでも、加算の命令はどこにも無く、返るのは毎回 <code>1</code> です。関数の中の <code>static</code> 変数のように呼び出しをまたいで値が残る、と読むと見落とします。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">var</span> last_id: <span class="ty">u32</span> = <span class="nu">0</span>;
+
+<span class="kw">fn</span> <span class="fn">nextId</span>() <span class="ty">u32</span> {
+    last_id += <span class="nu">1</span>;
+    <span class="kw">return</span> last_id;
+}
+</code></pre>
+      <p>
+        呼び出しをまたいで値を残すには、実行時に存在する変数が要ります。コンテナレベル(container level。ファイルの最上位など)に置いた <code>var</code> はプログラムの実行中ずっと1つだけあり、<code>last_id += 1</code> は呼ぶたびに実行されます。3回の呼び出しで <code>1</code>、<code>2</code>、<code>3</code> が返ります。関数の中の <code>var</code> にすると、呼ぶたびに <code>0</code> から作り直されるので、やはり毎回 <code>1</code> になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/debug">Today</a></li>
+    <li><a href="/zig/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
