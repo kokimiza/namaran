@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「計算量と速度」を扱ったNamaranのコーディングドリル11問。文字列の連結、連結の計算量、先頭への挿入、insert_str、push_str、string concatenation。">
+<meta name="description" content="「計算量と速度」を扱ったNamaranのコーディングドリル13問。二分探索木の高さ、挿入順による偏り、退化した木、flat_map、binary search tree height、degenerate tree。">
 <title>計算量と速度</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/performance">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,12 @@
   <h2>計算量と速度</h2>
 
   <p class="lede">
-    「計算量と速度」を扱った11問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「計算量と速度」を扱った13問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/read/2026-10-26">Rust / READ · 2026-10-26</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">両端から詰める挿入順</span> <span class="past-concepts">二分探索木の高さ, 挿入順による偏り, 退化した木, flat_map, binary search tree height, degenerate tree</span></li>
+    <li><a href="/rust/debug/2026-10-26">Rust / DEBUG · 2026-10-26</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">等しいキーで伸びる木</span> <span class="past-concepts">二分探索木の重複キー, 退化した木, matchのガード, duplicate keys, degenerate tree</span></li>
     <li><a href="/rust/write/2026-10-13">Rust / WRITE · 2026-10-13</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">葉から並んだパス</span> <span class="past-concepts">文字列の連結, 連結の計算量, 先頭への挿入, insert_str, push_str, string concatenation, quadratic time</span></li>
     <li><a href="/rust/read/2026-10-13">Rust / READ · 2026-10-13</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">連結のあとのas_ptr</span> <span class="past-concepts">文字列の連結, バッファの再利用, Add for String, 容量, ムーブ, string concatenation, buffer reuse, as_ptr</span></li>
     <li><a href="/rust/debug/2026-10-13">Rust / DEBUG · 2026-10-13</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">取り出したまま帰る</span> <span class="past-concepts">std::mem::take, 文字列の連結, 早期リターン, オペランドの評価順, データの消失, string concatenation, early return, evaluation order</span></li>

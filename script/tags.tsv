@@ -119,6 +119,7 @@ division	除算と剰余
 do-notation	do記法
 doubling	ダブリング
 drop-scope	dropスコープ
+durability	永続性
 dyn-compatibility	dyn互換性
 dynamic-dispatch	動的ディスパッチ
 dynamic-programming	動的計画法

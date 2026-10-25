@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「資源の後始末」を扱ったNamaranのコーディングドリル5問。例外安全、ロールバック、onException、IORef、途中状態の復元、rollback。">
+<meta name="description" content="「資源の後始末」を扱ったNamaranのコーディングドリル8問。errdefer、catch |err|、部分的な後始末、FailingAllocator、partial cleanup、error diagnostics。">
 <title>資源の後始末</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/resource-management">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>資源の後始末</h2>
 
   <p class="lede">
-    「資源の後始末」を扱った5問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「資源の後始末」を扱った8問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/write/2026-10-26">Zig / WRITE · 2026-10-26</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">失敗の位置を返す複製</span> <span class="past-concepts">errdefer, catch |err|, 部分的な後始末, FailingAllocator, partial cleanup, error diagnostics, Allocator</span></li>
+    <li><a href="/zig/read/2026-10-26">Zig / READ · 2026-10-26</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">失敗した回だけ戻す</span> <span class="past-concepts">errdefer, エラー共用体, try, else |err|, error union, error return</span></li>
+    <li><a href="/zig/debug/2026-10-26">Zig / DEBUG · 2026-10-26</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">先に戻されたID</span> <span class="past-concepts">errdeferの実行順, 逆順に実行される後始末, 実行時に読まれる値, errdefer order, LIFO, rollback log</span></li>
     <li><a href="/haskell/write/2026-09-17">Haskell / WRITE · 2026-09-17</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">失敗したら書き戻す</span> <span class="past-concepts">例外安全, ロールバック, onException, IORef, 途中状態の復元, rollback, exception safety</span></li>
     <li><a href="/haskell/write/2026-09-11">Haskell / WRITE · 2026-09-11</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">finallyで後始末</span> <span class="past-concepts">finally, 例外安全, 後始末, cleanup</span></li>
     <li><a href="/haskell/read/2026-09-11">Haskell / READ · 2026-09-11</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">bracketで確実に後始末</span> <span class="past-concepts">bracket, 例外安全, 後始末, cleanup</span></li>

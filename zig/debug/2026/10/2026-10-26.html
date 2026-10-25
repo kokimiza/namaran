@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="失敗したジョブを巻き戻すときにIDをログへ書くつもりのerrdeferが、あとに置いたIDを0に戻すerrdeferより後に実行され、ログのIDが0になる欠陥を直すドリルです。2026-10-26のZig DEBUG。">
+<title>先に戻されたID</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/debug/2026-10-26">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / DEBUG", "item": "https://namaran.jocarium.productions/zig/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-26" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / DEBUG — 2026-10-26",
+      "url": "https://namaran.jocarium.productions/zig/debug/2026-10-26",
+      "datePublished": "2026-10-26",
+      "dateModified": "2026-10-26",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "先に戻されたID" },
+      "keywords": "error-handling, resource-management, evaluation-order",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "失敗したジョブを巻き戻すときにIDをログへ書くつもりのerrdeferが、あとに置いたIDを0に戻すerrdeferより後に実行され、ログのIDが0になる欠陥を直すドリルです。2026-10-26のZig DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-26">C23</a>
+  <a href="/cpp/debug/2026-10-26">C++26</a>
+  <a href="/rust/debug/2026-10-26">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-26">Haskell 2010</a>
+  <a href="/zig/debug/2026-10-26" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-10-26">READ</a>
+  <a href="/zig/write/2026-10-26">WRITE</a>
+  <a href="/zig/debug/2026-10-26" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="先に戻されたID"
+  data-tags="error-handling resource-management evaluation-order"
+  data-concepts="errdeferの実行順, 逆順に実行される後始末, 実行時に読まれる値, errdefer order, LIFO, rollback log"
+  data-level="bison"
+>
+  <h2>2026-10-26</h2>
+  <div class="code-frame">
+    <p class="code-filename">job_log.zig</p>
+    <pre class="code"><code><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);
+
+<span class="kw">const</span> <span class="ty">Job</span> = <span class="kw">struct</span> { id: <span class="ty">u32</span> = <span class="nu">0</span>, name: []<span class="kw">const</span> <span class="ty">u8</span> };
+<span class="kw">var</span> next_id: <span class="ty">u32</span> = <span class="nu">42</span>;
+
+<span class="kw">fn</span> <span class="fn">start</span>(job: *<span class="ty">Job</span>, out: *std.<span class="ty">Io</span>.<span class="ty">Writer</span>) !<span class="ty">void</span> {
+    <span class="kw">errdefer</span> out.<span class="fn">print</span>(<span class="st">"job {d} rolled back\n"</span>, .{job.id}) <span class="kw">catch</span> {};
+    job.id = next_id;
+    next_id += <span class="nu">1</span>;
+    <span class="kw">errdefer</span> job.id = <span class="nu">0</span>;
+    <span class="kw">if</span> (job.name.len == <span class="nu">0</span>) <span class="kw">return</span> <span class="kw">error</span>.<span class="ty">EmptyName</span>;
+}
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {
+    <span class="kw">var</span> buf: [<span class="nu">256</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;
+    <span class="kw">var</span> stdout_writer = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;buf);
+    <span class="kw">const</span> out = &amp;stdout_writer.interface;
+    <span class="kw">var</span> job: <span class="ty">Job</span> = .{ .name = <span class="st">""</span> };
+    <span class="fn">start</span>(&amp;job, out) <span class="kw">catch</span> |err| <span class="kw">try</span> out.<span class="fn">print</span>(<span class="st">"error: {s}\n"</span>, .{<span class="mc">@errorName</span>(err)});
+    <span class="kw">try</span> out.<span class="fn">flush</span>();
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>start</code> は、ジョブにIDを割り当てて開始する関数です。失敗したときはIDを <code>0</code> に戻し、どのIDのジョブを巻き戻したかを <code>out</code> に書くつもりです。発生したエラーは <code>main</code> が <code>catch |err|</code> で受け取って書きます。名前が空のジョブを渡すと、本来の出力は <code>job 42 rolled back</code> と <code>error: EmptyName</code> の2行ですが、いまは1行目が <code>job 0 rolled back</code> になります。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code>    <span class="kw">errdefer</span> out.<span class="fn">print</span>(<span class="st">"job {d} rolled back\n"</span>, .{job.id}) <span class="kw">catch</span> {};
+    job.id = next_id;
+    next_id += <span class="nu">1</span>;
+    <span class="kw">errdefer</span> job.id = <span class="nu">0</span>;
+</code></pre>
+      <p>
+        <code>errdefer</code> は、関数がエラーで終わるときに、置いたのとは逆の順に実行されます。<code>return error.EmptyName</code> で抜けると、あとに置いた <code>errdefer job.id = 0</code> が先に実行され、ログの <code>errdefer</code> はそのあとです。<code>errdefer</code> の式は置いた時点ではなく実行される時点で評価されるので、ログが <code>job.id</code> を読むときには、すでに <code>0</code> に戻っています。
+      </p>
+      <p>
+        ログの <code>errdefer</code> を <code>job.id = next_id</code> より前に置いたので、割り当てる前の <code>0</code> が記録された、と読みたくなります。しかしログの行を割り当ての直後に移しても、<code>errdefer job.id = 0</code> より前にある限り実行はそれより後なので、出力は変わりません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code>    job.id = next_id;
+    next_id += <span class="nu">1</span>;
+    <span class="kw">errdefer</span> job.id = <span class="nu">0</span>;
+    <span class="kw">errdefer</span> out.<span class="fn">print</span>(<span class="st">"job {d} rolled back\n"</span>, .{job.id}) <span class="kw">catch</span> {};
+</code></pre>
+      <p>
+        ログの <code>errdefer</code> を、IDを戻す <code>errdefer</code> よりあとに置きます。逆の順に実行されるので、ログが先に書かれ、そのときの <code>job.id</code> はまだ <code>42</code> です。<code>errdefer</code> は、巻き戻す状態を作った行の直後に作った順で置くと、巻き戻しが作ったときと逆の順になり、どの後始末もまだ巻き戻されていない状態を読めます。エラーの名前は、<code>errdefer</code> からは参照できないので、<code>main</code> の <code>catch |err|</code> で書いています。<sup class="fn-ref">1</sup>
+      </p>
+      <ol class="footnotes">
+        <li>以前の版の Zig には、<code>errdefer |err|</code> と書いて返すエラーを受け取る構文がありました。Zig 0.17 の文法では <code>errdefer</code> の後ろに置けるのは式だけで、この構文はコンパイルエラーになります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/debug">Today</a></li>
+    <li><a href="/zig/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

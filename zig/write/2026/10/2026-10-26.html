@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="文字列の配列をまるごと複製し、途中で確保に失敗したらそれまでの分を解放したうえで、何個目まで複製できたかと発生したエラーを呼び出し側へ残す関数を書くドリルです。2026-10-26のZig WRITE。">
+<title>失敗の位置を返す複製</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/write/2026-10-26">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / WRITE", "item": "https://namaran.jocarium.productions/zig/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-26" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / WRITE — 2026-10-26",
+      "url": "https://namaran.jocarium.productions/zig/write/2026-10-26",
+      "datePublished": "2026-10-26",
+      "dateModified": "2026-10-26",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "失敗の位置を返す複製" },
+      "keywords": "error-handling, memory-management, resource-management, testing",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "文字列の配列をまるごと複製し、途中で確保に失敗したらそれまでの分を解放したうえで、何個目まで複製できたかと発生したエラーを呼び出し側へ残す関数を書くドリルです。2026-10-26のZig WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-26">C23</a>
+  <a href="/cpp/write/2026-10-26">C++26</a>
+  <a href="/rust/write/2026-10-26">Rust 2024</a>
+  <a href="/haskell/write/2026-10-26">Haskell 2010</a>
+  <a href="/zig/write/2026-10-26" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-10-26">READ</a>
+  <a href="/zig/write/2026-10-26" class="active" aria-current="page">WRITE</a>
+  <a href="/zig/debug/2026-10-26">DEBUG</a>
+</nav>
+
+<main
+  data-topic="失敗の位置を返す複製"
+  data-tags="error-handling memory-management resource-management testing"
+  data-concepts="errdefer, catch |err|, 部分的な後始末, FailingAllocator, partial cleanup, error diagnostics, Allocator"
+  data-level="whale"
+>
+  <h2>2026-10-26</h2>
+  <div class="code-frame">
+    <p class="code-filename">dupe_all.zig</p>
+    <pre class="code"><code><span class="kw">const</span> <span class="ty">Diag</span> = <span class="kw">struct</span> { copied: <span class="ty">usize</span> = <span class="nu">0</span>, err: ?<span class="ty">anyerror</span> = <span class="nu">null</span> };
+
+<span class="kw">fn</span> <span class="fn">dupeAll</span>(gpa: std.mem.<span class="ty">Allocator</span>, items: []<span class="kw">const</span> []<span class="kw">const</span> <span class="ty">u8</span>, diag: *<span class="ty">Diag</span>) ![][]<span class="ty">u8</span> {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    文字列のスライス <code>items</code> の各要素を <code>gpa</code> で確保した領域へ複製し、複製した文字列のスライスを返す <code>dupeAll</code> を書いてください。返すスライスとそれぞれの文字列は、呼び出し側が解放します。確保に1回でも失敗したら、それまでに確保した領域をすべて解放してからそのエラーを返し、<code>diag.copied</code> に複製を終えていた文字列の数を、<code>diag.err</code> に返したエラーを書きます。成功したときの <code>diag</code> は、<code>copied</code> が <code>items.len</code> で <code>err</code> が <code>null</code> です。<code>items</code> が空なら空のスライスを返します。入力例 3 の <code>failing</code> は、2回の確保に成功したあと3回目から失敗するアロケータです。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>var diag: Diag = .{};
+dupeAll(gpa, &amp;.{ "ab", "cd" }, &amp;diag)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>.{ "ab", "cd" }
+diag == .{ .copied = 2, .err = null }</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>dupeAll(gpa, &amp;.{}, &amp;diag)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>.{}
+diag == .{ .copied = 0, .err = null }</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>var failing = std.testing.FailingAllocator.init(gpa, .{ .fail_index = 2 });
+dupeAll(failing.allocator(), &amp;.{ "ab", "cd", "ef" }, &amp;diag)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>error.OutOfMemory
+diag == .{ .copied = 1, .err = error.OutOfMemory }</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">dupeAll</span>(gpa: std.mem.<span class="ty">Allocator</span>, items: []<span class="kw">const</span> []<span class="kw">const</span> <span class="ty">u8</span>, diag: *<span class="ty">Diag</span>) ![][]<span class="ty">u8</span> {
+    diag.* = .{};
+    <span class="kw">return</span> <span class="fn">dupeEach</span>(gpa, items, &amp;diag.copied) <span class="kw">catch</span> |err| {
+        diag.err = err;
+        <span class="kw">return</span> err;
+    };
+}
+
+<span class="kw">fn</span> <span class="fn">dupeEach</span>(gpa: std.mem.<span class="ty">Allocator</span>, items: []<span class="kw">const</span> []<span class="kw">const</span> <span class="ty">u8</span>, n: *<span class="ty">usize</span>) ![][]<span class="ty">u8</span> {
+    <span class="kw">const</span> out = <span class="kw">try</span> gpa.<span class="fn">alloc</span>([]<span class="ty">u8</span>, items.len);
+    <span class="kw">errdefer</span> gpa.<span class="fn">free</span>(out);
+    <span class="kw">errdefer</span> <span class="kw">for</span> (out[<span class="nu">0</span>..n.*]) |s| gpa.<span class="fn">free</span>(s);
+    <span class="kw">while</span> (n.* &lt; items.len) : (n.* += <span class="nu">1</span>) out[n.*] = <span class="kw">try</span> gpa.<span class="fn">dupe</span>(<span class="ty">u8</span>, items[n.*]);
+    <span class="kw">return</span> out;
+}
+</code></pre>
+      <p>
+        後始末は <code>dupeEach</code> の <code>errdefer</code> が受け持ちます。<code>errdefer</code> は関数がエラーで終わるときに、置いたのとは逆の順に実行されるので、先に <code>out[0..n.*]</code> の文字列を解放し、そのあとで <code>out</code> 自体を解放します。解放したあとの <code>out</code> を読むことはありません。<code>n.*</code> は <code>errdefer</code> を置いた時点ではなく実行される時点で読まれるので、失敗したときには複製を終えた数になっています。<code>out</code> の確保そのものに失敗した場合は、どちらの <code>errdefer</code> にもまだ届いていないので、何も解放しません。
+      </p>
+      <p>
+        文字列を解放する <code>errdefer</code> を繰り返しの本体に置くと、本体を抜けるたびにその有効範囲が終わるので、後の回で失敗したときに前の回の文字列を解放できません。そのため数える変数を繰り返しの外に置き、関数の終わりで一度に解放しています。
+      </p>
+      <p>
+        Zig 0.17 の <code>errdefer</code> は、返そうとしているエラーを受け取れません。<sup class="fn-ref">1</sup> そこで <code>dupeAll</code> は、後始末を済ませて戻ってきた <code>dupeEach</code> のエラーを <code>catch |err|</code> で受け取り、<code>diag.err</code> に書いてからそのまま返します。数は <code>&amp;diag.copied</code> を渡して <code>dupeEach</code> に直接数えさせるので、失敗した時点の値がそのまま残ります。
+      </p>
+      <p>
+        検証では <code>std.testing.FailingAllocator</code> で1回目から4回目までの確保をそれぞれ失敗させ、<code>diag</code> の値と、確保したバイト数と解放したバイト数が一致することを確かめました。掲載したのは参考実装で、唯一の正解ではありません。1つの関数の中で、ラベル付きブロックの結果を <code>catch</code> で受ける書き方もできます。
+      </p>
+      <ol class="footnotes">
+        <li>以前の版の Zig には、<code>errdefer |err|</code> と書いて返すエラーを受け取る構文がありました。Zig 0.17 の文法では <code>errdefer</code> の後ろに置けるのは式だけで、この構文はコンパイルエラーになります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/write">Today</a></li>
+    <li><a href="/zig/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「未定義動作」を扱ったNamaranのコーディングドリル16問。INT_MIN の符号反転、符号付き整数のオーバーフロー、条件演算子の型、整数から文字列、negating INT_MIN、signed overflow。">
+<meta name="description" content="「未定義動作」を扱ったNamaranのコーディングドリル17問。文字列化、#演算子、printfの書式文字列、文字列リテラルの連結、stringification、format string。">
 <title>未定義動作</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/undefined-behavior">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>未定義動作</h2>
 
   <p class="lede">
-    「未定義動作」を扱った16問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「未定義動作」を扱った17問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/c/debug/2026-10-26">C / DEBUG · 2026-10-26</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">条件式が書式になる</span> <span class="past-concepts">文字列化, #演算子, printfの書式文字列, 文字列リテラルの連結, stringification, format string</span></li>
     <li><a href="/c/debug/2026-10-23">C / DEBUG · 2026-10-23</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">unsignedに移す前の反転</span> <span class="past-concepts">INT_MIN の符号反転, 符号付き整数のオーバーフロー, 条件演算子の型, 整数から文字列, negating INT_MIN, signed overflow, itoa</span></li>
     <li><a href="/c/write/2026-10-16">C / WRITE · 2026-10-16</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">範囲をその場で逆順に</span> <span class="past-concepts">ポインタの範囲, 末尾の1つ先, 先頭の1つ手前, 逆順, reverse in place, one past the end, pointer arithmetic</span></li>
     <li><a href="/c/debug/2026-10-13">C / DEBUG · 2026-10-13</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">キャストの外でずらす</span> <span class="past-concepts">可変長整数, varint, LEB128, 整数昇格, シフトの結果の型, キャストの位置, integer promotion, shift overflow</span></li>

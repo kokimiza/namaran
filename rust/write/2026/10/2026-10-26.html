@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="昇順に並んだキーから、空の二分探索木へ順に挿入すると高さが最小になる挿入順を、根に近い段から並べて返す関数を書くドリルです。2026-10-26のRust WRITE。">
+<title>高さが最小になる挿入順</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-10-26">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-26" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-10-26",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-10-26",
+      "datePublished": "2026-10-26",
+      "dateModified": "2026-10-26",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "高さが最小になる挿入順" },
+      "keywords": "binary-search-tree, balanced-tree, breadth-first-search, slice",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "昇順に並んだキーから、空の二分探索木へ順に挿入すると高さが最小になる挿入順を、根に近い段から並べて返す関数を書くドリルです。2026-10-26のRust WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-26">C23</a>
+  <a href="/cpp/write/2026-10-26">C++26</a>
+  <a href="/rust/write/2026-10-26" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-10-26">Haskell 2010</a>
+  <a href="/zig/write/2026-10-26">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-26">READ</a>
+  <a href="/rust/write/2026-10-26" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-10-26">DEBUG</a>
+</nav>
+
+<main
+  data-topic="高さが最小になる挿入順"
+  data-tags="binary-search-tree balanced-tree breadth-first-search slice"
+  data-concepts="平衡二分探索木, 幅優先の順, 中央から挿入, VecDeque, level order, balanced BST"
+  data-level="bison"
+>
+  <h2>2026-10-26</h2>
+  <div class="code-frame">
+    <p class="code-filename">level_order.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">level_order</span>(sorted: &amp;[<span class="ty">u32</span>]) -&gt; <span class="ty">Vec</span>&lt;<span class="ty">u32</span>&gt; {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    昇順に並んだ重複のないキーの列 <code>sorted</code> を、空の二分探索木へどの順に挿入するかを返す <code>level_order</code> を書いてください。木は、列の中央のキー(長さが偶数なら中央の2つのうち左)を根にし、その左側と右側の列にも同じ規則を当てて子を決めたものです。返すのは、この木のキーを根から1段ずつ、各段の中では左から順に並べた列です。空の列には空の <code>Vec</code> を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>level_order(&amp;[1, 2, 3, 4, 5, 6, 7])</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>[4, 2, 6, 1, 3, 5, 7]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>level_order(&amp;[10, 20, 30, 40])</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>[20, 10, 30, 40]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>level_order(&amp;[])</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>[]</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">use</span> std::collections::<span class="ty">VecDeque</span>;
+
+<span class="kw">fn</span> <span class="fn">level_order</span>(sorted: &amp;[<span class="ty">u32</span>]) -&gt; <span class="ty">Vec</span>&lt;<span class="ty">u32</span>&gt; {
+    <span class="kw">let</span> <span class="kw">mut</span> out = <span class="ty">Vec</span>::<span class="fn">with_capacity</span>(sorted.<span class="fn">len</span>());
+    <span class="kw">let</span> <span class="kw">mut</span> queue = <span class="ty">VecDeque</span>::<span class="fn">from</span>([sorted]);
+    <span class="kw">while</span> <span class="kw">let</span> <span class="fn">Some</span>(s) = queue.<span class="fn">pop_front</span>() {
+        <span class="kw">if</span> s.<span class="fn">is_empty</span>() {
+            <span class="kw">continue</span>;
+        }
+        <span class="kw">let</span> mid = (s.<span class="fn">len</span>() - <span class="nu">1</span>) / <span class="nu">2</span>;
+        out.<span class="fn">push</span>(s[mid]);
+        queue.<span class="fn">push_back</span>(&amp;s[..mid]);
+        queue.<span class="fn">push_back</span>(&amp;s[mid + <span class="nu">1</span>..]);
+    }
+    out
+}
+</code></pre>
+      <p>
+        まだキーを並べていない部分木を、昇順の部分列として <code>VecDeque</code> に入れておき、先頭から1つずつ取り出します。取り出した部分列の中央がその部分木の根なので、それを <code>out</code> に足し、左右の部分列を末尾に入れます。ある段の部分木をすべて取り出してから次の段の部分木に進むので、<code>out</code> は根に近い段から、各段の中では左から順に並びます。
+      </p>
+      <p>
+        部分列は <code>&amp;s[..mid]</code> のように元のスライスを借りるだけで、キーを写すのは <code>out</code> に入れるときの1回だけです。空の部分列は子がないことを表すので、取り出したら飛ばします。長さ <code>0</code> の列をここで除いているので、<code>(s.len() - 1) / 2</code> が桁あふれすることはありません。長さが偶数なら、この式は中央の2つのうち左を選びます。
+      </p>
+      <p>
+        この順に挿入すると、どのキーも親より後に、親の左右どちらかの部分列から来るので、木は規則で決めた形のとおりに育ちます。キーが <code>n</code> 個なら高さは <code>n</code> の2進数の桁数(7個なら <code>3</code>)で、昇順のまま挿入したときの高さ <code>n</code> より大きく下がります。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。部分列の代わりに添字の範囲 <code>(lo, hi)</code> をキューに入れても、同じ順が得られます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

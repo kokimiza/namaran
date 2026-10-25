@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「楽観的ロック」を扱ったNamaranのコーディングドリル3問。楽観的ロック、版番号、compare_exchange_weak、再試行ループ、ビットの詰め込み、optimistic locking。">
+<meta name="description" content="「楽観的ロック」を扱ったNamaranのコーディングドリル5問。ABA問題、版番号、タグ付きCAS、compare_exchange_strong、ABA problem、version counter。">
 <title>楽観的ロック</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/optimistic-locking">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,12 @@
   <h2>楽観的ロック</h2>
 
   <p class="lede">
-    「楽観的ロック」を扱った3問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「楽観的ロック」を扱った5問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/cpp/write/2026-10-26">C++ / WRITE · 2026-10-26</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">版番号つきの値の更新</span> <span class="past-concepts">ABA問題, 版番号, タグ付きCAS, compare_exchange_strong, ABA problem, version counter</span></li>
+    <li><a href="/cpp/debug/2026-10-26">C++ / DEBUG · 2026-10-26</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">一周して戻る版番号</span> <span class="past-concepts">ABA問題, 版番号の周回, unsigned charの桁あふれ, compare_exchange_strong, ABA problem, tag wraparound</span></li>
     <li><a href="/rust/write/2026-10-25">Rust / WRITE · 2026-10-25</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">版と値を1語でCAS</span> <span class="past-concepts">楽観的ロック, 版番号, compare_exchange_weak, 再試行ループ, ビットの詰め込み, optimistic locking, CAS loop, versioned word</span></li>
     <li><a href="/rust/read/2026-10-25">Rust / READ · 2026-10-25</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">moveで写した版番号</span> <span class="past-concepts">楽観的ロック, 版番号の比較, move クロージャ, Copy 型の捕捉, FnMut の状態, optimistic locking, move closure, version check</span></li>
     <li><a href="/rust/debug/2026-10-25">Rust / DEBUG · 2026-10-25</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">版を確かめた借用が残る</span> <span class="past-concepts">楽観的ロック, 版番号の確認, RefCell の二重借用, Ref の生存期間, BorrowMutError, optimistic locking, already borrowed</span></li>

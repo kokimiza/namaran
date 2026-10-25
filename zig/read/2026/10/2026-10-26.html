@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="errdeferがtryによるエラーでもreturnによるエラーでも実行され、成功した呼び出しでは実行されないこと、発生したエラーは呼び出し側のelse |err|で受け取ることを確かめるドリルです。2026-10-26のZig READ。">
+<title>失敗した回だけ戻す</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/read/2026-10-26">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / READ", "item": "https://namaran.jocarium.productions/zig/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-26" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / READ — 2026-10-26",
+      "url": "https://namaran.jocarium.productions/zig/read/2026-10-26",
+      "datePublished": "2026-10-26",
+      "dateModified": "2026-10-26",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "失敗した回だけ戻す" },
+      "keywords": "error-handling, resource-management",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "errdeferがtryによるエラーでもreturnによるエラーでも実行され、成功した呼び出しでは実行されないこと、発生したエラーは呼び出し側のelse |err|で受け取ることを確かめるドリルです。2026-10-26のZig READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-26">C23</a>
+  <a href="/cpp/read/2026-10-26">C++26</a>
+  <a href="/rust/read/2026-10-26">Rust 2024</a>
+  <a href="/haskell/read/2026-10-26">Haskell 2010</a>
+  <a href="/zig/read/2026-10-26" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-10-26" class="active" aria-current="page">READ</a>
+  <a href="/zig/write/2026-10-26">WRITE</a>
+  <a href="/zig/debug/2026-10-26">DEBUG</a>
+</nav>
+
+<main
+  data-topic="失敗した回だけ戻す"
+  data-tags="error-handling resource-management"
+  data-concepts="errdefer, エラー共用体, try, else |err|, error union, error return"
+  data-level="hedgehog"
+>
+  <h2>2026-10-26</h2>
+  <div class="code-frame">
+    <p class="code-filename">rolled_back.zig</p>
+    <pre class="code"><code><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);
+
+<span class="kw">var</span> rolled_back: <span class="ty">u32</span> = <span class="nu">0</span>;
+
+<span class="kw">fn</span> <span class="fn">parsePort</span>(s: []<span class="kw">const</span> <span class="ty">u8</span>) !<span class="ty">u16</span> {
+    <span class="kw">errdefer</span> rolled_back += <span class="nu">1</span>;
+    <span class="kw">const</span> n = <span class="kw">try</span> std.fmt.<span class="fn">parseInt</span>(<span class="ty">u16</span>, s, <span class="nu">10</span>);
+    <span class="kw">if</span> (n == <span class="nu">0</span>) <span class="kw">return</span> <span class="kw">error</span>.<span class="ty">Zero</span>;
+    <span class="kw">return</span> n;
+}
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {
+    <span class="kw">var</span> buf: [<span class="nu">256</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;
+    <span class="kw">var</span> stdout_writer = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;buf);
+    <span class="kw">const</span> stdout = &amp;stdout_writer.interface;
+    <span class="kw">for</span> ([_][]<span class="kw">const</span> <span class="ty">u8</span>{ <span class="st">"8080"</span>, <span class="st">"0"</span>, <span class="st">"x"</span> }) |s| {
+        <span class="kw">if</span> (<span class="fn">parsePort</span>(s)) |p| <span class="kw">try</span> stdout.<span class="fn">print</span>(<span class="st">"{d} "</span>, .{p}) <span class="kw">else</span> |err| <span class="kw">try</span> stdout.<span class="fn">print</span>(<span class="st">"{s} "</span>, .{<span class="mc">@errorName</span>(err)});
+    }
+    <span class="kw">try</span> stdout.<span class="fn">print</span>(<span class="st">"{d}\n"</span>, .{rolled_back});
+    <span class="kw">try</span> stdout.<span class="fn">flush</span>();
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>8080 Zero InvalidCharacter 2</code> です。
+      </p>
+      <p>
+        <code>errdefer</code> は、関数がエラーを返して終わるときにだけ、置いた式を実行します。エラーがどこから来たかは問わないので、<code>try</code> が <code>parseInt</code> のエラーをそのまま返す場合も、<code>return error.Zero</code> で返す場合も、<code>rolled_back += 1</code> が実行されます。
+      </p>
+      <p>
+        <code>"8080"</code> は数として読めて <code>0</code> でもないので、<code>parsePort</code> は成功し、<code>errdefer</code> は実行されません。<code>"0"</code> は読めますが <code>error.Zero</code> を返し、<code>"x"</code> は <code>parseInt</code> が <code>error.InvalidCharacter</code> を返して <code>try</code> で抜けます。この2回だけ <code>rolled_back</code> が増えるので、最後に <code>2</code> が出ます。
+      </p>
+      <p>
+        Zig 0.17 の <code>errdefer</code> は、返そうとしているエラーの値を受け取れません。どのエラーだったかを使いたいときは、この <code>main</code> のように、呼び出し側で <code>if</code> の <code>else |err|</code> か <code>catch |err|</code> を使って受け取ります。<sup class="fn-ref">1</sup>
+      </p>
+      <ol class="footnotes">
+        <li>以前の版の Zig には、<code>errdefer |err|</code> と書いて返すエラーを受け取る構文がありました。Zig 0.17 の文法では <code>errdefer</code> の後ろに置けるのは式だけで、この構文はコンパイルエラーになります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/read">Today</a></li>
+    <li><a href="/zig/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

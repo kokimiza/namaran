@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「メモリ管理」を扱ったNamaranのコーディングドリル9問。@typeInfo、構造体のフィールドの走査、inline for、型の等値比較、[]const u8、メモリリーク。">
+<meta name="description" content="「メモリ管理」を扱ったNamaranのコーディングドリル10問。errdefer、catch |err|、部分的な後始末、FailingAllocator、partial cleanup、error diagnostics。">
 <title>メモリ管理</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/memory-management">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>メモリ管理</h2>
 
   <p class="lede">
-    「メモリ管理」を扱った9問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「メモリ管理」を扱った10問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/write/2026-10-26">Zig / WRITE · 2026-10-26</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">失敗の位置を返す複製</span> <span class="past-concepts">errdefer, catch |err|, 部分的な後始末, FailingAllocator, partial cleanup, error diagnostics, Allocator</span></li>
     <li><a href="/zig/debug/2026-10-23">Zig / DEBUG · 2026-10-23</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">constの付いた型は別の型</span> <span class="past-concepts">@typeInfo, 構造体のフィールドの走査, inline for, 型の等値比較, []const u8, メモリリーク, type reflection, memory leak</span></li>
     <li><a href="/c/write/2026-10-14">C / WRITE · 2026-10-14</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">1回のmallocで掛け算表</span> <span class="past-concepts">可変長配列, VLA, 配列へのポインタ, 2次元配列の動的確保, variable length array, pointer to array, malloc sizeof</span></li>
     <li><a href="/c/debug/2026-10-03">C / DEBUG · 2026-10-03</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">文字列を角括弧で囲む</span> <span class="past-concepts">文字数とバイト数, mallocの大きさ, ヒープバッファオーバーフロー, heap buffer overflow, strlen vs character count</span></li>

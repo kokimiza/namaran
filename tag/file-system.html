@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「ファイルシステム」を扱ったNamaranのコーディングドリル8問。変更通知、再送、通知の欠落、通し番号、std::optional、std::set。">
+<meta name="description" content="「ファイルシステム」を扱ったNamaranのコーディングドリル11問。fsync、hFlush、永続化、fileSynchronise、handleToFd、durability。">
 <title>ファイルシステム</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/file-system">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>ファイルシステム</h2>
 
   <p class="lede">
-    「ファイルシステム」を扱った8問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「ファイルシステム」を扱った11問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/haskell/write/2026-10-26">Haskell / WRITE · 2026-10-26</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">電源が落ちても残す保存</span> <span class="past-concepts">fsync, hFlush, 永続化, fileSynchronise, handleToFd, durability, page cache</span></li>
+    <li><a href="/haskell/read/2026-10-26">Haskell / READ · 2026-10-26</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">改行までは届かない</span> <span class="past-concepts">行バッファリング, hSetBuffering, LineBuffering, hClose, line buffering, getFileSize</span></li>
+    <li><a href="/haskell/debug/2026-10-26">Haskell / DEBUG · 2026-10-26</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">監視から見えない心拍</span> <span class="past-concepts">ブロックバッファリング, hFlush, ファイルHandleの既定のバッファ, block buffering, log not visible, tail -f</span></li>
     <li><a href="/cpp/write/2026-10-16">C++ / WRITE · 2026-10-16</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">再送と欠落のある変更通知</span> <span class="past-concepts">変更通知, 再送, 通知の欠落, 通し番号, std::optional, std::set, 重複除去, file change notification, sequence number, event coalescing</span></li>
     <li><a href="/cpp/read/2026-10-16">C++ / READ · 2026-10-16</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">同じキーへのinsert</span> <span class="past-concepts">std::map, insert, 重複キー, 上書きされない, insert_or_assign, 変更通知の集約, duplicate key, event coalescing</span></li>
     <li><a href="/haskell/debug/2026-10-12">Haskell / DEBUG · 2026-10-12</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">readが読む0644</span> <span class="past-concepts">read と8進数, 先頭が0の整数, ファイルのモード, umask, read octal, leading zero, file mode, 0o prefix</span></li>

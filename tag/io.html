@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「IOアクション」を扱ったNamaranのコーディングドリル22問。IORef のスナップショット、不変な値、readIORef、modifyIORef、immutable value、mutable reference。">
+<meta name="description" content="「IOアクション」を扱ったNamaranのコーディングドリル25問。fsync、hFlush、永続化、fileSynchronise、handleToFd、durability。">
 <title>IOアクション</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/io">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>IOアクション</h2>
 
   <p class="lede">
-    「IOアクション」を扱った22問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「IOアクション」を扱った25問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/haskell/write/2026-10-26">Haskell / WRITE · 2026-10-26</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">電源が落ちても残す保存</span> <span class="past-concepts">fsync, hFlush, 永続化, fileSynchronise, handleToFd, durability, page cache</span></li>
+    <li><a href="/haskell/read/2026-10-26">Haskell / READ · 2026-10-26</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">改行までは届かない</span> <span class="past-concepts">行バッファリング, hSetBuffering, LineBuffering, hClose, line buffering, getFileSize</span></li>
+    <li><a href="/haskell/debug/2026-10-26">Haskell / DEBUG · 2026-10-26</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">監視から見えない心拍</span> <span class="past-concepts">ブロックバッファリング, hFlush, ファイルHandleの既定のバッファ, block buffering, log not visible, tail -f</span></li>
     <li><a href="/haskell/read/2026-10-24">Haskell / READ · 2026-10-24</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">書き換える前に読んだ値</span> <span class="past-concepts">IORef のスナップショット, 不変な値, readIORef, modifyIORef, immutable value, mutable reference, snapshot</span></li>
     <li><a href="/haskell/debug/2026-10-24">Haskell / DEBUG · 2026-10-24</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">毎回作り直される箱</span> <span class="past-concepts">IORef を作るアクション, newIORef, トップレベルの可変状態, 参照透過性, IO action vs value, global mutable state, counter</span></li>
     <li><a href="/haskell/write/2026-10-17">Haskell / WRITE · 2026-10-17</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">終了せずに終了コードを得る</span> <span class="past-concepts">終了コード, exitWith, ExitCode, try, 例外として投げられる終了, exit status, catching ExitCode, testing main</span></li>

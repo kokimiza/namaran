@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="X-macroで1か所にまとめた色の一覧から、#演算子と##演算子を使って列挙値をその名前の文字列に変える関数を書くドリルです。2026-10-26のC WRITE。">
+<title>列挙子の名前を文字列に</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-10-26">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-26" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-10-26",
+      "url": "https://namaran.jocarium.productions/c/write/2026-10-26",
+      "datePublished": "2026-10-26",
+      "dateModified": "2026-10-26",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "列挙子の名前を文字列に" },
+      "keywords": "macro, preprocessor, enum, string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "X-macroで1か所にまとめた色の一覧から、#演算子と##演算子を使って列挙値をその名前の文字列に変える関数を書くドリルです。2026-10-26のC WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-26" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-10-26">C++26</a>
+  <a href="/rust/write/2026-10-26">Rust 2024</a>
+  <a href="/haskell/write/2026-10-26">Haskell 2010</a>
+  <a href="/zig/write/2026-10-26">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-26">READ</a>
+  <a href="/c/write/2026-10-26" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-10-26">DEBUG</a>
+</nav>
+
+<main
+  data-topic="列挙子の名前を文字列に"
+  data-tags="macro preprocessor enum string"
+  data-concepts="X-macro, 文字列化, #演算子, トークン連結, ##演算子, stringification, enum to string"
+  data-level="hedgehog"
+>
+  <h2>2026-10-26</h2>
+  <div class="code-frame">
+    <p class="code-filename">color_name.c</p>
+    <pre class="code"><code><span class="pp">#define</span> <span class="fn">COLORS</span>(<span class="ty">X</span>) <span class="fn">X</span>(red) <span class="fn">X</span>(green) <span class="fn">X</span>(blue)
+<span class="pp">#define</span> <span class="fn">AS_ENUM</span>(name) <span class="nu">COLOR_</span>##name,
+<span class="kw">enum</span> <span class="ty">color</span> { <span class="fn">COLORS</span>(<span class="nu">AS_ENUM</span>) };
+
+<span class="kw">const</span> <span class="ty">char</span>* <span class="fn">color_name</span>(<span class="kw">enum</span> <span class="ty">color</span> c) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>COLORS</code> は色の一覧を1か所に持つマクロで、<code>enum color</code> はそこから <code>COLOR_red</code> などの列挙子を作っています。列挙値 <code>c</code> を受け取り、その色の名前(<code>COLOR_green</code> なら <code>"green"</code>)を返す <code>color_name</code> を書いてください。<code>COLORS</code> に色を足したとき、<code>color_name</code> を直さなくても新しい色の名前を返せるようにします。どの列挙子にも当たらない値には <code>"?"</code> を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>color_name(COLOR_green)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>"green"</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>color_name(COLOR_red)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>"red"</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>color_name((enum color)3)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>"?"</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">const</span> <span class="ty">char</span>* <span class="fn">color_name</span>(<span class="kw">enum</span> <span class="ty">color</span> c) {
+<span class="pp">#define</span> <span class="fn">AS_CASE</span>(name)  \
+    <span class="kw">case</span> <span class="nu">COLOR_</span>##name: \
+        <span class="kw">return</span> #name;
+    <span class="kw">switch</span> (c) { <span class="fn">COLORS</span>(<span class="nu">AS_CASE</span>) }
+<span class="pp">#undef</span> <span class="nu">AS_CASE</span>
+    <span class="kw">return</span> <span class="st">"?"</span>;
+}
+</code></pre>
+      <p>
+        <code>COLORS(X)</code> は、渡されたマクロ <code>X</code> を色ごとに1回ずつ呼びます。<code>color_name</code> の中で色1つ分の <code>case</code> を作るマクロ <code>AS_CASE</code> を定義して <code>COLORS</code> に渡すと、<code>switch</code> の中に <code>case COLOR_red: return "red";</code> のような行が色の数だけ並びます。<code>COLOR_##name</code> は <code>COLOR_</code> と色の名前を貼り合わせて列挙子の名前にし、<code>#name</code> は色の名前を文字列リテラルにします。
+      </p>
+      <p>
+        どの <code>case</code> にも当たらない値は <code>switch</code> を抜け、最後の <code>return "?";</code> に届きます。<code>AS_CASE</code> はこの関数の中でしか使わないので、使い終わったら <code>#undef</code> で消しておきます。色を <code>COLORS</code> に足せば、<code>enum color</code> の列挙子と <code>case</code> が同じ一覧から一緒に増えます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>#name,</code> を並べた文字列の配列を作り、<code>c</code> が範囲内かを確かめてから添字で引く書き方もあります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

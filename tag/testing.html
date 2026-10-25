@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「テスト」を扱ったNamaranのコーディングドリル10問。テストオラクル、正解が一つに決まらない出力、多重集合の比較、小さい方から k 個、test oracle、multiset equality。">
+<meta name="description" content="「テスト」を扱ったNamaranのコーディングドリル11問。errdefer、catch |err|、部分的な後始末、FailingAllocator、partial cleanup、error diagnostics。">
 <title>テスト</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/testing">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>テスト</h2>
 
   <p class="lede">
-    「テスト」を扱った10問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「テスト」を扱った11問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/write/2026-10-26">Zig / WRITE · 2026-10-26</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">失敗の位置を返す複製</span> <span class="past-concepts">errdefer, catch |err|, 部分的な後始末, FailingAllocator, partial cleanup, error diagnostics, Allocator</span></li>
     <li><a href="/cpp/write/2026-10-24">C++ / WRITE · 2026-10-24</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（上級）" title="クジラ（上級）"></span> <span class="past-topic">答えが一つでない結果の検査</span> <span class="past-concepts">テストオラクル, 正解が一つに決まらない出力, 多重集合の比較, 小さい方から k 個, test oracle, multiset equality, k smallest elements</span></li>
     <li><a href="/cpp/read/2026-10-24">C++ / READ · 2026-10-24</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">文字列を比べるテスト</span> <span class="past-concepts">テストの比較関数, const char* の比較, 配列からポインタへの変換, 文字列の等値比較, pointer comparison, string literal, expect_eq</span></li>
     <li><a href="/cpp/debug/2026-10-24">C++ / DEBUG · 2026-10-24</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">値が無いと通るテスト</span> <span class="past-concepts">テストの判定, std::optional の比較, nullopt を見逃すテスト, from_chars, optional comparison, vacuous pass, test helper</span></li>
