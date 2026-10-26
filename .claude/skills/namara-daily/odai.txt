@@ -7,6 +7,10 @@
 # - READ・DEBUGを21行以内で書ける切り口があること(ponytail.md)。長いアルゴリズムは要の数行を切り出して問う
 # - script/verify.sh のツールチェーン(gcc-14 / g++-14 / 安定版rustc / GHC / Zig 0.17.0、標準ライブラリのみ)で確かめられること
 # - Anyの行と同じことを特定の言語の言葉で言い直しただけの行は足さない(Anyがその言語の候補も兼ねる)
+# - 1つの事実ではなく、規則を2つ以上含むテーマの粒度で書く。同じ言語のREAD/WRITE/DEBUGはこの1行から作られ、
+#   答えの核を3問で重ねてはいけない(SKILL.md §0「お題リスト」)。「whileの継続式がcontinue時にも実行される」の
+#   ような1つの事実の行からは、核の違う3問が作れない。「whileとforのループ制御(継続式、else節、break、continue)」のように書く
+# - 既存の行で、1つの事実を名指ししているものも残っている。引いたときは、その事実を核にするのは3問のうち1問だけにする
 
 # ---- C23 ----
 C23: ポインタと配列の違い
@@ -444,36 +448,50 @@ Haskell2010: Rationalと%で分数を正確に扱う
 Haskell2010: 遅延IOでファイルを閉じると中身が読めない
 
 # ---- Zig 0.17 ----
-Zig: comptime引数で型を受け取り、関数から新しい型を返す
-Zig: comptime varと通常のvarで評価されるタイミングが違う
-Zig: inline forで型の異なるタプルの要素を処理する
-Zig: @TypeOfと@typeInfoで型をコンパイル時に調べる
-Zig: @fieldと@hasFieldで構造体のフィールドを名前から操作する
-Zig: @compileErrorと@compileLogでコンパイル時に診断する
-Zig: @inComptimeでコンパイル時と実行時の処理を切り替える
-Zig: anytype引数とcomptime T: type引数の違い
-Zig: .{}による匿名構造体と.{1, 2}によるタプルの違い
-Zig: undefinedを読んではいけない理由と未初期化領域の扱い
-Zig: ?Tとorelseでnullの場合の代替値を指定する
-Zig: if (optional) |value|でnull以外の値を取り出す
-Zig: !Tとtryによるエラーの伝播
-Zig: catchとcatch unreachableでエラーを処理する場合の違い
-Zig: errdeferがエラーでスコープを抜ける場合だけ実行される
-Zig: errdeferのペイロード捕捉で発生したエラーを参照する
-Zig: error集合の結合と推論されるエラー集合の違い
-Zig: ラベル付きブロックとbreak :labelで値を返す
-Zig: switchの範囲パターンと複数の値をまとめた分岐
-Zig: inline elseによるswitch分岐のコンパイル時展開
-Zig: ラベル付きswitchとcontinue :labelで状態を遷移させる
-Zig: whileの継続式:(i += 1)がcontinue時にも実行される
-Zig: for (a, b) |x, y|で複数の配列を同時に走査する
-Zig: [N]Tと[]Tと[*]Tと*Tの違い
-Zig: [*:0]const u8と[:0]const u8による番兵付きデータの扱い
-Zig: packed struct(u8)とu3・u5によるビット単位の配置
-Zig: @backingIntと@fromBackingIntでpacked structを整数と相互変換する
-Zig: @bitCastと@intCastでビットの再解釈と数値変換を区別する
-Zig: @alignCastと@ptrCastでポインタの型とアラインメントを扱う
+Zig: comptime引数で型を受け取り、型を返す関数で汎用のデータ構造を作る
+Zig: comptimeと実行時の境界(comptime var、@inComptime、評価のタイミング)
+Zig: inline forとinline whileによるコンパイル時の展開
+Zig: @TypeOfと@typeInfoによるコンパイル時の型の調査
+Zig: @fieldと@hasFieldで構造体のフィールドを名前から扱う
+Zig: @compileErrorと@compileLogによるコンパイル時の診断
+Zig: anytype引数とcomptime T: type引数で受ける汎用関数
+Zig: 匿名構造体リテラルとタプル、結果の型から決まるリテラルの型
+Zig: 構造体のデフォルト値と初期化の書き方
+Zig: undefinedと未初期化の領域の扱い
+Zig: オプショナル型(?T、orelse、if (x) |v|、.?)
+Zig: エラー共用体(!T、try、catch、catch unreachable)
+Zig: エラー集合の結合と推論されるエラー集合
+Zig: エラーとオプショナルの組み合わせ(!?T)
+Zig: deferとerrdeferによる後始末とその順序
+Zig: ラベル付きブロックとラベル付きのbreak・continue
+Zig: switchの網羅性(範囲、複数の値、else、inline else)
+Zig: ラベル付きswitchとcontinue :labelによる状態遷移
+Zig: whileとforのループ制御(継続式、else節、break、continue)
+Zig: forによる複数のスライスと範囲の同時走査
+Zig: 配列・スライス・多要素ポインタ・単一要素ポインタの使い分け
+Zig: 番兵付きの配列・スライス・ポインタ
+Zig: 配列の値渡しとスライスによる別名
+Zig: constとvar、*const Tと*Tによる可変性
+Zig: 関数の引数は書き換えられない(値渡しとポインタ渡し)
+Zig: packed structとビット幅を指定した整数
+Zig: 整数の型変換(@intCast、@truncate、@bitCast)とピア型解決
+Zig: ポインタの型変換とアラインメント(@ptrCast、@alignCast)
+Zig: 整数のオーバーフローと折り返し・飽和の演算子(+%、+|、@addWithOverflow)
+Zig: 整数の割り算と余り(@divTrunc、@divFloor、@mod、@rem)
+Zig: 整数と浮動小数点数の変換(@floatFromInt、@intFromFloat)
+Zig: 安全検査で止まるillegal behavior(範囲外アクセス、オーバーフロー、unreachable)
 Zig: std.mem.Allocatorを明示的に渡して確保と解放の責任を分ける
+Zig: アリーナアロケータでまとめて解放する設計
+Zig: ArrayListとHashMapの確保・解放と、要素へのポインタの寿命
+Zig: 文字列はu8のスライス(UTF-8のバイト列、std.mem.eqlでの比較)
+Zig: std.memによる探索と分割(indexOf、splitScalar、tokenizeScalar)
+Zig: std.fmtによる書式と数値の解析
+Zig: コンパイル時の配列の連結と繰り返し(++、**)
+Zig: enumとタグ付きunion(union(enum))による値の場合分け
+Zig: 構造体のメソッドと、名前空間としての構造体
+Zig: 関数ポインタとコールバック
+Zig: testブロックとstd.testingによる確かめ方
+Zig: std.Ioによる入出力とバッファのflush
 
 # ---- Any(C・C++・Rust・Haskellの4言語すべての候補になる。Zigは含まない) ----
 Any: 計算量と実行時間の違い
