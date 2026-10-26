@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="線形探査のハッシュ表を、同じキーを同じ順に入れたまま大きさだけ変えて走査します。枠の順に読むと並びがどう変わるかを追うドリルです。2026-10-27のC READ。">
+<title>表の大きさで変わる順序</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-10-27">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-27" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-10-27",
+      "url": "https://namaran.jocarium.productions/c/read/2026-10-27",
+      "datePublished": "2026-10-27",
+      "dateModified": "2026-10-27",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "表の大きさで変わる順序" },
+      "keywords": "hash-table, loop",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "線形探査のハッシュ表を、同じキーを同じ順に入れたまま大きさだけ変えて走査します。枠の順に読むと並びがどう変わるかを追うドリルです。2026-10-27のC READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-27" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-10-27">C++26</a>
+  <a href="/rust/read/2026-10-27">Rust 2024</a>
+  <a href="/haskell/read/2026-10-27">Haskell 2010</a>
+  <a href="/zig/read/2026-10-27">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-27" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-10-27">WRITE</a>
+  <a href="/c/debug/2026-10-27">DEBUG</a>
+</nav>
+
+<main
+  data-topic="表の大きさで変わる順序"
+  data-tags="hash-table loop"
+  data-concepts="ハッシュ表の走査順, 線形探査, 再ハッシュ, hash table iteration order, linear probing"
+  data-level="hedgehog"
+>
+  <h2>2026-10-27</h2>
+  <div class="code-frame">
+    <p class="code-filename">probe_order.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="ty">void</span> <span class="fn">show</span>(<span class="kw">const</span> <span class="ty">int</span>* keys, <span class="ty">int</span> n, <span class="ty">int</span> size) {
+    <span class="ty">int</span> table[<span class="nu">8</span>] = {<span class="nu">0</span>};
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; n; i++) {
+        <span class="ty">int</span> h = keys[i] % size;
+        <span class="kw">while</span> (table[h] != <span class="nu">0</span>)
+            h = (h + <span class="nu">1</span>) % size;
+        table[h] = keys[i];
+    }
+    <span class="kw">for</span> (<span class="ty">int</span> h = <span class="nu">0</span>; h &lt; size; h++)
+        <span class="kw">if</span> (table[h] != <span class="nu">0</span>)
+            <span class="fn">printf</span>(<span class="st">"%d"</span>, table[h]);
+    <span class="fn">printf</span>(<span class="st">"\n"</span>);
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="ty">int</span> keys[] = {<span class="nu">6</span>, <span class="nu">9</span>, <span class="nu">2</span>};
+    <span class="fn">show</span>(keys, <span class="nu">3</span>, <span class="nu">4</span>);
+    <span class="fn">show</span>(keys, <span class="nu">3</span>, <span class="nu">8</span>);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>962</code> と <code>926</code> の2行です。
+      </p>
+      <p>
+        キーを置く枠は <code>keys[i] % size</code> で決まり、そこが埋まっていれば次の枠へ進みます。走査は枠の番号の順なので、出力は入れた順ではなく、各キーが落ちた枠の順に並びます。
+      </p>
+      <p>
+        大きさ4の表では、<code>6</code> が枠2、<code>9</code> が枠1に入ります。<code>2</code> も枠2を指しますが、<code>6</code> が使っているので枠3へずれます。枠1から3の順に読むので <code>962</code> です。
+      </p>
+      <p>
+        大きさ8の表では、<code>6</code> が枠6、<code>9</code> が枠1、<code>2</code> が枠2で、ぶつかるキーはありません。枠の順に読むと <code>926</code> になります。キーも入れる順も同じなのに、表の大きさが変わると走査の順も変わります。表が埋まってきて大きな表へ移し替えるときにも、同じことが起きます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

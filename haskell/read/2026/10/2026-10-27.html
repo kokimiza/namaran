@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="日本語と絵文字を含む名前を、無限に続く空白のリストとtakeで同じ長さに切りそろえ、表示幅を測ります。takeが数えるものと表示幅のずれを追うドリルです。2026-10-27のHaskell READ。">
+<title>文字数で切りそろえた幅</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-10-27">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-27" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-10-27",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-10-27",
+      "datePublished": "2026-10-27",
+      "dateModified": "2026-10-27",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "文字数で切りそろえた幅" },
+      "keywords": "display-width, unicode, infinite-list, laziness",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "日本語と絵文字を含む名前を、無限に続く空白のリストとtakeで同じ長さに切りそろえ、表示幅を測ります。takeが数えるものと表示幅のずれを追うドリルです。2026-10-27のHaskell READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-27">C23</a>
+  <a href="/cpp/read/2026-10-27">C++26</a>
+  <a href="/rust/read/2026-10-27">Rust 2024</a>
+  <a href="/haskell/read/2026-10-27" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/read/2026-10-27">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-27" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-10-27">WRITE</a>
+  <a href="/haskell/debug/2026-10-27">DEBUG</a>
+</nav>
+
+<main
+  data-topic="文字数で切りそろえた幅"
+  data-tags="display-width unicode infinite-list laziness"
+  data-concepts="表示幅, 全角と半角, コードポイント, take と repeat, display width, code point, East Asian Width"
+  data-level="whale"
+>
+  <h2>2026-10-27</h2>
+  <div class="code-frame">
+    <p class="code-filename">Cell.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Data.Char</span> (ord)
+
+<span class="fn">width</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">Int</span>
+<span class="fn">width</span> = sum . map (\c <span class="op">-&gt;</span> <span class="kw">if</span> ord c &lt; <span class="nu">0x1100</span> <span class="kw">then</span> <span class="nu">1</span> <span class="kw">else</span> <span class="nu">2</span>)
+
+<span class="fn">cell</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">String</span>
+<span class="fn">cell</span> n s = take n (s ++ repeat <span class="st">' '</span>)
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = <span class="kw">do</span>
+  <span class="kw">let</span> names = [<span class="st">"tea"</span>, <span class="st">"お茶"</span>, <span class="st">"🍵"</span>]
+      n = maximum (map width names)
+  print [width (cell n s) | s <span class="op">&lt;-</span> names]
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>[4,6,5]</code> です。
+      </p>
+      <p>
+        <code>width</code> は、コードポイントが <code>0x1100</code> より小さい文字を幅1、それ以外を幅2として足し合わせます。<code>"tea"</code> は3、<code>"お茶"</code> は2文字とも幅2なので4です。Haskell の <code>Char</code> は Unicode のコードポイント1つを表すので、<code>"🍵"</code>(<code>U+1F375</code>)は1つの <code>Char</code> で、幅は2です。<code>n</code> はこの最大の4になります。
+      </p>
+      <p>
+        <code>repeat ' '</code> は空白が限りなく続くリストですが、遅延評価なので、<code>take n</code> が先頭から <code>n</code> 個を取り出したところで評価は止まり、その先の空白は作られません。<code>take</code> が数えるのは <code>Char</code> の個数で、表示幅ではありません。
+      </p>
+      <p>
+        <code>cell 4</code> は、どの名前も4個の <code>Char</code> にそろえます。<code>"tea "</code> は幅4です。<code>"お茶"</code> は2個なので空白が2つ付いて、幅は2と2と1と1で6になります。<code>"🍵"</code> は1個なので空白が3つ付き、幅は2と3で5です。
+      </p>
+      <p>
+        <code>n</code> を表示幅で求めているので表がそろうと読むと <code>[4,4,4]</code> に、絵文字は UTF-16 のように2つの <code>Char</code> になると読むと <code>[4,6,4]</code> になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

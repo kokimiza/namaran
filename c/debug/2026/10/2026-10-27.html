@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="売れた回数をハッシュ表に数え、最も多く売れた商品IDを選ぶプログラムです。同数のときの選び方を、表の枠の並びに任せてしまう欠陥を直すドリルです。2026-10-27のC DEBUG。">
+<title>同数なら小さいIDのはず</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-10-27">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-27" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-10-27",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-10-27",
+      "datePublished": "2026-10-27",
+      "dateModified": "2026-10-27",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "同数なら小さいIDのはず" },
+      "keywords": "hash-table, comparison",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "売れた回数をハッシュ表に数え、最も多く売れた商品IDを選ぶプログラムです。同数のときの選び方を、表の枠の並びに任せてしまう欠陥を直すドリルです。2026-10-27のC DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-27" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-10-27">C++26</a>
+  <a href="/rust/debug/2026-10-27">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-27">Haskell 2010</a>
+  <a href="/zig/debug/2026-10-27">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-27">READ</a>
+  <a href="/c/write/2026-10-27">WRITE</a>
+  <a href="/c/debug/2026-10-27" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="同数なら小さいIDのはず"
+  data-tags="hash-table comparison"
+  data-concepts="ハッシュ表の走査順, 同点の扱い, 最頻値, tie-breaking, hash table iteration order"
+  data-level="hedgehog"
+>
+  <h2>2026-10-27</h2>
+  <div class="code-frame">
+    <p class="code-filename">best_seller.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="ty">int</span> ids[<span class="nu">8</span>] = {<span class="nu">0</span>}, counts[<span class="nu">8</span>] = {<span class="nu">0</span>};
+    <span class="ty">int</span> sales[] = {<span class="nu">9</span>, <span class="nu">6</span>, <span class="nu">9</span>, <span class="nu">6</span>, <span class="nu">3</span>};
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; <span class="nu">5</span>; i++) {
+        <span class="ty">int</span> h = sales[i] % <span class="nu">8</span>;
+        <span class="kw">while</span> (counts[h] != <span class="nu">0</span> &amp;&amp; ids[h] != sales[i])
+            h = (h + <span class="nu">1</span>) % <span class="nu">8</span>;
+        ids[h] = sales[i];
+        counts[h]++;
+    }
+    <span class="ty">int</span> best = <span class="nu">0</span>;
+    <span class="kw">for</span> (<span class="ty">int</span> h = <span class="nu">1</span>; h &lt; <span class="nu">8</span>; h++)
+        <span class="kw">if</span> (counts[h] &gt; counts[best])
+            best = h;
+    <span class="fn">printf</span>(<span class="st">"%d\n"</span>, ids[best]);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    売れた商品IDの並び <code>sales</code> から、最も多く売れたIDを出力するプログラムです。売れた回数が同じIDが複数あるときは、小さいほうのIDを出すつもりです。<code>sales</code> が <code>{9, 6, 9, 6, 3}</code> のとき、<code>9</code> と <code>6</code> が2回ずつで並ぶので、本来は <code>6</code> と出力されるはずが、いまは <code>9</code> と出力されます。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code>    <span class="ty">int</span> best = <span class="nu">0</span>;
+    <span class="kw">for</span> (<span class="ty">int</span> h = <span class="nu">1</span>; h &lt; <span class="nu">8</span>; h++)
+        <span class="kw">if</span> (counts[h] &gt; counts[best])
+            best = h;
+</code></pre>
+      <p>
+        このループは枠の番号の小さい順に回り、回数が真に多いときだけ <code>best</code> を替えます。回数が同じなら先に見た枠が残るので、同数のときに選ばれるのはIDの小さいほうではなく、枠の番号の小さいほうです。
+      </p>
+      <p>
+        IDは枠 <code>id % 8</code> に入るので、<code>8</code> 未満のIDだけなら枠の順とIDの順は一致し、このループでも正しく動きます。<code>9</code> は8で割った余りが1なので枠1に入り、枠6の <code>6</code> より先に見られます。<code>9</code> と <code>6</code> はどちらも2回なので <code>best</code> は枠1のまま替わらず、<code>9</code> が出力されます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code>    <span class="ty">int</span> best = <span class="nu">0</span>;
+    <span class="kw">for</span> (<span class="ty">int</span> h = <span class="nu">1</span>; h &lt; <span class="nu">8</span>; h++)
+        <span class="kw">if</span> (counts[h] &gt; counts[best] || (counts[h] == counts[best] &amp;&amp; ids[h] &lt; ids[best]))
+            best = h;
+</code></pre>
+      <p>
+        回数が同じときにもIDを比べ、小さいほうを選ぶ条件を足します。これで、どのIDがどの枠に入っていても、選ばれるIDは回数とIDの大小だけで決まります。空きの枠は回数が <code>0</code> なので、売れたIDと同数になって選ばれることはありません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

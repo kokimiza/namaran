@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="線形探査のハッシュ表2つが、同じキーを同じ個数で持つかを判定する関数を書きます。同じ中身でも挿入した順で枠の並びが変わる表を比べるドリルです。2026-10-27のC WRITE。">
+<title>挿入順の違う表を比べる</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-10-27">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-27" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-10-27",
+      "url": "https://namaran.jocarium.productions/c/write/2026-10-27",
+      "datePublished": "2026-10-27",
+      "dateModified": "2026-10-27",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "挿入順の違う表を比べる" },
+      "keywords": "hash-table, comparison",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "線形探査のハッシュ表2つが、同じキーを同じ個数で持つかを判定する関数を書きます。同じ中身でも挿入した順で枠の並びが変わる表を比べるドリルです。2026-10-27のC WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-27" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-10-27">C++26</a>
+  <a href="/rust/write/2026-10-27">Rust 2024</a>
+  <a href="/haskell/write/2026-10-27">Haskell 2010</a>
+  <a href="/zig/write/2026-10-27">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-27">READ</a>
+  <a href="/c/write/2026-10-27" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-10-27">DEBUG</a>
+</nav>
+
+<main
+  data-topic="挿入順の違う表を比べる"
+  data-tags="hash-table comparison"
+  data-concepts="ハッシュ表の等価判定, 線形探査, 枠の並び, hash table equality, linear probing"
+  data-level="peacock"
+>
+  <h2>2026-10-27</h2>
+  <div class="code-frame">
+    <p class="code-filename">same_counts.c</p>
+    <pre class="code"><code><span class="kw">struct</span> <span class="ty">entry</span> {
+    <span class="ty">int</span> key, count;
+};
+
+<span class="kw">struct</span> <span class="ty">table</span> {
+    <span class="kw">struct</span> <span class="ty">entry</span> slots[<span class="nu">16</span>];
+};
+
+<span class="kw">const</span> <span class="kw">struct</span> <span class="ty">entry</span>* <span class="fn">find</span>(<span class="kw">const</span> <span class="kw">struct</span> <span class="ty">table</span>* t, <span class="ty">int</span> key);
+
+<span class="ty">bool</span> <span class="fn">same_counts</span>(<span class="kw">const</span> <span class="kw">struct</span> <span class="ty">table</span>* a, <span class="kw">const</span> <span class="kw">struct</span> <span class="ty">table</span>* b) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>struct table</code> は、キーごとの個数を持つハッシュ表です。キー <code>k</code> は枠 <code>k % 16</code> に置き、埋まっていれば次の枠へ順に進んで空きに置きます。<code>count</code> が <code>0</code> の枠は空きです。<code>find</code> は <code>t</code> からキー <code>key</code> の枠を探して返し、無ければ <code>nullptr</code> を返します。2つの表 <code>a</code> と <code>b</code> が、同じキーの集まりを、キーごとに同じ個数で持つときに <code>true</code> を返す <code>same_counts</code> を書いてください。どちらも空の表なら <code>true</code> です。例では、表に入れたキーと個数を、入れた順に <code>{キー: 個数}</code> で書きます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>a = {3: 2, 19: 1}, b = {19: 1, 3: 2}</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>true</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>a = {3: 2}, b = {3: 2, 5: 1}</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>false</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>a = {}, b = {}</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>true</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="ty">bool</span> <span class="fn">same_counts</span>(<span class="kw">const</span> <span class="kw">struct</span> <span class="ty">table</span>* a, <span class="kw">const</span> <span class="kw">struct</span> <span class="ty">table</span>* b) {
+    <span class="ty">int</span> n = <span class="nu">0</span>;
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; <span class="nu">16</span>; i++) {
+        <span class="kw">const</span> <span class="kw">struct</span> <span class="ty">entry</span>* e = &amp;a-&gt;slots[i];
+        <span class="kw">if</span> (e-&gt;count == <span class="nu">0</span>)
+            <span class="kw">continue</span>;
+        <span class="kw">const</span> <span class="kw">struct</span> <span class="ty">entry</span>* f = <span class="fn">find</span>(b, e-&gt;key);
+        <span class="kw">if</span> (f == <span class="nu">nullptr</span> || f-&gt;count != e-&gt;count)
+            <span class="kw">return</span> <span class="nu">false</span>;
+        n++;
+    }
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; <span class="nu">16</span>; i++)
+        <span class="kw">if</span> (b-&gt;slots[i].count != <span class="nu">0</span>)
+            n--;
+    <span class="kw">return</span> n == <span class="nu">0</span>;
+}
+</code></pre>
+      <p>
+        16個の枠を <code>a</code> と <code>b</code> で1つずつ見比べる書き方は使えません。入力例1の2つの表は中身が同じですが、<code>3</code> と <code>19</code> はどちらも枠3を指すので、先に入れたほうが枠3に、後から入れたほうが枠4に入ります。同じ中身でも、入れた順によって枠の並びが変わります。
+      </p>
+      <p>
+        そこで <code>a</code> の空きでない枠を順に見て、そのキーを <code>find</code> で <code>b</code> から探し、無いか個数が違えば <code>false</code> を返します。ただし、これだけでは <code>b</code> にしか無いキーを見落とします。入力例2では <code>a</code> の <code>3</code> が <code>b</code> にも同じ個数で入っているので、<code>a</code> の側から確かめるだけだと <code>true</code> になってしまいます。<code>a</code> のキーがすべて <code>b</code> にあり、さらにキーの数が同じなら、<code>b</code> に余分なキーは残りません。参考実装は <code>a</code> で数えた数から <code>b</code> の空きでない枠の数を引き、<code>0</code> になるかで確かめています。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>b</code> の側からも <code>find</code> で <code>a</code> を引き、両方向に確かめる書き方もあります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

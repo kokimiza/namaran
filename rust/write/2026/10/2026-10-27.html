@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="受信バッファの先頭から、2バイトのビッグエンディアンの長さが前に付いたメッセージを1つ取り出す関数を書きます。本体が届ききる前に長さだけを消費しないことが要るドリルです。2026-10-27のRust WRITE。">
+<title>長さ付きの枠を1つ取り出す</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-10-27">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-27" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-10-27",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-10-27",
+      "datePublished": "2026-10-27",
+      "dateModified": "2026-10-27",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "長さ付きの枠を1つ取り出す" },
+      "keywords": "buffering, endianness, slice-pattern",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "受信バッファの先頭から、2バイトのビッグエンディアンの長さが前に付いたメッセージを1つ取り出す関数を書きます。本体が届ききる前に長さだけを消費しないことが要るドリルです。2026-10-27のRust WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-27">C23</a>
+  <a href="/cpp/write/2026-10-27">C++26</a>
+  <a href="/rust/write/2026-10-27" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-10-27">Haskell 2010</a>
+  <a href="/zig/write/2026-10-27">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-27">READ</a>
+  <a href="/rust/write/2026-10-27" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-10-27">DEBUG</a>
+</nav>
+
+<main
+  data-topic="長さ付きの枠を1つ取り出す"
+  data-tags="buffering endianness slice-pattern"
+  data-concepts="長さ接頭辞, メッセージの区切り, 受信バッファ, length-prefixed framing, message framing, from_be_bytes"
+  data-level="peacock"
+>
+  <h2>2026-10-27</h2>
+  <div class="code-frame">
+    <p class="code-filename">take_frame.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">take_frame</span>(buf: &amp;<span class="kw">mut</span> <span class="ty">Vec</span>&lt;<span class="ty">u8</span>&gt;) -&gt; <span class="ty">Option</span>&lt;<span class="ty">Vec</span>&lt;<span class="ty">u8</span>&gt;&gt; {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    TCPで受け取ったバイトは <code>buf</code> に溜めてあります。メッセージは、本体の長さを2バイトのビッグエンディアン(上位のバイトが先)で書いた見出しと、それに続く本体からできています。<code>buf</code> の先頭に見出しと本体がそろっていれば、その1つ分を <code>buf</code> から取り除き、本体を <code>Some</code> で返す <code>take_frame</code> を書いてください。そろっていなければ <code>buf</code> を変えずに <code>None</code> を返します。長さが <code>0</code> のメッセージもあり、そのときは空の本体を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>take_frame(&amp;mut vec![0, 2, 104, 105, 9])</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>Some([104, 105])</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>take_frame(&amp;mut vec![0, 3, 97, 98])</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>None</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>take_frame(&amp;mut vec![0])</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>None</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">take_frame</span>(buf: &amp;<span class="kw">mut</span> <span class="ty">Vec</span>&lt;<span class="ty">u8</span>&gt;) -&gt; <span class="ty">Option</span>&lt;<span class="ty">Vec</span>&lt;<span class="ty">u8</span>&gt;&gt; {
+    <span class="kw">let</span> [hi, lo, ..] = buf[..] <span class="kw">else</span> {
+        <span class="kw">return</span> <span class="ty">None</span>;
+    };
+    <span class="kw">let</span> end = <span class="nu">2</span> + <span class="ty">u16</span>::<span class="fn">from_be_bytes</span>([hi, lo]) <span class="kw">as</span> <span class="ty">usize</span>;
+    <span class="kw">if</span> buf.<span class="fn">len</span>() &lt; end {
+        <span class="kw">return</span> <span class="ty">None</span>;
+    }
+    <span class="fn">Some</span>(buf.<span class="fn">drain</span>(..end).<span class="fn">skip</span>(<span class="nu">2</span>).<span class="fn">collect</span>())
+}
+</code></pre>
+      <p>
+        <code>let [hi, lo, ..] = buf[..] else</code> は、<code>buf</code> が2バイト以上あるときだけ先頭の2バイトを取り出し、足りなければ <code>None</code> を返します。この時点では <code>buf</code> から何も取り除いていません。見出しが読めたら、<code>u16::from_be_bytes</code> で長さにし、見出しを含めたメッセージの終わり <code>end</code> を求めます。
+      </p>
+      <p>
+        取り除くのは、<code>buf</code> の長さが <code>end</code> に届いているのを確かめてからです。見出しを先に読み捨ててしまうと、入力例2のように本体が届ききっていないとき、次に呼ばれた時点で <code>buf</code> の先頭は本体の途中になり、そこを見出しとして読んでしまいます。そろっていれば <code>drain(..end)</code> で見出しと本体を一度に取り除き、<code>skip(2)</code> で見出しを飛ばして本体だけを集めます。<code>drain</code> は返した反復子を最後まで読まなくても、範囲全体を <code>buf</code> から取り除きます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>buf[2..end].to_vec()</code> で本体を写してから <code>buf.drain(..end);</code> で取り除く書き方もあります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

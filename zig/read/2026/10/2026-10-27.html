@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="継続式つきのwhileの本体で添字を1つ進めてからcontinueします。continueのたびに継続式も実行されることと、ループを抜けたときの添字の値を追うドリルです。2026-10-27のZig READ。">
+<title>continueでも進む添字</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/read/2026-10-27">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / READ", "item": "https://namaran.jocarium.productions/zig/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-27" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / READ — 2026-10-27",
+      "url": "https://namaran.jocarium.productions/zig/read/2026-10-27",
+      "datePublished": "2026-10-27",
+      "dateModified": "2026-10-27",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "continueでも進む添字" },
+      "keywords": "loop, continue-break",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "継続式つきのwhileの本体で添字を1つ進めてからcontinueします。continueのたびに継続式も実行されることと、ループを抜けたときの添字の値を追うドリルです。2026-10-27のZig READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-27">C23</a>
+  <a href="/cpp/read/2026-10-27">C++26</a>
+  <a href="/rust/read/2026-10-27">Rust 2024</a>
+  <a href="/haskell/read/2026-10-27">Haskell 2010</a>
+  <a href="/zig/read/2026-10-27" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-10-27" class="active" aria-current="page">READ</a>
+  <a href="/zig/write/2026-10-27">WRITE</a>
+  <a href="/zig/debug/2026-10-27">DEBUG</a>
+</nav>
+
+<main
+  data-topic="continueでも進む添字"
+  data-tags="loop continue-break"
+  data-concepts="whileの継続式, continue expression, continue, ループ変数, while loop"
+  data-level="peacock"
+>
+  <h2>2026-10-27</h2>
+  <div class="code-frame">
+    <p class="code-filename">skip_threes.zig</p>
+    <pre class="code"><code><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {
+    <span class="kw">var</span> buf: [<span class="nu">256</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;
+    <span class="kw">var</span> stdout_writer = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;buf);
+    <span class="kw">const</span> stdout = &amp;stdout_writer.interface;
+    <span class="kw">var</span> i: <span class="ty">u32</span> = <span class="nu">0</span>;
+    <span class="kw">while</span> (i &lt; <span class="nu">10</span>) : (i += <span class="nu">1</span>) {
+        <span class="kw">if</span> (i % <span class="nu">3</span> == <span class="nu">0</span>) {
+            i += <span class="nu">1</span>;
+            <span class="kw">continue</span>;
+        }
+        <span class="kw">try</span> stdout.<span class="fn">print</span>(<span class="st">"{d} "</span>, .{i});
+    }
+    <span class="kw">try</span> stdout.<span class="fn">print</span>(<span class="st">"{d}\n"</span>, .{i});
+    <span class="kw">try</span> stdout.<span class="fn">flush</span>();
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>2 5 8 11</code> です。
+      </p>
+      <p>
+        <code>while (i &lt; 10) : (i += 1)</code> の <code>: (i += 1)</code> は継続式(continue expression)で、本体を最後まで実行したときだけでなく、<code>continue</code> で次の回へ進むときにも実行されます。<code>i</code> が3の倍数の回は、本体で <code>i += 1</code> をしてから <code>continue</code> するので、継続式と合わせて <code>i</code> が2つ進みます。
+      </p>
+      <p>
+        <code>i</code> が0の回は1を足して <code>continue</code> し、継続式で2になります。2は表示され、継続式で3になります。3の回は同じように5へ飛ぶので、表示されるのは2、5、8です。8の次の9も3の倍数で、本体で10になったあとに継続式でさらに1を足すので、条件 <code>i &lt; 10</code> を確かめる時点の <code>i</code> は11です。ループを抜けたあとの行は、この11を表示します。
+      </p>
+      <p>
+        <code>continue</code> では継続式が飛ばされると読むと、本体の <code>i += 1</code> だけで次の回へ進むので、<code>1 2 4 5 7 8 10</code> と答えることになります。条件が偽になるのは <code>i</code> が10のときだと決めてかかると、最後の数を10と読み違えます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/read">Today</a></li>
+    <li><a href="/zig/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

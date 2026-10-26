@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="TCPで断片ごとに届く文字列を溜め、改行で区切ってコマンドを取り出すつもりのコードが、str::linesで分けています。末尾の改行で終わる断片のときにメッセージが消える欠陥を直すドリルです。2026-10-27のRust DEBUG。">
+<title>最後の改行が消える行分け</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-10-27">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-27" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-10-27",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-10-27",
+      "datePublished": "2026-10-27",
+      "dateModified": "2026-10-27",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "最後の改行が消える行分け" },
+      "keywords": "buffering, string, iterator",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "TCPで断片ごとに届く文字列を溜め、改行で区切ってコマンドを取り出すつもりのコードが、str::linesで分けています。末尾の改行で終わる断片のときにメッセージが消える欠陥を直すドリルです。2026-10-27のRust DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-27">C23</a>
+  <a href="/cpp/debug/2026-10-27">C++26</a>
+  <a href="/rust/debug/2026-10-27" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-27">Haskell 2010</a>
+  <a href="/zig/debug/2026-10-27">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-27">READ</a>
+  <a href="/rust/write/2026-10-27">WRITE</a>
+  <a href="/rust/debug/2026-10-27" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="最後の改行が消える行分け"
+  data-tags="buffering string iterator"
+  data-concepts="メッセージの区切り, 改行区切り, str::lines, str::split, 受信バッファ, message framing, newline delimited"
+  data-level="peacock"
+>
+  <h2>2026-10-27</h2>
+  <div class="code-frame">
+    <p class="code-filename">line_reader.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> segments = [<span class="st">"PING\nPI"</span>, <span class="st">"NG\n"</span>, <span class="st">"QUIT\n"</span>];
+    <span class="kw">let</span> <span class="kw">mut</span> pending = <span class="ty">String</span>::<span class="fn">new</span>();
+    <span class="kw">for</span> segment <span class="kw">in</span> segments {
+        pending.<span class="fn">push_str</span>(segment);
+        <span class="kw">let</span> <span class="kw">mut</span> lines: <span class="ty">Vec</span>&lt;&amp;<span class="ty">str</span>&gt; = pending.<span class="fn">lines</span>().<span class="fn">collect</span>();
+        <span class="kw">let</span> rest = lines.<span class="fn">pop</span>().<span class="fn">unwrap_or</span>(<span class="st">""</span>).<span class="fn">to_string</span>();
+        <span class="kw">for</span> line <span class="kw">in</span> lines {
+            <span class="mc">println!</span>(<span class="st">"{line}"</span>);
+        }
+        pending = rest;
+    }
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    TCPで断片ごとに届く文字列を <code>pending</code> に溜め、改行で終わったコマンドを1行ずつ出力するつもりのプログラムです。改行がまだ来ていない最後の部分は、次の断片が来るまで <code>pending</code> に残します。断片が <code>"PING\nPI"</code>、<code>"NG\n"</code>、<code>"QUIT\n"</code> の順に届くと、本来は <code>PING</code>、<code>PING</code>、<code>QUIT</code> の3行が出力されるはずが、いまは <code>PING</code> の1行しか出力されません。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">let</span> <span class="kw">mut</span> lines: <span class="ty">Vec</span>&lt;&amp;<span class="ty">str</span>&gt; = pending.<span class="fn">lines</span>().<span class="fn">collect</span>();
+<span class="kw">let</span> rest = lines.<span class="fn">pop</span>().<span class="fn">unwrap_or</span>(<span class="st">""</span>).<span class="fn">to_string</span>();
+</code></pre>
+      <p>
+        このコードは、分けた最後の1つを改行の来ていない残りとみなして <code>pop</code> で取っておきます。ところが <code>str::lines</code> は、文字列が改行で終わるとき、その後ろの空の行を返しません。2つ目の断片を足した <code>pending</code> は <code>"PING\n"</code> で、<code>lines</code> は <code>["PING"]</code> だけを返すので、完結した2つ目の <code>PING</code> が残りとして <code>pop</code> され、出力されないまま <code>pending</code> に戻ります。
+      </p>
+      <p>
+        3つ目の断片はその後ろにつながり、<code>pending</code> は <code>"PINGQUIT\n"</code> になります。ここでも同じことが起き、<code>"PINGQUIT"</code> が残りとして取っておかれるので、2行目以降は何も出力されません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">let</span> <span class="kw">mut</span> lines: <span class="ty">Vec</span>&lt;&amp;<span class="ty">str</span>&gt; = pending.<span class="fn">split</span>(<span class="st">'\n'</span>).<span class="fn">collect</span>();
+<span class="kw">let</span> rest = lines.<span class="fn">pop</span>().<span class="fn">unwrap_or</span>(<span class="st">""</span>).<span class="fn">to_string</span>();
+</code></pre>
+      <p>
+        <code>split('\n')</code> は、改行で終わる文字列の後ろにも空の部分を1つ返します。<code>"PING\n"</code> は <code>["PING", ""]</code> に分かれ、<code>pop</code> されるのは空の残りなので、<code>PING</code> は出力されます。改行が来ていなければ最後の部分は書きかけの行なので、どちらの場合も最後の1つを残りにする扱いが正しくなります。<sup class="fn-ref">1</sup>
+      </p>
+      <ol class="footnotes">
+        <li><code>str::lines</code> は、行末の <code>\r\n</code> の <code>\r</code> も取り除きます。<code>\r\n</code> で区切るプロトコルでは、<code>split('\n')</code> で分けたあとに各行の末尾の <code>\r</code> を自分で取り除きます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

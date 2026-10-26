@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="バックスラッシュによるエスケープを外して、別のバッファへ書き写す関数を書きます。継続式つきのwhileの本体で添字を進めるとき、continueや継続式と合わせて何文字進むかを考えるドリルです。2026-10-27のZig WRITE。">
+<title>バックスラッシュを外す</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/write/2026-10-27">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / WRITE", "item": "https://namaran.jocarium.productions/zig/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-27" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / WRITE — 2026-10-27",
+      "url": "https://namaran.jocarium.productions/zig/write/2026-10-27",
+      "datePublished": "2026-10-27",
+      "dateModified": "2026-10-27",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "バックスラッシュを外す" },
+      "keywords": "loop, string-escaping, slice",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "バックスラッシュによるエスケープを外して、別のバッファへ書き写す関数を書きます。継続式つきのwhileの本体で添字を進めるとき、continueや継続式と合わせて何文字進むかを考えるドリルです。2026-10-27のZig WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-27">C23</a>
+  <a href="/cpp/write/2026-10-27">C++26</a>
+  <a href="/rust/write/2026-10-27">Rust 2024</a>
+  <a href="/haskell/write/2026-10-27">Haskell 2010</a>
+  <a href="/zig/write/2026-10-27" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-10-27">READ</a>
+  <a href="/zig/write/2026-10-27" class="active" aria-current="page">WRITE</a>
+  <a href="/zig/debug/2026-10-27">DEBUG</a>
+</nav>
+
+<main
+  data-topic="バックスラッシュを外す"
+  data-tags="loop string-escaping slice"
+  data-concepts="エスケープの解除, whileの継続式, continue expression, バックスラッシュ, unescape, escape sequence"
+  data-level="bison"
+>
+  <h2>2026-10-27</h2>
+  <div class="code-frame">
+    <p class="code-filename">unescape.zig</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">unescape</span>(dst: []<span class="ty">u8</span>, src: []<span class="kw">const</span> <span class="ty">u8</span>) []<span class="ty">u8</span> {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    文字列 <code>src</code> のバックスラッシュによるエスケープを外して <code>dst</code> の先頭へ書き写し、書き写した部分の <code>dst</code> のスライスを返す <code>unescape</code> を書いてください。バックスラッシュとそれに続く1文字は、続く文字が <code>n</code> なら改行1文字に、それ以外ならその文字そのものになります。<code>src</code> の最後の文字が対になる文字の無いバックスラッシュなら、そのまま書き写します。<code>dst</code> の長さは <code>src</code> の長さ以上あるものとします。入出力例は Zig の文字列リテラルで書きます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>unescape(&amp;buf, "a\\nb")</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>"a\nb"</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>unescape(&amp;buf, "\\\\n")</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>"\\n"</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>unescape(&amp;buf, "x\\")</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>"x\\"</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">unescape</span>(dst: []<span class="ty">u8</span>, src: []<span class="kw">const</span> <span class="ty">u8</span>) []<span class="ty">u8</span> {
+    <span class="kw">var</span> n: <span class="ty">usize</span> = <span class="nu">0</span>;
+    <span class="kw">var</span> i: <span class="ty">usize</span> = <span class="nu">0</span>;
+    <span class="kw">while</span> (i &lt; src.len) : (i += <span class="nu">1</span>) {
+        <span class="kw">var</span> c = src[i];
+        <span class="kw">if</span> (c == <span class="st">'\\'</span> <span class="kw">and</span> i + <span class="nu">1</span> &lt; src.len) {
+            i += <span class="nu">1</span>;
+            c = <span class="kw">if</span> (src[i] == <span class="st">'n'</span>) <span class="st">'\n'</span> <span class="kw">else</span> src[i];
+        }
+        dst[n] = c;
+        n += <span class="nu">1</span>;
+    }
+    <span class="kw">return</span> dst[<span class="nu">0</span>..n];
+}
+</code></pre>
+      <p>
+        <code>while</code> の継続式 <code>: (i += 1)</code> が、1回ごとに <code>src</code> を1文字進めます。バックスラッシュを見つけたときは、本体の中で <code>i += 1</code> として続く1文字に移り、その文字から書き写す1文字を決めます。継続式はそのあとにも実行されるので、次の回はバックスラッシュと続く文字の2文字ぶん先から始まります。
+      </p>
+      <p>
+        エスケープの回だけ <code>i += 2</code> として <code>continue</code> する書き方は、<code>continue</code> でも継続式が実行されるので3文字進み、続く文字を1つ読み飛ばします。続く文字を本体の中で消費しておくことは入力例2でも要ります。<code>\\</code> で1つのバックスラッシュを書いたあと、その2文字目のバックスラッシュを次の回で読み直すと、後ろの <code>n</code> と組になって改行に化けます。<code>i + 1 &lt; src.len</code> を確かめているので、入力例3のように末尾に残ったバックスラッシュは、範囲の外を読まずにそのまま書き写されます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。継続式を使わずに、本体の最後で消費した文字数だけ <code>i</code> を進める書き方もあります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/write">Today</a></li>
+    <li><a href="/zig/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

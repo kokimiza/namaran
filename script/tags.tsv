@@ -114,6 +114,7 @@ designated-initializer	指示付き初期化子
 destructor	デストラクタ
 difference-list	差分リスト
 digit-dp	桁DP
+display-width	表示幅
 divide-and-conquer	分割統治
 division	除算と剰余
 do-notation	do記法

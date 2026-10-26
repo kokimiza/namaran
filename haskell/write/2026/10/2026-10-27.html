@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="日本語や絵文字を含む文字列を、表示幅がちょうどnになるように、幅2の文字を割らずに切り詰め、足りない分を空白で埋める関数を書きます。表の1マスを作るドリルです。2026-10-27のHaskell WRITE。">
+<title>表示幅で切って埋める</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-10-27">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-27" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-10-27",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-10-27",
+      "datePublished": "2026-10-27",
+      "dateModified": "2026-10-27",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "表示幅で切って埋める" },
+      "keywords": "display-width, unicode, string, pattern-guard",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "日本語や絵文字を含む文字列を、表示幅がちょうどnになるように、幅2の文字を割らずに切り詰め、足りない分を空白で埋める関数を書きます。表の1マスを作るドリルです。2026-10-27のHaskell WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-27">C23</a>
+  <a href="/cpp/write/2026-10-27">C++26</a>
+  <a href="/rust/write/2026-10-27">Rust 2024</a>
+  <a href="/haskell/write/2026-10-27" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/write/2026-10-27">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-27">READ</a>
+  <a href="/haskell/write/2026-10-27" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-10-27">DEBUG</a>
+</nav>
+
+<main
+  data-topic="表示幅で切って埋める"
+  data-tags="display-width unicode string pattern-guard"
+  data-concepts="表示幅, 全角文字の切り詰め, 空白で埋める, display width, truncate, pad"
+  data-level="peacock"
+>
+  <h2>2026-10-27</h2>
+  <div class="code-frame">
+    <p class="code-filename">FitWidth.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Data.Char</span> (ord)
+
+<span class="fn">charWidth</span> <span class="op">::</span> <span class="ty">Char</span> <span class="op">-&gt;</span> <span class="ty">Int</span>
+<span class="fn">charWidth</span> c = <span class="kw">if</span> ord c &lt; <span class="nu">0x1100</span> <span class="kw">then</span> <span class="nu">1</span> <span class="kw">else</span> <span class="nu">2</span>
+
+<span class="fn">fitWidth</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">String</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    端末で文字が占める桁数を表示幅と呼び、ここでは1文字の表示幅を <code>charWidth</code> で決めます。コードポイントが <code>0x1100</code> 以上の文字は幅2で、漢字、かな、絵文字はこちらに入ります。文字列 <code>s</code> を、表示幅がちょうど <code>n</code> の文字列にする <code>fitWidth n s</code> を書いてください。<code>s</code> の先頭から、表示幅の合計が <code>n</code> を超えない範囲で文字を残し、足りない幅は末尾に空白を足して埋めます。幅2の文字が残りの幅1に収まらないときは、その文字を半分に割らず、そこから先を捨てて空白で埋めます。<code>n</code> は <code>0</code> 以上で、<code>n</code> が <code>0</code> なら空文字列です。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>fitWidth 5 "日本語"</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>"日本 "</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>fitWidth 4 "ab"</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>"ab  "</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>fitWidth 3 "🍵🍵"</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>"🍵 "</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="fn">fitWidth</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">String</span>
+<span class="fn">fitWidth</span> n (c : cs)
+  | charWidth c &lt;= n = c : fitWidth (n - charWidth c) cs
+<span class="fn">fitWidth</span> n _ = replicate n <span class="st">' '</span>
+</code></pre>
+      <p>
+        <code>n</code> を残りの幅として、先頭の文字 <code>c</code> が残りに収まる間は <code>c</code> を残し、残りの幅から <code>c</code> の幅を引いて続きを処理します。<code>take n s</code> で切ると、数えるのは文字の個数なので、入力例1では3文字とも残って表示幅が6になってしまいます。
+      </p>
+      <p>
+        ガードが偽になったとき、Haskell は次の等式に進みます。文字列が尽きたときと、先頭の文字が残りの幅に収まらないときは、どちらも2つ目の等式に落ち、残りの幅だけ空白を返します。入力例1では <code>日本</code> で残りが1になり、<code>語</code> の幅2が収まらないので、空白1つで埋まります。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>scanl</code> で表示幅の累計を作り、<code>takeWhile</code> で <code>n</code> 以下の部分を取ってから、足りない幅を <code>replicate</code> で埋める書き方もあります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
