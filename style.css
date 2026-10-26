@@ -1014,9 +1014,9 @@ main[data-level] > h2::before {
 }
 
 main[data-level="hedgehog"] > h2::before { content: "" / "ハリネズミ（基礎）"; }
-main[data-level="peacock"] > h2::before { content: "" / "孔雀（初級）"; }
-main[data-level="bison"] > h2::before { content: "" / "バイソン（中級）"; }
-main[data-level="whale"] > h2::before { content: "" / "クジラ（上級）"; }
+main[data-level="peacock"] > h2::before { content: "" / "孔雀（標準）"; }
+main[data-level="bison"] > h2::before { content: "" / "バイソン（高度）"; }
+main[data-level="whale"] > h2::before { content: "" / "クジラ（特級）"; }
 
 /* The key on the home page. It must not read as more links: the drill index
    right above it is a column of rows you click, so this is set as a small
