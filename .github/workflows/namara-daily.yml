@@ -119,14 +119,14 @@ jobs:
             cat <<PROMPT
           /namara-daily 日付 $date で、次の組を作成する: $combos
 
-          お題は script/odai.sh が言語ごとに抽選済み。同じ言語の READ/WRITE/DEBUG は、このお題をそれぞれ別の切り口で扱う:
+          お題は script/odai.sh が言語ごとに抽選済み。同じ言語の READ/WRITE/DEBUG は、このお題から答えの核(解く決め手になる知識や気付き)がそれぞれ違う3問を作る。種別を変えるだけでは別の切り口にならない。お題が1つの事実を名指ししていても、その事実を核にするのは1問だけにする(SKILL.md §0「お題リスト」):
           - C: $(topic_of c)
           - C++: $(topic_of cpp)
           - Rust: $(topic_of rust)
           - Haskell: $(topic_of haskell)
           - Zig: $(topic_of zig)
 
-          難易度は script/level.sh が組ごとに抽選済み(SKILL.md「難易度」)。各ページはこの難易度で書き、<main> の data-level にこの値を入れる。偏っていても、過去の傾向に合わせて変えない:
+          難易度は script/level.sh が組ごとに抽選済み(SKILL.md「難易度」)。各ページはこの難易度で書き、<main> の data-level にこの値を入れる。偏っていても、過去の傾向に合わせて変えない。段階は作問者が見たい力で分ける(hedgehog=基礎:再現する力、peacock=標準:応用する力、bison=高度:統合する力、whale=特級:発見する力)。知識はどの段階でも教科書レベルに留め、難しさは知識の珍しさで出さない。書き終えたら SKILL.md §3「書いたあとに段階を確かめる」で確かめる:
           $(printf '%s\n' "$level_lines" | awk -F'\t' 'NF == 2 { printf "- %s: %s\n", $1, $2 }')
 
           Zig の組は CLAUDE.md の表の版の Zig で書く。Zig は 1.0 より前で、リリースのたびに標準ライブラリの API が変わる。記憶にある書き方は古い版のものであることが多い:
