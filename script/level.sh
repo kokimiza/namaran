@@ -15,9 +15,9 @@
 # The four levels are animals, not stars (doc/requirements.md §7):
 #
 #   hedgehog   ハリネズミ   基礎   44.7%
-#   peacock    孔雀         初級   27.6%
-#   bison      バイソン     中級   17.1%
-#   whale      クジラ       上級   10.6%
+#   peacock    孔雀         標準   27.6%
+#   bison      バイソン     高度   17.1%
+#   whale      クジラ       特級   10.6%
 #
 # Each probability is the one above it divided by the golden ratio, and the
 # four add up to 100%: φ^0 + φ^-1 + φ^-2 + φ^-3 = √5, so level k comes up

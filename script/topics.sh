@@ -93,17 +93,17 @@ TYPES = {"read": "READ", "write": "WRITE", "debug": "DEBUG"}
 # (doc/requirements.md §7).
 LEVELS = {
     "hedgehog": ("ハリネズミ", "基礎"),
-    "peacock": ("孔雀", "初級"),
-    "bison": ("バイソン", "中級"),
-    "whale": ("クジラ", "上級"),
+    "peacock": ("孔雀", "標準"),
+    "bison": ("バイソン", "高度"),
+    "whale": ("クジラ", "特級"),
 }
 # What each level asks of the reader (doc/requirements.md §7.1). How often
 # the daily draw lands on each level is not published anywhere on the site.
 LEVEL_NOTES = {
-    "hedgehog": "読んだそばから答えが出る。関わる規則は1つ",
-    "peacock": "規則を1つ正確に思い出すか、数ステップ追う",
-    "bison": "2つ以上の規則が絡む。実務で一度踏んで覚える罠",
-    "whale": "言語の深い部分を複数組み合わせて初めて解ける",
+    "hedgehog": "基本の規則を正確に思い出して使えるかを問う",
+    "peacock": "見覚えのある形にひねりが1つ。条件を読んで使い分ける",
+    "bison": "複数の規則が同じ箇所で絡む。結び付けて解き切る",
+    "whale": "知識は基本だけ。解き方そのものを自分で見つける",
 }
 
 TAG_RE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\Z")
@@ -383,7 +383,7 @@ def render_levels_index():
 {level_listing()}"""
     return root / "levels.html", shell(
         title="難易度から探す",
-        description="Namaranの過去のドリルを難易度から探す索引。ハリネズミ(基礎)・孔雀(初級)・バイソン(中級)・クジラ(上級)の4段階で、C・C++・Rust・Haskell・Zigのドリルをまとめています。",
+        description="Namaranの過去のドリルを難易度から探す索引。ハリネズミ(基礎)・孔雀(標準)・バイソン(高度)・クジラ(特級)の4段階で、C・C++・Rust・Haskell・Zigのドリルをまとめています。",
         canonical=f"{SITE}/levels",
         breadcrumb=[("Namaran", f"{SITE}/"), ("難易度から探す", None)],
         body=body,

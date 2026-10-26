@@ -75,10 +75,17 @@ while IFS= read -r line || [ -n "$line" ]; do
   fi
 done < "$ODAI_FILE"
 
+# No two languages get the same topic on the same day (an Any line could
+# otherwise land on several). Earlier days are not looked at: a topic may
+# come back on a later day.
+picked=()
 for lang in "${ALL_LANGS[@]}"; do
-  if [ -z "${candidates[$lang]:-}" ]; then
-    echo "error: no topic for $lang in $ODAI_FILE (add a line for it, or an Any line)" >&2
+  pool="$(printf '%s' "${candidates[$lang]:-}" | grep -vxF -f <(printf '%s\n' "${picked[@]}") || true)"
+  if [ -z "$pool" ]; then
+    echo "error: no topic left for $lang in $ODAI_FILE (add a line for it, or an Any line)" >&2
     exit 1
   fi
-  printf '%s\t%s\n' "$lang" "$(printf '%s' "${candidates[$lang]}" | shuf -n 1)"
+  topic="$(printf '%s\n' "$pool" | shuf -n 1)"
+  picked+=("$topic")
+  printf '%s\t%s\n' "$lang" "$topic"
 done
