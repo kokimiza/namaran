@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="到着時刻と所要時間が到着順に並んだ仕事を、1つの窓口が順に片付けるとき、最後の仕事が終わる時刻を返す関数を書く。2026-08-29のC WRITE。">
+<title>1つの窓口の終了時刻</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-08-29">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-29" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-08-29",
+      "url": "https://namaran.jocarium.productions/c/write/2026-08-29",
+      "datePublished": "2026-08-29",
+      "dateModified": "2026-08-29",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "1つの窓口の終了時刻" },
+      "keywords": "queue, loop",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "到着時刻と所要時間が到着順に並んだ仕事を、1つの窓口が順に片付けるとき、最後の仕事が終わる時刻を返す関数を書く。2026-08-29のC WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-08-29" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-08-29">C++26</a>
+  <a href="/rust/write/2026-08-29">Rust 2024</a>
+  <a href="/haskell/write/2026-08-29">Haskell 2010</a>
+  <a href="/zig/write/2026-08-29">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-08-29">READ</a>
+  <a href="/c/write/2026-08-29" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-08-29">DEBUG</a>
+</nav>
+
+<main
+  data-topic="1つの窓口の終了時刻"
+  data-tags="queue loop"
+  data-concepts="キュー, 到着順の処理, 窓口の待ち行列, 終了時刻, FIFO queue, single server queue, finish time"
+  data-level="hedgehog"
+>
+  <h2>2026-08-29</h2>
+  <div class="code-frame">
+    <p class="code-filename">finish_time.c</p>
+    <pre class="code"><code><span class="ty">int</span> <span class="fn">finish_time</span>(<span class="kw">const</span> <span class="ty">int</span> arrive[], <span class="kw">const</span> <span class="ty">int</span> work[], <span class="ty">int</span> n) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    窓口が1つだけの受付に、仕事が到着順に並んで届きます。<code>i</code> 番目の仕事は時刻 <code>arrive[i]</code> に届き、片付けるのに <code>work[i]</code> だけ時間がかかります。窓口は届いた順に1件ずつ片付け、手が空いていれば届いた仕事にすぐ取りかかり、前の仕事が終わっていなければ終わるまで待たせます。最後の仕事が終わる時刻を返す <code>finish_time</code> を書いてください。時刻は0から始まり、<code>arrive</code> は小さい順に並んでいます。仕事が1件もない（<code>n</code> が0の）ときは0を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>finish_time((int[]){0, 1, 5}, (int[]){3, 2, 1}, 3)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>6</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>finish_time((int[]){2, 2}, (int[]){4, 1}, 2)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>7</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>finish_time(nullptr, nullptr, 0)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="ty">int</span> <span class="fn">finish_time</span>(<span class="kw">const</span> <span class="ty">int</span> arrive[], <span class="kw">const</span> <span class="ty">int</span> work[], <span class="ty">int</span> n) {
+    <span class="ty">int</span> now = <span class="nu">0</span>;
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; n; i++) {
+        <span class="kw">if</span> (now &lt; arrive[i])
+            now = arrive[i];
+        now += work[i];
+    }
+    <span class="kw">return</span> now;
+}
+</code></pre>
+      <p>
+        <code>now</code> は、窓口の手が空く時刻です。仕事 <code>i</code> に取りかかれるのは、その仕事が届いた時刻 <code>arrive[i]</code> と、前の仕事が終わった時刻 <code>now</code> の遅いほうです。窓口が先に空いていれば届くまで待つので <code>now</code> を <code>arrive[i]</code> まで進め、仕事のほうが先に届いていれば <code>now</code> のまま取りかかります。どちらの場合も、そこから <code>work[i]</code> だけ進んだ時刻に手が空きます。
+      </p>
+      <p>
+        入力例 1 では、1件目が時刻0から3まで、2件目は時刻1に届いて3まで待ち、3から5までかかります。3件目は時刻5に届き、窓口はちょうど空いているので5から6までで、6を返します。入力例 2 は2件が同じ時刻2に届く場合で、2件目は1件目が終わる6まで待ち、7に終わります。<code>n</code> が0ならループは1回も回らず、<code>now</code> の初期値0が返ります。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>if</code> の代わりに、取りかかる時刻を三項演算子で <code>now = (now &lt; arrive[i] ? arrive[i] : now) + work[i];</code> と1行で書くこともできます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

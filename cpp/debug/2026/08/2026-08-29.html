@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="真にする変数の個数が少ない順に、std::next_permutation で真偽の並べ方を試して論理式を満たす割り当てを探すプログラムが、満たせる式に UNSAT と答える不具合を直す。2026-08-29のC++ DEBUG。">
+<title>少ない真から試す探索</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-08-29">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-29" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-08-29",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-08-29",
+      "datePublished": "2026-08-29",
+      "dateModified": "2026-08-29",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "少ない真から試す探索" },
+      "keywords": "satisfiability, permutation, iterator",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "真にする変数の個数が少ない順に、std::next_permutation で真偽の並べ方を試して論理式を満たす割り当てを探すプログラムが、満たせる式に UNSAT と答える不具合を直す。2026-08-29のC++ DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-08-29">C23</a>
+  <a href="/cpp/debug/2026-08-29" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-08-29">Rust 2024</a>
+  <a href="/haskell/debug/2026-08-29">Haskell 2010</a>
+  <a href="/zig/debug/2026-08-29">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-08-29">READ</a>
+  <a href="/cpp/write/2026-08-29">WRITE</a>
+  <a href="/cpp/debug/2026-08-29" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="少ない真から試す探索"
+  data-tags="satisfiability permutation iterator"
+  data-concepts="充足可能性, 真の個数の少ない順の探索, std::next_permutation, 辞書順, 並べ替えの列挙, next_permutation, lexicographic order, minimal model"
+  data-level="whale"
+>
+  <h2>2026-08-29</h2>
+  <div class="code-frame">
+    <p class="code-filename">fewest_true.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;algorithm&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;cstdio&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="kw">auto</span> formula = [](<span class="kw">const</span> std::<span class="ty">vector</span>&lt;<span class="ty">bool</span>&gt;&amp; x) {
+        <span class="kw">return</span> !x[<span class="nu">0</span>] &amp;&amp; (x[<span class="nu">1</span>] || x[<span class="nu">2</span>]);
+    };
+    <span class="kw">for</span> (<span class="ty">int</span> k = <span class="nu">0</span>; k &lt;= <span class="nu">3</span>; ++k) {
+        std::<span class="ty">vector</span>&lt;<span class="ty">bool</span>&gt; <span class="fn">x</span>(<span class="nu">3</span>);
+        std::<span class="fn">fill</span>(x.<span class="fn">begin</span>(), x.<span class="fn">begin</span>() + k, <span class="nu">true</span>);
+        <span class="kw">do</span> {
+            <span class="kw">if</span> (<span class="fn">formula</span>(x)) {
+                std::<span class="fn">printf</span>(<span class="st">"%d%d%d\n"</span>, <span class="ty">int</span>(x[<span class="nu">0</span>]), <span class="ty">int</span>(x[<span class="nu">1</span>]), <span class="ty">int</span>(x[<span class="nu">2</span>]));
+                <span class="kw">return</span> <span class="nu">0</span>;
+            }
+        } <span class="kw">while</span> (std::<span class="fn">next_permutation</span>(x.<span class="fn">begin</span>(), x.<span class="fn">end</span>()));
+    }
+    std::<span class="fn">puts</span>(<span class="st">"UNSAT"</span>);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    3つの変数 <code>x[0]</code>、<code>x[1]</code>、<code>x[2]</code> の真偽の割り当てのうち、<code>formula</code> を満たし、真にする変数の個数が最も少ないものを探して <code>0</code> と <code>1</code> の並びで出力し、1つも無ければ <code>UNSAT</code> と出力するプログラムです。真の個数 <code>k</code> を0から順に増やし、<code>k</code> ごとに真偽の並べ方をすべて試すつもりです。この <code>formula</code> は <code>x[0]</code> が偽で <code>x[2]</code> だけが真の割り当てで満たせるので、本来は <code>001</code> と出力されるはずが、いまは <code>UNSAT</code> と出力されます。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code>std::<span class="ty">vector</span>&lt;<span class="ty">bool</span>&gt; <span class="fn">x</span>(<span class="nu">3</span>);
+std::<span class="fn">fill</span>(x.<span class="fn">begin</span>(), x.<span class="fn">begin</span>() + k, <span class="nu">true</span>);
+} <span class="kw">while</span> (std::<span class="fn">next_permutation</span>(x.<span class="fn">begin</span>(), x.<span class="fn">end</span>()));
+</code></pre>
+      <p>
+        <code>std::next_permutation</code> は、並びを辞書順で次のものに並べ替えて <code>true</code> を返し、すでに辞書順で最後の並びなら最初の並びに戻して <code>false</code> を返します。<code>bool</code> では <code>false</code> が <code>true</code> より小さいので、辞書順で最初の並びは真を後ろに寄せた <code>{false, false, true}</code>、最後の並びは真を前に寄せた <code>{true, false, false}</code> です。
+      </p>
+      <p>
+        <code>std::fill</code> は先頭から <code>k</code> 個を真にするので、どの <code>k</code> でも <code>x</code> は最初から辞書順で最後の並びになっています。そのため <code>do</code> の本体は1回だけ回り、<code>next_permutation</code> が <code>false</code> を返してループを抜けます。試されるのは <code>000</code>、<code>100</code>、<code>110</code>、<code>111</code> の4通りだけで、<code>k</code> が1以上のときはどれも <code>x[0]</code> が真なので <code>formula</code> を満たさず、<code>UNSAT</code> に着きます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code>std::<span class="ty">vector</span>&lt;<span class="ty">bool</span>&gt; <span class="fn">x</span>(<span class="nu">3</span>);
+std::<span class="fn">fill</span>(x.<span class="fn">end</span>() - k, x.<span class="fn">end</span>(), <span class="nu">true</span>);
+} <span class="kw">while</span> (std::<span class="fn">next_permutation</span>(x.<span class="fn">begin</span>(), x.<span class="fn">end</span>()));
+</code></pre>
+      <p>
+        末尾の <code>k</code> 個を真にすると、<code>x</code> は辞書順で最初の並びから始まります。<code>next_permutation</code> はそこから最後の並びまで1つずつ進むので、真が <code>k</code> 個の並べ方をすべて試してから <code>false</code> を返します。<code>k</code> が1のとき最初に試すのが <code>001</code> で、これが <code>formula</code> を満たして出力されます。先頭から埋めたあとで <code>std::ranges::sort(x)</code> を呼んでも、同じく最初の並びから始められます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

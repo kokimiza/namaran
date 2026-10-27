@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="2行2列の行列を2乗の繰り返しで累乗してフィボナッチ数を求める関数が、0乗で元の行列を返すために、ずれ方の揃わない誤った数列を返す不具合を直す。2026-08-29のHaskell DEBUG。">
+<title>累乗の出発点</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-08-29">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-29" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-08-29",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-08-29",
+      "datePublished": "2026-08-29",
+      "dateModified": "2026-08-29",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "累乗の出発点" },
+      "keywords": "exponentiation-by-squaring, base-case, recursion",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "2行2列の行列を2乗の繰り返しで累乗してフィボナッチ数を求める関数が、0乗で元の行列を返すために、ずれ方の揃わない誤った数列を返す不具合を直す。2026-08-29のHaskell DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-08-29">C23</a>
+  <a href="/cpp/debug/2026-08-29">C++26</a>
+  <a href="/rust/debug/2026-08-29">Rust 2024</a>
+  <a href="/haskell/debug/2026-08-29" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/debug/2026-08-29">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-08-29">READ</a>
+  <a href="/haskell/write/2026-08-29">WRITE</a>
+  <a href="/haskell/debug/2026-08-29" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="累乗の出発点"
+  data-tags="exponentiation-by-squaring base-case recursion"
+  data-concepts="繰り返し二乗法, 行列の累乗, 0乗は単位行列, 再帰の基底, フィボナッチ数, exponentiation by squaring, identity matrix, matrix power"
+  data-level="peacock"
+>
+  <h2>2026-08-29</h2>
+  <div class="code-frame">
+    <p class="code-filename">FibPower.hs</p>
+    <pre class="code"><code><span class="kw">type</span> <span class="ty">M</span> = (<span class="ty">Integer</span>, <span class="ty">Integer</span>, <span class="ty">Integer</span>, <span class="ty">Integer</span>)
+
+<span class="fn">mul</span> <span class="op">::</span> <span class="ty">M</span> <span class="op">-&gt;</span> <span class="ty">M</span> <span class="op">-&gt;</span> <span class="ty">M</span>
+<span class="fn">mul</span> (a, b, c, d) (e, f, g, h) = (a * e + b * g, a * f + b * h, c * e + d * g, c * f + d * h)
+
+<span class="fn">power</span> <span class="op">::</span> <span class="ty">M</span> <span class="op">-&gt;</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">M</span>
+<span class="fn">power</span> m <span class="nu">0</span> = m
+<span class="fn">power</span> m n
+  | even n = <span class="kw">let</span> h = power m (n `div` <span class="nu">2</span>) <span class="kw">in</span> mul h h
+  | otherwise = mul m (power m (n - <span class="nu">1</span>))
+
+<span class="fn">fib</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Integer</span>
+<span class="fn">fib</span> n = <span class="kw">let</span> (_, x, _, _) = power (<span class="nu">1</span>, <span class="nu">1</span>, <span class="nu">1</span>, <span class="nu">0</span>) n <span class="kw">in</span> x
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (map fib [<span class="nu">0</span> .. <span class="nu">5</span>])
+</code></pre>
+  </div>
+
+  <p class="question">
+    2行2列の行列を4つ組 <code>(a, b, c, d)</code>（1行目が <code>a b</code>、2行目が <code>c d</code>）で表し、<code>(1, 1, 1, 0)</code> の <code>n</code> 乗の右上の成分から、第 <code>n</code> 項のフィボナッチ数を求める <code>fib</code> です。フィボナッチ数は 0, 1 から始まり、前の2項の和を並べた数列です。<code>map fib [0 .. 5]</code> は本来 <code>[0,1,1,2,3,5]</code> になるはずが、いまは <code>[1,1,3,5,21,34]</code> になります。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="fn">power</span> m <span class="nu">0</span> = m
+</code></pre>
+      <p>
+        0乗は、何に掛けても相手を変えない行列 <code>(1, 0, 0, 1)</code> でなければなりませんが、ここでは <code>m</code> を返しています。そのため <code>power m n</code> は <code>m</code> の <code>n</code> 乗に余分な <code>m</code> を掛けた行列を返し、余分な <code>m</code> の個数は <code>n</code> によって変わります。<code>power m 1</code> は <code>mul m (power m 0)</code> で2乗になり、<code>power m 2</code> はそれを2乗するので4乗、<code>power m 3</code> は5乗、<code>power m 4</code> は8乗、<code>power m 5</code> は9乗です。
+      </p>
+      <p>
+        <code>(1, 1, 1, 0)</code> の <code>e</code> 乗の右上はフィボナッチ数の第 <code>e</code> 項なので、<code>n</code> が0から5のときに読まれるのは第1、2、4、5、8、9項の <code>1, 1, 3, 5, 21, 34</code> です。1つ先へずれただけなら <code>[1,1,2,3,5,8]</code> になるはずのところ、2乗する枝が余分な <code>m</code> まで2乗するので、ずれは <code>n</code> が大きいほど広がります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="fn">power</span> _ <span class="nu">0</span> = (<span class="nu">1</span>, <span class="nu">0</span>, <span class="nu">0</span>, <span class="nu">1</span>)
+</code></pre>
+      <p>
+        <code>(1, 0, 0, 1)</code> は <code>mul</code> で何に掛けても相手をそのまま返すので、0乗をこれにすると、<code>power m n</code> は2乗の枝でも1つ掛ける枝でも、ちょうど <code>m</code> の <code>n</code> 乗になります。0乗の右上は0で、<code>fib 0</code> も正しく0になります。0乗が引数の行列を使わなくなったので、引数は <code>_</code> にしてあります<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li><code>m</code> のまま残すと、使わない変数として <code>-Wall</code> が警告を出します。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

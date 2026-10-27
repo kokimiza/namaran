@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="ソート済みのスライスで target 以上になる最初の位置を探す二分探索が、範囲の幅が1になったところで先へ進まず、返ってこなくなる不具合を直す。2026-08-29のRust DEBUG。">
+<title>縮まない探索範囲</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-08-29">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-29" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-08-29",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-08-29",
+      "datePublished": "2026-08-29",
+      "dateModified": "2026-08-29",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "縮まない探索範囲" },
+      "keywords": "binary-search, infinite-loop, half-open-interval",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "ソート済みのスライスで target 以上になる最初の位置を探す二分探索が、範囲の幅が1になったところで先へ進まず、返ってこなくなる不具合を直す。2026-08-29のRust DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-08-29">C23</a>
+  <a href="/cpp/debug/2026-08-29">C++26</a>
+  <a href="/rust/debug/2026-08-29" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-08-29">Haskell 2010</a>
+  <a href="/zig/debug/2026-08-29">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-08-29">READ</a>
+  <a href="/rust/write/2026-08-29">WRITE</a>
+  <a href="/rust/debug/2026-08-29" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="縮まない探索範囲"
+  data-tags="binary-search infinite-loop half-open-interval"
+  data-concepts="二分探索, 無限ループ, 探索範囲が縮まない, ループ変量, binary search, lower bound, loop variant, infinite loop"
+  data-level="hedgehog"
+>
+  <h2>2026-08-29</h2>
+  <div class="code-frame">
+    <p class="code-filename">lower_bound.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">lower_bound</span>(v: &amp;[<span class="ty">i32</span>], target: <span class="ty">i32</span>) -&gt; <span class="ty">usize</span> {
+    <span class="kw">let</span> (<span class="kw">mut</span> lo, <span class="kw">mut</span> hi) = (<span class="nu">0</span>, v.<span class="fn">len</span>());
+    <span class="kw">while</span> lo &lt; hi {
+        <span class="kw">let</span> mid = (lo + hi) / <span class="nu">2</span>;
+        <span class="kw">if</span> v[mid] &lt; target {
+            lo = mid;
+        } <span class="kw">else</span> {
+            hi = mid;
+        }
+    }
+    lo
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="fn">lower_bound</span>(&amp;[<span class="nu">1</span>, <span class="nu">3</span>, <span class="nu">5</span>, <span class="nu">7</span>], <span class="nu">4</span>));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    小さい順に並んだスライス <code>v</code> の中で、<code>target</code> 以上の値が最初に現れる位置を返す <code>lower_bound</code> です。<code>lower_bound(&amp;[1, 3, 5, 7], 4)</code> は本来 <code>2</code> を返すはずが、いまは呼び出しから返ってこず、何も出力されないまま動き続けます。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">if</span> v[mid] &lt; target {
+    lo = mid;
+} <span class="kw">else</span> {
+</code></pre>
+      <p>
+        このループが止まるには、範囲の幅 <code>hi - lo</code> が1回ごとに真に減らなければなりません。<code>hi = mid</code> の側は、<code>mid</code> が常に <code>hi</code> より小さいので幅が必ず減ります。一方 <code>(lo + hi) / 2</code> は切り捨てなので、幅が1のとき <code>mid</code> は <code>lo</code> と等しくなり、<code>lo = mid</code> では範囲が変わりません。
+      </p>
+      <p>
+        入力例では、<code>(0, 4)</code> から <code>mid = 2</code> の <code>5</code> を見て <code>(0, 2)</code> になり、<code>mid = 1</code> の <code>3</code> を見て <code>lo = 1</code> で <code>(1, 2)</code> になります。次の <code>mid</code> は <code>(1 + 2) / 2</code> で再び1になり、<code>3 &lt; 4</code> なので <code>lo</code> にまた1が入って、同じ状態が限りなく続きます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">if</span> v[mid] &lt; target {
+    lo = mid + <span class="nu">1</span>;
+} <span class="kw">else</span> {
+</code></pre>
+      <p>
+        <code>v[mid] &lt; target</code> なら <code>mid</code> の位置は答えになりえないので、範囲から外して <code>mid + 1</code> から探せば足ります。<code>mid</code> は <code>lo</code> 以上なので <code>lo</code> は必ず1以上増え、どちらの枝でも幅が真に減ります。入力例では <code>(1, 2)</code> から <code>lo = 2</code> となって <code>lo &lt; hi</code> が偽になり、<code>2</code> を返します。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

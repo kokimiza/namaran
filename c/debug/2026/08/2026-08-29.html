@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="長さ4の配列を輪のように使うキューで、待っている仕事の数を (tail - head) % N で数えたとき、添字が折り返したあとに仕事が処理されずに残る不具合を直す。2026-08-29のC DEBUG。">
+<title>折り返すと消える仕事</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-08-29">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-29" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-08-29",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-08-29",
+      "datePublished": "2026-08-29",
+      "dateModified": "2026-08-29",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "折り返すと消える仕事" },
+      "keywords": "ring-buffer, queue, division",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "長さ4の配列を輪のように使うキューで、待っている仕事の数を (tail - head) % N で数えたとき、添字が折り返したあとに仕事が処理されずに残る不具合を直す。2026-08-29のC DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-08-29" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-08-29">C++26</a>
+  <a href="/rust/debug/2026-08-29">Rust 2024</a>
+  <a href="/haskell/debug/2026-08-29">Haskell 2010</a>
+  <a href="/zig/debug/2026-08-29">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-08-29">READ</a>
+  <a href="/c/write/2026-08-29">WRITE</a>
+  <a href="/c/debug/2026-08-29" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="折り返すと消える仕事"
+  data-tags="ring-buffer queue division"
+  data-concepts="リングバッファ, 循環キュー, 負の数の剰余, % 演算子, ring buffer, circular queue, negative modulo"
+  data-level="bison"
+>
+  <h2>2026-08-29</h2>
+  <div class="code-frame">
+    <p class="code-filename">job_ring.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="pp">#define</span> <span class="ty">N</span> <span class="nu">4</span>
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="ty">int</span> ring[<span class="ty">N</span>] = {<span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">3</span>};
+    <span class="ty">int</span> head = <span class="nu">0</span>, tail = <span class="nu">3</span>;
+    <span class="kw">while</span> ((tail - head) % <span class="ty">N</span> &gt; <span class="nu">0</span>) {
+        <span class="ty">int</span> job = ring[head];
+        head = (head + <span class="nu">1</span>) % <span class="ty">N</span>;
+        <span class="fn">printf</span>(<span class="st">"%d "</span>, job);
+        <span class="kw">if</span> (job == <span class="nu">1</span>) {
+            ring[tail] = <span class="nu">4</span>;
+            tail = (tail + <span class="nu">1</span>) % <span class="ty">N</span>;
+        }
+    }
+    <span class="fn">printf</span>(<span class="st">"\n"</span>);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    長さ <code>N</code> の配列 <code>ring</code> を輪のように使い、<code>head</code> から取り出して <code>tail</code> に足すキューで、仕事を到着順に処理するプログラムです。仕事 <code>1</code> は、処理されると後続の仕事 <code>4</code> をキューに足します。最初に <code>1</code>、<code>2</code>、<code>3</code> が待っているので、本来は <code>1 2 3 4 </code> と出力されるはずが、いまは <code>1 </code> とだけ出力されて終わります。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">while</span> ((tail - head) % <span class="ty">N</span> &gt; <span class="nu">0</span>) {
+</code></pre>
+      <p>
+        <code>(tail - head) % N</code> は待っている仕事の数のつもりですが、<code>tail</code> が折り返して <code>head</code> より小さくなると負になります。C の整数の割り算は0の方へ切り捨てるので、余り <code>a % b</code> は割られる数 <code>a</code> と同じ符号を持ち、<code>-1 % 4</code> は <code>3</code> ではなく <code>-1</code> です<sup class="fn-ref">1</sup>。
+      </p>
+      <p>
+        最初は <code>head</code> が0、<code>tail</code> が3です。仕事 <code>1</code> を取り出すと <code>head</code> は1になり、続けて仕事 <code>4</code> を <code>ring[3]</code> に入れると、<code>tail</code> は <code>(3 + 1) % 4</code> で0に戻ります。このとき <code>(0 - 1) % 4</code> が <code>-1</code> になって条件が偽になり、<code>2</code>、<code>3</code>、<code>4</code> を残したままループを抜けます。添字を進める <code>(tail + 1) % N</code> は正の数の余りなので、こちらは正しく折り返しています。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">while</span> ((tail - head + <span class="ty">N</span>) % <span class="ty">N</span> &gt; <span class="nu">0</span>) {
+</code></pre>
+      <p>
+        <code>tail - head</code> は <code>-(N - 1)</code> 以上 <code>N - 1</code> 以下なので、<code>N</code> を足せば必ず正になり、その余りは0以上 <code>N</code> 未満の、待っている仕事の数になります。仕事 <code>1</code> のあとは <code>(0 - 1 + 4) % 4</code> が <code>3</code> になってループが続き、<code>2</code>、<code>3</code>、<code>4</code> を処理して <code>head</code> と <code>tail</code> がともに0になったところで止まります。
+      </p>
+      <ol class="footnotes">
+        <li>C89 では、負の数を含む割り算をどちらへ丸めるかは処理系が決めてよいことになっていました。C99 で0の方への切り捨てに決まり、C23 も同じです。Python の <code>%</code> は割る数と同じ符号になるので、<code>-1 % 4</code> は <code>3</code> です。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

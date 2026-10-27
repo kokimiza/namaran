@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="k 項前までの和で決まる数列について、直前 k 項の縦ベクトルに掛けると1項先へ進む k 行 k 列の行列を、係数のリストから作る関数を書く。2026-08-29のHaskell WRITE。">
+<title>漸化式を1歩進める行列</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-08-29">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-29" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-08-29",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-08-29",
+      "datePublished": "2026-08-29",
+      "dateModified": "2026-08-29",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "漸化式を1歩進める行列" },
+      "keywords": "list-comprehension, list",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "k 項前までの和で決まる数列について、直前 k 項の縦ベクトルに掛けると1項先へ進む k 行 k 列の行列を、係数のリストから作る関数を書く。2026-08-29のHaskell WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-08-29">C23</a>
+  <a href="/cpp/write/2026-08-29">C++26</a>
+  <a href="/rust/write/2026-08-29">Rust 2024</a>
+  <a href="/haskell/write/2026-08-29" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/write/2026-08-29">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-08-29">READ</a>
+  <a href="/haskell/write/2026-08-29" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-08-29">DEBUG</a>
+</nav>
+
+<main
+  data-topic="漸化式を1歩進める行列"
+  data-tags="list-comprehension list"
+  data-concepts="線形漸化式, 漸化式を進める行列, リスト内包表記, 行列累乗の準備, linear recurrence, companion matrix, list comprehension"
+  data-level="hedgehog"
+>
+  <h2>2026-08-29</h2>
+  <div class="code-frame">
+    <p class="code-filename">Companion.hs</p>
+    <pre class="code"><code><span class="fn">companion</span> <span class="op">::</span> [<span class="ty">Integer</span>] <span class="op">-&gt;</span> [[<span class="ty">Integer</span>]]
+</code></pre>
+  </div>
+
+  <p class="question">
+    数列 a が、係数 c<sub>1</sub>, …, c<sub>k</sub> を使って a<sub>n</sub> = c<sub>1</sub>a<sub>n−1</sub> + c<sub>2</sub>a<sub>n−2</sub> + … + c<sub>k</sub>a<sub>n−k</sub> で決まるとします。係数のリスト <code>[c1, …, ck]</code> から、直前の k 項を上から新しい順に並べた縦ベクトル (a<sub>n−1</sub>, …, a<sub>n−k</sub>) に掛けると (a<sub>n</sub>, …, a<sub>n−k+1</sub>) になる k 行 k 列の行列を、行のリストとして返す <code>companion</code> を書いてください。行列に縦ベクトルを掛けた結果の i 段目は、行列の i 行目と縦ベクトルの対応する要素を掛けて足した値です。係数のリストは空でないものとします。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>companion [1, 1]</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>[[1,1],[1,0]]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>companion [2, 0, 5]</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>[[2,0,5],[1,0,0],[0,1,0]]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>companion [3]</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>[[3]]</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="fn">companion</span> <span class="op">::</span> [<span class="ty">Integer</span>] <span class="op">-&gt;</span> [[<span class="ty">Integer</span>]]
+<span class="fn">companion</span> cs = cs : [[<span class="kw">if</span> j == i <span class="kw">then</span> <span class="nu">1</span> <span class="kw">else</span> <span class="nu">0</span> | j <span class="op">&lt;-</span> [<span class="nu">1</span> .. k]] | i <span class="op">&lt;-</span> [<span class="nu">1</span> .. k - <span class="nu">1</span>]]
+ <span class="kw">where</span>
+  k = length cs
+</code></pre>
+      <p>
+        結果の1段目は a<sub>n</sub> で、漸化式そのものなので、行列の1行目は係数のリスト <code>cs</code> をそのまま使います。2段目から下は、縦ベクトルの段を1つずつ下へずらすだけです。i + 1 段目に来るのは a<sub>n−i</sub> で、これは元の縦ベクトルの i 段目なので、i + 1 行目は i 列目だけが1で残りが0の行になります。
+      </p>
+      <p>
+        内包表記の <code>i</code> は1から k − 1 まで回り、2行目から k 行目を作ります。入力例 2 では <code>[1,0,0]</code> と <code>[0,1,0]</code> が <code>cs</code> の下に並びます。k が1なら <code>[1 .. 0]</code> は空なので、入力例 3 のように1行目だけの行列になります。この行列を n 回掛ければ、縦ベクトルは n 項先へ進みます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>cs : map (take k) (take (k - 1) (iterate (0 :) (1 : replicate (k - 1) 0)))</code> のように、1の位置を右へずらした行を <code>iterate</code> で作り、それぞれ長さ k に切りそろえて並べる書き方もあります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

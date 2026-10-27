@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="配列で作ったキューから仕事を取り出し、処理中の仕事が新しい仕事を2つ足すとき、どの順に処理されるかを追う。2026-08-29のC READ。">
+<title>仕事が生む仕事の順番</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-08-29">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-29" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-08-29",
+      "url": "https://namaran.jocarium.productions/c/read/2026-08-29",
+      "datePublished": "2026-08-29",
+      "dateModified": "2026-08-29",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "仕事が生む仕事の順番" },
+      "keywords": "queue, breadth-first-search, array",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "配列で作ったキューから仕事を取り出し、処理中の仕事が新しい仕事を2つ足すとき、どの順に処理されるかを追う。2026-08-29のC READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-08-29" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-08-29">C++26</a>
+  <a href="/rust/read/2026-08-29">Rust 2024</a>
+  <a href="/haskell/read/2026-08-29">Haskell 2010</a>
+  <a href="/zig/read/2026-08-29">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-08-29" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-08-29">WRITE</a>
+  <a href="/c/debug/2026-08-29">DEBUG</a>
+</nav>
+
+<main
+  data-topic="仕事が生む仕事の順番"
+  data-tags="queue breadth-first-search array"
+  data-concepts="キュー, 到着順の処理, 幅優先の順序, FIFO, job queue, breadth-first order"
+  data-level="peacock"
+>
+  <h2>2026-08-29</h2>
+  <div class="code-frame">
+    <p class="code-filename">job_queue.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="ty">int</span> queue[<span class="nu">8</span>] = {<span class="nu">3</span>};
+    <span class="ty">int</span> head = <span class="nu">0</span>, tail = <span class="nu">1</span>;
+    <span class="kw">while</span> (head &lt; tail) {
+        <span class="ty">int</span> job = queue[head++];
+        <span class="fn">printf</span>(<span class="st">"%d "</span>, job);
+        <span class="kw">if</span> (job &gt;= <span class="nu">2</span>) {
+            queue[tail++] = job - <span class="nu">1</span>;
+            queue[tail++] = job - <span class="nu">2</span>;
+        }
+    }
+    <span class="fn">printf</span>(<span class="st">"\n"</span>);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>3 2 1 1 0 </code> です（最後の <code>0</code> のあとに空白が1つ入ります）。
+      </p>
+      <p>
+        <code>queue</code> は、<code>head</code> の位置から取り出し、<code>tail</code> の位置へ足す配列です。取り出すのは常に一番前、足すのは常に一番後ろなので、仕事は足された順に処理されます。2以上の仕事 <code>n</code> は、処理されると <code>n - 1</code> と <code>n - 2</code> を後ろに足します。
+      </p>
+      <p>
+        最初は <code>3</code> だけが入っています。<code>3</code> を処理すると後ろに <code>2</code> と <code>1</code> が並び、次に <code>2</code> を処理すると、その後ろに <code>1</code> と <code>0</code> が足されます。このとき列は <code>1 1 0</code> で、先頭の <code>1</code> は <code>3</code> が足したもの、後ろの <code>1 0</code> は <code>2</code> が足したものです。<code>1</code> と <code>0</code> は何も足さないので、そのまま <code>1</code>、<code>1</code>、<code>0</code> の順に出力されて列が空になります。
+      </p>
+      <p>
+        <code>2</code> が足した <code>1</code> と <code>0</code> を、<code>2</code> の直後に処理されると読むと <code>3 2 1 0 1</code> になります。これは仕事を再帰呼び出しで片付けたときの順で、足された仕事がすぐに処理されます。キューに足された仕事は、それより前から待っている仕事の後ろに並ぶので、<code>3</code> が足した <code>1</code> のほうが先に処理されます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

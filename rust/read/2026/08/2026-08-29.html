@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="while ループの中でタプルへの分割代入 (a, b) = (b, a % b) を繰り返すとき、最後の a とループの回数がいくつになるかを追う。2026-08-29のRust READ。">
+<title>組で書き換える割り算</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-08-29">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / READ", "item": "https://namaran.jocarium.productions/rust/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-29" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / READ — 2026-08-29",
+      "url": "https://namaran.jocarium.productions/rust/read/2026-08-29",
+      "datePublished": "2026-08-29",
+      "dateModified": "2026-08-29",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "組で書き換える割り算" },
+      "keywords": "tuple, loop, greatest-common-divisor",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "while ループの中でタプルへの分割代入 (a, b) = (b, a % b) を繰り返すとき、最後の a とループの回数がいくつになるかを追う。2026-08-29のRust READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-08-29">C23</a>
+  <a href="/cpp/read/2026-08-29">C++26</a>
+  <a href="/rust/read/2026-08-29" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/read/2026-08-29">Haskell 2010</a>
+  <a href="/zig/read/2026-08-29">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-08-29" class="active" aria-current="page">READ</a>
+  <a href="/rust/write/2026-08-29">WRITE</a>
+  <a href="/rust/debug/2026-08-29">DEBUG</a>
+</nav>
+
+<main
+  data-topic="組で書き換える割り算"
+  data-tags="tuple loop greatest-common-divisor"
+  data-concepts="分割代入, タプルへの代入, 余りで減っていく値, ループの停止, destructuring assignment, tuple assignment, loop variant"
+  data-level="hedgehog"
+>
+  <h2>2026-08-29</h2>
+  <div class="code-frame">
+    <p class="code-filename">gcd_steps.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> (<span class="kw">mut</span> a, <span class="kw">mut</span> b) = (<span class="nu">21u32</span>, <span class="nu">13u32</span>);
+    <span class="kw">let</span> <span class="kw">mut</span> steps = <span class="nu">0</span>;
+    <span class="kw">while</span> b != <span class="nu">0</span> {
+        (a, b) = (b, a % b);
+        steps += <span class="nu">1</span>;
+    }
+    <span class="mc">println!</span>(<span class="st">"{a} {steps}"</span>);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>1 6</code> です。
+      </p>
+      <p>
+        <code>(a, b) = (b, a % b)</code> は、右辺のタプルを古い <code>a</code> と <code>b</code> で作り終えてから、その2つの値を左辺の <code>a</code> と <code>b</code> へ書き込みます。<code>a % b</code> を計算する時点で <code>a</code> はまだ書き換わっていないので、1回ごとに組が「<code>b</code> と、<code>a</code> を <code>b</code> で割った余り」に置き換わります。
+      </p>
+      <p>
+        組は <code>(21, 13)</code> から <code>(13, 8)</code>、<code>(8, 5)</code>、<code>(5, 3)</code>、<code>(3, 2)</code>、<code>(2, 1)</code>、<code>(1, 0)</code> と6回変わります。余りは割る数より必ず小さいので、<code>b</code> は1回ごとに真に減ります。0以上の整数は限りなく減り続けられないので、このループは必ず止まります。<code>b</code> が0になった時点の <code>a</code> は <code>1</code> で、これは21と13の最大公約数です。
+      </p>
+      <p>
+        <code>a = b;</code> と <code>b = a % b;</code> を1文ずつ順に書いたと読むと、2文目の <code>a</code> はもう <code>13</code> なので <code>b</code> は <code>13 % 13</code> で0になり、<code>13 1</code> と答えることになります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/read">Today</a></li>
+    <li><a href="/rust/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

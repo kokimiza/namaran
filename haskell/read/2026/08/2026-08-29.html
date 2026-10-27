@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="リストのリストで表した行列の積を transpose とリスト内包表記で書き、iterate で縦ベクトルに3回掛けたとき、何が出力されるかを追う。2026-08-29のHaskell READ。">
+<title>行列を3回掛けた列</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-08-29">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-29" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-08-29",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-08-29",
+      "datePublished": "2026-08-29",
+      "dateModified": "2026-08-29",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "行列を3回掛けた列" },
+      "keywords": "list-comprehension, list, higher-order",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "リストのリストで表した行列の積を transpose とリスト内包表記で書き、iterate で縦ベクトルに3回掛けたとき、何が出力されるかを追う。2026-08-29のHaskell READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-08-29">C23</a>
+  <a href="/cpp/read/2026-08-29">C++26</a>
+  <a href="/rust/read/2026-08-29">Rust 2024</a>
+  <a href="/haskell/read/2026-08-29" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/read/2026-08-29">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-08-29" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-08-29">WRITE</a>
+  <a href="/haskell/debug/2026-08-29">DEBUG</a>
+</nav>
+
+<main
+  data-topic="行列を3回掛けた列"
+  data-tags="list-comprehension list higher-order"
+  data-concepts="行列の積, transpose で列を取り出す, リスト内包表記, iterate の添字, 線形漸化式, matrix multiplication, transpose, list comprehension"
+  data-level="hedgehog"
+>
+  <h2>2026-08-29</h2>
+  <div class="code-frame">
+    <p class="code-filename">Recurrence.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Data.List</span> (transpose)
+
+<span class="fn">mul</span> <span class="op">::</span> [[<span class="ty">Integer</span>]] <span class="op">-&gt;</span> [[<span class="ty">Integer</span>]] <span class="op">-&gt;</span> [[<span class="ty">Integer</span>]]
+<span class="fn">mul</span> a b = [[sum (zipWith (*) row col) | col <span class="op">&lt;-</span> transpose b] | row <span class="op">&lt;-</span> a]
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (iterate (mul [[<span class="nu">1</span>, <span class="nu">2</span>], [<span class="nu">1</span>, <span class="nu">0</span>]]) [[<span class="nu">1</span>], [<span class="nu">0</span>]] !! <span class="nu">3</span>)
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>[[5],[3]]</code> です。
+      </p>
+      <p>
+        <code>mul a b</code> の内包表記は、外側で <code>a</code> の行 <code>row</code> を、内側で <code>transpose b</code> の要素 <code>col</code> を回します。<code>transpose</code> は行と列を入れ替えるので、<code>col</code> は <code>b</code> の列です。行と列の対応する要素を掛けて足した値が、結果の行列の「<code>row</code> 番目の行、<code>col</code> 番目の列」に並び、これは行列の積そのものです。
+      </p>
+      <p>
+        <code>[[1], [0]]</code> は1列の縦ベクトルで、<code>transpose</code> すると列が1つだけの <code>[[1, 0]]</code> になります。<code>[[1, 2], [1, 0]]</code> を掛けると、1行目は <code>1*1 + 2*0</code>、2行目は <code>1*1 + 0*0</code> で、<code>[[1], [1]]</code> が得られます。
+      </p>
+      <p>
+        <code>iterate f x</code> は <code>[x, f x, f (f x), …]</code> と並ぶリストで、<code>!! 3</code> は <code>f</code> を3回使った値です。縦ベクトルは <code>[[1], [0]]</code> から <code>[[1], [1]]</code>、<code>[[3], [1]]</code>、<code>[[5], [3]]</code> と変わります。1回掛けるごとに、新しい上の段は前の上の段と下の段の2倍の和になり、新しい下の段には前の上の段が下ります。下の段を順に読むと 0, 1, 1, 3 で、この掛け算は「前の項に、その前の項の2倍を足す」数列を1項ずつ先へ進めています。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

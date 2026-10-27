@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="フィールドの既定値を0にした集計用の構造体を undefined で初期化したため、件数と合計に大きなでたらめの数が出る不具合を直す。2026-08-29のZig DEBUG。">
+<title>既定値が入らない初期化</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/debug/2026-08-29">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / DEBUG", "item": "https://namaran.jocarium.productions/zig/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-29" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / DEBUG — 2026-08-29",
+      "url": "https://namaran.jocarium.productions/zig/debug/2026-08-29",
+      "datePublished": "2026-08-29",
+      "dateModified": "2026-08-29",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "既定値が入らない初期化" },
+      "keywords": "struct, default, undefined-behavior",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "フィールドの既定値を0にした集計用の構造体を undefined で初期化したため、件数と合計に大きなでたらめの数が出る不具合を直す。2026-08-29のZig DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-08-29">C23</a>
+  <a href="/cpp/debug/2026-08-29">C++26</a>
+  <a href="/rust/debug/2026-08-29">Rust 2024</a>
+  <a href="/haskell/debug/2026-08-29">Haskell 2010</a>
+  <a href="/zig/debug/2026-08-29" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-08-29">READ</a>
+  <a href="/zig/write/2026-08-29">WRITE</a>
+  <a href="/zig/debug/2026-08-29" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="既定値が入らない初期化"
+  data-tags="struct default undefined-behavior"
+  data-concepts="構造体のデフォルト値, undefined での初期化, 未初期化の変数, フィールドの既定値, struct default field value, undefined initialization, uninitialized memory"
+  data-level="hedgehog"
+>
+  <h2>2026-08-29</h2>
+  <div class="code-frame">
+    <p class="code-filename">stats.zig</p>
+    <pre class="code"><code><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);
+
+<span class="kw">const</span> <span class="ty">Stats</span> = <span class="kw">struct</span> {
+    count: <span class="ty">u32</span> = <span class="nu">0</span>,
+    total: <span class="ty">u32</span> = <span class="nu">0</span>,
+};
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {
+    <span class="kw">var</span> buf: [<span class="nu">256</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;
+    <span class="kw">var</span> stdout_writer = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;buf);
+    <span class="kw">const</span> stdout = &amp;stdout_writer.interface;
+    <span class="kw">var</span> stats: <span class="ty">Stats</span> = <span class="nu">undefined</span>;
+    <span class="kw">for</span> ([_]<span class="ty">u32</span>{ <span class="nu">4</span>, <span class="nu">7</span>, <span class="nu">1</span> }) |x| {
+        stats.count += <span class="nu">1</span>;
+        stats.total += x;
+    }
+    <span class="kw">try</span> stdout.<span class="fn">print</span>(<span class="st">"{d} {d}\n"</span>, .{ stats.count, stats.total });
+    <span class="kw">try</span> stdout.<span class="fn">flush</span>();
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    配列 <code>{ 4, 7, 1 }</code> の要素の個数と合計を、フィールドの既定値を0にした <code>Stats</code> に数えて出力するプログラムです。本来は <code>3 12</code> と出力されるはずが、いまは大きなでたらめの数が出ます。手元の Debug ビルドでは <code>2863311533 2863311542</code> と出ましたが、値はビルドの設定によって変わります。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">var</span> stats: <span class="ty">Stats</span> = <span class="nu">undefined</span>;
+</code></pre>
+      <p>
+        <code>undefined</code> で初期化した変数は、中身が決まらないまま置かれるだけで、フィールドの既定値は使われません。既定値が入るのは、構造体リテラルでそのフィールドを書かなかったときです。そのため <code>stats.count</code> と <code>stats.total</code> は決まらない値から数え始め、そこに <code>1</code> や要素が足されていきます。Debug ビルドでは、<code>undefined</code> の変数のバイトがすべて <code>0xaa</code> で埋められるので、<code>u32</code> の初期値は <code>0xaaaaaaaa</code>（10進数で <code>2863311530</code>）になり、それに3と12を足した数が出力されます<sup class="fn-ref">1</sup>。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">var</span> stats: <span class="ty">Stats</span> = .{};
+</code></pre>
+      <p>
+        <code>.{}</code> はフィールドを1つも書かない構造体リテラルなので、<code>count</code> と <code>total</code> はどちらも宣言の既定値 <code>0</code> から始まります。ループで <code>count</code> に1が3回、<code>total</code> に4、7、1が足され、<code>3 12</code> が出力されます。
+      </p>
+      <ol class="footnotes">
+        <li><code>0xaa</code> で埋めるのは、決まらない値を使ったときに気付きやすくするための Debug ビルドの振る舞いで、言語として保証された値ではありません。ReleaseFast などの最適化したビルドでは埋める処理が行われず、出てくる値は決まりません。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/debug">Today</a></li>
+    <li><a href="/zig/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

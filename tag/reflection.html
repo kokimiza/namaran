@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「リフレクション」を扱ったNamaranのコーディングドリル5問。comptime var、inline for、@typeInfo、フィールドの型を数える、コンパイル時の集計、type reflection。">
+<meta name="description" content="「リフレクション」を扱ったNamaranのコーディングドリル6問。comptime var、inline for、@typeInfo、フィールドの型を数える、コンパイル時の集計、type reflection。">
 <title>リフレクション</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/reflection">
 <link rel="stylesheet" href="/style.css">
@@ -32,15 +32,16 @@
   <h2>リフレクション</h2>
 
   <p class="lede">
-    「リフレクション」を扱った5問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「リフレクション」を扱った6問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
     <li><a href="/zig/write/2026-10-25">Zig / WRITE · 2026-10-25</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">型の合うフィールドを数える</span> <span class="past-concepts">comptime var, inline for, @typeInfo, フィールドの型を数える, コンパイル時の集計, type reflection, comptime_int</span></li>
     <li><a href="/zig/write/2026-10-24">Zig / WRITE · 2026-10-24</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">列挙子の名前でフィールドへ</span> <span class="past-concepts">inline else, @field, @tagName, 実行時の値でフィールドを選ぶ, comptime field access, enum to field, switch prong expansion</span></li>
-    <li><a href="/zig/write/2026-10-23">Zig / WRITE · 2026-10-23</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">2倍の幅で掛ける</span> <span class="past-concepts">@TypeOf, @typeInfo, @Int, 型を返す関数, 幅を広げてから掛ける, widening multiplication, type reflection, anytype</span></li>
-    <li><a href="/zig/read/2026-10-23">Zig / READ · 2026-10-23</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（初級）" title="孔雀（初級）"></span> <span class="past-topic">型を調べた呼び出しの回数</span> <span class="past-concepts">@TypeOf, @typeInfo, ピア型解決, 評価されない式, peer type resolution, no runtime side effects, type reflection</span></li>
-    <li><a href="/zig/debug/2026-10-23">Zig / DEBUG · 2026-10-23</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（中級）" title="バイソン（中級）"></span> <span class="past-topic">constの付いた型は別の型</span> <span class="past-concepts">@typeInfo, 構造体のフィールドの走査, inline for, 型の等値比較, []const u8, メモリリーク, type reflection, memory leak</span></li>
+    <li><a href="/zig/write/2026-10-23">Zig / WRITE · 2026-10-23</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">2倍の幅で掛ける</span> <span class="past-concepts">@TypeOf, @typeInfo, @Int, 型を返す関数, 幅を広げてから掛ける, widening multiplication, type reflection, anytype</span></li>
+    <li><a href="/zig/read/2026-10-23">Zig / READ · 2026-10-23</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">型を調べた呼び出しの回数</span> <span class="past-concepts">@TypeOf, @typeInfo, ピア型解決, 評価されない式, peer type resolution, no runtime side effects, type reflection</span></li>
+    <li><a href="/zig/debug/2026-10-23">Zig / DEBUG · 2026-10-23</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">constの付いた型は別の型</span> <span class="past-concepts">@typeInfo, 構造体のフィールドの走査, inline for, 型の等値比較, []const u8, メモリリーク, type reflection, memory leak</span></li>
+    <li><a href="/zig/write/2026-08-29">Zig / WRITE · 2026-08-29</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">既定値に設定を重ねる</span> <span class="past-concepts">構造体のデフォルト値, 設定の読み込み, @typeInfo によるフィールドの列挙, inline for, @field, struct default values, config loader, comptime reflection</span></li>
   </ul>
 
   <p><a href="/topics">ほかのお題を見る</a></p>

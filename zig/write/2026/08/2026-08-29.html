@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="フィールドに既定値を持つ任意の構造体型について、キーと値の文字列の組の並びを読み、名前の合うフィールドだけを整数に直して書き換えた値を返す関数を書く。2026-08-29のZig WRITE。">
+<title>既定値に設定を重ねる</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/write/2026-08-29">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / WRITE", "item": "https://namaran.jocarium.productions/zig/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-29" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / WRITE — 2026-08-29",
+      "url": "https://namaran.jocarium.productions/zig/write/2026-08-29",
+      "datePublished": "2026-08-29",
+      "dateModified": "2026-08-29",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "既定値に設定を重ねる" },
+      "keywords": "struct, default, reflection, comptime",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "フィールドに既定値を持つ任意の構造体型について、キーと値の文字列の組の並びを読み、名前の合うフィールドだけを整数に直して書き換えた値を返す関数を書く。2026-08-29のZig WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-08-29">C23</a>
+  <a href="/cpp/write/2026-08-29">C++26</a>
+  <a href="/rust/write/2026-08-29">Rust 2024</a>
+  <a href="/haskell/write/2026-08-29">Haskell 2010</a>
+  <a href="/zig/write/2026-08-29" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-08-29">READ</a>
+  <a href="/zig/write/2026-08-29" class="active" aria-current="page">WRITE</a>
+  <a href="/zig/debug/2026-08-29">DEBUG</a>
+</nav>
+
+<main
+  data-topic="既定値に設定を重ねる"
+  data-tags="struct default reflection comptime"
+  data-concepts="構造体のデフォルト値, 設定の読み込み, @typeInfo によるフィールドの列挙, inline for, @field, struct default values, config loader, comptime reflection"
+  data-level="bison"
+>
+  <h2>2026-08-29</h2>
+  <div class="code-frame">
+    <p class="code-filename">load_config.zig</p>
+    <pre class="code"><code><span class="kw">const</span> <span class="ty">Server</span> = <span class="kw">struct</span> {
+    port: <span class="ty">u16</span> = <span class="nu">8080</span>,
+    workers: <span class="ty">u8</span> = <span class="nu">4</span>,
+};
+
+<span class="kw">fn</span> <span class="fn">load</span>(<span class="kw">comptime</span> <span class="ty">T</span>: <span class="ty">type</span>, pairs: []<span class="kw">const</span> [<span class="nu">2</span>][]<span class="kw">const</span> <span class="ty">u8</span>) !<span class="ty">T</span> {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    全フィールドが整数型で、どのフィールドにも既定値がある構造体型 <code>T</code> について、設定を読み込む <code>load</code> を書いてください。<code>pairs</code> の各要素は、フィールド名と10進数の文字列の組です。すべてのフィールドが既定値の状態から始め、組を先頭から順に見て、名前の合うフィールドをその数に書き換えた値を返します。同じ名前が何度も出たら後のものが残り、<code>pairs</code> が空なら既定値のままです。どのフィールドにも合わない名前があれば <code>error.UnknownKey</code> を返し、数として読めない文字列やフィールドの型に収まらない数なら、<code>std.fmt.parseInt</code> の返すエラーをそのまま返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>load(Server, &amp;.{.{ "port", "9000" }})</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>.{ .port = 9000, .workers = 4 }</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>load(Server, &amp;.{ .{ "workers", "8" }, .{ "workers", "2" } })</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>.{ .port = 8080, .workers = 2 }</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>load(Server, &amp;.{.{ "host", "1" }})</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>error.UnknownKey</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">load</span>(<span class="kw">comptime</span> <span class="ty">T</span>: <span class="ty">type</span>, pairs: []<span class="kw">const</span> [<span class="nu">2</span>][]<span class="kw">const</span> <span class="ty">u8</span>) !<span class="ty">T</span> {
+    <span class="kw">var</span> result: <span class="ty">T</span> = .{};
+    <span class="kw">const</span> info = <span class="mc">@typeInfo</span>(<span class="ty">T</span>).@"struct";
+    <span class="kw">for</span> (pairs) |pair| {
+        <span class="kw">inline</span> <span class="kw">for</span> (info.field_names, info.field_types) |name, <span class="ty">F</span>| {
+            <span class="kw">if</span> (std.mem.<span class="fn">eql</span>(<span class="ty">u8</span>, pair[<span class="nu">0</span>], name)) {
+                <span class="mc">@field</span>(result, name) = <span class="kw">try</span> std.fmt.<span class="fn">parseInt</span>(<span class="ty">F</span>, pair[<span class="nu">1</span>], <span class="nu">10</span>);
+                <span class="kw">break</span>;
+            }
+        } <span class="kw">else</span> <span class="kw">return</span> <span class="kw">error</span>.<span class="ty">UnknownKey</span>;
+    }
+    <span class="kw">return</span> result;
+}
+</code></pre>
+      <p>
+        出発点の <code>.{}</code> は、フィールドを1つも書かない構造体リテラルで、すべてのフィールドが宣言の既定値になります。既定値の無いフィールドが1つでもあると、ここでコンパイルエラーになります。<code>var result: T = undefined;</code> から始めると、既定値は入らず、書き換えなかったフィールドの中身は決まらないままです。
+      </p>
+      <p>
+        <code>@typeInfo(T).@"struct"</code> は、フィールドの名前の並び <code>field_names</code> と型の並び <code>field_types</code> をコンパイル時に持っています。<code>@field(result, name)</code> の <code>name</code> はコンパイル時に決まっていなければならず、フィールドごとに型 <code>F</code> も違うので、この2つの並びは普通の <code>for</code> では回せません。<code>inline for</code> はループ本体をフィールドの数だけ展開し、展開したそれぞれで <code>name</code> と <code>F</code> が定数になります。比べる相手の <code>pair[0]</code> は実行時の文字列なので、比較そのものは実行時に <code>std.mem.eql</code> で行います。
+      </p>
+      <p>
+        名前が合えば、<code>std.fmt.parseInt(F, …)</code> がそのフィールドの型で文字列を読みます。<code>Server</code> の <code>workers</code> は <code>u8</code> なので、<code>"300"</code> を渡すと <code>error.Overflow</code> になり、<code>try</code> がそれを呼び出し元へ返します。書き換えたら <code>break</code> で残りのフィールドを飛ばし、どのフィールドとも合わずにループが最後まで回ったときだけ、<code>else</code> の <code>return error.UnknownKey</code> に進みます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>inline for</code> の <code>else</code> を使わず、合ったかどうかを <code>bool</code> の変数に記録して、ループのあとで調べる書き方もあります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/write">Today</a></li>
+    <li><a href="/zig/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
