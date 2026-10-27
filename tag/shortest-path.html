@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「最短経路」を扱ったNamaranのコーディングドリル15問。ベルマン-フォード法、辺の緩和、負の重みの辺、到達できない頂点、Bellman-Ford、edge relaxation。">
+<meta name="description" content="「最短経路」を扱ったNamaranのコーディングドリル17問。ベルマン・フォード法、負の閉路、辺の本数を制限した最短経路、緩和、Bellman-Ford、negative cycle。">
 <title>最短経路</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/shortest-path">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,12 @@
   <h2>最短経路</h2>
 
   <p class="lede">
-    「最短経路」を扱った15問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「最短経路」を扱った17問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/haskell/read/2026-10-28">Haskell / READ · 2026-10-28</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">千回まわす最短距離</span> <span class="past-concepts">ベルマン・フォード法, 負の閉路, 辺の本数を制限した最短経路, 緩和, Bellman-Ford, negative cycle, relaxation</span></li>
+    <li><a href="/haskell/debug/2026-10-28">Haskell / DEBUG · 2026-10-28</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">届かないままの頂点</span> <span class="past-concepts">derivingしたOrd, 構成子の宣言順, 到達できない頂点, 最短距離の緩和, derived Ord instance, constructor order</span></li>
     <li><a href="/cpp/write/2026-10-23">C++ / WRITE · 2026-10-23</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">負の辺がある最短距離</span> <span class="past-concepts">ベルマン-フォード法, 辺の緩和, 負の重みの辺, 到達できない頂点, Bellman-Ford, edge relaxation, std::optional</span></li>
     <li><a href="/cpp/read/2026-10-23">C++ / READ · 2026-10-23</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">1周目で届く距離</span> <span class="past-concepts">ベルマン-フォード法, 辺の緩和, 負の重みの辺, 辺の順序と収束, Bellman-Ford, edge relaxation, negative edge weight</span></li>
     <li><a href="/cpp/debug/2026-10-23">C++ / DEBUG · 2026-10-23</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">届かない閉路を見つける</span> <span class="past-concepts">ベルマン-フォード法, 負の閉路の検出, 到達できない頂点, 番兵値の inf, Bellman-Ford, negative cycle detection, unreachable vertex</span></li>

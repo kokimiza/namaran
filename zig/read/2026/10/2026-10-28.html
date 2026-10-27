@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Zigで配列を変数に代入したコピーと、配列から切り出したa[1..]の両方を書き換えます。配列は値としてコピーされ、切り出しは元の配列を指すことを追うドリルです。2026-10-28のZig READ。">
+<title>コピーと切り出しへの代入</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/read/2026-10-28">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / READ", "item": "https://namaran.jocarium.productions/zig/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-28" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / READ — 2026-10-28",
+      "url": "https://namaran.jocarium.productions/zig/read/2026-10-28",
+      "datePublished": "2026-10-28",
+      "dateModified": "2026-10-28",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "コピーと切り出しへの代入" },
+      "keywords": "array, slice, pointer, pass-by-value",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "Zigで配列を変数に代入したコピーと、配列から切り出したa[1..]の両方を書き換えます。配列は値としてコピーされ、切り出しは元の配列を指すことを追うドリルです。2026-10-28のZig READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-28">C23</a>
+  <a href="/cpp/read/2026-10-28">C++26</a>
+  <a href="/rust/read/2026-10-28">Rust 2024</a>
+  <a href="/haskell/read/2026-10-28">Haskell 2010</a>
+  <a href="/zig/read/2026-10-28" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-10-28" class="active" aria-current="page">READ</a>
+  <a href="/zig/write/2026-10-28">WRITE</a>
+  <a href="/zig/debug/2026-10-28">DEBUG</a>
+</nav>
+
+<main
+  data-topic="コピーと切り出しへの代入"
+  data-tags="array slice pointer pass-by-value"
+  data-concepts="配列の代入はコピー, スライスの別名, 配列へのポインタ, array copy, slice aliasing, pointer to array"
+  data-level="peacock"
+>
+  <h2>2026-10-28</h2>
+  <div class="code-frame">
+    <p class="code-filename">copy_or_view.zig</p>
+    <pre class="code"><code><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {
+    <span class="kw">var</span> buf: [<span class="nu">256</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;
+    <span class="kw">var</span> stdout_writer = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;buf);
+    <span class="kw">const</span> stdout = &amp;stdout_writer.interface;
+    <span class="kw">var</span> a = [_]<span class="ty">u8</span>{ <span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">3</span> };
+    <span class="kw">var</span> b = a;
+    <span class="kw">const</span> s = a[<span class="nu">1</span>..];
+    b[<span class="nu">0</span>] = <span class="nu">9</span>;
+    s[<span class="nu">0</span>] = <span class="nu">7</span>;
+    <span class="kw">try</span> stdout.<span class="fn">print</span>(<span class="st">"{d} {d} {d} {d}\n"</span>, .{ a[<span class="nu">0</span>], a[<span class="nu">1</span>], b[<span class="nu">0</span>], b[<span class="nu">1</span>] });
+    <span class="kw">try</span> stdout.<span class="fn">flush</span>();
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>1 7 9 2</code> です。
+      </p>
+      <p>
+        Zig の配列は値なので、<code>var b = a;</code> は <code>a</code> の3要素を丸ごと <code>b</code> へコピーします。<code>b</code> は <code>a</code> と別のメモリを持つ配列で、<code>b[0] = 9</code> は <code>b</code> だけを変え、<code>a[0]</code> は1のままです。
+      </p>
+      <p>
+        これに対して <code>a[1..]</code> は、<code>a</code> の要素をコピーせず、<code>a</code> の添字1から先を指します。始まりも長さもコンパイル時に分かるので、型は2要素の配列へのポインタ <code>*[2]u8</code> になり、<code>s[0]</code> は <code>a[1]</code> と同じ場所です。<code>s</code> は <code>const</code> ですが、変えられないのはポインタ <code>s</code> 自身で、指す先の <code>a</code> は <code>var</code> なので <code>s[0] = 7</code> で書き換えられます。そのため <code>a[1]</code> は7になり、コピーを取ったあとの変更なので <code>b[1]</code> は2のままです。
+      </p>
+      <p>
+        配列の代入で <code>b</code> も <code>a</code> と同じ場所を指すと読むと、<code>9 7 9 7</code> と答えてしまいます。逆に <code>a[1..]</code> もコピーを作ると読むと、<code>a[1]</code> が2のままの <code>1 2 9 2</code> になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/read">Today</a></li>
+    <li><a href="/zig/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

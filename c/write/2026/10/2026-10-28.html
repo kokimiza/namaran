@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="2つのMerkle木を根から比べ、値の違う節の下だけを再帰でたどって、内容の違う葉の個数を数える関数をCで書くドリルです。値の等しい部分木は見ずに済ませます。2026-10-28のC WRITE。">
+<title>違う葉だけを数える</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-10-28">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-28" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-10-28",
+      "url": "https://namaran.jocarium.productions/c/write/2026-10-28",
+      "datePublished": "2026-10-28",
+      "dateModified": "2026-10-28",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "違う葉だけを数える" },
+      "keywords": "merkle-tree, tree, recursion, hash-function",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "2つのMerkle木を根から比べ、値の違う節の下だけを再帰でたどって、内容の違う葉の個数を数える関数をCで書くドリルです。値の等しい部分木は見ずに済ませます。2026-10-28のC WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-28" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-10-28">C++26</a>
+  <a href="/rust/write/2026-10-28">Rust 2024</a>
+  <a href="/haskell/write/2026-10-28">Haskell 2010</a>
+  <a href="/zig/write/2026-10-28">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-28">READ</a>
+  <a href="/c/write/2026-10-28" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-10-28">DEBUG</a>
+</nav>
+
+<main
+  data-topic="違う葉だけを数える"
+  data-tags="merkle-tree tree recursion hash-function"
+  data-concepts="Merkle木の比較, 差分の検出, ハッシュ木, 部分木の枝刈り, merkle tree diff, anti-entropy"
+  data-level="peacock"
+>
+  <h2>2026-10-28</h2>
+  <div class="code-frame">
+    <p class="code-filename">count_diff.c</p>
+    <pre class="code"><code><span class="ty">int</span> <span class="fn">count_diff</span>(<span class="kw">const</span> <span class="ty">unsigned</span> a[], <span class="kw">const</span> <span class="ty">unsigned</span> b[], <span class="ty">int</span> node, <span class="ty">int</span> leaves) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    大きなデータを <code>leaves</code> 個の断片に分け、断片ごとのハッシュ値を葉にした木を配列に入れます。<code>leaves</code> は2の累乗で、葉は添字 <code>leaves</code> から <code>2 * leaves - 1</code> に並び、添字 <code>i</code> の節には子 <code>2 * i</code> と <code>2 * i + 1</code> の値から計算したハッシュ値が入ります。添字1が根で、添字0は使いません。同じ形の2つの木 <code>a</code> と <code>b</code> について、値の違う葉の個数を返す <code>count_diff</code> を書いてください。<code>node</code> には調べる部分木の根の添字を渡し、木全体なら1です。2つの木は別のマシンにあり、節を1つ見るたびに通信が要るので、値の等しい節より下は見ないでください。内容が違えばハッシュ値も必ず違うものとします。<code>leaves</code> が1なら、根がそのまま葉です。例では、配列を複合リテラルで書きます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>count_diff((unsigned[]){0, 5, 1, 2}, (unsigned[]){0, 8, 1, 5}, 1, 2)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>1</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>count_diff((unsigned[]){0, 5, 1, 2}, (unsigned[]){0, 5, 1, 2}, 1, 2)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>count_diff((unsigned[]){0, 7}, (unsigned[]){0, 9}, 1, 1)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>1</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="ty">int</span> <span class="fn">count_diff</span>(<span class="kw">const</span> <span class="ty">unsigned</span> a[], <span class="kw">const</span> <span class="ty">unsigned</span> b[], <span class="ty">int</span> node, <span class="ty">int</span> leaves) {
+    <span class="kw">if</span> (a[node] == b[node]) {
+        <span class="kw">return</span> <span class="nu">0</span>;
+    }
+    <span class="kw">if</span> (node &gt;= leaves) {
+        <span class="kw">return</span> <span class="nu">1</span>;
+    }
+    <span class="kw">return</span> <span class="fn">count_diff</span>(a, b, <span class="nu">2</span> * node, leaves) + <span class="fn">count_diff</span>(a, b, <span class="nu">2</span> * node + <span class="nu">1</span>, leaves);
+}
+</code></pre>
+      <p>
+        節の値が等しければ、その下の葉もすべて等しいので、0を返してそこで止めます。この比較を最初に置くと、通信が要るのは値の違う節とその子だけになります。入力例2では根の値が等しいので、根を1回比べただけで0が返ります。
+      </p>
+      <p>
+        値が違う節については、それが葉かどうかで扱いが分かれます。葉は添字 <code>leaves</code> 以上にあるので、<code>node &gt;= leaves</code> なら違う葉を1個見つけたことになり、1を返します。葉でなければ2つの子について同じことを調べ、個数を足します。<code>leaves</code> が1の入力例3では、根の添字1が <code>leaves</code> 以上なので、根を葉として数えます。
+      </p>
+      <p>
+        葉の範囲 <code>a[leaves]</code> から <code>a[2 * leaves - 1]</code> を順に比べるループでも同じ個数が出ますが、それでは葉を全部見ることになり、値の等しい節より下を見ないという条件を満たしません。掲載したのは参考実装で、唯一の正解ではありません。再帰の代わりに、調べる節の添字をスタックに積むループでも書けます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

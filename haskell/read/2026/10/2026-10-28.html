@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="負の閉路を含むグラフで、全頂点の最短距離を同時に更新するstepをiterateで1000回適用した結果を求めます。k回目の値が辺k本以下の道筋の最小の長さを表すことに気付けば、1000回を追わずに答えが出るドリルです。2026-10-28のHaskell READ。">
+<title>千回まわす最短距離</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-10-28">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-28" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-10-28",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-10-28",
+      "datePublished": "2026-10-28",
+      "dateModified": "2026-10-28",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "千回まわす最短距離" },
+      "keywords": "bellman-ford, shortest-path, graph, invariant",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "負の閉路を含むグラフで、全頂点の最短距離を同時に更新するstepをiterateで1000回適用した結果を求めます。k回目の値が辺k本以下の道筋の最小の長さを表すことに気付けば、1000回を追わずに答えが出るドリルです。2026-10-28のHaskell READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-28">C23</a>
+  <a href="/cpp/read/2026-10-28">C++26</a>
+  <a href="/rust/read/2026-10-28">Rust 2024</a>
+  <a href="/haskell/read/2026-10-28" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/read/2026-10-28">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-28" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-10-28">WRITE</a>
+  <a href="/haskell/debug/2026-10-28">DEBUG</a>
+</nav>
+
+<main
+  data-topic="千回まわす最短距離"
+  data-tags="bellman-ford shortest-path graph invariant"
+  data-concepts="ベルマン・フォード法, 負の閉路, 辺の本数を制限した最短経路, 緩和, Bellman-Ford, negative cycle, relaxation"
+  data-level="whale"
+>
+  <h2>2026-10-28</h2>
+  <div class="code-frame">
+    <p class="code-filename">Walks.hs</p>
+    <pre class="code"><code><span class="fn">edges</span> <span class="op">::</span> [(<span class="ty">Int</span>, <span class="ty">Int</span>, <span class="ty">Int</span>)]
+<span class="fn">edges</span> = [(<span class="nu">0</span>, <span class="nu">1</span>, <span class="nu">1</span>), (<span class="nu">1</span>, <span class="nu">2</span>, -<span class="nu">2</span>), (<span class="nu">2</span>, <span class="nu">1</span>, <span class="nu">1</span>)]
+
+<span class="fn">step</span> <span class="op">::</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> [<span class="ty">Int</span>]
+<span class="fn">step</span> ds = [minimum (ds !! v : [ds !! u + w | (u, t, w) <span class="op">&lt;-</span> edges, t == v]) | v <span class="op">&lt;-</span> [<span class="nu">0</span> .. <span class="nu">2</span>]]
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (iterate step [<span class="nu">0</span>, <span class="nu">1000000</span>, <span class="nu">1000000</span>] !! <span class="nu">1000</span>)
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>[0,-498,-500]</code> です。
+      </p>
+      <p>
+        <code>edges</code> の <code>(u, t, w)</code> は、頂点 <code>u</code> から頂点 <code>t</code> へ重み <code>w</code> で進める辺です。<code>step</code> は各頂点 <code>v</code> について、いまの値 <code>ds !! v</code> と、<code>v</code> に入る辺ごとの <code>ds !! u + w</code> のうち最小のものを新しい値にします。新しい値はどれも前の回のリスト <code>ds</code> だけから計算するので、1回の <code>step</code> で辺を1本ずつ伸ばす形になります。
+      </p>
+      <p>
+        1000回を順に追う代わりに、<code>k</code> 回目のあとの値が何を表しているかを考えます。辺を順にたどる道筋(同じ頂点を何度通ってもよい)の重みの合計を道筋の長さと呼ぶと、<code>k</code> 回目のあとの <code>ds !! v</code> は、頂点0から <code>v</code> へ辺を <code>k</code> 本以下使って行く道筋の長さの最小値です。0回目は頂点0が辺0本の0で、ほかは道筋がまだ無い印の1000000です。<code>k + 1</code> 本以下の道筋は、<code>k</code> 本以下で済んでいるか、<code>k</code> 本以下で <code>u</code> まで来て最後に辺 <code>(u, v, w)</code> を足したものなので、<code>step</code> の最小値がちょうどその最小値になります。1000000から作った値は、本物の道筋が見つかるとすぐに負けるので、答えには残りません。
+      </p>
+      <p>
+        頂点0に入る辺は無いので、頂点0は0のままです。頂点1へは、辺 <code>(0, 1, 1)</code> の1本で長さ1、そこから1→2→1と回るたびに辺が2本増えて長さが <code>-2 + 1</code> で1ずつ減ります。辺を1000本まで使えるので、<code>1 + 2 * 499</code> の999本で回れるのは499周で、最小値は <code>1 - 499</code> の -498 です。頂点2へは0→1→2の2本で長さ -1、同じく <code>2 + 2 * 499</code> の1000本で499周できるので -500 になります。
+      </p>
+      <p>
+        頂点の数より1回少ない2回で値が決まると考えると、2回目の <code>[0,1,-1]</code> と答えてしまいます<sup class="fn-ref">1</sup>。1→2→1の閉路は長さが -1 なので、回るほど値は下がり続け、決まった値に落ち着くことはありません。それでも1000回で止めれば、使える辺の本数で周回の数が決まり、値は1つに決まります。
+      </p>
+      <ol class="footnotes">
+        <li>辺を1本ずつ伸ばしながら最小値を更新するこの手順は、ベルマン・フォード法(Bellman-Ford algorithm)です。頂点が n 個で長さが負になる閉路が無ければ、同じ頂点を2度通らない道筋で足りるので、n - 1 回で値が決まります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「パニック」を扱ったNamaranのコーディングドリル8問。楽観的ロック、版番号の確認、RefCell の二重借用、Ref の生存期間、BorrowMutError、optimistic locking。">
+<meta name="description" content="「パニック」を扱ったNamaranのコーディングドリル9問。Defaultトレイト、derive(Default)、newとDefaultの食い違い、chunks(0)、構造体更新記法、default values。">
 <title>パニック</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/panic">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>パニック</h2>
 
   <p class="lede">
-    「パニック」を扱った8問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「パニック」を扱った9問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/debug/2026-10-28">Rust / DEBUG · 2026-10-28</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">newを通らない既定値</span> <span class="past-concepts">Defaultトレイト, derive(Default), newとDefaultの食い違い, chunks(0), 構造体更新記法, default values, constructor</span></li>
     <li><a href="/rust/debug/2026-10-25">Rust / DEBUG · 2026-10-25</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">版を確かめた借用が残る</span> <span class="past-concepts">楽観的ロック, 版番号の確認, RefCell の二重借用, Ref の生存期間, BorrowMutError, optimistic locking, already borrowed</span></li>
     <li><a href="/rust/debug/2026-10-24">Rust / DEBUG · 2026-10-24</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">大きさ0の要素で割る</span> <span class="past-concepts">ゼロサイズ型, size_of が0, 0除算の panic, checked_div, zero-sized type, divide by zero, ZST, unit type</span></li>
     <li><a href="/zig/write/2026-10-21">Zig / WRITE · 2026-10-21</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">不正な数字の報告先</span> <span class="past-concepts">@inComptime, @compileError, std.fmt.comptimePrint, std.debug.panic, コンパイル時と実行時の切り替え, compile error, runtime panic</span></li>

@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="newに既定の設定を書いたまま、Defaultをderiveで済ませた型のバグを直します。..Default::default()がnewを通らずに0を入れ、chunks(0)がpanicします。2026-10-28のRust DEBUG。">
+<title>newを通らない既定値</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-10-28">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-28" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-10-28",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-10-28",
+      "datePublished": "2026-10-28",
+      "dateModified": "2026-10-28",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "newを通らない既定値" },
+      "keywords": "default, deriving, functional-update-syntax, panic",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "newに既定の設定を書いたまま、Defaultをderiveで済ませた型のバグを直します。..Default::default()がnewを通らずに0を入れ、chunks(0)がpanicします。2026-10-28のRust DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-28">C23</a>
+  <a href="/cpp/debug/2026-10-28">C++26</a>
+  <a href="/rust/debug/2026-10-28" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-28">Haskell 2010</a>
+  <a href="/zig/debug/2026-10-28">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-28">READ</a>
+  <a href="/rust/write/2026-10-28">WRITE</a>
+  <a href="/rust/debug/2026-10-28" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="newを通らない既定値"
+  data-tags="default deriving functional-update-syntax panic"
+  data-concepts="Defaultトレイト, derive(Default), newとDefaultの食い違い, chunks(0), 構造体更新記法, default values, constructor"
+  data-level="bison"
+>
+  <h2>2026-10-28</h2>
+  <div class="code-frame">
+    <p class="code-filename">batcher.rs</p>
+    <pre class="code"><code><span class="pp">#[derive(Default)]</span>
+<span class="kw">struct</span> <span class="ty">Batcher</span> {
+    size: <span class="ty">usize</span>,
+    limit: <span class="ty">usize</span>,
+}
+
+<span class="kw">impl</span> <span class="ty">Batcher</span> {
+    <span class="kw">fn</span> <span class="fn">new</span>() -&gt; <span class="ty">Self</span> {
+        <span class="ty">Batcher</span> { size: <span class="nu">2</span>, limit: <span class="ty">usize</span>::<span class="nu">MAX</span> }
+    }
+
+    <span class="kw">fn</span> <span class="fn">run</span>(&amp;<span class="kw">self</span>, items: &amp;[<span class="ty">u32</span>]) -&gt; <span class="ty">Vec</span>&lt;<span class="ty">u32</span>&gt; {
+        items.<span class="fn">chunks</span>(<span class="kw">self</span>.size).<span class="fn">take</span>(<span class="kw">self</span>.limit).<span class="fn">map</span>(|c| c.<span class="fn">iter</span>().<span class="fn">sum</span>()).<span class="fn">collect</span>()
+    }
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> batcher = <span class="ty">Batcher</span> { limit: <span class="nu">2</span>, ..<span class="ty">Default</span>::<span class="fn">default</span>() };
+    <span class="mc">println!</span>(<span class="st">"{:?}"</span>, batcher.<span class="fn">run</span>(&amp;[<span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">3</span>, <span class="nu">4</span>, <span class="nu">5</span>]));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>Batcher</code> は、入力を <code>size</code> 個ずつの組に分けて組ごとの和を求め、先頭から <code>limit</code> 組までを返すつもりの型で、既定の設定は <code>new</code> に書いてあります。<code>main</code> は既定の設定から <code>limit</code> だけを2に変え、<code>[1, 2, 3, 4, 5]</code> を渡します。本来は <code>[3, 7]</code> と出力されるはずが、いまは何も出力されず、<code>chunk size must be non-zero</code> というメッセージで panic します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="pp">#[derive(Default)]</span>
+<span class="kw">struct</span> <span class="ty">Batcher</span> {
+    size: <span class="ty">usize</span>,
+    limit: <span class="ty">usize</span>,
+}
+</code></pre>
+      <p>
+        <code>main</code> の <code>..Default::default()</code> が呼ぶのは <code>Batcher</code> の <code>Default</code> 実装で、<code>new</code> ではありません。<code>Default</code> は <code>#[derive(Default)]</code> で作られていて、各フィールドにその型の既定値を入れるので、<code>size</code> も <code>limit</code> も <code>usize</code> の既定値の0になります。<code>new</code> に書いた2は、どこからも使われません。
+      </p>
+      <p>
+        <code>main</code> は <code>limit</code> だけを指定するので、<code>size</code> には0が残ります。<code>run</code> の <code>items.chunks(self.size)</code> は、組の大きさが0だと分けようがないので panic します。<code>new</code> を既定値の置き場と考えていると、<code>Default::default()</code> も同じ値を返すと読んでしまい、<code>size</code> が0になる経路に気付けません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">struct</span> <span class="ty">Batcher</span> {
+    size: <span class="ty">usize</span>,
+    limit: <span class="ty">usize</span>,
+}
+
+<span class="kw">impl</span> <span class="ty">Default</span> <span class="kw">for</span> <span class="ty">Batcher</span> {
+    <span class="kw">fn</span> <span class="fn">default</span>() -&gt; <span class="ty">Self</span> {
+        <span class="ty">Batcher</span>::<span class="fn">new</span>()
+    }
+}
+</code></pre>
+      <p>
+        <code>#[derive(Default)]</code> をやめ、<code>Default</code> を <code>new</code> に任せる実装を書きます。既定値が <code>new</code> の1か所だけになるので、<code>..Default::default()</code> の土台も <code>size</code> が2の値になり、<code>main</code> は2個ずつの組 <code>[1, 2]</code>、<code>[3, 4]</code> の和 <code>[3, 7]</code> を出力します。呼び出し側で <code>..Batcher::new()</code> と書いても今回は直りますが、<code>Default::default()</code> を呼ぶほかの場所(<code>unwrap_or_default</code> など)には0が残ったままです<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>Clippy の <code>new_without_default</code> は、引数のない公開の <code>new</code> があるのに <code>Default</code> を実装していない型を指摘します。この問題のように <code>Default</code> を derive で済ませていると指摘の対象にならず、<code>new</code> と <code>Default</code> の値が食い違っていても警告は出ません。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

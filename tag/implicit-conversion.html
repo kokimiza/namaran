@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「暗黙の型変換」を扱ったNamaranのコーディングドリル13問。2^53、倍精度で表せる整数、仮数部53ビット、INT64_MIN の符号反転、exactly representable integer、double precision。">
+<meta name="description" content="「暗黙の型変換」を扱ったNamaranのコーディングドリル14問。ビットフラグ、符号なし整数への変換、戻り値の暗黙の変換、上位ビットの切り捨て、bit flags、narrowing conversion。">
 <title>暗黙の型変換</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/implicit-conversion">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>暗黙の型変換</h2>
 
   <p class="lede">
-    「暗黙の型変換」を扱った13問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「暗黙の型変換」を扱った14問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/cpp/debug/2026-10-28">C++ / DEBUG · 2026-10-28</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">9番目から消えるフラグ</span> <span class="past-concepts">ビットフラグ, 符号なし整数への変換, 戻り値の暗黙の変換, 上位ビットの切り捨て, bit flags, narrowing conversion, implicit conversion</span></li>
     <li><a href="/c/write/2026-10-24">C / WRITE · 2026-10-24</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">doubleに正確に入る整数</span> <span class="past-concepts">2^53, 倍精度で表せる整数, 仮数部53ビット, INT64_MIN の符号反転, exactly representable integer, double precision, significand</span></li>
     <li><a href="/c/read/2026-10-24">C / READ · 2026-10-24</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">2^53+1の往復</span> <span class="past-concepts">2^53, 倍精度で表せる整数, 通常の算術型変換, 最近接偶数丸め, usual arithmetic conversions, round half to even, double precision integer</span></li>
     <li><a href="/c/debug/2026-10-20">C / DEBUG · 2026-10-20</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">0で始めた合計</span> <span class="past-concepts">C23 auto, 型推論, 複合代入の型変換, 小数部の切り捨て, 整数除算, type inference, implicit conversion, integer division</span></li>

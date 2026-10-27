@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「除算と剰余」を扱ったNamaranのコーディングドリル25問。キャッシュの一斉失効、有効期限のばらつき、整数除算の切り捨て、演算の順序、cache stampede、TTL jitter。">
+<meta name="description" content="「除算と剰余」を扱ったNamaranのコーディングドリル26問。Merkle木、ハッシュ木、親の添字、葉の更新、merkle tree、hash tree。">
 <title>除算と剰余</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/division">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>除算と剰余</h2>
 
   <p class="lede">
-    「除算と剰余」を扱った25問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「除算と剰余」を扱った26問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/c/read/2026-10-28">C / READ · 2026-10-28</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">葉から根へ計算し直す</span> <span class="past-concepts">Merkle木, ハッシュ木, 親の添字, 葉の更新, merkle tree, hash tree, parent index</span></li>
     <li><a href="/c/debug/2026-10-25">C / DEBUG · 2026-10-25</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">消えたばらつき</span> <span class="past-concepts">キャッシュの一斉失効, 有効期限のばらつき, 整数除算の切り捨て, 演算の順序, cache stampede, TTL jitter, integer division</span></li>
     <li><a href="/rust/debug/2026-10-24">Rust / DEBUG · 2026-10-24</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">大きさ0の要素で割る</span> <span class="past-concepts">ゼロサイズ型, size_of が0, 0除算の panic, checked_div, zero-sized type, divide by zero, ZST, unit type</span></li>
     <li><a href="/c/read/2026-10-23">C / READ · 2026-10-23</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">下の桁から詰める文字</span> <span class="past-concepts">数字の文字への変換, '0' + n, 剰余で桁を取り出す, digit to char, n % 10, 整数から文字列</span></li>

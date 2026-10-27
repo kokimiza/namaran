@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「デフォルト値」を扱ったNamaranのコーディングドリル10問。壁時計、単調増加時計、SystemTime の巻き戻り、duration_since のエラー、wall clock、monotonic clock。">
+<meta name="description" content="「デフォルト値」を扱ったNamaranのコーディングドリル12問。Defaultトレイト、構造体更新記法、..Default::default()、derive(Default)、functional update syntax、base expression。">
 <title>デフォルト値</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/default">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,12 @@
   <h2>デフォルト値</h2>
 
   <p class="lede">
-    「デフォルト値」を扱った10問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「デフォルト値」を扱った12問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/read/2026-10-28">Rust / READ · 2026-10-28</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">指定した欄の既定値も作る</span> <span class="past-concepts">Defaultトレイト, 構造体更新記法, ..Default::default(), derive(Default), functional update syntax, base expression</span></li>
+    <li><a href="/rust/debug/2026-10-28">Rust / DEBUG · 2026-10-28</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">newを通らない既定値</span> <span class="past-concepts">Defaultトレイト, derive(Default), newとDefaultの食い違い, chunks(0), 構造体更新記法, default values, constructor</span></li>
     <li><a href="/rust/read/2026-10-02">Rust / READ · 2026-10-02</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">巻き戻る時計のラップ</span> <span class="past-concepts">壁時計, 単調増加時計, SystemTime の巻き戻り, duration_since のエラー, wall clock, monotonic clock, SystemTimeError</span></li>
     <li><a href="/rust/debug/2026-10-02">Rust / DEBUG · 2026-10-02</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">未来の更新時刻</span> <span class="past-concepts">時計のずれ, 未来の更新時刻, elapsed のエラー, 既定値の選び方, clock skew, file modification time, SystemTimeError</span></li>
     <li><a href="/cpp/read/2026-09-08">C++ / READ · 2026-09-08</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">丸括弧で作る集成体</span> <span class="past-concepts">丸括弧による集成体初期化, 縮小変換, デフォルトメンバ初期化子, parenthesized aggregate initialization, narrowing conversion, default member initializer</span></li>

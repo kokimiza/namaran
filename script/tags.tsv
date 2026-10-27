@@ -23,6 +23,7 @@ backpressure	バックプレッシャー
 backtracking	バックトラック
 balanced-tree	平衡二分木
 base-case	基底ケース
+bellman-ford	ベルマン・フォード法
 benchmark	ベンチマーク
 binary-search	二分探索
 binary-search-tree	二分探索木
@@ -161,6 +162,7 @@ forwarding-reference	転送参照
 function-composition	関数合成
 function-parameter	関数の引数
 function-pointer	関数ポインタ
+functional-update-syntax	構造体更新記法
 functor	Functor
 fuzzing	ファジング
 garbage-collection	ガベージコレクション

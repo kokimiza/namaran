@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「木構造」を扱ったNamaranのコーディングドリル8問。スタックオーバーフロー、再帰をループに直す、末尾呼び出し最適化、stack overflow、tail call optimization、recursion to iteration。">
+<meta name="description" content="「木構造」を扱ったNamaranのコーディングドリル11問。Merkle木の比較、差分の検出、ハッシュ木、部分木の枝刈り、merkle tree diff、anti-entropy。">
 <title>木構造</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/tree">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>木構造</h2>
 
   <p class="lede">
-    「木構造」を扱った8問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「木構造」を扱った11問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/c/write/2026-10-28">C / WRITE · 2026-10-28</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">違う葉だけを数える</span> <span class="past-concepts">Merkle木の比較, 差分の検出, ハッシュ木, 部分木の枝刈り, merkle tree diff, anti-entropy</span></li>
+    <li><a href="/c/read/2026-10-28">C / READ · 2026-10-28</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">葉から根へ計算し直す</span> <span class="past-concepts">Merkle木, ハッシュ木, 親の添字, 葉の更新, merkle tree, hash tree, parent index</span></li>
+    <li><a href="/c/debug/2026-10-28">C / DEBUG · 2026-10-28</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">右の子で落ちる検証</span> <span class="past-concepts">Merkle証明, 包含証明, 兄弟の節, 結合の順序, merkle proof, inclusion proof</span></li>
     <li><a href="/cpp/debug/2026-10-02">C++ / DEBUG · 2026-10-02</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">100万段の再帰</span> <span class="past-concepts">スタックオーバーフロー, 再帰をループに直す, 末尾呼び出し最適化, stack overflow, tail call optimization, recursion to iteration</span></li>
     <li><a href="/rust/write/2026-09-30">Rust / WRITE · 2026-09-30</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">葉を書き換えて親を直す</span> <span class="past-concepts">セグメント木の一点更新, 親の再計算, i / 2, point update, range minimum query, segment tree update</span></li>
     <li><a href="/rust/read/2026-09-30">Rust / READ · 2026-09-30</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">葉が5枚のセグメント木</span> <span class="past-concepts">非再帰セグメント木, ボトムアップのセグメント木, 節の番号, 2i と 2i+1, bottom-up segment tree, non-power-of-two size, range minimum</span></li>

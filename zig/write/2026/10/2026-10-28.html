@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Zigでスライスの中の最大の要素を指す単一要素ポインタを返し、呼び出し側がそのポインタを通して元の配列を書き換えられるようにする関数を書くドリルです。forのポインタのキャプチャを使います。2026-10-28のZig WRITE。">
+<title>最大の要素を指して返す</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/write/2026-10-28">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / WRITE", "item": "https://namaran.jocarium.productions/zig/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-28" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / WRITE — 2026-10-28",
+      "url": "https://namaran.jocarium.productions/zig/write/2026-10-28",
+      "datePublished": "2026-10-28",
+      "dateModified": "2026-10-28",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "最大の要素を指して返す" },
+      "keywords": "pointer, slice, array",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "Zigでスライスの中の最大の要素を指す単一要素ポインタを返し、呼び出し側がそのポインタを通して元の配列を書き換えられるようにする関数を書くドリルです。forのポインタのキャプチャを使います。2026-10-28のZig WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-28">C23</a>
+  <a href="/cpp/write/2026-10-28">C++26</a>
+  <a href="/rust/write/2026-10-28">Rust 2024</a>
+  <a href="/haskell/write/2026-10-28">Haskell 2010</a>
+  <a href="/zig/write/2026-10-28" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-10-28">READ</a>
+  <a href="/zig/write/2026-10-28" class="active" aria-current="page">WRITE</a>
+  <a href="/zig/debug/2026-10-28">DEBUG</a>
+</nav>
+
+<main
+  data-topic="最大の要素を指して返す"
+  data-tags="pointer slice array"
+  data-concepts="単一要素ポインタ, ポインタのキャプチャ, スライスの要素への参照, single-item pointer, pointer capture, for loop"
+  data-level="hedgehog"
+>
+  <h2>2026-10-28</h2>
+  <div class="code-frame">
+    <p class="code-filename">largest.zig</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">largest</span>(items: []<span class="ty">i32</span>) *<span class="ty">i32</span> {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    スライス <code>items</code> の中で最も大きい要素を指すポインタを返す <code>largest</code> を書いてください。呼び出し側はこのポインタを通して、その要素を元の配列の中で書き換えます。最大の値が複数あるときは、最も前にある要素を指します。<code>items</code> は空ではないとします。例では、配列 <code>a</code> を作って <code>largest</code> の返り値を通して書き換えたあとの <code>a</code> の中身を、出力例に書きます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>var a = [_]i32{ 3, 8, 5 }; largest(&amp;a).* = 0;</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>{ 3, 0, 5 }</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>var a = [_]i32{ 4, 4 }; largest(&amp;a).* = 0;</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>{ 0, 4 }</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>var a = [_]i32{-2}; largest(&amp;a).* += 1;</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>{ -1 }</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">largest</span>(items: []<span class="ty">i32</span>) *<span class="ty">i32</span> {
+    <span class="kw">var</span> best = &amp;items[<span class="nu">0</span>];
+    <span class="kw">for</span> (items[<span class="nu">1</span>..]) |*item| {
+        <span class="kw">if</span> (item.* &gt; best.*) best = item;
+    }
+    <span class="kw">return</span> best;
+}
+</code></pre>
+      <p>
+        <code>&amp;items[0]</code> は、スライスが指す配列の先頭の要素を指す単一要素ポインタ(single-item pointer)<code>*i32</code> です。値をコピーした変数ではなく配列の中の場所を指すので、呼び出し側が <code>.*</code> で書き換えると、配列の要素そのものが変わります。
+      </p>
+      <p>
+        残りの要素は <code>for</code> の <code>|*item|</code> で受け取ります。<code>|item|</code> と書くと <code>item</code> は要素の値のコピーで、その場所は分かりませんが、<code>*</code> を付けると <code>item</code> は要素を指すポインタ <code>*i32</code> になります。比べるときは <code>item.*</code> と <code>best.*</code> で値を読み、大きければポインタ <code>best</code> を差し替えます。比較を <code>&gt;</code> にしているので、同じ値の要素が後ろにあっても <code>best</code> は動かず、入力例2では前の4が書き換わります。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>for (items, 0..) |x, i|</code> で添字を数えて最大の要素の添字を覚え、最後に <code>&amp;items[i]</code> を返す書き方もあります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/write">Today</a></li>
+    <li><a href="/zig/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

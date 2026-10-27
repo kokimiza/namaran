@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「ビット演算」を扱ったNamaranのコーディングドリル40問。24ビット整数、符号拡張、ビッグエンディアン、sign extension、24-bit sample、big-endian。">
+<meta name="description" content="「ビット演算」を扱ったNamaranのコーディングドリル43問。部分集合の列挙、ビットの部分集合、k番目の組合せ、最下位ビット、submask、lowest set bit。">
 <title>ビット演算</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/bit-operation">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>ビット演算</h2>
 
   <p class="lede">
-    「ビット演算」を扱った40問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「ビット演算」を扱った43問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/cpp/write/2026-10-28">C++ / WRITE · 2026-10-28</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">k番目のフラグの組</span> <span class="past-concepts">部分集合の列挙, ビットの部分集合, k番目の組合せ, 最下位ビット, submask, lowest set bit, parallel bit deposit</span></li>
+    <li><a href="/cpp/read/2026-10-28">C++ / READ · 2026-10-28</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">排他的論理和で反転</span> <span class="past-concepts">ビットフラグ, XORによる反転, ビットを落とす, bit flags, toggle, clear bit</span></li>
+    <li><a href="/cpp/debug/2026-10-28">C++ / DEBUG · 2026-10-28</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">9番目から消えるフラグ</span> <span class="past-concepts">ビットフラグ, 符号なし整数への変換, 戻り値の暗黙の変換, 上位ビットの切り捨て, bit flags, narrowing conversion, implicit conversion</span></li>
     <li><a href="/cpp/write/2026-10-27">C++ / WRITE · 2026-10-27</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">24ビットの符号つき標本</span> <span class="past-concepts">24ビット整数, 符号拡張, ビッグエンディアン, sign extension, 24-bit sample, big-endian</span></li>
     <li><a href="/cpp/read/2026-10-27">C++ / READ · 2026-10-27</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">シフトで組む2つのバイト順</span> <span class="past-concepts">バイト順, ビッグエンディアン, リトルエンディアン, シフトによる組み立て, byte order, big-endian, little-endian</span></li>
     <li><a href="/cpp/debug/2026-10-27">C++ / DEBUG · 2026-10-27</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">メモリの並びで書いた長さ</span> <span class="past-concepts">バイト順, ビッグエンディアン, ネットワークバイトオーダー, memcpy, byte order, network byte order</span></li>

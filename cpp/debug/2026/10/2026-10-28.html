@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="uint16_tのフラグをビット演算で調べ、結果をuint8_tで返す関数のバグを直します。&amp;による結果がビットの位置に残ることと、戻り値の暗黙の変換で上位ビットが切り捨てられることが重なり、9個目からのフラグが消えます。2026-10-28のC++ DEBUG。">
+<title>9番目から消えるフラグ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-10-28">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-28" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-10-28",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-10-28",
+      "datePublished": "2026-10-28",
+      "dateModified": "2026-10-28",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "9番目から消えるフラグ" },
+      "keywords": "bit-operation, bitmask, implicit-conversion, narrowing-conversion",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "uint16_tのフラグをビット演算で調べ、結果をuint8_tで返す関数のバグを直します。&による結果がビットの位置に残ることと、戻り値の暗黙の変換で上位ビットが切り捨てられることが重なり、9個目からのフラグが消えます。2026-10-28のC++ DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-28">C23</a>
+  <a href="/cpp/debug/2026-10-28" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-10-28">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-28">Haskell 2010</a>
+  <a href="/zig/debug/2026-10-28">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-28">READ</a>
+  <a href="/cpp/write/2026-10-28">WRITE</a>
+  <a href="/cpp/debug/2026-10-28" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="9番目から消えるフラグ"
+  data-tags="bit-operation bitmask implicit-conversion narrowing-conversion"
+  data-concepts="ビットフラグ, 符号なし整数への変換, 戻り値の暗黙の変換, 上位ビットの切り捨て, bit flags, narrowing conversion, implicit conversion"
+  data-level="bison"
+>
+  <h2>2026-10-28</h2>
+  <div class="code-frame">
+    <p class="code-filename">style_flags.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;cstdint&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;print&gt;</span>
+
+<span class="kw">constexpr</span> std::<span class="ty">uint16_t</span> kBold = <span class="nu">1u</span> &lt;&lt; <span class="nu">0</span>;
+<span class="kw">constexpr</span> std::<span class="ty">uint16_t</span> kStrike = <span class="nu">1u</span> &lt;&lt; <span class="nu">8</span>;
+
+std::<span class="ty">uint8_t</span> <span class="fn">has_style</span>(std::<span class="ty">uint16_t</span> style, std::<span class="ty">uint16_t</span> flag) {
+    <span class="kw">return</span> style &amp; flag;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    std::<span class="ty">uint16_t</span> style = kBold | kStrike;
+    std::<span class="fn">println</span>(<span class="st">"{} {}"</span>, <span class="fn">has_style</span>(style, kBold) != <span class="nu">0</span>, <span class="fn">has_style</span>(style, kStrike) != <span class="nu">0</span>);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    文字の装飾をフラグの組 <code>style</code> で持ち、<code>has_style</code> で、指定したフラグが立っているかを0か0以外で返すつもりのコードです。<code>main</code> は太字と取り消し線の両方を立てた <code>style</code> を調べます。本来は <code>true true</code> と出力されるはずが、いまは <code>true false</code> と出力され、取り消し線が立っていないことになります。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code>std::<span class="ty">uint8_t</span> <span class="fn">has_style</span>(std::<span class="ty">uint16_t</span> style, std::<span class="ty">uint16_t</span> flag) {
+    <span class="kw">return</span> style &amp; flag;
+}
+</code></pre>
+      <p>
+        <code>style &amp; flag</code> の値は1か0ではなく、<code>flag</code> のビットがその位置に残った値です。<code>kStrike</code> は <code>1u &lt;&lt; 8</code>、つまり下から9番目のビットなので、取り消し線を調べたときの値は256になります。
+      </p>
+      <p>
+        <code>return</code> はこの256を戻り値の型 <code>std::uint8_t</code> へ暗黙に変換します。符号なし整数型への変換は、値を2の8乗で割った余りにするので、256は0になり、立っていたビットは消えます。<code>kBold</code> の値1は8ビットに収まるので、太字だけは正しく答えます。下位8個のフラグでは正しく動き、9個目のフラグから黙って <code>false</code> になります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="ty">bool</span> <span class="fn">has_style</span>(std::<span class="ty">uint16_t</span> style, std::<span class="ty">uint16_t</span> flag) {
+    <span class="kw">return</span> style &amp; flag;
+}
+</code></pre>
+      <p>
+        戻り値の型を <code>bool</code> にします。整数から <code>bool</code> への変換は、ビットを切り取るのではなく、0なら <code>false</code>、それ以外なら <code>true</code> にするので、256も <code>true</code> になります。<code>uint8_t</code> のままにするなら <code>return (style &amp; flag) != 0;</code> と、変換の前に比較で真偽に直します。<code>return {style &amp; flag};</code> と波括弧で返せば、値が収まらないかもしれない変換をコンパイラが指摘します<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>波括弧による初期化(リスト初期化)では、規格が縮小変換を誤りとしています。Clang はこれをエラーにし、GCC は既定では警告(<code>-Wnarrowing</code>)にします。<code>return</code> や代入の <code>=</code> による変換は誤りではなく、<code>-Wall -Wextra</code> でも警告されません。警告させるには <code>-Wconversion</code> が要ります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
