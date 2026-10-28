@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="奇数aに対して、64ビット符号なし整数の上でx *= 2 - a * xを繰り返し、a * xが1になるまでの回数を答えます。Newton法の誤差が反復ごとに2乗され、初期値がすでに持つ2の因数で回数が決まることを見抜くドリルです。2026-10-29のC READ。">
+<title>逆数の反復が止まる回数</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-10-29">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-29" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-10-29",
+      "url": "https://namaran.jocarium.productions/c/read/2026-10-29",
+      "datePublished": "2026-10-29",
+      "dateModified": "2026-10-29",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "逆数の反復が止まる回数" },
+      "keywords": "numerical-analysis, modular-arithmetic, number-theory, invariant",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "奇数aに対して、64ビット符号なし整数の上でx *= 2 - a * xを繰り返し、a * xが1になるまでの回数を答えます。Newton法の誤差が反復ごとに2乗され、初期値がすでに持つ2の因数で回数が決まることを見抜くドリルです。2026-10-29のC READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-29" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-10-29">C++26</a>
+  <a href="/rust/read/2026-10-29">Rust 2024</a>
+  <a href="/haskell/read/2026-10-29">Haskell 2010</a>
+  <a href="/zig/read/2026-10-29">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-29" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-10-29">WRITE</a>
+  <a href="/c/debug/2026-10-29">DEBUG</a>
+</nav>
+
+<main
+  data-topic="逆数の反復が止まる回数"
+  data-tags="numerical-analysis modular-arithmetic number-theory invariant"
+  data-concepts="Newton法, 逆数の反復, 2のべき乗を法とする逆元, 誤差の2乗, Newton's method, modular inverse, quadratic convergence"
+  data-level="whale"
+>
+  <h2>2026-10-29</h2>
+  <div class="code-frame">
+    <p class="code-filename">steps.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdint.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">static</span> <span class="ty">int</span> <span class="fn">steps</span>(<span class="ty">uint64_t</span> a) {
+    <span class="ty">uint64_t</span> x = a;
+    <span class="ty">int</span> n = <span class="nu">0</span>;
+    <span class="kw">while</span> (a * x != <span class="nu">1</span>) {
+        x *= <span class="nu">2</span> - a * x;
+        n++;
+    }
+    <span class="kw">return</span> n;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="fn">printf</span>(<span class="st">"%d %d %d\n"</span>, <span class="fn">steps</span>(<span class="nu">3</span>), <span class="fn">steps</span>(<span class="nu">255</span>), <span class="fn">steps</span>(<span class="nu">65537</span>));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>5 3 2</code> です。
+      </p>
+      <p>
+        <code>uint64_t</code> の計算は2<sup>64</sup>で割った余りで行われるので、ループは <code>a * x</code> を2<sup>64</sup>で割った余りが1になったところで止まります。<code>x *= 2 - a * x</code> は、<code>a</code> の逆数 <code>1 / a</code> に近づけるための Newton法<sup class="fn-ref">1</sup>の式です。ただ、<code>x</code> の値を1回ずつ追うのは、64ビットの掛け算が続くので手では無理です。
+      </p>
+      <p>
+        追うのは <code>x</code> ではなく、ずれ <code>e = 1 - a * x</code> のほうです。1回の更新で <code>a * x</code> は <code>a * x * (2 - a * x)</code> になり、これは <code>(1 - e) * (1 + e) = 1 - e * e</code> です。つまり更新のたびに <code>e</code> は <code>e * e</code> に置き換わり、<code>k</code> 回後には最初の <code>e</code> の2<sup>k</sup>乗になります。2<sup>64</sup>で割った余りの世界でもこの式は崩れません。ループが止まるのは、この値が2<sup>64</sup>で割り切れたときです。
+      </p>
+      <p>
+        初期値は <code>x = a</code> なので、最初の <code>e</code> は <code>1 - a * a = -(a - 1)(a + 1)</code> です。最初の <code>e</code> が2で <code>m</code> 回割り切れるなら、2<sup>k</sup>乗した <code>k</code> 回後の <code>e</code> は2で <code>m</code> × 2<sup>k</sup> 回割り切れ、この回数が64以上になったときにだけ2<sup>64</sup>で割り切れます。<code>a</code> が奇数だと <code>a - 1</code> と <code>a + 1</code> は続いた2つの偶数なので、<code>m</code> は少なくとも3です。
+      </p>
+      <p>
+        <code>a = 3</code> では <code>2 * 4</code> で <code>m</code> は3です。3 × 16 = 48 は64に届かず、3 × 32 = 96 で届くので、5回です。<code>a = 255</code> では <code>254 * 256</code> が2を1回と8回含み、<code>m</code> は9になって、9 × 8 = 72 の3回で止まります。<code>a = 65537</code> では <code>65536 * 65538</code> が2を16回と1回含み、<code>m</code> は17なので、17 × 4 = 68 の2回です。
+      </p>
+      <p>
+        「Newton法は1回ごとに正しい桁数が倍になる」とだけ考え、奇数の2乗を8で割ると1余ることから最初は3ビット正しいとすると、3、6、12、24、48、96と数えて <code>5 5 5</code> と答えてしまいます。<code>255</code> と <code>65537</code> は、初期値の時点で <code>a - 1</code> と <code>a + 1</code> が2を多く含むぶん、早く止まります。
+      </p>
+      <ol class="footnotes">
+        <li>Newton法(ニュートン法、Newton's method)は、関数 <code>f</code> の値が0になる点を求めるために、いまの点での接線が横軸と交わる点へ移る操作を繰り返す方法です。<code>f(x) = 1/x - a</code> に当てはめると、更新の式は <code>x(2 - a x)</code> になります。この式は割り算を使わないので、2のべき乗を法とする逆元を求めるのにも使えます。コンパイラは、定数で割る計算を掛け算に置き換えるときにこの逆元を使います。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

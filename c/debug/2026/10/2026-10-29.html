@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="放物線で表したボールの高さが0になる時刻をNewton法で求めるつもりが、初期値を0にしたために負の時刻へ収束するバグを直します。Newton法がどちらの根に向かうかは、初期値が頂点のどちら側にあるかで決まります。2026-10-29のC DEBUG。">
+<title>初期値で決まる収束先</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-10-29">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-29" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-10-29",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-10-29",
+      "datePublished": "2026-10-29",
+      "dateModified": "2026-10-29",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "初期値で決まる収束先" },
+      "keywords": "numerical-analysis, floating-point, boundary",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "放物線で表したボールの高さが0になる時刻をNewton法で求めるつもりが、初期値を0にしたために負の時刻へ収束するバグを直します。Newton法がどちらの根に向かうかは、初期値が頂点のどちら側にあるかで決まります。2026-10-29のC DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-29" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-10-29">C++26</a>
+  <a href="/rust/debug/2026-10-29">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-29">Haskell 2010</a>
+  <a href="/zig/debug/2026-10-29">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-29">READ</a>
+  <a href="/c/write/2026-10-29">WRITE</a>
+  <a href="/c/debug/2026-10-29" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="初期値で決まる収束先"
+  data-tags="numerical-analysis floating-point boundary"
+  data-concepts="Newton法, 初期値, 収束先の根, 放物線の頂点, Newton's method, initial guess, root finding"
+  data-level="peacock"
+>
+  <h2>2026-10-29</h2>
+  <div class="code-frame">
+    <p class="code-filename">landing.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">static</span> <span class="ty">double</span> <span class="fn">height</span>(<span class="ty">double</span> t) {
+    <span class="kw">return</span> <span class="nu">3</span> + <span class="nu">2</span> * t - t * t;
+}
+
+<span class="kw">static</span> <span class="ty">double</span> <span class="fn">slope</span>(<span class="ty">double</span> t) {
+    <span class="kw">return</span> <span class="nu">2</span> - <span class="nu">2</span> * t;
+}
+
+<span class="kw">static</span> <span class="ty">double</span> <span class="fn">landing_time</span>(<span class="ty">void</span>) {
+    <span class="ty">double</span> t = <span class="nu">0</span>;
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; <span class="nu">20</span>; i++) {
+        t -= <span class="fn">height</span>(t) / <span class="fn">slope</span>(t);
+    }
+    <span class="kw">return</span> t;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="fn">printf</span>(<span class="st">"%.3f\n"</span>, <span class="fn">landing_time</span>());
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    投げ上げたボールの <code>t</code> 秒後の高さ <code>height(t)</code> が0になる時刻、つまり地面に落ちる時刻を求めるつもりのコードです。<code>t</code> から <code>height(t) / slope(t)</code>(<code>slope</code> は高さの式を <code>t</code> で微分したもの)を引く操作を20回繰り返します。高さの式 3 + 2t − t<sup>2</sup> は <code>t = 3</code> で0になるので、本来は <code>3.000</code> と出力されるはずが、いまは <code>-1.000</code> と出力されます。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code>    <span class="ty">double</span> t = <span class="nu">0</span>;
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; <span class="nu">20</span>; i++) {
+        t -= <span class="fn">height</span>(t) / <span class="fn">slope</span>(t);
+    }
+</code></pre>
+      <p>
+        この反復は Newton法<sup class="fn-ref">1</sup>で、いまの点で高さの式に接線を引き、接線が高さ0と交わる時刻へ移ります。3 + 2t − t<sup>2</sup> = 0 の解は <code>t = 3</code> と <code>t = -1</code> の2つあり、どちらへ向かうかは初期値で決まります。<code>t = 0</code> では高さが3、傾きが2で、右へ行くほど高くなる接線は左側の <code>t = -1.5</code> で0と交わります。そこからは <code>-1.05</code>、<code>-1.0006</code>……と負の解 <code>-1</code> に近づき、20回のあとには <code>-1.000</code> を出力します。
+      </p>
+      <p>
+        放物線の頂点は傾きが0になる <code>t = 1</code> で、接線は頂点より左ではいつも左の解へ、右ではいつも右の解へ向かいます。投げた瞬間の0は頂点の左にあるので、何回繰り返しても <code>t = 3</code> には着きません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code>    <span class="ty">double</span> t = <span class="nu">2</span>;
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; <span class="nu">20</span>; i++) {
+        t -= <span class="fn">height</span>(t) / <span class="fn">slope</span>(t);
+    }
+</code></pre>
+      <p>
+        初期値を頂点より右の <code>t = 2</code> にすると、高さ3、傾き−2の接線は右側の <code>3.5</code> で0と交わり、<code>3.05</code>、<code>3.0006</code>……と <code>3</code> に近づきます。頂点の右なら初期値は2でなくてもかまいませんが、頂点の <code>t = 1</code> そのものは傾きが0で割り算ができないので選べません。
+      </p>
+      <ol class="footnotes">
+        <li>Newton法(ニュートン法、Newton's method)は、関数の値が0になる点を、接線が横軸と交わる点へ移る操作を繰り返して求める方法です。解が複数あるとき、どの解に着くかは初期値で決まり、3次以上の式では初期値のわずかな違いで行き先が入れ替わることもあります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

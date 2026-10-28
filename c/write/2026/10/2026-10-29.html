@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="2乗してnを超えない最大の整数を、xを(x + n / x) / 2で置き換える反復で求めるisqrtをCで書くドリルです。初期値をどこに置き、いつ止めるか、uint64_tの最大値で桁あふれしないかを同時に満たします。2026-10-29のC WRITE。">
+<title>反復で求める整数平方根</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-10-29">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-29" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-10-29",
+      "url": "https://namaran.jocarium.productions/c/write/2026-10-29",
+      "datePublished": "2026-10-29",
+      "dateModified": "2026-10-29",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "反復で求める整数平方根" },
+      "keywords": "numerical-analysis, integer-arithmetic, integer-overflow, loop",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "2乗してnを超えない最大の整数を、xを(x + n / x) / 2で置き換える反復で求めるisqrtをCで書くドリルです。初期値をどこに置き、いつ止めるか、uint64_tの最大値で桁あふれしないかを同時に満たします。2026-10-29のC WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-29" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-10-29">C++26</a>
+  <a href="/rust/write/2026-10-29">Rust 2024</a>
+  <a href="/haskell/write/2026-10-29">Haskell 2010</a>
+  <a href="/zig/write/2026-10-29">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-29">READ</a>
+  <a href="/c/write/2026-10-29" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-10-29">DEBUG</a>
+</nav>
+
+<main
+  data-topic="反復で求める整数平方根"
+  data-tags="numerical-analysis integer-arithmetic integer-overflow loop"
+  data-concepts="整数平方根, Newton法の初期値, 停止条件, 単調減少, integer square root, Newton's method, isqrt"
+  data-level="bison"
+>
+  <h2>2026-10-29</h2>
+  <div class="code-frame">
+    <p class="code-filename">isqrt.c</p>
+    <pre class="code"><code><span class="ty">uint64_t</span> <span class="fn">isqrt</span>(<span class="ty">uint64_t</span> n) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    2乗して <code>n</code> を超えない最大の整数を返す <code>isqrt</code> を書いてください。値は、正の整数 <code>x</code> を <code>(x + n / x) / 2</code>(<code>uint64_t</code> どうしの割り算)で置き換える操作を繰り返して求め、浮動小数点数は使いません。<code>n</code> は0から <code>UINT64_MAX</code> までのどの値でもよく、<code>n</code> が0のときは0を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>isqrt(15)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>3</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>isqrt(0)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>isqrt(UINT64_MAX)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>4294967295</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="ty">uint64_t</span> <span class="fn">isqrt</span>(<span class="ty">uint64_t</span> n) {
+    <span class="kw">if</span> (n &lt; <span class="nu">2</span>) {
+        <span class="kw">return</span> n;
+    }
+    <span class="ty">uint64_t</span> x = n / <span class="nu">2</span>;
+    <span class="ty">uint64_t</span> y = (x + n / x) / <span class="nu">2</span>;
+    <span class="kw">while</span> (y &lt; x) {
+        x = y;
+        y = (x + n / x) / <span class="nu">2</span>;
+    }
+    <span class="kw">return</span> x;
+}
+</code></pre>
+      <p>
+        求める値を <code>r</code> とします。この反復は、どこから始めても1回目で <code>r</code> 以上になります。割り算を切り捨てずに考えると、<code>x</code> と <code>n / x</code> の平均は2つの積が <code>n</code> なので √<code>n</code> 以上で、切り捨てても整数の <code>r</code> を下回らないからです。そして <code>x</code> が <code>r</code> より大きい間は <code>x * x &gt; n</code> なので <code>n / x &lt; x</code> となり、次の値は <code>x</code> より小さくなります。<code>x</code> が <code>r</code> に着くと <code>n / x</code> は <code>r</code> 以上になり、次の値はもう減りません。そのため参考実装は、次の値 <code>y</code> が <code>x</code> より小さい間だけ進み、<code>y</code> が <code>x</code> 以上になった時点の <code>x</code> を返します。
+      </p>
+      <p>
+        初期値は <code>r</code> 以上で、しかも足し算が桁あふれしない値にします。<code>x = n</code> は <code>r</code> 以上ですが、<code>n</code> が <code>UINT64_MAX</code> だと <code>x + n / x</code> が <code>n + 1</code> になって0に戻り、次の <code>n / x</code> は0での割り算になります。<code>n / 2</code> なら <code>n</code> が4以上で √<code>n</code> 以上、<code>n</code> が2と3では答えの1そのものです。0と1は <code>n / 2</code> が0になって割り算に使えないので、先に返します。
+      </p>
+      <p>
+        止める条件を <code>y != x</code> にすると、<code>n = 15</code> で値が7、4、3、4、3……と3と4を行き来して止まりません。切り捨てのせいで <code>r</code> から次の値が <code>r + 1</code> に戻ることがあるからです。逆に初期値を1にすると、1回目で値が増えるので、<code>y &lt; x</code> の条件ではすぐに止まって1を返します。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。初期値は、<code>n</code> の2進数の桁数の半分から作った2のべき乗のように、<code>r</code> 以上で桁あふれしない値なら何でもかまいません。根に近いほど繰り返しが少なく済みます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

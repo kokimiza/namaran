@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="単調スタックで右側にある最初の大きい要素を求めるコードで、while letの条件にpopを書いたために、&amp;&amp;の後半が偽になったときに要素を失うバグを直します。Rust 2024のletチェーンの評価順を扱います。2026-10-29のRust DEBUG。">
+<title>条件の中で取り出した要素</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-10-29">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-29" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-10-29",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-10-29",
+      "datePublished": "2026-10-29",
+      "dateModified": "2026-10-29",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "条件の中で取り出した要素" },
+      "keywords": "monotonic-stack, let-chain, stack, pattern-matching",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "単調スタックで右側にある最初の大きい要素を求めるコードで、while letの条件にpopを書いたために、&&の後半が偽になったときに要素を失うバグを直します。Rust 2024のletチェーンの評価順を扱います。2026-10-29のRust DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-29">C23</a>
+  <a href="/cpp/debug/2026-10-29">C++26</a>
+  <a href="/rust/debug/2026-10-29" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-29">Haskell 2010</a>
+  <a href="/zig/debug/2026-10-29">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-29">READ</a>
+  <a href="/rust/write/2026-10-29">WRITE</a>
+  <a href="/rust/debug/2026-10-29" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="条件の中で取り出した要素"
+  data-tags="monotonic-stack let-chain stack pattern-matching"
+  data-concepts="単調スタック, letチェーン, while let, popの副作用, monotonic stack, let chains, next greater element"
+  data-level="whale"
+>
+  <h2>2026-10-29</h2>
+  <div class="code-frame">
+    <p class="code-filename">next_greater.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">next_greater</span>(v: &amp;[<span class="ty">i32</span>]) -&gt; <span class="ty">Vec</span>&lt;<span class="ty">Option</span>&lt;<span class="ty">i32</span>&gt;&gt; {
+    <span class="kw">let</span> <span class="kw">mut</span> ans = <span class="mc">vec!</span>[<span class="ty">None</span>; v.<span class="fn">len</span>()];
+    <span class="kw">let</span> <span class="kw">mut</span> stack: <span class="ty">Vec</span>&lt;<span class="ty">usize</span>&gt; = <span class="ty">Vec</span>::<span class="fn">new</span>();
+    <span class="kw">for</span> (i, &amp;x) <span class="kw">in</span> v.<span class="fn">iter</span>().<span class="fn">enumerate</span>() {
+        <span class="kw">while</span> <span class="kw">let</span> <span class="fn">Some</span>(top) = stack.<span class="fn">pop</span>()
+            &amp;&amp; v[top] &lt; x
+        {
+            ans[top] = <span class="fn">Some</span>(x);
+        }
+        stack.<span class="fn">push</span>(i);
+    }
+    ans
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="mc">println!</span>(<span class="st">"{:?}"</span>, <span class="fn">next_greater</span>(&amp;[<span class="nu">2</span>, <span class="nu">7</span>, <span class="nu">3</span>, <span class="nu">1</span>, <span class="nu">5</span>]));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    スライスの各要素について、右側にある最初の、その要素より大きい値を求め、無ければ <code>None</code> にする <code>next_greater</code> です。<code>next_greater(&amp;[2, 7, 3, 1, 5])</code> は本来 <code>[Some(7), None, Some(5), Some(5), None]</code> を返すはずが、いまは <code>[Some(7), None, None, Some(5), None]</code> を返し、右に5がある3の答えが <code>None</code> になります。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code>        <span class="kw">while</span> <span class="kw">let</span> <span class="fn">Some</span>(top) = stack.<span class="fn">pop</span>()
+            &amp;&amp; v[top] &lt; x
+        {
+            ans[top] = <span class="fn">Some</span>(x);
+        }
+</code></pre>
+      <p>
+        <code>while let</code> の条件は左から評価され、<code>&amp;&amp;</code> の後半を調べる前に <code>stack.pop()</code> がもう実行されています。<code>v[top] &lt; x</code> が偽になって繰り返しが終わるとき、取り出した <code>top</code> はどこにも戻されず、<code>stack</code> から消えます。<code>x</code> より大きい値はまだ答えが決まっていないのに、以後どの要素とも比べられません。
+      </p>
+      <p>
+        入力例では、7を積んだあと3が来ると、7を取り出して <code>7 &lt; 3</code> が偽になり、7が消えます。7の答えは <code>None</code> が正しいので、ここでは症状が出ません。次の1が来ると3が同じように消え、そのあと5が来ても3は <code>stack</code> に無いので、<code>ans[2]</code> は <code>None</code> のまま残ります。<code>stack</code> の中で答えを待っている要素が、自分より小さい要素が来るたびに1つずつ失われていきます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code>        <span class="kw">while</span> <span class="kw">let</span> <span class="fn">Some</span>(&amp;top) = stack.<span class="fn">last</span>()
+            &amp;&amp; v[top] &lt; x
+        {
+            stack.<span class="fn">pop</span>();
+            ans[top] = <span class="fn">Some</span>(x);
+        }
+</code></pre>
+      <p>
+        条件では <code>stack.last()</code> で一番上を覗くだけにし、取り出すのは <code>v[top] &lt; x</code> が真だと分かってから本体の中で行います。条件が偽になっても <code>stack</code> は変わらないので、3は1の下に残り、5が来たときに1に続いて取り出されて <code>ans[2]</code> が <code>Some(5)</code> になります<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li><code>while let</code> や <code>if let</code> の条件を <code>&amp;&amp;</code> でつなぐ書き方(let chains)は、Rust 2024 エディションで使えるようになりました。条件は左から順に評価され、途中で偽になればそこで止まりますが、それより前に評価した式の副作用は取り消されません。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

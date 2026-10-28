@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Zigで@divTruncの商と@modの余りを組み合わせ、q * b + rで元の数を作り直します。負の数では切り捨ての向きと余りの符号がずれ、元に戻らないことを追うドリルです。2026-10-29のZig READ。">
+<title>組を混ぜた商と余り</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/read/2026-10-29">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / READ", "item": "https://namaran.jocarium.productions/zig/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-29" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / READ — 2026-10-29",
+      "url": "https://namaran.jocarium.productions/zig/read/2026-10-29",
+      "datePublished": "2026-10-29",
+      "dateModified": "2026-10-29",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "組を混ぜた商と余り" },
+      "keywords": "division, builtin-function, integer-arithmetic",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "Zigで@divTruncの商と@modの余りを組み合わせ、q * b + rで元の数を作り直します。負の数では切り捨ての向きと余りの符号がずれ、元に戻らないことを追うドリルです。2026-10-29のZig READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-29">C23</a>
+  <a href="/cpp/read/2026-10-29">C++26</a>
+  <a href="/rust/read/2026-10-29">Rust 2024</a>
+  <a href="/haskell/read/2026-10-29">Haskell 2010</a>
+  <a href="/zig/read/2026-10-29" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-10-29" class="active" aria-current="page">READ</a>
+  <a href="/zig/write/2026-10-29">WRITE</a>
+  <a href="/zig/debug/2026-10-29">DEBUG</a>
+</nav>
+
+<main
+  data-topic="組を混ぜた商と余り"
+  data-tags="division builtin-function integer-arithmetic"
+  data-concepts="@divTrunc, @mod, 商と余りの組, 負の数の割り算, truncated division, floored modulo, division identity"
+  data-level="bison"
+>
+  <h2>2026-10-29</h2>
+  <div class="code-frame">
+    <p class="code-filename">rebuild.zig</p>
+    <pre class="code"><code><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);
+
+<span class="kw">fn</span> <span class="fn">rebuild</span>(a: <span class="ty">i32</span>, b: <span class="ty">i32</span>) <span class="ty">i32</span> {
+    <span class="kw">return</span> <span class="mc">@divTrunc</span>(a, b) * b + <span class="mc">@mod</span>(a, b);
+}
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {
+    <span class="kw">var</span> buf: [<span class="nu">256</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;
+    <span class="kw">var</span> stdout_writer = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;buf);
+    <span class="kw">const</span> stdout = &amp;stdout_writer.interface;
+    <span class="kw">try</span> stdout.<span class="fn">print</span>(<span class="st">"{d} {d} {d}\n"</span>, .{ <span class="fn">rebuild</span>(<span class="nu">7</span>, <span class="nu">3</span>), <span class="fn">rebuild</span>(-<span class="nu">7</span>, <span class="nu">3</span>), <span class="fn">rebuild</span>(-<span class="nu">6</span>, <span class="nu">3</span>) });
+    <span class="kw">try</span> stdout.<span class="fn">flush</span>();
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>7 -4 -6</code> です。
+      </p>
+      <p>
+        <code>@divTrunc</code> は商の小数部を0の側へ切り捨てるので、<code>@divTrunc(-7, 3)</code> は -2.33… から -2 になります。<code>@mod</code> の余りは割る数が正なら0以上で、<code>-7 = 3 * (-3) + 2</code> と見て <code>@mod(-7, 3)</code> は2です。<code>rebuild(-7, 3)</code> は <code>-2 * 3 + 2</code> で -4 になり、-7 には戻りません。
+      </p>
+      <p>
+        <code>q * b + r</code> で元の数に戻るのは、商と余りを同じ向きの切り捨てで作った組だけです。<code>@mod</code> と組になるのは、<code>@divTrunc</code> ではなく負の側へ切り捨てる <code>@divFloor</code> です。2つの切り捨ての向きが違う結果を出すのは、割られる数が負で、しかも割り切れないときだけで、そのとき <code>@divTrunc</code> の商は <code>@divFloor</code> より1大きくなります。<code>@divFloor</code> と <code>@mod</code> の組なら元の数に戻るので、商だけを1大きい <code>@divTrunc</code> に替えた <code>rebuild</code> は、元の数より <code>b</code> だけ大きくなります。7は正なので7に戻り、-6は割り切れるので商はどちらも -2、余りは0で、-6に戻ります。
+      </p>
+      <p>
+        <code>@divTrunc</code> も負の側へ切り捨てると読むと <code>-3 * 3 + 2</code>、<code>@mod</code> も割られる数の符号に合わせると読むと <code>-2 * 3 + (-1)</code> になり、どちらも -7 に戻って <code>7 -7 -6</code> と答えてしまいます。2つの読み違いのどちらか1つだけでも、組がそろったことになって元の数に戻る答えに着きます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/read">Today</a></li>
+    <li><a href="/zig/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

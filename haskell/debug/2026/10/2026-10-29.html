@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="頂点0から全頂点を1回ずつ通る道順をビットDPで数えるつもりが、出発点を訪問済みの集合に入れ忘れたため、頂点0に戻ってくる道まで数えるバグを直します。2026-10-29のHaskell DEBUG。">
+<title>出発点の訪問済み印</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-10-29">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-29" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-10-29",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-10-29",
+      "datePublished": "2026-10-29",
+      "dateModified": "2026-10-29",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "出発点の訪問済み印" },
+      "keywords": "bitmask-dp, graph, memoization",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "頂点0から全頂点を1回ずつ通る道順をビットDPで数えるつもりが、出発点を訪問済みの集合に入れ忘れたため、頂点0に戻ってくる道まで数えるバグを直します。2026-10-29のHaskell DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-29">C23</a>
+  <a href="/cpp/debug/2026-10-29">C++26</a>
+  <a href="/rust/debug/2026-10-29">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-29" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/debug/2026-10-29">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-29">READ</a>
+  <a href="/haskell/write/2026-10-29">WRITE</a>
+  <a href="/haskell/debug/2026-10-29" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="出発点の訪問済み印"
+  data-tags="bitmask-dp graph memoization"
+  data-concepts="ビットDP, 訪問済み集合, 初期状態, 道順の数え上げ, bitmask DP, visited set, initial state"
+  data-level="peacock"
+>
+  <h2>2026-10-29</h2>
+  <div class="code-frame">
+    <p class="code-filename">VisitOrders.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Data.Array</span>
+<span class="kw">import</span> <span class="ty">Data.Bits</span>
+
+<span class="fn">n</span> <span class="op">::</span> <span class="ty">Int</span>
+<span class="fn">n</span> = <span class="nu">4</span>
+
+<span class="fn">linked</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Bool</span>
+<span class="fn">linked</span> u v = (min u v, max u v) `elem` [(<span class="nu">0</span>, <span class="nu">1</span>), (<span class="nu">0</span>, <span class="nu">2</span>), (<span class="nu">1</span>, <span class="nu">3</span>), (<span class="nu">2</span>, <span class="nu">3</span>)]
+
+<span class="fn">paths</span> <span class="op">::</span> <span class="ty">Integer</span>
+<span class="fn">paths</span> = memo ! (<span class="nu">0</span>, <span class="nu">0</span>)
+ <span class="kw">where</span>
+  full = bit n - <span class="nu">1</span> <span class="op">::</span> <span class="ty">Int</span>
+  memo = listArray ((<span class="nu">0</span>, <span class="nu">0</span>), (full, n - <span class="nu">1</span>)) [go s v | s <span class="op">&lt;-</span> [<span class="nu">0</span> .. full], v <span class="op">&lt;-</span> [<span class="nu">0</span> .. n - <span class="nu">1</span>]]
+  go s v
+    | s == full = <span class="nu">1</span>
+    | otherwise = sum [memo ! (setBit s w, w) | w <span class="op">&lt;-</span> [<span class="nu">0</span> .. n - <span class="nu">1</span>], not (testBit s w), linked v w]
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print paths
+</code></pre>
+  </div>
+
+  <p class="question">
+    頂点0から出発し、<code>linked</code> でつながった頂点へ移りながら4つの頂点をちょうど1回ずつ通る道順の数を数えるつもりの <code>paths</code> です。<code>memo ! (s, v)</code> は、ビット <code>s</code> で表した頂点の集合を通り終えて頂点 <code>v</code> にいるときの、残りの道順の数です。4つの頂点は0、1、3、2の順に辺で輪につながっているので、道順は 0→1→3→2 と 0→2→3→1 の2通りで、本来は <code>2</code> と出力されるはずが、いまは <code>4</code> と出力されます。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="fn">paths</span> = memo ! (<span class="nu">0</span>, <span class="nu">0</span>)
+</code></pre>
+      <p>
+        <code>memo ! (0, 0)</code> は「頂点0にいるが、通り終えた頂点の集合は空」という状態です。集合に0が入っていないので、<code>go</code> は頂点0をまだ通っていない頂点として扱い、隣の頂点から0へ戻る移動を許します。そのうえ、集合が全部そろうには0がどこかで集合に入る必要があるので、数えられるのは、途中か最後にちょうど1回0へ戻ってくる道だけです。
+      </p>
+      <p>
+        この輪では、0→1→0→2→3、0→2→0→1→3、0→1→3→2→0、0→2→3→1→0 の4通りがその形をしています。どれも0を2回通るので、本来は数えてはいけない道です。本来の2通りは、最後まで0に戻らないので、全部の集合にたどり着かず数えられていません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="fn">paths</span> = memo ! (bit <span class="nu">0</span>, <span class="nu">0</span>)
+</code></pre>
+      <p>
+        出発した時点で頂点0はもう通っているので、初めの集合を0番目のビットだけが立った <code>bit 0</code> にします。すると0へ戻る移動は <code>not (testBit s w)</code> で弾かれ、数えられるのは0から出て残りの3つを1回ずつ通る道だけになり、0→1→3→2 と 0→2→3→1 の2通りが数えられます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="std::tieの結果をautoの構造化束縛で受けると、名前はコピーではなく配列の要素を指します。バブルソートの形をした二重ループで、小さい方の値を左へ書き込み続けると配列が何になるかを見抜くドリルです。2026-10-29のC++ READ。">
+<title>tieを束縛して書き込む</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-10-29">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-29" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-10-29",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-10-29",
+      "datePublished": "2026-10-29",
+      "dateModified": "2026-10-29",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "tieを束縛して書き込む" },
+      "keywords": "structured-binding, reference, tuple, aliasing, invariant",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "std::tieの結果をautoの構造化束縛で受けると、名前はコピーではなく配列の要素を指します。バブルソートの形をした二重ループで、小さい方の値を左へ書き込み続けると配列が何になるかを見抜くドリルです。2026-10-29のC++ READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-29">C23</a>
+  <a href="/cpp/read/2026-10-29" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-10-29">Rust 2024</a>
+  <a href="/haskell/read/2026-10-29">Haskell 2010</a>
+  <a href="/zig/read/2026-10-29">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-29" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-10-29">WRITE</a>
+  <a href="/cpp/debug/2026-10-29">DEBUG</a>
+</nav>
+
+<main
+  data-topic="tieを束縛して書き込む"
+  data-tags="structured-binding reference tuple aliasing invariant"
+  data-concepts="構造化束縛, std::tie, 参照のタプル, 交換の失敗, structured binding, tuple of references, aliasing"
+  data-level="whale"
+>
+  <h2>2026-10-29</h2>
+  <div class="code-frame">
+    <p class="code-filename">adjacent_pass.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;array&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;cstdio&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;tuple&gt;</span>
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    std::<span class="ty">array</span> v{<span class="nu">4</span>, <span class="nu">6</span>, <span class="nu">1</span>, <span class="nu">5</span>, <span class="nu">2</span>, <span class="nu">3</span>};
+    <span class="kw">for</span> (std::<span class="ty">size_t</span> i = <span class="nu">0</span>; i + <span class="nu">1</span> &lt; v.<span class="fn">size</span>(); ++i) {
+        <span class="kw">for</span> (std::<span class="ty">size_t</span> j = <span class="nu">0</span>; j + <span class="nu">1</span> &lt; v.<span class="fn">size</span>() - i; ++j) {
+            <span class="kw">auto</span> [x, y] = std::<span class="fn">tie</span>(v[j], v[j + <span class="nu">1</span>]);
+            <span class="kw">if</span> (x &gt; y) {
+                x = y;
+            }
+        }
+    }
+    <span class="kw">for</span> (<span class="ty">int</span> e : v) {
+        std::<span class="fn">printf</span>(<span class="st">"%d"</span>, e);
+    }
+    std::<span class="fn">printf</span>(<span class="st">"\n"</span>);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>111223</code> です。
+      </p>
+      <p>
+        <code>std::tie(v[j], v[j + 1])</code> が返すのは、2つの要素への参照を持つ <code>std::tuple&lt;int&amp;, int&amp;&gt;</code> です。<code>auto [x, y]</code> はこのタプルをコピーしますが、コピーされるのは参照なので、<code>x</code> と <code>y</code> はコピーした値ではなく <code>v[j]</code> と <code>v[j + 1]</code> そのものを指す名前になります。<code>x = y</code> は配列に書き込み、1回の比較は「<code>v[j]</code> を <code>v[j]</code> と <code>v[j + 1]</code> の小さい方にする」操作です。大きい方の値は右へ運ばれず、そのまま消えます。
+      </p>
+      <p>
+        この操作を15回追う代わりに、各要素が最後に何になるかを考えます。1回の走査で <code>j</code> は左から右へ進むので、<code>v[j]</code> を書き換えるとき、右隣の <code>v[j + 1]</code> はこの走査ではまだ書き換わっていません。走査のたびに <code>v[j]</code> は右へ1つ広い範囲の最小値になり、<code>v[j]</code> が触られる回数は、内側のループが <code>j</code> まで届く走査の数の <code>5 - j</code> 回です。そのため最後の <code>v[j]</code> は <code>v[j]</code> から配列の右端までの最小値です。
+      </p>
+      <p>
+        <code>4 6 1 5 2 3</code> の各位置から右端までの最小値は、左から1、1、1、2、2、3です。<code>auto</code> がタプルの中身の値をコピーすると読むと配列は変わらず <code>461523</code>、バブルソートの形から並べ替えを思い浮かべると <code>123456</code> と答えてしまいます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

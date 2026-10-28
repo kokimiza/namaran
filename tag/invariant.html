@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「不変条件」を扱ったNamaranのコーディングドリル9問。ベルマン・フォード法、負の閉路、辺の本数を制限した最短経路、緩和、Bellman-Ford、negative cycle。">
+<meta name="description" content="「不変条件」を扱ったNamaranのコーディングドリル12問。ビットDP、訪問済み集合、区間、数え上げ、bitmask DP、visited set。">
 <title>不変条件</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/invariant">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>不変条件</h2>
 
   <p class="lede">
-    「不変条件」を扱った9問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「不変条件」を扱った12問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/haskell/read/2026-10-29">Haskell / READ · 2026-10-29</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">隣へ広がる訪問順</span> <span class="past-concepts">ビットDP, 訪問済み集合, 区間, 数え上げ, bitmask DP, visited set, counting orders</span></li>
+    <li><a href="/cpp/read/2026-10-29">C++ / READ · 2026-10-29</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">tieを束縛して書き込む</span> <span class="past-concepts">構造化束縛, std::tie, 参照のタプル, 交換の失敗, structured binding, tuple of references, aliasing</span></li>
+    <li><a href="/c/read/2026-10-29">C / READ · 2026-10-29</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">逆数の反復が止まる回数</span> <span class="past-concepts">Newton法, 逆数の反復, 2のべき乗を法とする逆元, 誤差の2乗, Newton's method, modular inverse, quadratic convergence</span></li>
     <li><a href="/haskell/read/2026-10-28">Haskell / READ · 2026-10-28</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">千回まわす最短距離</span> <span class="past-concepts">ベルマン・フォード法, 負の閉路, 辺の本数を制限した最短経路, 緩和, Bellman-Ford, negative cycle, relaxation</span></li>
     <li><a href="/cpp/debug/2026-10-20">C++ / DEBUG · 2026-10-20</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">差分を読む前の上書き</span> <span class="past-concepts">平方分割, 塊ごとの和, 差分による更新, 代入の順序, sqrt decomposition, point update, stale aggregate</span></li>
     <li><a href="/c/debug/2026-10-19">C / DEBUG · 2026-10-19</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">ランごとに測る上限</span> <span class="past-concepts">展開量の上限, ラン長圧縮, 合計に対する検査, zip爆弾, run-length encoding, decompression bomb, zip bomb</span></li>

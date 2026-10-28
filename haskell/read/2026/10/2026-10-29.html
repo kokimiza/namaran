@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="訪問済みの頂点の集合をビットで表し、遅延評価の配列でメモ化したビットDPが数える値を答えます。訪問済みの集合がいつも連続した区間になることに気付けば、1024通りの状態を追わずに済みます。2026-10-29のHaskell READ。">
+<title>隣へ広がる訪問順</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-10-29">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-29" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-10-29",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-10-29",
+      "datePublished": "2026-10-29",
+      "dateModified": "2026-10-29",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "隣へ広がる訪問順" },
+      "keywords": "bitmask-dp, memoization, laziness, combinatorics, invariant",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "訪問済みの頂点の集合をビットで表し、遅延評価の配列でメモ化したビットDPが数える値を答えます。訪問済みの集合がいつも連続した区間になることに気付けば、1024通りの状態を追わずに済みます。2026-10-29のHaskell READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-29">C23</a>
+  <a href="/cpp/read/2026-10-29">C++26</a>
+  <a href="/rust/read/2026-10-29">Rust 2024</a>
+  <a href="/haskell/read/2026-10-29" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/read/2026-10-29">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-29" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-10-29">WRITE</a>
+  <a href="/haskell/debug/2026-10-29">DEBUG</a>
+</nav>
+
+<main
+  data-topic="隣へ広がる訪問順"
+  data-tags="bitmask-dp memoization laziness combinatorics invariant"
+  data-concepts="ビットDP, 訪問済み集合, 区間, 数え上げ, bitmask DP, visited set, counting orders"
+  data-level="whale"
+>
+  <h2>2026-10-29</h2>
+  <div class="code-frame">
+    <p class="code-filename">Grow.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Data.Array</span>
+<span class="kw">import</span> <span class="ty">Data.Bits</span>
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (sum [ways ! bit i | i <span class="op">&lt;-</span> [<span class="nu">0</span> .. n - <span class="nu">1</span>]])
+ <span class="kw">where</span>
+  n = <span class="nu">10</span>
+  full = bit n - <span class="nu">1</span> <span class="op">::</span> <span class="ty">Int</span>
+  ways = listArray (<span class="nu">0</span>, full) (map go [<span class="nu">0</span> .. full]) <span class="op">::</span> <span class="ty">Array</span> <span class="ty">Int</span> <span class="ty">Integer</span>
+  go s
+    | s == full = <span class="nu">1</span>
+    | otherwise = sum [ways ! setBit s j | j <span class="op">&lt;-</span> [<span class="nu">0</span> .. n - <span class="nu">1</span>], not (testBit s j), touches s j]
+  touches s j = (j &gt; <span class="nu">0</span> &amp;&amp; testBit s (j - <span class="nu">1</span>)) || testBit s (j + <span class="nu">1</span>)
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>512</code> です。
+      </p>
+      <p>
+        <code>ways ! s</code> は、ビット <code>s</code> で表した集合から始めて、まだ入っていない番号 <code>j</code> を1つずつ加えて10個全部にする順番の数です。加えてよいのは、<code>j - 1</code> か <code>j + 1</code> がすでに集合にある <code>j</code> だけです。<code>ways</code> は自分自身を参照する配列ですが、要素は遅延評価で必要になったときに計算されるので、番号の小さい順に埋める必要はありません。<code>main</code> は、1つの番号だけを入れた10通りの集合から始めた数を足しています。
+      </p>
+      <p>
+        1024通りの集合を追う代わりに、集合がどんな形をとるかを見ます。最初の集合は1つの番号だけで、隣り合う番号が切れ目なく並んだ区間です。区間に入っていない番号のうち、隣が区間に入っているのは区間の左端のすぐ左と右端のすぐ右だけなので、加えたあとも集合は区間のままです。そのため、どの順番も「区間を左へ1つ広げるか、右へ1つ広げるか」の選択を9回続けたものになります。
+      </p>
+      <p>
+        番号 <code>i</code> から始めると、9回のうち左を選ぶのはちょうど <code>i</code> 回で、その順番の数は、9回のうち左を選ぶ回を <code>i</code> 回選ぶ組合せの数 <sub>9</sub>C<sub><code>i</code></sub> です。<code>i</code> を0から9まで足すと、9回それぞれで左右を自由に選んだ場合の数と同じ 2<sup>9</sup> = 512 になります。左右の選び方の列1つが、始める番号を決め(左の回数が始めた番号)、順番も決めるからです。
+      </p>
+      <p>
+        加える条件を見落として、10個を好きな順に並べる数と考えると 10! = 3628800 と答えてしまいます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

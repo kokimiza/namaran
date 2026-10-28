@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="右から左へ走査する単調スタックで、各要素の右側にある最初の大きい値を求めます。ただし番号はrev().enumerate()で付けるので、答えをどの位置に書くかを追うドリルです。2026-10-29のRust READ。">
+<title>後ろから数える番号</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-10-29">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / READ", "item": "https://namaran.jocarium.productions/rust/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-29" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / READ — 2026-10-29",
+      "url": "https://namaran.jocarium.productions/rust/read/2026-10-29",
+      "datePublished": "2026-10-29",
+      "dateModified": "2026-10-29",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "後ろから数える番号" },
+      "keywords": "monotonic-stack, stack, iterator, array",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "右から左へ走査する単調スタックで、各要素の右側にある最初の大きい値を求めます。ただし番号はrev().enumerate()で付けるので、答えをどの位置に書くかを追うドリルです。2026-10-29のRust READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-29">C23</a>
+  <a href="/cpp/read/2026-10-29">C++26</a>
+  <a href="/rust/read/2026-10-29" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/read/2026-10-29">Haskell 2010</a>
+  <a href="/zig/read/2026-10-29">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-29" class="active" aria-current="page">READ</a>
+  <a href="/rust/write/2026-10-29">WRITE</a>
+  <a href="/rust/debug/2026-10-29">DEBUG</a>
+</nav>
+
+<main
+  data-topic="後ろから数える番号"
+  data-tags="monotonic-stack stack iterator array"
+  data-concepts="単調スタック, 次に大きい要素, rev().enumerate(), 逆順の添字, monotonic stack, next greater element, iterator adapter"
+  data-level="bison"
+>
+  <h2>2026-10-29</h2>
+  <div class="code-frame">
+    <p class="code-filename">next_greater_rev.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> v = [<span class="nu">3</span>, <span class="nu">1</span>, <span class="nu">4</span>, <span class="nu">1</span>, <span class="nu">5</span>];
+    <span class="kw">let</span> <span class="kw">mut</span> ans = <span class="mc">vec!</span>[-<span class="nu">1</span>; v.<span class="fn">len</span>()];
+    <span class="kw">let</span> <span class="kw">mut</span> stack: <span class="ty">Vec</span>&lt;<span class="ty">i32</span>&gt; = <span class="ty">Vec</span>::<span class="fn">new</span>();
+    <span class="kw">for</span> (i, &amp;x) <span class="kw">in</span> v.<span class="fn">iter</span>().<span class="fn">rev</span>().<span class="fn">enumerate</span>() {
+        <span class="kw">while</span> stack.<span class="fn">last</span>().<span class="fn">is_some_and</span>(|&amp;top| top &lt;= x) {
+            stack.<span class="fn">pop</span>();
+        }
+        <span class="kw">if</span> <span class="kw">let</span> <span class="fn">Some</span>(&amp;top) = stack.<span class="fn">last</span>() {
+            ans[i] = top;
+        }
+        stack.<span class="fn">push</span>(x);
+    }
+    <span class="mc">println!</span>(<span class="st">"{ans:?}"</span>);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>[-1, 5, 5, 4, 4]</code> です。
+      </p>
+      <p>
+        ループは <code>v</code> を右端から左へ読み、<code>stack</code> には、いま見ている値より右にある値のうち、まだ候補として残っているものが積まれています。新しい値 <code>x</code> が来ると、<code>x</code> 以下の値を上から取り除きます。それらは <code>x</code> の陰に隠れ、<code>x</code> より左の要素から見て「右側にある最初の大きい値」になることはもうないからです。取り除いたあとに残った一番上の値が <code>x</code> の右側にある最初の大きい値で、<code>stack</code> が空なら <code>ans</code> の <code>-1</code> がそのまま残ります。<code>v</code> の右端から順に、5は空なので-1、1は5、4は1を取り除いて5、2つ目の1は4、3は1を取り除いて4です。
+      </p>
+      <p>
+        これらを <code>ans</code> のどこに書くかは <code>i</code> が決めます。<code>v.iter().rev().enumerate()</code> は、逆順に並べ替えたあとの列に0から番号を振るので、<code>i</code> は <code>v</code> の添字ではなく、右端から数えた順番です。右端の5の答えが <code>ans[0]</code> に、左端の3の答えが <code>ans[4]</code> に入り、<code>ans</code> は <code>v</code> と左右が逆の並びになります。
+      </p>
+      <p>
+        <code>i</code> を <code>v</code> の添字と読むと、各要素の位置に答えが入った <code>[4, 4, 5, 5, -1]</code> と答えてしまいます。もとの添字を保ったまま逆順に読むには、<code>v.iter().enumerate().rev()</code> と、番号を振ってから逆にします。逆に番号の振り方だけに目を向け、スタックが左側の値を探すと読むと、<code>v</code> の左から順に並べた <code>[-1, 3, -1, 4, -1]</code> を逆にした <code>[-1, 4, -1, 3, -1]</code> のような答えになります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/read">Today</a></li>
+    <li><a href="/rust/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
