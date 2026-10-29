@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「CSV」を扱ったNamaranのコーディングドリル6問。空の欄、列のずれ、flat_map と Result、zip の打ち切り、empty field、column misalignment。">
+<meta name="description" content="「CSV」を扱ったNamaranのコーディングドリル7問。数値の解析、std.fmt.parseInt、std.mem.splitScalar、空白の除去、空文字列、parse integers。">
 <title>CSV</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/csv">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>CSV</h2>
 
   <p class="lede">
-    「CSV」を扱った6問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「CSV」を扱った7問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/write/2026-10-30">Zig / WRITE · 2026-10-30</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">区切った数を読んで足す</span> <span class="past-concepts">数値の解析, std.fmt.parseInt, std.mem.splitScalar, 空白の除去, 空文字列, parse integers, comma separated values</span></li>
     <li><a href="/rust/debug/2026-10-10">Rust / DEBUG · 2026-10-10</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">空欄で曜日がずれる</span> <span class="past-concepts">空の欄, 列のずれ, flat_map と Result, zip の打ち切り, empty field, column misalignment, silently dropped errors</span></li>
     <li><a href="/rust/write/2026-10-06">Rust / WRITE · 2026-10-06</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">CSVのフィールドを囲む</span> <span class="past-concepts">CSVのエスケープ, 引用符を重ねる, CSVの書き出し, CSV field quoting, escaping double quotes</span></li>
     <li><a href="/rust/read/2026-10-06">Rust / READ · 2026-10-06</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">引用符を数えるCSV</span> <span class="past-concepts">CSVの引用符, 二重にした引用符のエスケープ, 状態機械, matchのガード, CSV quoting, escaped double quote, match guard</span></li>

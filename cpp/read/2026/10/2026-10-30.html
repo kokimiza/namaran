@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="同じ正規表現 (a*)(a|ab) を、文字列 aaab に regex_search と regex_match で当てたときの部分一致を読むC++ READのドリルです。繰り返しが文字を1つずつ返す順序と、選択肢を左から試して最初の成功で止まる規則が組み合わさります。">
+<title>最初に成功した分け方</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-10-30">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-30" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-10-30",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-10-30",
+      "datePublished": "2026-10-30",
+      "dateModified": "2026-10-30",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "最初に成功した分け方" },
+      "keywords": "regular-expression, backtracking",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "同じ正規表現 (a*)(a|ab) を、文字列 aaab に regex_search と regex_match で当てたときの部分一致を読むC++ READのドリルです。繰り返しが文字を1つずつ返す順序と、選択肢を左から試して最初の成功で止まる規則が組み合わさります。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-30">C23</a>
+  <a href="/cpp/read/2026-10-30" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-10-30">Rust 2024</a>
+  <a href="/haskell/read/2026-10-30">Haskell 2010</a>
+  <a href="/zig/read/2026-10-30">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-30" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-10-30">WRITE</a>
+  <a href="/cpp/debug/2026-10-30">DEBUG</a>
+</nav>
+
+<main
+  data-topic="最初に成功した分け方"
+  data-tags="regular-expression backtracking"
+  data-concepts="バックトラック, 貪欲な繰り返し, 選択の優先順位, regex_search, regex_match, ECMAScript regex, leftmost first match"
+  data-level="bison"
+>
+  <h2>2026-10-30</h2>
+  <div class="code-frame">
+    <p class="code-filename">first_match.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;regex&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="kw">const</span> std::<span class="ty">string</span> s = <span class="st">"aaab"</span>;
+    <span class="kw">const</span> std::regex <span class="fn">re</span>(<span class="st">"(a*)(a|ab)"</span>);
+    std::smatch m;
+    std::<span class="fn">regex_search</span>(s, m, re);
+    std::cout &lt;&lt; m[<span class="nu">1</span>] &lt;&lt; <span class="st">'|'</span> &lt;&lt; m[<span class="nu">2</span>] &lt;&lt; <span class="st">'\n'</span>;
+    std::<span class="fn">regex_match</span>(s, m, re);
+    std::cout &lt;&lt; m[<span class="nu">1</span>] &lt;&lt; <span class="st">'|'</span> &lt;&lt; m[<span class="nu">2</span>] &lt;&lt; <span class="st">'\n'</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        1行目が <code>aa|a</code>、2行目が <code>aa|ab</code> です。
+      </p>
+      <p>
+        <code>std::regex</code> の既定の文法(ECMAScript)は、文字列の分け方を決まった順に1つずつ試し、最初に成功した分け方を結果にします。最も長く一致する分け方を探すわけではありません。<code>a*</code> はまず取れるだけの <code>a</code> を取り、その先が合わなければ1文字ずつ返します。<code>(a|ab)</code> は左の <code>a</code> を先に試し、それが合わなかったときだけ <code>ab</code> を試します。
+      </p>
+      <p>
+        <code>regex_search</code> では、<code>a*</code> が <code>aaa</code> を取ると、残りの <code>b</code> には <code>a</code> も <code>ab</code> も合いません。<code>a*</code> が1文字返して <code>aa</code> になると、3文字目の <code>a</code> に左の選択肢 <code>a</code> が合い、ここで一致が成立します。<code>b</code> が余っていても、文字列の一部が合えばよいので成功で、<code>ab</code> は試されないまま終わります。
+      </p>
+      <p>
+        <code>regex_match</code> は文字列の全体と一致しなければ成功になりません。同じ順に進んで <code>aa</code> と <code>a</code> まで来ても、<code>b</code> が残っているので失敗になり、最後に試した選択に戻って右の <code>ab</code> を試します。<code>ab</code> は3文字目から最後までと合うので、<code>aa|ab</code> で成功します。
+      </p>
+      <p>
+        最も長い一致が選ばれると考えると、1行目も <code>aa|ab</code> と答えてしまいます。逆に、<code>a*</code> が一度取った <code>a</code> を返さないと考えると、どの位置から始めても <code>b</code> の前の <code>a</code> を取り尽くして失敗するので、2行とも一致なしの <code>|</code> と答えてしまいます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

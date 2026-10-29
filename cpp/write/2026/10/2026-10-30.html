@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="数字の並びをコンマ1つで区切った文字列かどうかを、正規表現を使わずに先頭から1回なめるだけで判定する関数をC++で書くドリルです。直前の文字が数字だったかという状態を1つだけ持って進みます。">
+<title>1回なめて形を判定</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-10-30">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-30" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-10-30",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-10-30",
+      "datePublished": "2026-10-30",
+      "dateModified": "2026-10-30",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "1回なめて形を判定" },
+      "keywords": "state-machine, parsing, string, loop",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "数字の並びをコンマ1つで区切った文字列かどうかを、正規表現を使わずに先頭から1回なめるだけで判定する関数をC++で書くドリルです。直前の文字が数字だったかという状態を1つだけ持って進みます。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-30">C23</a>
+  <a href="/cpp/write/2026-10-30" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-10-30">Rust 2024</a>
+  <a href="/haskell/write/2026-10-30">Haskell 2010</a>
+  <a href="/zig/write/2026-10-30">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-30">READ</a>
+  <a href="/cpp/write/2026-10-30" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-10-30">DEBUG</a>
+</nav>
+
+<main
+  data-topic="1回なめて形を判定"
+  data-tags="state-machine parsing string loop"
+  data-concepts="文字列の形式チェック, 1回の走査, 状態を持つループ, 正規表現を使わない検証, linear scan, input validation"
+  data-level="hedgehog"
+>
+  <h2>2026-10-30</h2>
+  <div class="code-frame">
+    <p class="code-filename">number_list.cpp</p>
+    <pre class="code"><code><span class="ty">bool</span> <span class="fn">is_number_list</span>(std::<span class="ty">string_view</span> s) {
+    <span class="kw">return</span> after_digit;
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>s</code> が、1文字以上の数字(<code>0</code> から <code>9</code>)の並びを、コンマ <code>,</code> 1つで区切って1個以上つないだ文字列なら <code>true</code>、そうでなければ <code>false</code> を返す <code>is_number_list</code> を、<code>std::regex</code> を使わずに書いてください。空文字列、コンマで始まる・終わる文字列、コンマが2つ続く文字列は <code>false</code> です。<code>s</code> の各文字は1回だけ読むようにします。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>is_number_list("12,7,300")</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>true</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>is_number_list("12,,7")</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>false</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>is_number_list("")</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>false</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="ty">bool</span> <span class="fn">is_number_list</span>(std::<span class="ty">string_view</span> s) {
+    <span class="ty">bool</span> after_digit = <span class="nu">false</span>;
+    <span class="kw">for</span> (<span class="ty">char</span> c : s) {
+        <span class="kw">if</span> (c &gt;= <span class="st">'0'</span> &amp;&amp; c &lt;= <span class="st">'9'</span>) {
+            after_digit = <span class="nu">true</span>;
+        } <span class="kw">else</span> <span class="kw">if</span> (c == <span class="st">','</span> &amp;&amp; after_digit) {
+            after_digit = <span class="nu">false</span>;
+        } <span class="kw">else</span> {
+            <span class="kw">return</span> <span class="nu">false</span>;
+        }
+    }
+    <span class="kw">return</span> after_digit;
+</code></pre>
+      <p>
+        先頭から1文字ずつ見ていくとき、次の文字が許されるかどうかは、直前の文字が数字だったかどうかだけで決まります。数字はいつでも置けますが、コンマを置けるのは直前が数字のときだけです。そこで <code>after_digit</code> に直前が数字だったかを持たせ、数字を読んだら <code>true</code>、コンマを読んだら <code>false</code> にします。それ以外の文字が来たら、その場で <code>false</code> を返します。
+      </p>
+      <p>
+        最後に <code>after_digit</code> を返すのは、文字列が数字で終わっているかを確かめるためです。空文字列はループを一度も回らないので初期値の <code>false</code> が返り、<code>5,</code> のようにコンマで終わる文字列も <code>false</code> になります。コンマで始まる文字列は、1文字目で <code>after_digit</code> がまだ <code>false</code> なので弾かれます。各文字を1回ずつ見るだけなので、時間は文字列の長さに比例し、どんな入力でも急に遅くなることはありません。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。コンマで区切ってから、どの部分も空でなく数字だけでできていることを確かめる書き方もあります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

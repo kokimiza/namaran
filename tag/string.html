@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「文字列」を扱ったNamaranのコーディングドリル77問。金額の書式、商と余り、負の数の表示、@abs、std.mem.print、signed division。">
+<meta name="description" content="「文字列」を扱ったNamaranのコーディングドリル80問。数値の解析、std.fmt.parseInt、std.mem.splitScalar、空白の除去、空文字列、parse integers。">
 <title>文字列</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/string">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>文字列</h2>
 
   <p class="lede">
-    「文字列」を扱った77問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「文字列」を扱った80問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/write/2026-10-30">Zig / WRITE · 2026-10-30</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">区切った数を読んで足す</span> <span class="past-concepts">数値の解析, std.fmt.parseInt, std.mem.splitScalar, 空白の除去, 空文字列, parse integers, comma separated values</span></li>
+    <li><a href="/cpp/write/2026-10-30">C++ / WRITE · 2026-10-30</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">1回なめて形を判定</span> <span class="past-concepts">文字列の形式チェック, 1回の走査, 状態を持つループ, 正規表現を使わない検証, linear scan, input validation</span></li>
+    <li><a href="/c/read/2026-10-30">C / READ · 2026-10-30</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">返した文字列の置き場所</span> <span class="past-concepts">static局所変数, 静的記憶域期間, 関数が返すバッファ, 上書き, static local buffer, non-reentrant function</span></li>
     <li><a href="/zig/write/2026-10-29">Zig / WRITE · 2026-10-29</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">負の金額を小数で書く</span> <span class="past-concepts">金額の書式, 商と余り, 負の数の表示, @abs, std.mem.print, signed division, formatting cents</span></li>
     <li><a href="/rust/read/2026-10-27">Rust / READ · 2026-10-27</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">切れ目で割れた文字</span> <span class="past-concepts">メッセージの区切り, UTF-8の多バイト文字, from_utf8_lossy, 置換文字, message framing, replacement character</span></li>
     <li><a href="/rust/debug/2026-10-27">Rust / DEBUG · 2026-10-27</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">最後の改行が消える行分け</span> <span class="past-concepts">メッセージの区切り, 改行区切り, str::lines, str::split, 受信バッファ, message framing, newline delimited</span></li>

@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="リストの末尾側の部分リストを、元のリストから空リストまで長い順に並べる関数を、as パターンで受け取ったリストをそのまま結果に入れてHaskellで書くドリルです。">
+<title>受け取った全体を結果に</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-10-30">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-30" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-10-30",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-10-30",
+      "datePublished": "2026-10-30",
+      "dateModified": "2026-10-30",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "受け取った全体を結果に" },
+      "keywords": "as-pattern, list, recursion, base-case",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "リストの末尾側の部分リストを、元のリストから空リストまで長い順に並べる関数を、as パターンで受け取ったリストをそのまま結果に入れてHaskellで書くドリルです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-30">C23</a>
+  <a href="/cpp/write/2026-10-30">C++26</a>
+  <a href="/rust/write/2026-10-30">Rust 2024</a>
+  <a href="/haskell/write/2026-10-30" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/write/2026-10-30">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-30">READ</a>
+  <a href="/haskell/write/2026-10-30" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-10-30">DEBUG</a>
+</nav>
+
+<main
+  data-topic="受け取った全体を結果に"
+  data-tags="as-pattern list recursion base-case"
+  data-concepts="asパターン, 接尾辞の一覧, tails, 空リストの扱い, as-pattern, suffixes of a list"
+  data-level="hedgehog"
+>
+  <h2>2026-10-30</h2>
+  <div class="code-frame">
+    <p class="code-filename">Suffixes.hs</p>
+    <pre class="code"><code><span class="fn">suffixes</span> <span class="op">::</span> [a] <span class="op">-&gt;</span> [[a]]
+</code></pre>
+  </div>
+
+  <p class="question">
+    リスト <code>xs</code> から先頭の要素を0個、1個、2個…と取り除いていったリストを、取り除く数の少ない順にすべて並べたリストを返す <code>suffixes</code> を書いてください。最後の要素はいつも空リストで、<code>xs</code> が空なら空リスト1つだけのリストを返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>suffixes "abc"</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>["abc","bc","c",""]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>suffixes [7]</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>[[7],[]]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>suffixes ""</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>[""]</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="fn">suffixes</span> <span class="op">::</span> [a] <span class="op">-&gt;</span> [[a]]
+<span class="fn">suffixes</span> [] = [[]]
+<span class="fn">suffixes</span> xs@(_ : rest) = xs : suffixes rest
+</code></pre>
+      <p>
+        結果の先頭は、何も取り除いていない <code>xs</code> そのものです。<code>xs@(_ : rest)</code> は、受け取ったリストに <code>xs</code> という名前を付けたまま、その後ろを <code>rest</code> と呼ぶので、<code>xs</code> を結果に入れ、残りを <code>suffixes rest</code> に任せられます。as パターンを使わずに <code>(y : rest)</code> と受けると、先頭に入れるリストを <code>y : rest</code> と組み立て直すことになります。
+      </p>
+      <p>
+        空リストからは何も取り除けないので、<code>suffixes []</code> は空リスト1つだけの <code>[[]]</code> です。どの長さのリストも、再帰の最後にここへたどり着くので、結果の最後の要素はいつも空リストになります。ここを <code>[]</code> にすると、空リストが結果から落ちます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。標準の <code>Data.List</code> にある <code>tails</code> は、これと同じ結果を返します。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

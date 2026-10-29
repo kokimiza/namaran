@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「エラー処理」を扱ったNamaranのコーディングドリル24問。errdefer、catch |err|、部分的な後始末、FailingAllocator、partial cleanup、error diagnostics。">
+<meta name="description" content="「エラー処理」を扱ったNamaranのコーディングドリル25問。数値の解析、std.fmt.parseInt、std.mem.splitScalar、空白の除去、空文字列、parse integers。">
 <title>エラー処理</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/error-handling">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>エラー処理</h2>
 
   <p class="lede">
-    「エラー処理」を扱った24問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「エラー処理」を扱った25問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/write/2026-10-30">Zig / WRITE · 2026-10-30</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">区切った数を読んで足す</span> <span class="past-concepts">数値の解析, std.fmt.parseInt, std.mem.splitScalar, 空白の除去, 空文字列, parse integers, comma separated values</span></li>
     <li><a href="/zig/write/2026-10-26">Zig / WRITE · 2026-10-26</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">失敗の位置を返す複製</span> <span class="past-concepts">errdefer, catch |err|, 部分的な後始末, FailingAllocator, partial cleanup, error diagnostics, Allocator</span></li>
     <li><a href="/zig/read/2026-10-26">Zig / READ · 2026-10-26</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">失敗した回だけ戻す</span> <span class="past-concepts">errdefer, エラー共用体, try, else |err|, error union, error return</span></li>
     <li><a href="/zig/debug/2026-10-26">Zig / DEBUG · 2026-10-26</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">先に戻されたID</span> <span class="past-concepts">errdeferの実行順, 逆順に実行される後始末, 実行時に読まれる値, errdefer order, LIFO, rollback log</span></li>

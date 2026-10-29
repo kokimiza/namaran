@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="作業の並び順が、依存関係の組をすべて守っているかを判定する関数をRustで書くドリルです。先に各作業の位置を表にしておき、組ごとに位置を比べます。">
+<title>並び順が依存を守るか</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-10-30">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-30" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-10-30",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-10-30",
+      "datePublished": "2026-10-30",
+      "dateModified": "2026-10-30",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "並び順が依存を守るか" },
+      "keywords": "topological-sort, array, slice",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "作業の並び順が、依存関係の組をすべて守っているかを判定する関数をRustで書くドリルです。先に各作業の位置を表にしておき、組ごとに位置を比べます。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-30">C23</a>
+  <a href="/cpp/write/2026-10-30">C++26</a>
+  <a href="/rust/write/2026-10-30" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-10-30">Haskell 2010</a>
+  <a href="/zig/write/2026-10-30">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-30">READ</a>
+  <a href="/rust/write/2026-10-30" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-10-30">DEBUG</a>
+</nav>
+
+<main
+  data-topic="並び順が依存を守るか"
+  data-tags="topological-sort array slice"
+  data-concepts="トポロジカル順序の検証, 依存関係, 位置の表, 逆引き, topological order check, inverse permutation"
+  data-level="hedgehog"
+>
+  <h2>2026-10-30</h2>
+  <div class="code-frame">
+    <p class="code-filename">valid_order.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">is_valid_order</span>(order: &amp;[<span class="ty">usize</span>], deps: &amp;[(<span class="ty">usize</span>, <span class="ty">usize</span>)]) -&gt; <span class="ty">bool</span> {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>order</code> は作業 <code>0</code> から <code>order.len() - 1</code> までを1回ずつ並べた順番で、<code>deps</code> の組 <code>(a, b)</code> は「作業 <code>a</code> は作業 <code>b</code> より前にする」という条件です。<code>order</code> がすべての条件を守っていれば <code>true</code>、1つでも破っていれば <code>false</code> を返す <code>is_valid_order</code> を書いてください。<code>deps</code> が空なら <code>true</code> です。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>is_valid_order(&amp;[2, 0, 1], &amp;[(0, 1), (2, 1)])</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>true</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>is_valid_order(&amp;[1, 0, 2], &amp;[(0, 1)])</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>false</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>is_valid_order(&amp;[0, 1], &amp;[])</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>true</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">is_valid_order</span>(order: &amp;[<span class="ty">usize</span>], deps: &amp;[(<span class="ty">usize</span>, <span class="ty">usize</span>)]) -&gt; <span class="ty">bool</span> {
+    <span class="kw">let</span> <span class="kw">mut</span> pos = <span class="mc">vec!</span>[<span class="nu">0</span>; order.<span class="fn">len</span>()];
+    <span class="kw">for</span> (i, &amp;task) <span class="kw">in</span> order.<span class="fn">iter</span>().<span class="fn">enumerate</span>() {
+        pos[task] = i;
+    }
+    deps.<span class="fn">iter</span>().<span class="fn">all</span>(|&amp;(before, after)| pos[before] &lt; pos[after])
+}
+</code></pre>
+      <p>
+        条件 <code>(a, b)</code> を確かめるには、<code>a</code> と <code>b</code> が <code>order</code> の何番目にあるかを知る必要があります。そのたびに <code>order</code> を探すと、条件1つごとに並び全体をなめることになるので、先に <code>pos[task]</code> に作業 <code>task</code> の位置を書いた表を作ります。<code>order</code> は各作業を1回ずつ含むので、表の要素はちょうど1回ずつ埋まります。
+      </p>
+      <p>
+        表ができれば、条件ごとの確認は <code>pos[before] &lt; pos[after]</code> の比較1回で済みます。<code>all</code> は1つでも <code>false</code> が出た時点で止まり、<code>deps</code> が空なら一度も比べずに <code>true</code> を返すので、空の場合を別に書く必要はありません。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>order.iter().position</code> で毎回位置を探す書き方でも結果は同じで、作業の数が少なければそれで十分です。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

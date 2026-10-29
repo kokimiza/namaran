@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="数を std.mem.print で文字列にして並べるつもりが、5、120、37 から 3 370 37 が出てくるバグを直すZig DEBUGのドリルです。print が返すスライスはいつも渡したバッファの先頭から始まります。">
+<title>120が370に化ける</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/debug/2026-10-30">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / DEBUG", "item": "https://namaran.jocarium.productions/zig/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-30" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / DEBUG — 2026-10-30",
+      "url": "https://namaran.jocarium.productions/zig/debug/2026-10-30",
+      "datePublished": "2026-10-30",
+      "dateModified": "2026-10-30",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "120が370に化ける" },
+      "keywords": "format-string, slice, aliasing",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "数を std.mem.print で文字列にして並べるつもりが、5、120、37 から 3 370 37 が出てくるバグを直すZig DEBUGのドリルです。print が返すスライスはいつも渡したバッファの先頭から始まります。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-30">C23</a>
+  <a href="/cpp/debug/2026-10-30">C++26</a>
+  <a href="/rust/debug/2026-10-30">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-30">Haskell 2010</a>
+  <a href="/zig/debug/2026-10-30" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-10-30">READ</a>
+  <a href="/zig/write/2026-10-30">WRITE</a>
+  <a href="/zig/debug/2026-10-30" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="120が370に化ける"
+  data-tags="format-string slice aliasing"
+  data-concepts="std.mem.print, バッファの共有, スライスの別名, 上書き, buffer reuse, slice aliasing, formatting into a buffer"
+  data-level="whale"
+>
+  <h2>2026-10-30</h2>
+  <div class="code-frame">
+    <p class="code-filename">labels.zig</p>
+    <pre class="code"><code><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);
+
+<span class="kw">fn</span> <span class="fn">labels</span>(buf: []<span class="ty">u8</span>, out: [][]<span class="kw">const</span> <span class="ty">u8</span>, nums: []<span class="kw">const</span> <span class="ty">u32</span>) !<span class="ty">void</span> {
+    <span class="kw">for</span> (nums, out) |n, *slot| {
+        slot.* = <span class="kw">try</span> std.mem.<span class="fn">print</span>(buf, <span class="st">"{d}"</span>, .{n});
+    }
+}
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {
+    <span class="kw">var</span> buf: [<span class="nu">32</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;
+    <span class="kw">var</span> out: [<span class="nu">3</span>][]<span class="kw">const</span> <span class="ty">u8</span> = <span class="nu">undefined</span>;
+    <span class="kw">try</span> <span class="fn">labels</span>(&amp;buf, &amp;out, &amp;.{ <span class="nu">5</span>, <span class="nu">120</span>, <span class="nu">37</span> });
+    <span class="kw">var</span> obuf: [<span class="nu">256</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;
+    <span class="kw">var</span> stdout_writer = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;obuf);
+    <span class="kw">const</span> stdout = &amp;stdout_writer.interface;
+    <span class="kw">try</span> stdout.<span class="fn">print</span>(<span class="st">"{s} {s} {s}\n"</span>, .{ out[<span class="nu">0</span>], out[<span class="nu">1</span>], out[<span class="nu">2</span>] });
+    <span class="kw">try</span> stdout.<span class="fn">flush</span>();
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>labels</code> は、<code>nums</code> の各数を10進の文字列にして、<code>out</code> の同じ位置にその文字列を入れるつもりの関数です。文字列の中身は <code>buf</code> に置きます。<code>main</code> は <code>5</code>、<code>120</code>、<code>37</code> を渡すので、本来は <code>5 120 37</code> と出力されるはずが、いまは <code>3 370 37</code> と出力されます。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">labels</span>(buf: []<span class="ty">u8</span>, out: [][]<span class="kw">const</span> <span class="ty">u8</span>, nums: []<span class="kw">const</span> <span class="ty">u32</span>) !<span class="ty">void</span> {
+    <span class="kw">for</span> (nums, out) |n, *slot| {
+        slot.* = <span class="kw">try</span> std.mem.<span class="fn">print</span>(buf, <span class="st">"{d}"</span>, .{n});
+    }
+}
+</code></pre>
+      <p>
+        <code>370</code> はどの入力にも無い数ですが、長さ3の文字列です。3つの文字列の長さは1、3、2で、入力の <code>5</code>、<code>120</code>、<code>37</code> の桁数と一致しています。長さは正しく、中身だけが違うということは、3つのスライスが同じ場所を指していて、その場所が後から書き換えられたと考えられます。
+      </p>
+      <p>
+        <code>std.mem.print</code> は、渡したバッファの先頭から書き、書いた部分を先頭からのスライスとして返します。毎回 <code>buf</code> をそのまま渡しているので、3つのスライスはどれも <code>buf[0]</code> から始まります。<code>buf</code> の先頭は <code>5</code>、<code>120</code> と書かれ、最後の <code>37</code> が前の2文字を上書きして <code>370</code> になります。そこを長さ1、3、2で切り出すので、<code>3</code>、<code>370</code>、<code>37</code> が出力されます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">labels</span>(buf: []<span class="ty">u8</span>, out: [][]<span class="kw">const</span> <span class="ty">u8</span>, nums: []<span class="kw">const</span> <span class="ty">u32</span>) !<span class="ty">void</span> {
+    <span class="kw">var</span> used: <span class="ty">usize</span> = <span class="nu">0</span>;
+    <span class="kw">for</span> (nums, out) |n, *slot| {
+        slot.* = <span class="kw">try</span> std.mem.<span class="fn">print</span>(buf[used..], <span class="st">"{d}"</span>, .{n});
+        used += slot.len;
+    }
+}
+</code></pre>
+      <p>
+        <code>used</code> に書き終えたバイト数を持ち、次の文字列は <code>buf[used..]</code> に書きます。3つの文字列は <code>buf</code> の中で <code>512037</code> と重ならずに並び、それぞれのスライスは自分の部分だけを指すので、どれも後から書き換えられません。<code>buf</code> が足りなくなれば、<code>std.mem.print</code> は <code>error.NoSpaceLeft</code> を返します。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/debug">Today</a></li>
+    <li><a href="/zig/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

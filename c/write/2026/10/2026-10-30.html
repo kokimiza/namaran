@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="配列の要素のうち条件を満たすものを数える関数を、条件の判定を関数ポインタで呼び出し側に任せる形でCで書くドリルです。数える処理と判定する処理を別の関数に分けます。">
+<title>判定を任せて数える</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-10-30">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-30" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-10-30",
+      "url": "https://namaran.jocarium.productions/c/write/2026-10-30",
+      "datePublished": "2026-10-30",
+      "dateModified": "2026-10-30",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "判定を任せて数える" },
+      "keywords": "function-pointer, higher-order, array, loop",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "配列の要素のうち条件を満たすものを数える関数を、条件の判定を関数ポインタで呼び出し側に任せる形でCで書くドリルです。数える処理と判定する処理を別の関数に分けます。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-30" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-10-30">C++26</a>
+  <a href="/rust/write/2026-10-30">Rust 2024</a>
+  <a href="/haskell/write/2026-10-30">Haskell 2010</a>
+  <a href="/zig/write/2026-10-30">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-30">READ</a>
+  <a href="/c/write/2026-10-30" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-10-30">DEBUG</a>
+</nav>
+
+<main
+  data-topic="判定を任せて数える"
+  data-tags="function-pointer higher-order array loop"
+  data-concepts="関数ポインタ, 述語関数, 条件を満たす要素の個数, count_if, function pointer, predicate, callback"
+  data-level="hedgehog"
+>
+  <h2>2026-10-30</h2>
+  <div class="code-frame">
+    <p class="code-filename">count_if.c</p>
+    <pre class="code"><code><span class="ty">size_t</span> <span class="fn">count_if</span>(<span class="kw">const</span> <span class="ty">int</span>* a, <span class="ty">size_t</span> n, <span class="ty">bool</span> (*pred)(<span class="ty">int</span>)) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    配列 <code>a</code> の先頭 <code>n</code> 個の要素のうち、<code>pred</code> に渡すと <code>true</code> が返るものの個数を返す <code>count_if</code> を書いてください。<code>n</code> が0のときは0を返し、<code>a</code> の要素を読みません。例の <code>is_even</code> は偶数のときに、<code>is_positive</code> は正の数のときに <code>true</code> を返す関数です。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>count_if((int[]){1, 2, 3, 4}, 4, is_even)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>2</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>count_if((int[]){-3, 5, 0}, 3, is_positive)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>1</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>count_if(nullptr, 0, is_even)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="ty">size_t</span> <span class="fn">count_if</span>(<span class="kw">const</span> <span class="ty">int</span>* a, <span class="ty">size_t</span> n, <span class="ty">bool</span> (*pred)(<span class="ty">int</span>)) {
+    <span class="ty">size_t</span> count = <span class="nu">0</span>;
+    <span class="kw">for</span> (<span class="ty">size_t</span> i = <span class="nu">0</span>; i &lt; n; i++) {
+        <span class="kw">if</span> (<span class="fn">pred</span>(a[i])) {
+            count++;
+        }
+    }
+    <span class="kw">return</span> count;
+}
+</code></pre>
+      <p>
+        <code>count_if</code> が受け持つのは、要素を先頭から順に見て数えることだけです。どの要素を数えるかは <code>pred</code> が決めるので、偶数を数えるときも正の数を数えるときも、ループを書き直す必要はありません。関数ポインタを通した呼び出しは、普通の関数と同じく <code>pred(a[i])</code> と書けます。
+      </p>
+      <p>
+        引数の型 <code>bool (*pred)(int)</code> は、<code>int</code> を1つ受け取って <code>bool</code> を返す関数へのポインタです。<code>*pred</code> を囲む括弧を外すと、<code>bool *</code> を返す関数を表す別の型になります。<code>n</code> が0のときはループの本体が一度も実行されないので、<code>a</code> が <code>nullptr</code> でも要素を読むことはなく、0が返ります。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。添字の代わりにポインタを進めて走査する書き方や、<code>count += pred(a[i]);</code> のように <code>bool</code> を数として足す書き方でも同じ結果になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

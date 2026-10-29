@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Zigの print の書式指定で、幅、揃える向き、埋める文字を指定したときの出力を追うZig READのドリルです。0で埋めても、左揃えなら0は数の右側に付きます。">
+<title>埋める文字と揃える向き</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/read/2026-10-30">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / READ", "item": "https://namaran.jocarium.productions/zig/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-30" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / READ — 2026-10-30",
+      "url": "https://namaran.jocarium.productions/zig/read/2026-10-30",
+      "datePublished": "2026-10-30",
+      "dateModified": "2026-10-30",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "埋める文字と揃える向き" },
+      "keywords": "format-string, padding, stdio",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "Zigの print の書式指定で、幅、揃える向き、埋める文字を指定したときの出力を追うZig READのドリルです。0で埋めても、左揃えなら0は数の右側に付きます。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-30">C23</a>
+  <a href="/cpp/read/2026-10-30">C++26</a>
+  <a href="/rust/read/2026-10-30">Rust 2024</a>
+  <a href="/haskell/read/2026-10-30">Haskell 2010</a>
+  <a href="/zig/read/2026-10-30" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-10-30" class="active" aria-current="page">READ</a>
+  <a href="/zig/write/2026-10-30">WRITE</a>
+  <a href="/zig/debug/2026-10-30">DEBUG</a>
+</nav>
+
+<main
+  data-topic="埋める文字と揃える向き"
+  data-tags="format-string padding stdio"
+  data-concepts="書式指定, 幅と揃え, 埋め文字, ゼロ埋め, 16進数表示, std.Io.Writer.print, fill and alignment"
+  data-level="hedgehog"
+>
+  <h2>2026-10-30</h2>
+  <div class="code-frame">
+    <p class="code-filename">pad.zig</p>
+    <pre class="code"><code><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {
+    <span class="kw">var</span> buf: [<span class="nu">256</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;
+    <span class="kw">var</span> stdout_writer = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;buf);
+    <span class="kw">const</span> stdout = &amp;stdout_writer.interface;
+    <span class="kw">try</span> stdout.<span class="fn">print</span>(<span class="st">"[{d:&gt;4}][{d:0&lt;4}][{x:0&gt;4}]\n"</span>, .{ <span class="nu">42</span>, <span class="nu">7</span>, <span class="nu">255</span> });
+    <span class="kw">try</span> stdout.<span class="fn">flush</span>();
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>[  42][7000][00ff]</code> です。
+      </p>
+      <p>
+        Zig の書式指定 <code>{d:0&gt;4}</code> では、コロンの前が値の表し方、コロンの後ろが埋める文字、揃える向き、幅の順です。<code>d</code> は10進数、<code>x</code> は小文字の16進数で、<code>&gt;</code> は右揃え、<code>&lt;</code> は左揃えを表します。埋める文字を書かなければ空白で埋めます。
+      </p>
+      <p>
+        <code>{d:&gt;4}</code> は42を幅4に右揃えするので、左に空白が2つ付いて <code>  42</code> になります。<code>{d:0&lt;4}</code> は7を左揃えにし、残りの3文字を右側に <code>0</code> で埋めるので <code>7000</code> です。<code>{x:0&gt;4}</code> は255を16進数の <code>ff</code> にしてから右揃えにし、左を <code>0</code> で埋めて <code>00ff</code> になります。
+      </p>
+      <p>
+        Zig では <code>0</code> は数の左を埋める合図ではなく、ほかの文字と同じ埋め文字の1つです。C の <code>printf</code> の <code>%04d</code> のつもりで読むと、2つ目を <code>0007</code> と答えてしまいます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/read">Today</a></li>
+    <li><a href="/zig/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

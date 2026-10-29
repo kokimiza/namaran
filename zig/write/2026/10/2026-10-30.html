@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="コンマで区切った整数の並びを std.fmt.parseInt で読んで合計する関数をZigで書くドリルです。前後の空白は parseInt が受け付けず、空文字列を区切ると空の部分が1つできます。">
+<title>区切った数を読んで足す</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/write/2026-10-30">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / WRITE", "item": "https://namaran.jocarium.productions/zig/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-30" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / WRITE — 2026-10-30",
+      "url": "https://namaran.jocarium.productions/zig/write/2026-10-30",
+      "datePublished": "2026-10-30",
+      "dateModified": "2026-10-30",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "区切った数を読んで足す" },
+      "keywords": "parsing, csv, error-handling, string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "コンマで区切った整数の並びを std.fmt.parseInt で読んで合計する関数をZigで書くドリルです。前後の空白は parseInt が受け付けず、空文字列を区切ると空の部分が1つできます。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-30">C23</a>
+  <a href="/cpp/write/2026-10-30">C++26</a>
+  <a href="/rust/write/2026-10-30">Rust 2024</a>
+  <a href="/haskell/write/2026-10-30">Haskell 2010</a>
+  <a href="/zig/write/2026-10-30" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-10-30">READ</a>
+  <a href="/zig/write/2026-10-30" class="active" aria-current="page">WRITE</a>
+  <a href="/zig/debug/2026-10-30">DEBUG</a>
+</nav>
+
+<main
+  data-topic="区切った数を読んで足す"
+  data-tags="parsing csv error-handling string"
+  data-concepts="数値の解析, std.fmt.parseInt, std.mem.splitScalar, 空白の除去, 空文字列, parse integers, comma separated values"
+  data-level="peacock"
+>
+  <h2>2026-10-30</h2>
+  <div class="code-frame">
+    <p class="code-filename">sum_list.zig</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">sumList</span>(s: []<span class="kw">const</span> <span class="ty">u8</span>) !<span class="ty">i64</span> {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    コンマ <code>,</code> で区切った10進の整数の並び <code>s</code> を読み、その合計を返す <code>sumList</code> を書いてください。各整数の前後には空白があってもかまいません。<code>s</code> が空文字列なら0を返し、整数として読めない部分があれば <code>std.fmt.parseInt</code> が返すエラーをそのまま返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>sumList("3, -4, 10")</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>9</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>sumList("")</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>sumList("1,,2")</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>error.InvalidCharacter</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">sumList</span>(s: []<span class="kw">const</span> <span class="ty">u8</span>) !<span class="ty">i64</span> {
+    <span class="kw">if</span> (s.len == <span class="nu">0</span>) <span class="kw">return</span> <span class="nu">0</span>;
+    <span class="kw">var</span> total: <span class="ty">i64</span> = <span class="nu">0</span>;
+    <span class="kw">var</span> it = std.mem.<span class="fn">splitScalar</span>(<span class="ty">u8</span>, s, <span class="st">','</span>);
+    <span class="kw">while</span> (it.<span class="fn">next</span>()) |field| {
+        total += <span class="kw">try</span> std.fmt.<span class="fn">parseInt</span>(<span class="ty">i64</span>, std.mem.<span class="fn">trim</span>(<span class="ty">u8</span>, field, <span class="st">" "</span>), <span class="nu">10</span>);
+    }
+    <span class="kw">return</span> total;
+}
+</code></pre>
+      <p>
+        <code>std.mem.splitScalar</code> は <code>s</code> をコンマの位置で区切り、区切った部分を1つずつ返します。<code>std.fmt.parseInt</code> は前後の空白を読み飛ばさず、<code>" -4"</code> を渡すと <code>error.InvalidCharacter</code> を返すので、渡す前に <code>std.mem.trim</code> で両端の空白を取り除きます。<code>parseInt</code> の失敗は <code>try</code> でそのまま呼び出し側へ返ります。
+      </p>
+      <p>
+        空文字列を区切っても、区切りが無いので部分は0個にはならず、空の部分が1つ返ります。<code>parseInt</code> は空文字列も <code>error.InvalidCharacter</code> にするので、先頭の <code>if</code> が無いと、<code>sumList("")</code> は0ではなくエラーになります。コンマが続く <code>"1,,2"</code> の間にも同じ空の部分ができますが、こちらはエラーにするのが問題の求める動きなので、空文字列のときだけを先に除きます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。空白の取り除き方は <code>std.mem.trim</code> に限らず、空白でない最初と最後の位置を自分のループで探してもかまいません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/write">Today</a></li>
+    <li><a href="/zig/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

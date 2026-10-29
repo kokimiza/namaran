@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「エイリアシング」を扱ったNamaranのコーディングドリル16問。構造化束縛、std::tie、参照のタプル、交換の失敗、structured binding、tuple of references。">
+<meta name="description" content="「エイリアシング」を扱ったNamaranのコーディングドリル17問。std.mem.print、バッファの共有、スライスの別名、上書き、buffer reuse、slice aliasing。">
 <title>エイリアシング</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/aliasing">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>エイリアシング</h2>
 
   <p class="lede">
-    「エイリアシング」を扱った16問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「エイリアシング」を扱った17問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/debug/2026-10-30">Zig / DEBUG · 2026-10-30</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">120が370に化ける</span> <span class="past-concepts">std.mem.print, バッファの共有, スライスの別名, 上書き, buffer reuse, slice aliasing, formatting into a buffer</span></li>
     <li><a href="/cpp/read/2026-10-29">C++ / READ · 2026-10-29</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">tieを束縛して書き込む</span> <span class="past-concepts">構造化束縛, std::tie, 参照のタプル, 交換の失敗, structured binding, tuple of references, aliasing</span></li>
     <li><a href="/cpp/debug/2026-10-25">C++ / DEBUG · 2026-10-25</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">minmaxで並べ替え</span> <span class="past-concepts">構造化束縛, std::minmax, 参照の組, 別名による上書き, structured binding, aliasing, pair of references</span></li>
     <li><a href="/c/debug/2026-10-15">C / DEBUG · 2026-10-15</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">逆順にしたつもりの配列</span> <span class="past-concepts">メタモルフィックテスト, ポインタと配列, 配列のコピー, エイリアス, metamorphic testing, aliasing, array copy</span></li>

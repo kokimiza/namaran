@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="英小文字の語をハイフンでつないだ文字列かを std::regex で判定する関数が、一致しない長い入力で戻ってこなくなるバグを直すC++ DEBUGのドリルです。省略できるハイフンが、文字列の分け方を指数関数的に増やします。">
+<title>一致しないと止まらない</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-10-30">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-30" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-10-30",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-10-30",
+      "datePublished": "2026-10-30",
+      "dateModified": "2026-10-30",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "一致しないと止まらない" },
+      "keywords": "regular-expression, backtracking, performance",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "英小文字の語をハイフンでつないだ文字列かを std::regex で判定する関数が、一致しない長い入力で戻ってこなくなるバグを直すC++ DEBUGのドリルです。省略できるハイフンが、文字列の分け方を指数関数的に増やします。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-30">C23</a>
+  <a href="/cpp/debug/2026-10-30" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-10-30">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-30">Haskell 2010</a>
+  <a href="/zig/debug/2026-10-30">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-30">READ</a>
+  <a href="/cpp/write/2026-10-30">WRITE</a>
+  <a href="/cpp/debug/2026-10-30" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="一致しないと止まらない"
+  data-tags="regular-expression backtracking performance"
+  data-concepts="破滅的バックトラック, 正規表現の曖昧さ, ReDoS, 入れ子の繰り返し, catastrophic backtracking, regex denial of service"
+  data-level="bison"
+>
+  <h2>2026-10-30</h2>
+  <div class="code-frame">
+    <p class="code-filename">slug.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;regex&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+
+<span class="ty">bool</span> <span class="fn">is_slug</span>(<span class="kw">const</span> std::<span class="ty">string</span>&amp; s) {
+    <span class="kw">static</span> <span class="kw">const</span> std::regex <span class="fn">re</span>(<span class="st">"[a-z]+(-?[a-z]+)*"</span>);
+    <span class="kw">return</span> std::<span class="fn">regex_match</span>(s, re);
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    std::cout &lt;&lt; <span class="fn">is_slug</span>(<span class="st">"daily-code-drill"</span>) &lt;&lt; <span class="st">'\n'</span>;
+    std::cout &lt;&lt; <span class="fn">is_slug</span>(<span class="st">"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!"</span>) &lt;&lt; <span class="st">'\n'</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>is_slug</code> は、英小文字だけの語を <code>-</code> 1つでつないだ文字列(<code>daily-code-drill</code> など)かどうかを判定するつもりの関数です。<code>main</code> の1つ目の呼び出しはすぐに終わりますが、<code>a</code> を30個並べて <code>!</code> で終わる文字列を渡す2つ目の呼び出しは戻ってこず、20秒待っても何も出力されませんでした。本来は <code>1</code> と <code>0</code> の2行がすぐに出力されるはずです。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">static</span> <span class="kw">const</span> std::regex <span class="fn">re</span>(<span class="st">"[a-z]+(-?[a-z]+)*"</span>);
+</code></pre>
+      <p>
+        <code>-?</code> は省略できるので、<code>(-?[a-z]+)</code> はハイフンの無い文字の並びにも合います。すると <code>a</code> が続く部分は、<code>[a-z]+</code> と繰り返しの各回にどう分けても合い、30個の <code>a</code> の間にある29か所それぞれで「ここで区切るか」を選べるので、分け方は2の29乗、約5億通りあります。一致する文字列なら、最初に試した分け方がそのまま成功するので、1つ目の呼び出しはすぐに終わります。
+      </p>
+      <p>
+        2つ目の文字列は最後の <code>!</code> にどの分け方でも合いません。<code>std::regex</code> は分け方を1つずつ試し、失敗すると1つ前の選択に戻って別の分け方を試すので、一致しないと言えるのは約5億通りをすべて試し終えたときです。<code>a</code> が1つ増えるたびに分け方は2倍になり、手元では <code>a</code> が26個で30秒を超えました。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">static</span> <span class="kw">const</span> std::regex <span class="fn">re</span>(<span class="st">"[a-z]+(-[a-z]+)*"</span>);
+</code></pre>
+      <p>
+        繰り返しの各回を <code>-</code> で始めると、区切りを置けるのはハイフンの位置だけになり、文字列の分け方は1通りに決まります。一致しない文字列でも試す分け方が増えないので、すぐに失敗が分かります。ハイフンの無い1語は先頭の <code>[a-z]+</code> がすでに受け持っているので、<code>?</code> を外しても、一致する文字列の範囲は変わりません<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>一致しない入力で照合の時間が爆発する正規表現は、外から長い入力を送るだけでサーバーを止められるので、ReDoS(正規表現によるサービス妨害)と呼ばれます。2016年には Stack Overflow が、行頭と行末の空白を取り除く正規表現に空白が約2万個続く投稿を渡し、約34分止まりました。こちらは時間が入力の長さの2乗で増える例で、この問題ほど急ではありませんが、原因は同じく、失敗が確定するまで試す位置が多すぎることでした。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

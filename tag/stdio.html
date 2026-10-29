@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「標準入出力」を扱ったNamaranのコーディングドリル18問。sync_with_stdio、std::print、std::format、stdoutとstd::cout、出力の順番、書式指定。">
+<meta name="description" content="「標準入出力」を扱ったNamaranのコーディングドリル19問。書式指定、幅と揃え、埋め文字、ゼロ埋め、16進数表示、std.Io.Writer.print。">
 <title>標準入出力</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/stdio">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>標準入出力</h2>
 
   <p class="lede">
-    「標準入出力」を扱った18問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「標準入出力」を扱った19問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/read/2026-10-30">Zig / READ · 2026-10-30</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">埋める文字と揃える向き</span> <span class="past-concepts">書式指定, 幅と揃え, 埋め文字, ゼロ埋め, 16進数表示, std.Io.Writer.print, fill and alignment</span></li>
     <li><a href="/cpp/write/2026-10-17">C++ / WRITE · 2026-10-17</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">coutと順番が揃う整形出力</span> <span class="past-concepts">sync_with_stdio, std::print, std::format, stdoutとstd::cout, 出力の順番, 書式指定, output ordering, mixing C and C++ I/O</span></li>
     <li><a href="/cpp/read/2026-10-17">C++ / READ · 2026-10-17</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">同期を切る関数の戻り値</span> <span class="past-concepts">sync_with_stdio, 戻り値は以前の状態, 関数内static変数, 一度だけの初期化, CとC++の入出力の混在, previous synchronization state, function-local static</span></li>
     <li><a href="/cpp/debug/2026-10-17">C++ / DEBUG · 2026-10-17</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">ファイルにすると崩れる表</span> <span class="past-concepts">sync_with_stdio, std::endl, printfとstd::coutの混在, 全バッファリング, 行バッファリング, fully buffered, line buffered, output ordering</span></li>

@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="static な配列に書いて、その先頭を返す関数を2回呼びます。返ってきた2つのポインタが同じ場所を指し、先に取っておいた文字列が後の呼び出しで上書きされることを追うC READのドリルです。">
+<title>返した文字列の置き場所</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-10-30">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-30" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-10-30",
+      "url": "https://namaran.jocarium.productions/c/read/2026-10-30",
+      "datePublished": "2026-10-30",
+      "dateModified": "2026-10-30",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "返した文字列の置き場所" },
+      "keywords": "static-storage, storage-duration, pointer, string, reentrancy",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "static な配列に書いて、その先頭を返す関数を2回呼びます。返ってきた2つのポインタが同じ場所を指し、先に取っておいた文字列が後の呼び出しで上書きされることを追うC READのドリルです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-30" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-10-30">C++26</a>
+  <a href="/rust/read/2026-10-30">Rust 2024</a>
+  <a href="/haskell/read/2026-10-30">Haskell 2010</a>
+  <a href="/zig/read/2026-10-30">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-30" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-10-30">WRITE</a>
+  <a href="/c/debug/2026-10-30">DEBUG</a>
+</nav>
+
+<main
+  data-topic="返した文字列の置き場所"
+  data-tags="static-storage storage-duration pointer string reentrancy"
+  data-concepts="static局所変数, 静的記憶域期間, 関数が返すバッファ, 上書き, static local buffer, non-reentrant function"
+  data-level="peacock"
+>
+  <h2>2026-10-30</h2>
+  <div class="code-frame">
+    <p class="code-filename">label.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">static</span> <span class="kw">const</span> <span class="ty">char</span>* <span class="fn">label</span>(<span class="ty">int</span> n) {
+    <span class="kw">static</span> <span class="ty">char</span> buf[<span class="nu">8</span>];
+    <span class="fn">snprintf</span>(buf, <span class="kw">sizeof</span> buf, <span class="st">"#%d"</span>, n);
+    <span class="kw">return</span> buf;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="kw">const</span> <span class="ty">char</span>* first = <span class="fn">label</span>(<span class="nu">1</span>);
+    <span class="kw">const</span> <span class="ty">char</span>* second = <span class="fn">label</span>(<span class="nu">2</span>);
+    <span class="fn">printf</span>(<span class="st">"%s %s\n"</span>, first, second);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>#2 #2</code> です。
+      </p>
+      <p>
+        <code>label</code> の <code>buf</code> には <code>static</code> が付いているので、呼び出しのたびに作られる配列ではなく、プログラムの実行中ずっと1つだけある配列です。<code>label</code> が返すのはその配列の先頭を指すポインタで、<code>first</code> と <code>second</code> はどちらも同じ <code>buf</code> を指します。
+      </p>
+      <p>
+        <code>label(1)</code> が <code>buf</code> に書いた <code>#1</code> は、続く <code>label(2)</code> が同じ <code>buf</code> に <code>#2</code> を書いた時点で消えます。<code>printf</code> が2つのポインタから文字列を読むのはその後なので、どちらの <code>%s</code> も <code>#2</code> になります。ポインタを変数に取っておいても、残るのは場所だけで、取っておいた時点の中身は残りません。
+      </p>
+      <p>
+        <code>label</code> を「文字列を作って返す関数」とだけ読むと、呼び出しごとに別の文字列ができると考えて <code>#1 #2</code> と答えてしまいます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
