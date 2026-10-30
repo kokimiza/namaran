@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="1億回の関数呼び出しにかかる時間を測るつもりが、-O2 でビルドすると 0.00 s と出るベンチマークを直すC DEBUGのドリルです。戻り値を捨てた呼び出しは、出力に影響しないのでコンパイラが丸ごと取り除けます。">
+<title>測る処理が消えた</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-10-31">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-31" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-10-31",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-10-31",
+      "datePublished": "2026-10-31",
+      "dateModified": "2026-10-31",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "測る処理が消えた" },
+      "keywords": "benchmark, side-effect, performance",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "1億回の関数呼び出しにかかる時間を測るつもりが、-O2 でビルドすると 0.00 s と出るベンチマークを直すC DEBUGのドリルです。戻り値を捨てた呼び出しは、出力に影響しないのでコンパイラが丸ごと取り除けます。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-31" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-10-31">C++26</a>
+  <a href="/rust/debug/2026-10-31">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-31">Haskell 2010</a>
+  <a href="/zig/debug/2026-10-31">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-10-31">READ</a>
+  <a href="/c/write/2026-10-31">WRITE</a>
+  <a href="/c/debug/2026-10-31" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="測る処理が消えた"
+  data-tags="benchmark side-effect performance"
+  data-concepts="ベンチマーク, 最適化による削除, デッドコード除去, as-ifルール, 観測できる動作, dead code elimination, as-if rule, microbenchmark"
+  data-level="hedgehog"
+>
+  <h2>2026-10-31</h2>
+  <div class="code-frame">
+    <p class="code-filename">bit_count_bench.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;time.h&gt;</span>
+
+<span class="kw">static</span> <span class="ty">int</span> <span class="fn">bit_count</span>(<span class="ty">unsigned</span> n) {
+    <span class="ty">int</span> count = <span class="nu">0</span>;
+    <span class="kw">for</span> (<span class="ty">int</span> b = <span class="nu">0</span>; b &lt; <span class="nu">32</span>; b++) {
+        count += (n &gt;&gt; b) &amp; <span class="nu">1</span>;
+    }
+    <span class="kw">return</span> count;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="ty">clock_t</span> start = <span class="fn">clock</span>();
+    <span class="kw">for</span> (<span class="ty">unsigned</span> i = <span class="nu">0</span>; i &lt; <span class="nu">100000000</span>; i++) {
+        <span class="fn">bit_count</span>(i);
+    }
+    <span class="fn">printf</span>(<span class="st">"%.2f s\n"</span>, (<span class="ty">double</span>)(<span class="fn">clock</span>() - start) / <span class="nu">CLOCKS_PER_SEC</span>);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>bit_count</code> を1億回呼び、かかった時間を測るつもりのプログラムです。<code>gcc -O2</code> でビルドして実行すると、いまは <code>0.00 s</code> と出力されます。同じプログラムを最適化なしでビルドすると <code>3.90 s</code> と出る処理なので、<code>-O2</code> でも1億回の <code>bit_count</code> にかかった、0より大きい時間が出るはずです。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">for</span> (<span class="ty">unsigned</span> i = <span class="nu">0</span>; i &lt; <span class="nu">100000000</span>; i++) {
+    <span class="fn">bit_count</span>(i);
+}
+<span class="fn">printf</span>(<span class="st">"%.2f s\n"</span>, (<span class="ty">double</span>)(<span class="fn">clock</span>() - start) / <span class="nu">CLOCKS_PER_SEC</span>);
+</code></pre>
+      <p>
+        <code>bit_count(i)</code> の戻り値はどこにも使われずに捨てられています。<code>bit_count</code> は引数から数を計算して返すだけで、出力もせず、外の変数も書き換えません。C の処理系が守らなければならないのは、出力や <code>volatile</code> な変数への読み書きのように外から観測できる動作だけです<sup class="fn-ref">1</sup>。この呼び出しは観測できる動作に何も影響しないので、<code>-O2</code> の GCC は呼び出しを取り除き、空になったループも消します。
+      </p>
+      <p>
+        2回の <code>clock()</code> の間には何も残らないので、測った時間は <code>0.00 s</code> になります。最適化なしのビルドでは呼び出しが残るので、この欠陥は最適化を有効にしたときにだけ現れます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="ty">long</span> total = <span class="nu">0</span>;
+<span class="kw">for</span> (<span class="ty">unsigned</span> i = <span class="nu">0</span>; i &lt; <span class="nu">100000000</span>; i++) {
+    total += <span class="fn">bit_count</span>(i);
+}
+<span class="fn">printf</span>(<span class="st">"%.2f s (%ld)\n"</span>, (<span class="ty">double</span>)(<span class="fn">clock</span>() - start) / <span class="nu">CLOCKS_PER_SEC</span>, total);
+</code></pre>
+      <p>
+        戻り値を <code>total</code> に足し、最後に <code>total</code> を出力します。<code>bit_count</code> の結果が出力される値を決めるようになったので、結果を捨てて呼び出しごと消す、ということはできなくなります。手元の <code>-O2</code> では <code>1.12 s (1314447104)</code> と出ました。
+      </p>
+      <ol class="footnotes">
+        <li>C規格の「プログラムの実行」の節が定める規則で、as-if ルールと呼ばれます。結果が同じに見える限り、処理系はプログラムを書かれたとおりに実行しなくてかまいません。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

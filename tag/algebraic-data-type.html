@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「代数的データ型」を扱ったNamaranのコーディングドリル3問。導出された Ord、構築子の宣言順、Maybe の順序、リストとタプルの辞書式比較、バージョン番号の比較、semantic versioning。">
+<meta name="description" content="「代数的データ型」を扱ったNamaranのコーディングドリル6問。トランポリン、アキュムレータ、末尾再帰、再帰を反復に変える、accumulator、tail recursion。">
 <title>代数的データ型</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/algebraic-data-type">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>代数的データ型</h2>
 
   <p class="lede">
-    「代数的データ型」を扱った3問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「代数的データ型」を扱った6問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/haskell/write/2026-10-31">Haskell / WRITE · 2026-10-31</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">数えながら跳ねる</span> <span class="past-concepts">トランポリン, アキュムレータ, 末尾再帰, 再帰を反復に変える, accumulator, tail recursion, trampoline</span></li>
+    <li><a href="/haskell/read/2026-10-31">Haskell / READ · 2026-10-31</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">跳ねながら偶奇を決める</span> <span class="past-concepts">トランポリン, 相互再帰, 再帰を反復に変える, 末尾呼び出し, trampoline, mutual recursion</span></li>
+    <li><a href="/haskell/debug/2026-10-31">Haskell / DEBUG · 2026-10-31</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">一歩ずつ進まない競争</span> <span class="past-concepts">正格フィールド, 正格性注釈, 遅延評価, トランポリン, 交互に進める計算, strict field, bang pattern, laziness</span></li>
     <li><a href="/haskell/write/2026-10-23">Haskell / WRITE · 2026-10-23</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">バージョンを比べるキー</span> <span class="past-concepts">導出された Ord, 構築子の宣言順, Maybe の順序, リストとタプルの辞書式比較, バージョン番号の比較, semantic versioning, derived Ord</span></li>
     <li><a href="/haskell/read/2026-10-23">Haskell / READ · 2026-10-23</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">いちばん大きい優先度</span> <span class="past-concepts">導出された Ord, 構築子の宣言順, deriving Ord, derived instance, constructor order, maximum</span></li>
     <li><a href="/haskell/read/2026-10-18">Haskell / READ · 2026-10-18</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">両方にある価格の更新</span> <span class="past-concepts">レコード構文, フィールドセレクタ, レコード更新, 複数の構成子, deriving Show, record syntax, field selector, record update</span></li>

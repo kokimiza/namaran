@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「スレッド」を扱ったNamaranのコーディングドリル2問。アトミック操作、fetch_add、std::jthread、join、番号札、std::atomic。">
+<meta name="description" content="「スレッド」を扱ったNamaranのコーディングドリル3問。std::mutex、std::lock_guard、共有するmutex、データ競合、ローカル変数のmutex、shared mutex。">
 <title>スレッド</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/thread">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>スレッド</h2>
 
   <p class="lede">
-    「スレッド」を扱った2問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「スレッド」を扱った3問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/cpp/debug/2026-10-31">C++ / DEBUG · 2026-10-31</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">ロックしても数が合わない</span> <span class="past-concepts">std::mutex, std::lock_guard, 共有するmutex, データ競合, ローカル変数のmutex, shared mutex, data race, lost update</span></li>
     <li><a href="/cpp/read/2026-09-01">C++ / READ · 2026-09-01</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">番号札は1枚ずつ</span> <span class="past-concepts">アトミック操作, fetch_add, std::jthread, join, 番号札, std::atomic, atomic fetch_add, ticket counter</span></li>
     <li><a href="/cpp/debug/2026-09-01">C++ / DEBUG · 2026-09-01</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">atomicなのに数え落とす</span> <span class="past-concepts">アトミック操作, 失われた更新, 読み出しと書き込みの分離, 競合状態, lost update, read-modify-write, std::atomic, race condition</span></li>
   </ul>

@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="2つの計算を1段ずつ交互に進める race が、終わらない計算を相手にすると何も返さずにメモリを使い続けるHaskell DEBUGのドリルです。データ型のフィールドに付けた正格性の注釈が、次の段を先に作らせてしまいます。">
+<title>一歩ずつ進まない競争</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-10-31">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-31" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-10-31",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-10-31",
+      "datePublished": "2026-10-31",
+      "dateModified": "2026-10-31",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "一歩ずつ進まない競争" },
+      "keywords": "trampoline, strictness, laziness, algebraic-data-type",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "2つの計算を1段ずつ交互に進める race が、終わらない計算を相手にすると何も返さずにメモリを使い続けるHaskell DEBUGのドリルです。データ型のフィールドに付けた正格性の注釈が、次の段を先に作らせてしまいます。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-31">C23</a>
+  <a href="/cpp/debug/2026-10-31">C++26</a>
+  <a href="/rust/debug/2026-10-31">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-31" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/debug/2026-10-31">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-31">READ</a>
+  <a href="/haskell/write/2026-10-31">WRITE</a>
+  <a href="/haskell/debug/2026-10-31" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="一歩ずつ進まない競争"
+  data-tags="trampoline strictness laziness algebraic-data-type"
+  data-concepts="正格フィールド, 正格性注釈, 遅延評価, トランポリン, 交互に進める計算, strict field, bang pattern, laziness"
+  data-level="bison"
+>
+  <h2>2026-10-31</h2>
+  <div class="code-frame">
+    <p class="code-filename">Race.hs</p>
+    <pre class="code"><code><span class="kw">data</span> <span class="ty">Tramp</span> a = <span class="ty">Done</span> a | <span class="ty">More</span> !(<span class="ty">Tramp</span> a)
+
+<span class="fn">race</span> <span class="op">::</span> <span class="ty">Tramp</span> a <span class="op">-&gt;</span> <span class="ty">Tramp</span> a <span class="op">-&gt;</span> a
+<span class="fn">race</span> (<span class="ty">Done</span> x) _ = x
+<span class="fn">race</span> _ (<span class="ty">Done</span> y) = y
+<span class="fn">race</span> (<span class="ty">More</span> s) (<span class="ty">More</span> t) = race s t
+
+<span class="fn">countdown</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Tramp</span> <span class="ty">Int</span>
+<span class="fn">countdown</span> <span class="nu">0</span> = <span class="ty">Done</span> <span class="nu">0</span>
+<span class="fn">countdown</span> n = <span class="ty">More</span> (countdown (n - <span class="nu">1</span>))
+
+<span class="fn">spin</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Tramp</span> <span class="ty">Int</span>
+<span class="fn">spin</span> n = <span class="ty">More</span> (spin (n + <span class="nu">1</span>))
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (race (spin <span class="nu">0</span>) (countdown <span class="nu">3</span>))
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>race</code> は、2つの計算を1段ずつ交互に進め、先に <code>Done</code> に着いた方の値を返すつもりの関数です。片方が終わらない計算でも、もう片方が終われば値を返すはずです。<code>main</code> は、いつまでも <code>Done</code> に着かない <code>spin 0</code> と、3段で <code>Done 0</code> に着く <code>countdown 3</code> を競わせるので、本来は <code>0</code> と出力されるはずです。いまは何も出力されず、メモリを使い続けて終わりません。手元では10秒で約6.7GBに達しました。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">data</span> <span class="ty">Tramp</span> a = <span class="ty">Done</span> a | <span class="ty">More</span> !(<span class="ty">Tramp</span> a)
+</code></pre>
+      <p>
+        <code>More</code> のフィールドに付いた <code>!</code> は、<code>More</code> を作るときにフィールドの値を弱頭部正規形<sup class="fn-ref">1</sup>まで評価させます。<code>spin 0</code> を評価すると <code>More (spin 1)</code> を作ることになり、その前に <code>spin 1</code> を評価します。<code>spin 1</code> もまた <code>spin 2</code> を先に評価するので、<code>spin</code> は1段も <code>More</code> を返さないまま呼び出しを深くしていきます。
+      </p>
+      <p>
+        <code>race</code> は最初の節で1つ目の引数が <code>Done</code> かどうかを調べるために <code>spin 0</code> を評価し、そこから戻ってきません。<code>countdown 3</code> の側は一度も調べられないので、<code>race</code> の節の順を入れ替えても直りません。交互に進めるつもりの <code>race</code> は、<code>More</code> の中身が <code>race</code> にはがされるまで作られないことを前提にしていました。<code>!</code> はその前提を崩し、<code>More</code> を1つ作るたびに次の段まで作らせます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">data</span> <span class="ty">Tramp</span> a = <span class="ty">Done</span> a | <span class="ty">More</span> (<span class="ty">Tramp</span> a)
+</code></pre>
+      <p>
+        <code>!</code> を外すと、<code>More (spin 1)</code> は <code>spin 1</code> を評価しないまま作られます。<code>spin 0</code> は1段分の <code>More</code> をすぐ返し、<code>race</code> が <code>More s</code> と照合して <code>s</code> を調べたときに初めて次の段が作られます。<code>race</code> は両方を1段ずつ進め、3段はがして <code>countdown</code> の側が <code>Done 0</code> になったところで <code>0</code> を返します。
+      </p>
+      <ol class="footnotes">
+        <li>弱頭部正規形(weak head normal form)は、式を外側のデータ構成子が分かるところまで評価した形です。<code>More (spin 1)</code> なら、中の <code>spin 1</code> を評価していなくても、外側が <code>More</code> と分かった時点で弱頭部正規形です。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

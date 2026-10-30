@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="相互再帰の isEven と isOdd を、次の呼び出しを Next に包んで返す形にし、run が1段ずつ進めるHaskell READのドリルです。run が何回跳ねて、どの値で止まるかを追います。">
+<title>跳ねながら偶奇を決める</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-10-31">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-31" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-10-31",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-10-31",
+      "datePublished": "2026-10-31",
+      "dateModified": "2026-10-31",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "跳ねながら偶奇を決める" },
+      "keywords": "trampoline, recursion, algebraic-data-type, tail-call",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "相互再帰の isEven と isOdd を、次の呼び出しを Next に包んで返す形にし、run が1段ずつ進めるHaskell READのドリルです。run が何回跳ねて、どの値で止まるかを追います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-31">C23</a>
+  <a href="/cpp/read/2026-10-31">C++26</a>
+  <a href="/rust/read/2026-10-31">Rust 2024</a>
+  <a href="/haskell/read/2026-10-31" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/read/2026-10-31">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-10-31" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-10-31">WRITE</a>
+  <a href="/haskell/debug/2026-10-31">DEBUG</a>
+</nav>
+
+<main
+  data-topic="跳ねながら偶奇を決める"
+  data-tags="trampoline recursion algebraic-data-type tail-call"
+  data-concepts="トランポリン, 相互再帰, 再帰を反復に変える, 末尾呼び出し, trampoline, mutual recursion"
+  data-level="hedgehog"
+>
+  <h2>2026-10-31</h2>
+  <div class="code-frame">
+    <p class="code-filename">Parity.hs</p>
+    <pre class="code"><code><span class="kw">data</span> <span class="ty">Step</span> a = <span class="ty">Done</span> a | <span class="ty">Next</span> (<span class="ty">Step</span> a)
+
+<span class="fn">run</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Step</span> a <span class="op">-&gt;</span> (<span class="ty">Int</span>, a)
+<span class="fn">run</span> k (<span class="ty">Done</span> x) = (k, x)
+<span class="fn">run</span> k (<span class="ty">Next</span> s) = run (k + <span class="nu">1</span>) s
+
+<span class="fn">isEven</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Step</span> <span class="ty">Bool</span>
+<span class="fn">isEven</span> <span class="nu">0</span> = <span class="ty">Done</span> <span class="ty">True</span>
+<span class="fn">isEven</span> n = <span class="ty">Next</span> (isOdd (n - <span class="nu">1</span>))
+
+<span class="fn">isOdd</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Step</span> <span class="ty">Bool</span>
+<span class="fn">isOdd</span> <span class="nu">0</span> = <span class="ty">Done</span> <span class="ty">False</span>
+<span class="fn">isOdd</span> n = <span class="ty">Next</span> (isEven (n - <span class="nu">1</span>))
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (run <span class="nu">0</span> (isOdd <span class="nu">5</span>))
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>(5,True)</code> です。
+      </p>
+      <p>
+        <code>isOdd</code> と <code>isEven</code> は相手を直接呼ばず、次にする呼び出しを <code>Next</code> に包んだ値を返します。<code>run</code> はその <code>Next</code> を1つはがすたびに <code>k</code> を1増やし、中の呼び出しを進めます。
+      </p>
+      <p>
+        <code>isOdd 5</code> から始めると、<code>isEven 4</code>、<code>isOdd 3</code>、<code>isEven 2</code>、<code>isOdd 1</code>、<code>isEven 0</code> と、<code>n</code> が0になるまで5回 <code>Next</code> を経由します。<code>isEven 0</code> は <code>Done True</code> を返すので、<code>run</code> は <code>k</code> が5のところで止まり、<code>(5,True)</code> を返します。数えるのは <code>Next</code> の数で、関数を呼んだ回数(6回)ではありません。
+      </p>
+      <p>
+        <code>Next</code> の中の呼び出しは、<code>run</code> が <code>Next s</code> と照合して <code>s</code> を調べるときに初めて評価されます。<code>isOdd</code> は <code>Next</code> を返した時点で戻っているので、<code>isOdd</code> と <code>isEven</code> の呼び出しが互いの中に積み重なることはありません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

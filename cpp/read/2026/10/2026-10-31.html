@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="if 文の初期化文で std::scoped_lock を作ったとき、ロックがいつ外れるかを出力の順で追うC++ READのドリルです。初期化文で宣言した変数は、条件式だけでなく else 節の終わりまで生きています。">
+<title>if文の中で取るロック</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-10-31">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-31" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-10-31",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-10-31",
+      "datePublished": "2026-10-31",
+      "dateModified": "2026-10-31",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "if文の中で取るロック" },
+      "keywords": "init-statement, raii, mutex, lifetime",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "if 文の初期化文で std::scoped_lock を作ったとき、ロックがいつ外れるかを出力の順で追うC++ READのドリルです。初期化文で宣言した変数は、条件式だけでなく else 節の終わりまで生きています。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-10-31">C23</a>
+  <a href="/cpp/read/2026-10-31" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-10-31">Rust 2024</a>
+  <a href="/haskell/read/2026-10-31">Haskell 2010</a>
+  <a href="/zig/read/2026-10-31">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-10-31" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-10-31">WRITE</a>
+  <a href="/cpp/debug/2026-10-31">DEBUG</a>
+</nav>
+
+<main
+  data-topic="if文の中で取るロック"
+  data-tags="init-statement raii mutex lifetime"
+  data-concepts="if文の初期化文, std::scoped_lock, ロックの解放, 変数の有効範囲, if statement with initializer, RAII, lock lifetime"
+  data-level="peacock"
+>
+  <h2>2026-10-31</h2>
+  <div class="code-frame">
+    <p class="code-filename">queue_lock.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;mutex&gt;</span>
+
+<span class="kw">struct</span> <span class="ty">Noisy</span> {
+    <span class="ty">void</span> <span class="fn">lock</span>() {
+        std::cout &lt;&lt; <span class="st">"lock "</span>;
+    }
+    <span class="ty">void</span> <span class="fn">unlock</span>() {
+        std::cout &lt;&lt; <span class="st">"unlock\n"</span>;
+    }
+};
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="ty">Noisy</span> queue_mutex;
+    <span class="ty">int</span> pending = <span class="nu">0</span>;
+    <span class="kw">if</span> (std::<span class="ty">scoped_lock</span> <span class="fn">lock</span>(queue_mutex); pending &gt; <span class="nu">0</span>) {
+        std::cout &lt;&lt; <span class="st">"pop "</span>;
+    } <span class="kw">else</span> {
+        std::cout &lt;&lt; <span class="st">"empty "</span>;
+    }
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>lock empty unlock</code> です。
+      </p>
+      <p>
+        <code>if</code> 文の初期化文で宣言した変数の有効範囲は、条件式だけでなく、<code>else</code> 節を含む <code>if</code> 文の全体です。この <code>if</code> 文は、<code>{ std::scoped_lock lock(queue_mutex); if (pending &gt; 0) { ... } else { ... } }</code> と書いたのと同じ意味になります。
+      </p>
+      <p>
+        変数 <code>lock</code> を作った時点で <code>queue_mutex.lock()</code> が呼ばれ、<code>lock</code> と出力されます。<code>pending</code> は0なので <code>else</code> 節に進み、<code>empty</code> を出力します。変数 <code>lock</code> が破棄され、デストラクタが <code>queue_mutex.unlock()</code> を呼ぶのは、そのあと <code>if</code> 文を抜けるときです。
+      </p>
+      <p>
+        初期化文を、条件を調べるためだけの準備と読むと、ロックは条件を調べ終えた時点で外れると考えて、<code>lock unlock</code> のあとに <code>empty</code> が続くと答えてしまいます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

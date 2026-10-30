@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「ベンチマーク」を扱ったNamaranのコーディングドリル3問。std::hint::black_box、ベンチマーク、最適化による削除、wrapping_add、dead code elimination、benchmark。">
+<meta name="description" content="「ベンチマーク」を扱ったNamaranのコーディングドリル6問。経過時間、struct timespec、ナノ秒、繰り下がり、clock_gettime、elapsed time。">
 <title>ベンチマーク</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/benchmark">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>ベンチマーク</h2>
 
   <p class="lede">
-    「ベンチマーク」を扱った3問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「ベンチマーク」を扱った6問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/c/write/2026-10-31">C / WRITE · 2026-10-31</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">秒をまたぐ経過時間</span> <span class="past-concepts">経過時間, struct timespec, ナノ秒, 繰り下がり, clock_gettime, elapsed time, nanoseconds</span></li>
+    <li><a href="/c/read/2026-10-31">C / READ · 2026-10-31</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">測るはずが0回</span> <span class="past-concepts">マクロ展開, 関数形式マクロ, 変数の有効範囲, for文の初期化節, シャドーイング, macro expansion, macro hygiene, variable scope</span></li>
+    <li><a href="/c/debug/2026-10-31">C / DEBUG · 2026-10-31</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">測る処理が消えた</span> <span class="past-concepts">ベンチマーク, 最適化による削除, デッドコード除去, as-ifルール, 観測できる動作, dead code elimination, as-if rule, microbenchmark</span></li>
     <li><a href="/rust/write/2026-10-15">Rust / WRITE · 2026-10-15</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">最適化に消されない反復</span> <span class="past-concepts">std::hint::black_box, ベンチマーク, 最適化による削除, wrapping_add, dead code elimination, benchmark</span></li>
     <li><a href="/rust/read/2026-10-15">Rust / READ · 2026-10-15</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">計測したはずの区間</span> <span class="past-concepts">イテレータの遅延評価, ベンチマーク, 計測区間, Iterator::map, lazy iterator, benchmark</span></li>
     <li><a href="/rust/debug/2026-10-15">Rust / DEBUG · 2026-10-15</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">すぐに止まるタイマー</span> <span class="past-concepts">let _, Drop, RAII タイマー, 一時値の破棄, スコープガード, let underscore, drop timing</span></li>

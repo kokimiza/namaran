@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="固定長の配列で作るスタックに、値を積む push と取り出す pop のメソッドを書くZig WRITEのドリルです。フィールドを書き換えるメソッドは self をポインタで受け取り、空のときの pop は null を返します。">
+<title>積んで降ろすメソッド</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/write/2026-10-31">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / WRITE", "item": "https://namaran.jocarium.productions/zig/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-31" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / WRITE — 2026-10-31",
+      "url": "https://namaran.jocarium.productions/zig/write/2026-10-31",
+      "datePublished": "2026-10-31",
+      "dateModified": "2026-10-31",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "積んで降ろすメソッド" },
+      "keywords": "struct, stack, optional",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "固定長の配列で作るスタックに、値を積む push と取り出す pop のメソッドを書くZig WRITEのドリルです。フィールドを書き換えるメソッドは self をポインタで受け取り、空のときの pop は null を返します。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-10-31">C23</a>
+  <a href="/cpp/write/2026-10-31">C++26</a>
+  <a href="/rust/write/2026-10-31">Rust 2024</a>
+  <a href="/haskell/write/2026-10-31">Haskell 2010</a>
+  <a href="/zig/write/2026-10-31" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-10-31">READ</a>
+  <a href="/zig/write/2026-10-31" class="active" aria-current="page">WRITE</a>
+  <a href="/zig/debug/2026-10-31">DEBUG</a>
+</nav>
+
+<main
+  data-topic="積んで降ろすメソッド"
+  data-tags="struct stack optional"
+  data-concepts="メソッド, selfパラメータ, 構造体へのポインタ, オプショナル型, スタック, method, self parameter, optional"
+  data-level="hedgehog"
+>
+  <h2>2026-10-31</h2>
+  <div class="code-frame">
+    <p class="code-filename">stack.zig</p>
+    <pre class="code"><code><span class="kw">const</span> <span class="ty">Stack</span> = <span class="kw">struct</span> {
+    items: [<span class="nu">8</span>]<span class="ty">i32</span> = <span class="nu">undefined</span>,
+    len: <span class="ty">usize</span> = <span class="nu">0</span>,
+
+    <span class="kw">fn</span> <span class="fn">push</span>(self: *<span class="ty">Stack</span>, x: <span class="ty">i32</span>) <span class="ty">void</span> {
+    }
+
+    <span class="kw">fn</span> <span class="fn">pop</span>(self: *<span class="ty">Stack</span>) ?<span class="ty">i32</span> {
+    }
+};
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>Stack</code> は、<code>items</code> の先頭から <code>len</code> 個に値を積んだスタックです。値 <code>x</code> を一番上に積む <code>push</code> と、一番上の値を取り除いて返す <code>pop</code> を書いてください。空のスタックの <code>pop</code> は <code>null</code> を返します。8個を超えて積むことはないものとします。例では、空の <code>Stack</code> を入れた <code>var s: Stack = .{};</code> から始め、最後の <code>pop</code> が返す値を示します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>s.push(1); s.push(2); s.pop()</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>2</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>s.pop()</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>null</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>s.push(1); s.push(2); _ = s.pop(); s.pop()</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>1</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">const</span> <span class="ty">Stack</span> = <span class="kw">struct</span> {
+    items: [<span class="nu">8</span>]<span class="ty">i32</span> = <span class="nu">undefined</span>,
+    len: <span class="ty">usize</span> = <span class="nu">0</span>,
+
+    <span class="kw">fn</span> <span class="fn">push</span>(self: *<span class="ty">Stack</span>, x: <span class="ty">i32</span>) <span class="ty">void</span> {
+        self.items[self.len] = x;
+        self.len += <span class="nu">1</span>;
+    }
+
+    <span class="kw">fn</span> <span class="fn">pop</span>(self: *<span class="ty">Stack</span>) ?<span class="ty">i32</span> {
+        <span class="kw">if</span> (self.len == <span class="nu">0</span>) <span class="kw">return</span> <span class="nu">null</span>;
+        self.len -= <span class="nu">1</span>;
+        <span class="kw">return</span> self.items[self.len];
+    }
+};
+</code></pre>
+      <p>
+        構造体の中で宣言した関数は、その構造体を名前空間とする関数です。最初の引数がその型か、その型へのポインタなら、<code>s.push(1)</code> のようにメソッドの形で呼べて、<code>Stack.push(&amp;s, 1)</code> と同じ意味になります。<code>s</code> は <code>var</code> なので、<code>&amp;s</code> は書かなくてもコンパイラが取ります。
+      </p>
+      <p>
+        <code>push</code> と <code>pop</code> はどちらも <code>len</code> を書き換えるので、<code>self</code> を <code>*Stack</code> で受け取ります。<code>self: Stack</code> と書くと、Zig の引数は書き換えられない定数なので、<code>self.len += 1</code> がコンパイルエラーになります。<code>push</code> は <code>items[len]</code> に値を置いてから <code>len</code> を増やし、<code>pop</code> は先に <code>len</code> を減らしてから <code>items[len]</code> を返します。戻り値の型を <code>?i32</code> にしておくと、空のときは <code>null</code> を返せます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>pop</code> は、先に <code>items[len - 1]</code> を読んでおいてから <code>len</code> を減らしてもかまいません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/write">Today</a></li>
+    <li><a href="/zig/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="親の表を再帰でたどって根を返す関数が、100万個が一列に並んだ表でスタックを使い切って落ちるRust DEBUGのドリルです。Rust は末尾の位置にある呼び出しでもスタックフレームを再利用するとは保証しないので、ループに書き直します。">
+<title>一列に並んだ親をたどる</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-10-31">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-10-31" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-10-31",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-10-31",
+      "datePublished": "2026-10-31",
+      "dateModified": "2026-10-31",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "一列に並んだ親をたどる" },
+      "keywords": "tail-call, recursion, call-stack, loop",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "親の表を再帰でたどって根を返す関数が、100万個が一列に並んだ表でスタックを使い切って落ちるRust DEBUGのドリルです。Rust は末尾の位置にある呼び出しでもスタックフレームを再利用するとは保証しないので、ループに書き直します。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-10-31">C23</a>
+  <a href="/cpp/debug/2026-10-31">C++26</a>
+  <a href="/rust/debug/2026-10-31" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-10-31">Haskell 2010</a>
+  <a href="/zig/debug/2026-10-31">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-10-31">READ</a>
+  <a href="/rust/write/2026-10-31">WRITE</a>
+  <a href="/rust/debug/2026-10-31" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="一列に並んだ親をたどる"
+  data-tags="tail-call recursion call-stack loop"
+  data-concepts="末尾呼び出し, 末尾呼び出しの最適化, スタックオーバーフロー, 再帰をループに書き換える, tail call optimization, stack overflow, recursion to loop"
+  data-level="hedgehog"
+>
+  <h2>2026-10-31</h2>
+  <div class="code-frame">
+    <p class="code-filename">find_root.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">root</span>(parent: &amp;[<span class="ty">usize</span>], i: <span class="ty">usize</span>) -&gt; <span class="ty">usize</span> {
+    <span class="kw">if</span> parent[i] == i {
+        i
+    } <span class="kw">else</span> {
+        <span class="fn">root</span>(parent, parent[i])
+    }
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> parent: <span class="ty">Vec</span>&lt;<span class="ty">usize</span>&gt; = (<span class="nu">0</span>..<span class="nu">1_000_000</span>).<span class="fn">map</span>(|i: <span class="ty">usize</span>| i.<span class="fn">saturating_sub</span>(<span class="nu">1</span>)).<span class="fn">collect</span>();
+    <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="fn">root</span>(&amp;parent, <span class="nu">999_999</span>));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>parent[i]</code> は要素 <code>i</code> の親で、自分自身を親に持つ要素を根と呼びます。<code>root</code> は <code>i</code> から親をたどって根を返すつもりの関数です。<code>main</code> は、<code>999999</code> の親が <code>999998</code>、<code>999998</code> の親が <code>999997</code>、と100万個が一列に並び、<code>0</code> が根になる表を作って <code>root(&amp;parent, 999_999)</code> を呼びます。本来は <code>0</code> と出力されるはずが、いまは最適化なしでビルドして実行すると、何も出力せずに、スタックを使い切ったというメッセージを出して異常終了します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">root</span>(parent: &amp;[<span class="ty">usize</span>], i: <span class="ty">usize</span>) -&gt; <span class="ty">usize</span> {
+    <span class="kw">if</span> parent[i] == i {
+        i
+    } <span class="kw">else</span> {
+        <span class="fn">root</span>(parent, parent[i])
+    }
+}
+</code></pre>
+      <p>
+        <code>root</code> は親を1つたどるたびに自分を呼び、呼び出しは根に着くまで戻りません。<code>999_999</code> から <code>0</code> までたどると呼び出しは100万段になり、1段ごとに積まれるスタックフレームがメインスレッドのスタックに収まりきらなくなります。
+      </p>
+      <p>
+        <code>root(parent, parent[i])</code> は関数の最後の式で、呼び出したあとにする仕事は残っていません。それでも Rust は、こうした末尾の位置にある呼び出しで今のスタックフレームを再利用するとは保証していません<sup class="fn-ref">1</sup>。最適化を有効にすると LLVM がループに書き換えて <code>0</code> が出ることもありますが、それは最適化の結果で、言語の規則ではありません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">root</span>(parent: &amp;[<span class="ty">usize</span>], <span class="kw">mut</span> i: <span class="ty">usize</span>) -&gt; <span class="ty">usize</span> {
+    <span class="kw">while</span> parent[i] != i {
+        i = parent[i];
+    }
+    i
+}
+</code></pre>
+      <p>
+        親をたどる再帰を、<code>i</code> を書き換えるループにしました。呼び出しはなくなり、使うスタックは表の長さにかかわらず <code>root</code> の1段分だけなので、最適化なしでも <code>0</code> が出力されます。
+      </p>
+      <ol class="footnotes">
+        <li>Rust は <code>become</code> を予約語にしています。<code>become f(x)</code> と書いた呼び出しでスタックフレームの再利用を保証させる機能が検討されていますが、安定版にはまだ入っていません。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
