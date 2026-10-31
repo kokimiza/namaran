@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「構文解析」を扱ったNamaranのコーディングドリル18問。数値の解析、std.fmt.parseInt、std.mem.splitScalar、空白の除去、空文字列、parse integers。">
+<meta name="description" content="「構文解析」を扱ったNamaranのコーディングドリル20問。reads、read、安全な読み取り、読み残し、Maybe、ReadS。">
 <title>構文解析</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/parsing">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,12 @@
   <h2>構文解析</h2>
 
   <p class="lede">
-    「構文解析」を扱った18問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「構文解析」を扱った20問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/haskell/write/2026-11-01">Haskell / WRITE · 2026-11-01</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">読めなければNothing</span> <span class="past-concepts">reads, read, 安全な読み取り, 読み残し, Maybe, ReadS, readMaybe, safe parsing</span></li>
+    <li><a href="/haskell/debug/2026-11-01">Haskell / DEBUG · 2026-11-01</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">保存した平均が読めない</span> <span class="past-concepts">read, show, 型注釈, 型推論, 往復変換, no parse, round trip, Prelude.read</span></li>
     <li><a href="/zig/write/2026-10-30">Zig / WRITE · 2026-10-30</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">区切った数を読んで足す</span> <span class="past-concepts">数値の解析, std.fmt.parseInt, std.mem.splitScalar, 空白の除去, 空文字列, parse integers, comma separated values</span></li>
     <li><a href="/cpp/write/2026-10-30">C++ / WRITE · 2026-10-30</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">1回なめて形を判定</span> <span class="past-concepts">文字列の形式チェック, 1回の走査, 状態を持つループ, 正規表現を使わない検証, linear scan, input validation</span></li>
     <li><a href="/rust/write/2026-10-23">Rust / WRITE · 2026-10-23</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">予算を超えた行の番号</span> <span class="past-concepts">break と continue と return の使い分け, ループの中の ? 演算子, 飛ばした行も数える行番号, enumerate, early return</span></li>

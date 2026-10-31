@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="平均を show で文字列にして保存し、read で読み戻して星の数にするはずが、Prelude.read: no parse で止まるHaskell DEBUGのドリルです。read が何の型として読むかは、読み戻した値の使い道で決まります。">
+<title>保存した平均が読めない</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-11-01">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-01" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-11-01",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-11-01",
+      "datePublished": "2026-11-01",
+      "dateModified": "2026-11-01",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "保存した平均が読めない" },
+      "keywords": "type-deduction, parsing, floating-point, type-conversion",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "平均を show で文字列にして保存し、read で読み戻して星の数にするはずが、Prelude.read: no parse で止まるHaskell DEBUGのドリルです。read が何の型として読むかは、読み戻した値の使い道で決まります。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-01">C23</a>
+  <a href="/cpp/debug/2026-11-01">C++26</a>
+  <a href="/rust/debug/2026-11-01">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-01" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-01">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-01">READ</a>
+  <a href="/haskell/write/2026-11-01">WRITE</a>
+  <a href="/haskell/debug/2026-11-01" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="保存した平均が読めない"
+  data-tags="type-deduction parsing floating-point type-conversion"
+  data-concepts="read, show, 型注釈, 型推論, 往復変換, no parse, round trip, Prelude.read"
+  data-level="bison"
+>
+  <h2>2026-11-01</h2>
+  <div class="code-frame">
+    <p class="code-filename">Stars.hs</p>
+    <pre class="code"><code><span class="fn">average</span> <span class="op">::</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> <span class="ty">Double</span>
+<span class="fn">average</span> xs = fromIntegral (sum xs) / fromIntegral (length xs)
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = <span class="kw">do</span>
+  <span class="kw">let</span> saved = show (average [<span class="nu">3</span>, <span class="nu">5</span>])
+      stars = read saved
+  putStrLn (replicate stars <span class="st">'*'</span>)
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>[3, 5]</code> の平均を文字列にして <code>saved</code> に保存し、それを読み戻した数だけ <code>*</code> を並べて表示するつもりのプログラムです。本来は <code>****</code> と表示されるはずが、いまは何も表示せずに <code>Prelude.read: no parse</code> というエラーで止まります。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">let</span> saved = show (average [<span class="nu">3</span>, <span class="nu">5</span>])
+    stars = read saved
+<span class="fn">putStrLn</span> (replicate stars <span class="st">'*'</span>)
+</code></pre>
+      <p>
+        <code>average</code> は <code>Double</code> を返すので、<code>show</code> が作る <code>saved</code> は <code>"4"</code> ではなく <code>"4.0"</code> です。<code>Double</code> の <code>show</code> は、値が整数でも小数点を付けて書くからです。一方 <code>stars</code> には型注釈が無く、<code>replicate</code> の第1引数に渡されることから <code>Int</code> と推論されます。<code>read saved</code> は <code>"4.0"</code> を <code>Int</code> として読もうとし、<code>Int</code> の書き方に小数点は無いので読めずにエラーになります。
+      </p>
+      <p>
+        保存したときの型が <code>Double</code> でも、<code>read</code> はそれを知りません。読む型を決めるのは、読み戻した値を使う側です。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">let</span> saved = show (average [<span class="nu">3</span>, <span class="nu">5</span>])
+    stars = round (read saved <span class="op">::</span> <span class="ty">Double</span>)
+<span class="fn">putStrLn</span> (replicate stars <span class="st">'*'</span>)
+</code></pre>
+      <p>
+        <code>read saved :: Double</code> と注釈を付けて、保存したときと同じ <code>Double</code> として読みます。<code>"4.0"</code> は <code>Double</code> の書き方どおりなので <code>4.0</code> が読め、<code>round</code> で <code>Int</code> の <code>4</code> に変えてから <code>replicate</code> に渡します。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

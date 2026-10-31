@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="硬貨の組み合わせを数える再帰で、額を超える硬貨が出たところで take_while が候補を打ち切るRust READのドリルです。昇順と降順の並びで結果がどう変わるかを追います。">
+<title>take_whileで打ち切る</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-11-01">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / READ", "item": "https://namaran.jocarium.productions/rust/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-01" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / READ — 2026-11-01",
+      "url": "https://namaran.jocarium.productions/rust/read/2026-11-01",
+      "datePublished": "2026-11-01",
+      "dateModified": "2026-11-01",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "take_whileで打ち切る" },
+      "keywords": "iterator, recursion, backtracking",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "硬貨の組み合わせを数える再帰で、額を超える硬貨が出たところで take_while が候補を打ち切るRust READのドリルです。昇順と降順の並びで結果がどう変わるかを追います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-01">C23</a>
+  <a href="/cpp/read/2026-11-01">C++26</a>
+  <a href="/rust/read/2026-11-01" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/read/2026-11-01">Haskell 2010</a>
+  <a href="/zig/read/2026-11-01">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-01" class="active" aria-current="page">READ</a>
+  <a href="/rust/write/2026-11-01">WRITE</a>
+  <a href="/rust/debug/2026-11-01">DEBUG</a>
+</nav>
+
+<main
+  data-topic="take_whileで打ち切る"
+  data-tags="iterator recursion backtracking"
+  data-concepts="take_while, 枝刈り, filterとの違い, 部分和, 再帰, pruning, subset sum"
+  data-level="hedgehog"
+>
+  <h2>2026-11-01</h2>
+  <div class="code-frame">
+    <p class="code-filename">coins.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">ways</span>(coins: &amp;[<span class="ty">u32</span>], rest: <span class="ty">u32</span>) -&gt; <span class="ty">u32</span> {
+    <span class="kw">if</span> rest == <span class="nu">0</span> {
+        <span class="kw">return</span> <span class="nu">1</span>;
+    }
+    coins
+        .<span class="fn">iter</span>()
+        .<span class="fn">enumerate</span>()
+        .<span class="fn">take_while</span>(|&amp;(_, &amp;c)| c &lt;= rest)
+        .<span class="fn">map</span>(|(i, &amp;c)| <span class="fn">ways</span>(&amp;coins[i + <span class="nu">1</span>..], rest - c))
+        .<span class="fn">sum</span>()
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="fn">ways</span>(&amp;[<span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">3</span>, <span class="nu">4</span>], <span class="nu">5</span>));
+    <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="fn">ways</span>(&amp;[<span class="nu">4</span>, <span class="nu">3</span>, <span class="nu">2</span>, <span class="nu">1</span>], <span class="nu">5</span>));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>2</code> と <code>1</code> の2行です。
+      </p>
+      <p>
+        <code>ways</code> は、<code>coins</code> の中から硬貨を重複なく選んで、合計がちょうど <code>rest</code> になる選び方を数えます。硬貨を1枚選んだら、その後ろの硬貨だけを残して残りの額で数え直します。<code>take_while</code> は、条件が偽になる最初の要素で反復を終え、それより後ろの要素は見ません。偽になった要素を飛ばして次へ進む <code>filter</code> とはそこが違います。
+      </p>
+      <p>
+        <code>[1, 2, 3, 4]</code> は昇順なので、額を超える硬貨が出たら、その後ろの硬貨もすべて額を超えます。打ち切っても数え漏れはなく、合計5になる <code>{1, 4}</code> と <code>{2, 3}</code> の2通りが数えられます。
+      </p>
+      <p>
+        <code>[4, 3, 2, 1]</code> では、最初に4を選ぶと残りは <code>[3, 2, 1]</code> で、額は1です。先頭の3が1を超えるので <code>take_while</code> はそこで終わり、後ろにある1を見ないまま0を返します。<code>{4, 1}</code> は数えられず、残る <code>{3, 2}</code> の1通りだけになります。<code>take_while</code> を <code>filter</code> と同じに読むと、2行目も <code>2</code> と答えます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/read">Today</a></li>
+    <li><a href="/rust/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

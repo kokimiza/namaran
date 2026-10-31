@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="同じ文字列「7」を read で3回読み、使われ方によって Int と Double のどちらとして読まれるかを問うHaskell READのドリルです。read の結果の型は、文字列ではなく、その値を使う側の型で決まります。">
+<title>同じ文字列を3通りに読む</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-11-01">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-01" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-11-01",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-11-01",
+      "datePublished": "2026-11-01",
+      "dateModified": "2026-11-01",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "同じ文字列を3通りに読む" },
+      "keywords": "type-deduction, typeclass, division",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "同じ文字列「7」を read で3回読み、使われ方によって Int と Double のどちらとして読まれるかを問うHaskell READのドリルです。read の結果の型は、文字列ではなく、その値を使う側の型で決まります。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-01">C23</a>
+  <a href="/cpp/read/2026-11-01">C++26</a>
+  <a href="/rust/read/2026-11-01">Rust 2024</a>
+  <a href="/haskell/read/2026-11-01" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/read/2026-11-01">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-01" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-11-01">WRITE</a>
+  <a href="/haskell/debug/2026-11-01">DEBUG</a>
+</nav>
+
+<main
+  data-topic="同じ文字列を3通りに読む"
+  data-tags="type-deduction typeclass division"
+  data-concepts="read, 型注釈, 型推論, 戻り値の型で決まる多相, Read型クラス, return type polymorphism, type annotation"
+  data-level="hedgehog"
+>
+  <h2>2026-11-01</h2>
+  <div class="code-frame">
+    <p class="code-filename">Half.hs</p>
+    <pre class="code"><code><span class="fn">half</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Int</span>
+<span class="fn">half</span> n = n `div` <span class="nu">2</span>
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = <span class="kw">do</span>
+  <span class="kw">let</span> s = <span class="st">"7"</span>
+  print (half (read s))
+  print (read s / <span class="nu">2</span> <span class="op">::</span> <span class="ty">Double</span>)
+  print (read s + half <span class="nu">4</span>)
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>3</code>、<code>3.5</code>、<code>9</code> の3行です。
+      </p>
+      <p>
+        <code>read</code> の型は <code>Read a =&gt; String -&gt; a</code> で、どの型として読むかは引数の文字列からは決まりません。結果をどう使うかで <code>a</code> が決まり、その型の読み方で <code>"7"</code> を読みます。
+      </p>
+      <p>
+        1行目の <code>read s</code> は <code>half</code> の引数なので、<code>half</code> の型シグネチャから <code>Int</code> として読まれます。<code>7 `div` 2</code> は整数の割り算で、<code>3</code> です。2行目は式全体に <code>:: Double</code> が付いていて、<code>/</code> の両辺が同じ型なので <code>read s</code> も <code>Double</code> になり、<code>3.5</code> です。3行目の <code>read s</code> は、<code>half 4</code> と足されるので <code>+</code> の両辺をそろえる規則で <code>Int</code> になり、<code>7 + 2</code> で <code>9</code> です。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

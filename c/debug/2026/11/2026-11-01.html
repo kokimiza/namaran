@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="ファイルに見出しと本文を書いたあと、fseek で先頭に戻って見出しの ? を品目の数に書き換えるはずが、2 がファイルの末尾に付いてしまうC DEBUGのドリルです。fopen のモードが書き込み位置を決めます。">
+<title>見出しを後から埋める</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-11-01">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-01" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-11-01",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-11-01",
+      "datePublished": "2026-11-01",
+      "dateModified": "2026-11-01",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "見出しを後から埋める" },
+      "keywords": "stdio, file-system",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "ファイルに見出しと本文を書いたあと、fseek で先頭に戻って見出しの ? を品目の数に書き換えるはずが、2 がファイルの末尾に付いてしまうC DEBUGのドリルです。fopen のモードが書き込み位置を決めます。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-01" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-11-01">C++26</a>
+  <a href="/rust/debug/2026-11-01">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-01">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-01">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-01">READ</a>
+  <a href="/c/write/2026-11-01">WRITE</a>
+  <a href="/c/debug/2026-11-01" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="見出しを後から埋める"
+  data-tags="stdio file-system"
+  data-concepts="fopen のモード, 追記モード, a+, w+, fseek, 部分書き込み, append mode, overwrite in place"
+  data-level="peacock"
+>
+  <h2>2026-11-01</h2>
+  <div class="code-frame">
+    <p class="code-filename">write_report.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="ty">FILE</span>* f = <span class="fn">fopen</span>(<span class="st">"report.txt"</span>, <span class="st">"a+"</span>);
+    <span class="kw">if</span> (f == <span class="nu">NULL</span>) {
+        <span class="kw">return</span> <span class="nu">1</span>;
+    }
+    <span class="fn">fputs</span>(<span class="st">"items: ?\napple\nbanana\n"</span>, f);
+    <span class="fn">fseek</span>(f, <span class="nu">7</span>, <span class="nu">SEEK_SET</span>);
+    <span class="fn">fputc</span>(<span class="st">'2'</span>, f);
+    <span class="fn">rewind</span>(f);
+    <span class="ty">char</span> line[<span class="nu">32</span>];
+    <span class="kw">while</span> (<span class="fn">fgets</span>(line, <span class="kw">sizeof</span> line, f) != <span class="nu">NULL</span>) {
+        <span class="fn">fputs</span>(line, stdout);
+    }
+    <span class="fn">fclose</span>(f);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    新しいファイル <code>report.txt</code> に見出しと品目を書き、あとから先頭に戻って見出しの <code>?</code> を品目の数 <code>2</code> に書き換えてから、ファイル全体を表示するつもりのプログラムです。<code>report.txt</code> がまだ無い状態で実行すると、本来は <code>items: 2</code>、<code>apple</code>、<code>banana</code> の3行が表示されるはずが、いまは <code>items: ?</code>、<code>apple</code>、<code>banana</code> の3行のあとに、改行のない <code>2</code> が表示されます。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="ty">FILE</span>* f = <span class="fn">fopen</span>(<span class="st">"report.txt"</span>, <span class="st">"a+"</span>);
+<span class="fn">fseek</span>(f, <span class="nu">7</span>, <span class="nu">SEEK_SET</span>);
+<span class="fn">fputc</span>(<span class="st">'2'</span>, f);
+</code></pre>
+      <p>
+        <code>"a+"</code> は追記モードで、このモードで開いたファイルへの書き込みは、ファイル位置がどこにあっても必ずファイルの末尾に行われます。<code>fseek(f, 7, SEEK_SET)</code> はファイル位置を先頭から7バイト進めた <code>?</code> の位置に動かしますが、続く <code>fputc('2', f)</code> は末尾の <code>banana\n</code> の後ろに <code>2</code> を足します。見出しの <code>?</code> はそのまま残り、表示の最後に改行のない <code>2</code> が付きます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="ty">FILE</span>* f = <span class="fn">fopen</span>(<span class="st">"report.txt"</span>, <span class="st">"w+"</span>);
+<span class="fn">fseek</span>(f, <span class="nu">7</span>, <span class="nu">SEEK_SET</span>);
+<span class="fn">fputc</span>(<span class="st">'2'</span>, f);
+</code></pre>
+      <p>
+        <code>"w+"</code> は、ファイルを新しく作って(あれば中身を空にして)読み書きの両方に開くモードで、書き込みはファイル位置に行われます。<code>fseek</code> で <code>?</code> の位置に戻ってから書いた <code>2</code> は、その位置の <code>?</code> を上書きします。ファイルの長さは変わらず、見出しが <code>items: 2</code> になります。<sup class="fn-ref">1</sup>
+      </p>
+      <ol class="footnotes">
+        <li>すでにあるファイルの中身を残したまま一部だけを書き換えるなら、<code>"r+"</code> で開きます。<code>"r+"</code> はファイルが無いと失敗し、<code>"w+"</code> は中身を消してから開きます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="整数のスライスの最小値と最大値を、フィールドのデフォルト値が null の構造体で返す minMax を書くZig WRITEのドリルです。.{} で作った構造体から始め、空のスライスでは両方とも null のまま返します。">
+<title>まだ無い最小値</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/write/2026-11-01">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / WRITE", "item": "https://namaran.jocarium.productions/zig/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-01" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / WRITE — 2026-11-01",
+      "url": "https://namaran.jocarium.productions/zig/write/2026-11-01",
+      "datePublished": "2026-11-01",
+      "dateModified": "2026-11-01",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "まだ無い最小値" },
+      "keywords": "struct, default, optional",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "整数のスライスの最小値と最大値を、フィールドのデフォルト値が null の構造体で返す minMax を書くZig WRITEのドリルです。.{} で作った構造体から始め、空のスライスでは両方とも null のまま返します。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-01">C23</a>
+  <a href="/cpp/write/2026-11-01">C++26</a>
+  <a href="/rust/write/2026-11-01">Rust 2024</a>
+  <a href="/haskell/write/2026-11-01">Haskell 2010</a>
+  <a href="/zig/write/2026-11-01" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-01">READ</a>
+  <a href="/zig/write/2026-11-01" class="active" aria-current="page">WRITE</a>
+  <a href="/zig/debug/2026-11-01">DEBUG</a>
+</nav>
+
+<main
+  data-topic="まだ無い最小値"
+  data-tags="struct default optional"
+  data-concepts="デフォルトのフィールド値, 構造体リテラル, オプショナル型, null, orelse, 最小値と最大値, default field values, optional"
+  data-level="hedgehog"
+>
+  <h2>2026-11-01</h2>
+  <div class="code-frame">
+    <p class="code-filename">min_max.zig</p>
+    <pre class="code"><code><span class="kw">const</span> <span class="ty">MinMax</span> = <span class="kw">struct</span> {
+    min: ?<span class="ty">i32</span> = <span class="nu">null</span>,
+    max: ?<span class="ty">i32</span> = <span class="nu">null</span>,
+};
+
+<span class="kw">fn</span> <span class="fn">minMax</span>(xs: []<span class="kw">const</span> <span class="ty">i32</span>) <span class="ty">MinMax</span> {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>xs</code> の最小値を <code>min</code> に、最大値を <code>max</code> に入れた <code>MinMax</code> を返す <code>minMax</code> を書いてください。<code>xs</code> が空なら、<code>min</code> も <code>max</code> も <code>null</code> のままの <code>MinMax</code> を返します。例では、返した値を <code>.{ .min = 最小値, .max = 最大値 }</code> の形で書きます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>minMax(&amp;.{ 3, -2, 7 })</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>.{ .min = -2, .max = 7 }</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>minMax(&amp;.{5})</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>.{ .min = 5, .max = 5 }</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>minMax(&amp;.{})</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>.{ .min = null, .max = null }</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">minMax</span>(xs: []<span class="kw">const</span> <span class="ty">i32</span>) <span class="ty">MinMax</span> {
+    <span class="kw">var</span> r: <span class="ty">MinMax</span> = .{};
+    <span class="kw">for</span> (xs) |x| {
+        r.min = <span class="mc">@min</span>(r.min <span class="kw">orelse</span> x, x);
+        r.max = <span class="mc">@max</span>(r.max <span class="kw">orelse</span> x, x);
+    }
+    <span class="kw">return</span> r;
+}
+</code></pre>
+      <p>
+        <code>var r: MinMax = .{};</code> は、どのフィールドも指定しない構造体リテラルなので、<code>min</code> と <code>max</code> にはフィールドのデフォルト値 <code>null</code> が入ります。この <code>null</code> が「まだ1つも見ていない」ことを表すので、<code>xs</code> が空ならループを1度も回らず、そのまま入力例3の値を返せます。
+      </p>
+      <p>
+        ループの中の <code>r.min orelse x</code> は、<code>r.min</code> が <code>null</code> なら <code>x</code> を、そうでなければ中の値を返します。最初の要素では <code>@min(x, x)</code> になって <code>x</code> がそのまま入り、2つ目からは今までの最小値と <code>x</code> の小さいほうが入ります。<code>@min</code> の結果は <code>i32</code> で、<code>?i32</code> のフィールドにはそのまま代入できます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>if (r.min) |m|</code> で <code>null</code> かどうかを分けてから比べてもかまいません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/write">Today</a></li>
+    <li><a href="/zig/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

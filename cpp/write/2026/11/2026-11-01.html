@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="数字の並びに、右から3桁ごとにカンマを入れた文字列を返す group_digits を書くC++ WRITEのドリルです。views::chunk は先頭から区切るので、端数を左端に残すには並びを逆にしてから区切ります。">
+<title>右から3桁ずつ区切る</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-11-01">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-01" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-11-01",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-11-01",
+      "datePublished": "2026-11-01",
+      "dateModified": "2026-11-01",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "右から3桁ずつ区切る" },
+      "keywords": "range-adaptor, string, boundary",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "数字の並びに、右から3桁ごとにカンマを入れた文字列を返す group_digits を書くC++ WRITEのドリルです。views::chunk は先頭から区切るので、端数を左端に残すには並びを逆にしてから区切ります。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-01">C23</a>
+  <a href="/cpp/write/2026-11-01" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-11-01">Rust 2024</a>
+  <a href="/haskell/write/2026-11-01">Haskell 2010</a>
+  <a href="/zig/write/2026-11-01">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-01">READ</a>
+  <a href="/cpp/write/2026-11-01" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-11-01">DEBUG</a>
+</nav>
+
+<main
+  data-topic="右から3桁ずつ区切る"
+  data-tags="range-adaptor string boundary"
+  data-concepts="桁区切り, 3桁区切り, views::chunk, views::reverse, views::join_with, ranges::to, digit grouping, thousands separator"
+  data-level="peacock"
+>
+  <h2>2026-11-01</h2>
+  <div class="code-frame">
+    <p class="code-filename">group_digits.cpp</p>
+    <pre class="code"><code>std::<span class="ty">string</span> <span class="fn">group_digits</span>(std::<span class="ty">string_view</span> digits) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>digits</code> は <code>0</code> から <code>9</code> の文字だけからなる文字列です。これを右から3桁ずつに区切り、区切りの間に <code>,</code> を入れた文字列を返す <code>group_digits</code> を書いてください。3桁以下ならそのまま返し、空なら空の文字列を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>group_digits("1234567")</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>"1,234,567"</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>group_digits("1234")</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>"1,234"</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>group_digits("")</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>""</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code>std::<span class="ty">string</span> <span class="fn">group_digits</span>(std::<span class="ty">string_view</span> digits) {
+    <span class="kw">auto</span> out = digits | std::views::reverse | std::views::<span class="fn">chunk</span>(<span class="nu">3</span>) | std::views::<span class="fn">join_with</span>(<span class="st">','</span>) |
+        std::ranges::to&lt;std::<span class="ty">string</span>&gt;();
+    std::ranges::<span class="fn">reverse</span>(out);
+    <span class="kw">return</span> out;
+}
+</code></pre>
+      <p>
+        <code>views::chunk(3)</code> は先頭から3個ずつ区切り、割り切れない余りを最後の塊にします。<code>"1234"</code> をそのまま区切ると <code>"123"</code> と <code>"4"</code> になり、<code>"123,4"</code> ができてしまいます。端数を左端に残したいので、先に <code>views::reverse</code> で並びを逆にします。逆にした <code>"4321"</code> を区切ると <code>"432"</code> と <code>"1"</code> になり、端数は右端に来ます。
+      </p>
+      <p>
+        塊の間に <code>views::join_with(',')</code> で <code>,</code> を挟んで1本の文字の並びにし、<code>ranges::to</code> で <code>std::string</code> に詰めると <code>"432,1"</code> です。最後に <code>ranges::reverse</code> で向きを戻すと <code>"1,234"</code> になります。<code>join_with</code> が区切りを入れるのは塊と塊の間だけなので、3桁以下なら <code>,</code> は入らず、空の文字列からは塊が1つもできずに空の文字列が返ります。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。先頭の塊の長さ(桁数を3で割った余りで、割り切れるときは3)を先に求め、そこから3桁ごとに <code>,</code> を挟みながら文字を書き写してもかまいません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

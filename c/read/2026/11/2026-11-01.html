@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="10バイトのファイルを、4バイトの要素3個ぶんの fread で読んだときの戻り値と、続けて読んだときの戻り値を問うC READのドリルです。fread が数えるのはバイトではなく要素です。">
+<title>freadが返す個数</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-11-01">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-01" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-11-01",
+      "url": "https://namaran.jocarium.productions/c/read/2026-11-01",
+      "datePublished": "2026-11-01",
+      "dateModified": "2026-11-01",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "freadが返す個数" },
+      "keywords": "stdio, end-of-file",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "10バイトのファイルを、4バイトの要素3個ぶんの fread で読んだときの戻り値と、続けて読んだときの戻り値を問うC READのドリルです。fread が数えるのはバイトではなく要素です。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-01" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-11-01">C++26</a>
+  <a href="/rust/read/2026-11-01">Rust 2024</a>
+  <a href="/haskell/read/2026-11-01">Haskell 2010</a>
+  <a href="/zig/read/2026-11-01">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-01" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-11-01">WRITE</a>
+  <a href="/c/debug/2026-11-01">DEBUG</a>
+</nav>
+
+<main
+  data-topic="freadが返す個数"
+  data-tags="stdio end-of-file"
+  data-concepts="fread, 戻り値, 要素の個数, ファイル位置表示子, 部分読み込み, short read, file position indicator"
+  data-level="hedgehog"
+>
+  <h2>2026-11-01</h2>
+  <div class="code-frame">
+    <p class="code-filename">read_records.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="ty">FILE</span>* f = <span class="fn">tmpfile</span>();
+    <span class="kw">if</span> (f == <span class="nu">NULL</span>) {
+        <span class="kw">return</span> <span class="nu">1</span>;
+    }
+    <span class="fn">fputs</span>(<span class="st">"abcdefghij"</span>, f);
+    <span class="fn">rewind</span>(f);
+    <span class="ty">char</span> buf[<span class="nu">12</span>];
+    <span class="ty">size_t</span> first = <span class="fn">fread</span>(buf, <span class="nu">4</span>, <span class="nu">3</span>, f);
+    <span class="ty">size_t</span> second = <span class="fn">fread</span>(buf, <span class="nu">1</span>, <span class="kw">sizeof</span> buf, f);
+    <span class="fn">printf</span>(<span class="st">"%zu %zu\n"</span>, first, second);
+    <span class="fn">fclose</span>(f);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>2 0</code> です。
+      </p>
+      <p>
+        <code>fread(buf, 4, 3, f)</code> は、4バイトの要素を最大3個読みます。戻り値は最後まで読めた要素の個数で、バイト数ではありません。ファイルは10バイトなので、要素は8バイト目までの2個が読めます。3個目の要素には残りの2バイトしかなく、最後まで読めないので数えません。<code>first</code> は2です。
+      </p>
+      <p>
+        ファイル位置は、要素の数ではなく、実際に読めたバイトの数だけ進みます。半端な3個目の2バイトも読んでいるので、位置は10バイト進んでファイルの終わりに着きます。そのため2回目の <code>fread</code> は1バイトも読めず、<code>second</code> は0です。
+      </p>
+      <p>
+        戻り値をバイト数だと考えると、<code>10 0</code> と答えます。読み残した2バイトが次の <code>fread</code> で読めると考えると、<code>2 2</code> と答えます。半端な要素のバイトは読み込まれますが、その要素の値は規格上不定で、使ってはいけません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

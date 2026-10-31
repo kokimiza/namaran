@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="1次元の vector に行ごとに並べた盤面で、上下左右に隣り合う同じ色の組を views::slide で数えるはずが、本来より多く数えてしまうC++ DEBUGのドリルです。行の端と次の行の先頭は、配列の上では隣り合っています。">
+<title>隣り合う同色を数える</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-11-01">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-01" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-11-01",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-11-01",
+      "datePublished": "2026-11-01",
+      "dateModified": "2026-11-01",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "隣り合う同色を数える" },
+      "keywords": "range-adaptor, sliding-window, multidimensional-array, boundary",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "1次元の vector に行ごとに並べた盤面で、上下左右に隣り合う同じ色の組を views::slide で数えるはずが、本来より多く数えてしまうC++ DEBUGのドリルです。行の端と次の行の先頭は、配列の上では隣り合っています。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-01">C23</a>
+  <a href="/cpp/debug/2026-11-01" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-11-01">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-01">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-01">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-01">READ</a>
+  <a href="/cpp/write/2026-11-01">WRITE</a>
+  <a href="/cpp/debug/2026-11-01" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="隣り合う同色を数える"
+  data-tags="range-adaptor sliding-window multidimensional-array boundary"
+  data-concepts="views::slide, views::chunk, 盤面, 1次元配列で表した2次元の格子, 行の折り返し, row-major, flattened grid, adjacent cells"
+  data-level="whale"
+>
+  <h2>2026-11-01</h2>
+  <div class="code-frame">
+    <p class="code-filename">touching_pairs.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;print&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;ranges&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+
+<span class="ty">int</span> <span class="fn">touching_pairs</span>(<span class="kw">const</span> std::<span class="ty">vector</span>&lt;<span class="ty">char</span>&gt;&amp; cells, <span class="ty">int</span> width) {
+    <span class="ty">int</span> pairs = <span class="nu">0</span>;
+    <span class="kw">for</span> (<span class="kw">auto</span> w : cells | std::views::<span class="fn">slide</span>(<span class="nu">2</span>)) {
+        pairs += w[<span class="nu">0</span>] == w[<span class="nu">1</span>];
+    }
+    <span class="kw">for</span> (<span class="kw">auto</span> w : cells | std::views::<span class="fn">slide</span>(width + <span class="nu">1</span>)) {
+        pairs += w.<span class="fn">front</span>() == w.<span class="fn">back</span>();
+    }
+    <span class="kw">return</span> pairs;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    std::<span class="ty">vector</span>&lt;<span class="ty">char</span>&gt; board{<span class="st">'R'</span>, <span class="st">'G'</span>, <span class="st">'G'</span>, <span class="st">'G'</span>, <span class="st">'B'</span>, <span class="st">'R'</span>, <span class="st">'R'</span>, <span class="st">'B'</span>, <span class="st">'B'</span>};
+    std::<span class="fn">println</span>(<span class="st">"{}"</span>, <span class="fn">touching_pairs</span>(board, <span class="nu">3</span>));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>touching_pairs</code> は、横幅 <code>width</code> の盤面のマスを上の行から順に1列に並べた <code>cells</code> を受け取り、上下または左右に隣り合う2マスのうち、同じ色の組の数を返すつもりの関数です。<code>main</code> の盤面は3行3列で、上の行から <code>RGG</code>、<code>GBR</code>、<code>RBB</code> です。本来は <code>3</code> を出力するはずが、いまは <code>5</code> を出力します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">for</span> (<span class="kw">auto</span> w : cells | std::views::<span class="fn">slide</span>(<span class="nu">2</span>)) {
+    pairs += w[<span class="nu">0</span>] == w[<span class="nu">1</span>];
+}
+</code></pre>
+      <p>
+        <code>cells</code> の上で、あるマスの右隣は添字が1大きい要素で、真下は添字が <code>width</code> 大きい要素です。<code>slide(2)</code> は添字が1違う要素の組をすべて作るので、行の右端のマスと次の行の左端のマスも組にします。この2マスは盤面では隣り合っていません。この盤面では、1行目の右端と2行目の左端がどちらも <code>G</code>、2行目の右端と3行目の左端がどちらも <code>R</code> で、余分な2組が数えられて <code>5</code> になります。
+      </p>
+      <p>
+        見慣れない <code>slide(width + 1)</code> のほうは正しく動いています。長さ <code>width + 1</code> の窓の先頭と末尾は添字が <code>width</code> 違い、盤面では同じ列で上下に並ぶ2マスです。添字が <code>width</code> 違う組はどこで作っても必ずこの形になるので、行の境目をまたいでも誤りになりません。添字が1違う組だけが、行の境目で盤面の隣どうしではなくなります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">for</span> (<span class="kw">auto</span> row : cells | std::views::<span class="fn">chunk</span>(width)) {
+    <span class="kw">for</span> (<span class="kw">auto</span> w : row | std::views::<span class="fn">slide</span>(<span class="nu">2</span>)) {
+        pairs += w[<span class="nu">0</span>] == w[<span class="nu">1</span>];
+    }
+}
+</code></pre>
+      <p>
+        <code>views::chunk(width)</code> で <code>cells</code> を1行ずつに区切り、その行の中だけで <code>slide(2)</code> の組を作ります。窓が行をまたがなくなるので、横の組は1行目の <code>GG</code> と3行目の <code>BB</code> の2組になり、縦の組の2列目の <code>BB</code> と合わせて <code>3</code> を返します。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
