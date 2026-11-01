@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「バッファリング」を扱ったNamaranのコーディングドリル13問。長さ接頭辞、メッセージの区切り、受信バッファ、length-prefixed framing、message framing、from_be_bytes。">
+<meta name="description" content="「バッファリング」を扱ったNamaranのコーディングドリル15問。std.Io.Writer、バッファ付き出力、flush、標準出力、buffered writer、flush the buffer。">
 <title>バッファリング</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/buffering">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,12 @@
   <h2>バッファリング</h2>
 
   <p class="lede">
-    「バッファリング」を扱った13問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「バッファリング」を扱った15問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/read/2026-11-02">Zig / READ · 2026-11-02</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">最後のflushがない</span> <span class="past-concepts">std.Io.Writer, バッファ付き出力, flush, 標準出力, buffered writer, flush the buffer</span></li>
+    <li><a href="/zig/debug/2026-11-02">Zig / DEBUG · 2026-11-02</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">Writerを値で取り出す</span> <span class="past-concepts">std.Io.Writer, interface, @fieldParentPtr, 構造体のコピー, File.Writer, vtable, copying the interface</span></li>
     <li><a href="/rust/write/2026-10-27">Rust / WRITE · 2026-10-27</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">長さ付きの枠を1つ取り出す</span> <span class="past-concepts">長さ接頭辞, メッセージの区切り, 受信バッファ, length-prefixed framing, message framing, from_be_bytes</span></li>
     <li><a href="/rust/read/2026-10-27">Rust / READ · 2026-10-27</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">切れ目で割れた文字</span> <span class="past-concepts">メッセージの区切り, UTF-8の多バイト文字, from_utf8_lossy, 置換文字, message framing, replacement character</span></li>
     <li><a href="/rust/debug/2026-10-27">Rust / DEBUG · 2026-10-27</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">最後の改行が消える行分け</span> <span class="past-concepts">メッセージの区切り, 改行区切り, str::lines, str::split, 受信バッファ, message framing, newline delimited</span></li>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「std::vector」を扱ったNamaranのコーディングドリル10問。構造化束縛、参照とコピー、平行移動、範囲for、structured binding、reference binding。">
+<meta name="description" content="「std::vector」を扱ったNamaranのコーディングドリル12問。アリーナ、添字で参照する木、インデックスベースの木、可変借用、arena allocation、index-based tree。">
 <title>std::vector</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/vector">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,12 @@
   <h2>std::vector</h2>
 
   <p class="lede">
-    「std::vector」を扱った10問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「std::vector」を扱った12問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/write/2026-11-02">Rust / WRITE · 2026-11-02</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">添字で指すアリーナの木</span> <span class="past-concepts">アリーナ, 添字で参照する木, インデックスベースの木, 可変借用, arena allocation, index-based tree, NodeId</span></li>
+    <li><a href="/rust/read/2026-11-02">Rust / READ · 2026-11-02</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">アリーナに入れた値の破棄</span> <span class="past-concepts">Drop の順序, アリーナ, まとめて解放, 所有権の移動, 宣言の逆順, drop order, Vec drop order, arena allocation</span></li>
     <li><a href="/cpp/write/2026-10-29">C++ / WRITE · 2026-10-29</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">先頭の点を原点に移す</span> <span class="past-concepts">構造化束縛, 参照とコピー, 平行移動, 範囲for, structured binding, reference binding, range-based for</span></li>
     <li><a href="/rust/write/2026-10-21">Rust / WRITE · 2026-10-21</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">キーで数える安定ソート</span> <span class="past-concepts">計数ソート, バケットソート, 安定ソート, キー関数, counting sort, stable sort, sort by key</span></li>
     <li><a href="/cpp/write/2026-10-15">C++ / WRITE · 2026-10-15</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">等しい値の最初と最後</span> <span class="past-concepts">lower_bound, upper_bound, 二分探索, 等しい値の範囲, 最初と最後の位置, equal range, first and last position</span></li>

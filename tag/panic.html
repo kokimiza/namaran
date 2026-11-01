@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「パニック」を扱ったNamaranのコーディングドリル10問。Nクイーン、枝刈り、usize、引き算のオーバーフロー、abs_diff、attempt to subtract with overflow。">
+<meta name="description" content="「パニック」を扱ったNamaranのコーディングドリル11問。RefCell、二重借用、一時オブジェクトの寿命、BorrowMutError、already borrowed、temporary lifetime。">
 <title>パニック</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/panic">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>パニック</h2>
 
   <p class="lede">
-    「パニック」を扱った10問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「パニック」を扱った11問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/debug/2026-11-02">Rust / DEBUG · 2026-11-02</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">文の終わりまで残る借用</span> <span class="past-concepts">RefCell, 二重借用, 一時オブジェクトの寿命, BorrowMutError, already borrowed, temporary lifetime, arena allocation</span></li>
     <li><a href="/rust/debug/2026-11-01">Rust / DEBUG · 2026-11-01</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">斜めの差で落ちる</span> <span class="past-concepts">Nクイーン, 枝刈り, usize, 引き算のオーバーフロー, abs_diff, attempt to subtract with overflow, N-queens</span></li>
     <li><a href="/rust/debug/2026-10-28">Rust / DEBUG · 2026-10-28</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">newを通らない既定値</span> <span class="past-concepts">Defaultトレイト, derive(Default), newとDefaultの食い違い, chunks(0), 構造体更新記法, default values, constructor</span></li>
     <li><a href="/rust/debug/2026-10-25">Rust / DEBUG · 2026-10-25</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">版を確かめた借用が残る</span> <span class="past-concepts">楽観的ロック, 版番号の確認, RefCell の二重借用, Ref の生存期間, BorrowMutError, optimistic locking, already borrowed</span></li>

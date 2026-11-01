@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="std.Io.File.stdout の Writer から interface を値でコピーして print と flush を呼ぶと、何も表示されずに落ちるZig DEBUGのドリルです。interface の関数は、自分を埋め込んでいる外側の構造体を、自分のアドレスから求めています。">
+<title>Writerを値で取り出す</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/debug/2026-11-02">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / DEBUG", "item": "https://namaran.jocarium.productions/zig/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-02" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / DEBUG — 2026-11-02",
+      "url": "https://namaran.jocarium.productions/zig/debug/2026-11-02",
+      "datePublished": "2026-11-02",
+      "dateModified": "2026-11-02",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "Writerを値で取り出す" },
+      "keywords": "stdio, buffering, undefined-behavior, dangling-pointer",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "std.Io.File.stdout の Writer から interface を値でコピーして print と flush を呼ぶと、何も表示されずに落ちるZig DEBUGのドリルです。interface の関数は、自分を埋め込んでいる外側の構造体を、自分のアドレスから求めています。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-02">C23</a>
+  <a href="/cpp/debug/2026-11-02">C++26</a>
+  <a href="/rust/debug/2026-11-02">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-02">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-02" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-02">READ</a>
+  <a href="/zig/write/2026-11-02">WRITE</a>
+  <a href="/zig/debug/2026-11-02" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="Writerを値で取り出す"
+  data-tags="stdio buffering undefined-behavior dangling-pointer"
+  data-concepts="std.Io.Writer, interface, @fieldParentPtr, 構造体のコピー, File.Writer, vtable, copying the interface"
+  data-level="hedgehog"
+>
+  <h2>2026-11-02</h2>
+  <div class="code-frame">
+    <p class="code-filename">greet.zig</p>
+    <pre class="code"><code><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {
+    <span class="kw">var</span> buf: [<span class="nu">64</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;
+    <span class="kw">const</span> stdout_writer = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;buf);
+    <span class="kw">var</span> stdout = stdout_writer.interface;
+    <span class="kw">for</span> ([_][]<span class="kw">const</span> <span class="ty">u8</span>{ <span class="st">"ann"</span>, <span class="st">"bob"</span> }) |name| {
+        <span class="kw">try</span> stdout.<span class="fn">print</span>(<span class="st">"hello, {s}\n"</span>, .{name});
+    }
+    <span class="kw">try</span> stdout.<span class="fn">flush</span>();
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    名前ごとに挨拶の行を標準出力へ書くつもりのプログラムです。本来は <code>hello, ann</code> と <code>hello, bob</code> の2行を表示するはずが、いまは Debug ビルドで実行すると何も表示せず、最後の <code>flush</code> の中で異常終了します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">const</span> stdout_writer = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;buf);
+<span class="kw">var</span> stdout = stdout_writer.interface;
+</code></pre>
+      <p>
+        <code>stdout_writer</code> は <code>std.Io.File.Writer</code> で、汎用の <code>std.Io.Writer</code> をフィールド <code>interface</code> として中に持っています。<code>var stdout = stdout_writer.interface;</code> はそのフィールドを別の変数へコピーします。コピーも同じ <code>buf</code> をバッファとして指していて、<code>print</code> はそこに書くだけなので、ここまでは動きます。
+      </p>
+      <p>
+        <code>flush</code> がファイルへ書くときに呼ぶ <code>File.Writer</code> の関数は、渡された <code>interface</code> のアドレスから、それを埋め込んでいる <code>File.Writer</code> のアドレスを <code>@fieldParentPtr</code> で逆算します。コピーした <code>stdout</code> は <code>File.Writer</code> の中にないので、逆算した先にあるのは <code>File.Writer</code> ではない無関係なメモリです。そこをファイルの情報として読むので、何も書けないまま落ちます。langref はこれを検査されない illegal behavior（unchecked illegal behavior）としていて、どう落ちるかは決まっていません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">var</span> stdout_writer = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;buf);
+<span class="kw">const</span> stdout = &amp;stdout_writer.interface;
+</code></pre>
+      <p>
+        <code>&amp;stdout_writer.interface</code> で、<code>File.Writer</code> の中にある <code>interface</code> そのものを指すポインタを取ります。<code>@fieldParentPtr</code> の逆算は本物の <code>stdout_writer</code> に戻るので、<code>flush</code> は2行を書き出します。ポインタを通して <code>stdout_writer</code> を書き換えるので、<code>stdout_writer</code> は <code>var</code> に戻します。<sup class="fn-ref">1</sup>
+      </p>
+      <ol class="footnotes">
+        <li>Zig では書き換えない <code>var</code> がコンパイルエラーになるので、問題のコードでは <code>stdout_writer</code> を <code>const</code> にしないとコンパイルが通りません。<code>const</code> に変えたくなったら、そこから値をコピーしていないかを疑う手がかりになります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/debug">Today</a></li>
+    <li><a href="/zig/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

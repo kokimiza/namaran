@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="配列を持つ IntBuf に、中身を入れ替える swap と、値で受けた引数との交換で書くコピー代入演算子を書くC++ WRITEのドリルです。swap を修飾なしで呼ぶか std::swap と書くかで、動くか無限再帰になるかが分かれます。">
+<title>交換で書くコピー代入</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-11-02">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-02" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-11-02",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-11-02",
+      "datePublished": "2026-11-02",
+      "dateModified": "2026-11-02",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "交換で書くコピー代入" },
+      "keywords": "swap, copy-assignment, argument-dependent-lookup, exception-safety, destructor",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "配列を持つ IntBuf に、中身を入れ替える swap と、値で受けた引数との交換で書くコピー代入演算子を書くC++ WRITEのドリルです。swap を修飾なしで呼ぶか std::swap と書くかで、動くか無限再帰になるかが分かれます。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-02">C23</a>
+  <a href="/cpp/write/2026-11-02" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-11-02">Rust 2024</a>
+  <a href="/haskell/write/2026-11-02">Haskell 2010</a>
+  <a href="/zig/write/2026-11-02">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-02">READ</a>
+  <a href="/cpp/write/2026-11-02" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-11-02">DEBUG</a>
+</nav>
+
+<main
+  data-topic="交換で書くコピー代入"
+  data-tags="swap copy-assignment argument-dependent-lookup exception-safety destructor"
+  data-concepts="copy-and-swap, コピーアンドスワップ, 自己代入, hidden friend, 隠れたフレンド, using std::swap, 二段構えのswap"
+  data-level="bison"
+>
+  <h2>2026-11-02</h2>
+  <div class="code-frame">
+    <p class="code-filename">int_buf.cpp</p>
+    <pre class="code"><code><span class="kw">class</span> <span class="ty">IntBuf</span> {
+    std::<span class="ty">size_t</span> size_;
+    <span class="ty">int</span>* data_;
+
+<span class="kw">public</span>:
+    <span class="kw">explicit</span> <span class="fn">IntBuf</span>(std::<span class="ty">size_t</span> n) : <span class="fn">size_</span>(n), <span class="fn">data_</span>(<span class="kw">new</span> <span class="ty">int</span>[n]{}) {}
+    <span class="fn">IntBuf</span>(<span class="kw">const</span> <span class="ty">IntBuf</span>&amp; other) : <span class="fn">size_</span>(other.size_), <span class="fn">data_</span>(<span class="kw">new</span> <span class="ty">int</span>[other.size_]) {
+        std::<span class="fn">copy</span>(other.data_, other.data_ + size_, data_);
+    }
+    ~<span class="fn">IntBuf</span>() {
+        <span class="kw">delete</span>[] data_;
+    }
+    <span class="ty">int</span>&amp; <span class="kw">operator</span>[](std::<span class="ty">size_t</span> i) {
+        <span class="kw">return</span> data_[i];
+    }
+    std::<span class="ty">size_t</span> <span class="fn">size</span>() <span class="kw">const</span> {
+        <span class="kw">return</span> size_;
+    }
+
+    <span class="kw">friend</span> <span class="ty">void</span> <span class="fn">swap</span>(<span class="ty">IntBuf</span>&amp; a, <span class="ty">IntBuf</span>&amp; b) <span class="kw">noexcept</span> {
+    }
+    <span class="ty">IntBuf</span>&amp; <span class="kw">operator</span>=(<span class="ty">IntBuf</span> other) <span class="kw">noexcept</span> {
+    }
+};
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>IntBuf</code> は <code>new[]</code> で確保した <code>int</code> の配列を持つクラスです。2つの <code>IntBuf</code> の中身（大きさと配列）を、新しい確保をせずに入れ替える <code>swap</code> と、コピー代入演算子 <code>operator=</code> の本体を書いてください。代入のあと、<code>a</code> は代入元と同じ大きさと値を持つ別の配列を持ち、代入前に持っていた配列は解放されます。<code>a = a</code> のように自分自身を代入しても中身は変わりません。入力例は、上から順に実行する文の並びです。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>IntBuf a(2), b(3); b[0] = 7; a = b; b[0] = 9; std::cout &lt;&lt; a.size() &lt;&lt; a[0];</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>37</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>IntBuf a(2); a[1] = 5; a = a; std::cout &lt;&lt; a.size() &lt;&lt; a[1];</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>25</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>IntBuf a(1), b(4); swap(a, b); std::cout &lt;&lt; a.size() &lt;&lt; b.size();</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>41</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">friend</span> <span class="ty">void</span> <span class="fn">swap</span>(<span class="ty">IntBuf</span>&amp; a, <span class="ty">IntBuf</span>&amp; b) <span class="kw">noexcept</span> {
+    <span class="kw">using</span> std::swap;
+    <span class="fn">swap</span>(a.size_, b.size_);
+    <span class="fn">swap</span>(a.data_, b.data_);
+}
+<span class="ty">IntBuf</span>&amp; <span class="kw">operator</span>=(<span class="ty">IntBuf</span> other) <span class="kw">noexcept</span> {
+    <span class="fn">swap</span>(*<span class="kw">this</span>, other);
+    <span class="kw">return</span> *<span class="kw">this</span>;
+}
+</code></pre>
+      <p>
+        <code>operator=</code> は引数を値で受けるので、呼び出した時点でコピーコンストラクタが代入元の複製 <code>other</code> を作っています。本体はその複製と自分の中身を <code>swap</code> で入れ替えます。入れ替えたあとの <code>other</code> は代入前の古い配列を持っていて、関数を抜けるときに <code>other</code> のデストラクタがそれを解放します。複製は古い配列を手放す前にできているので、入力例2の自己代入でも、消した配列から写すことにはなりません。確保に失敗して例外が出る場合も呼び出しの前に出るので、<code>a</code> は元のまま残ります。
+      </p>
+      <p>
+        本体の <code>swap(*this, other)</code> は修飾なしで書きます。<code>swap</code> はクラスの中で定義したフレンド関数なので、名前空間の通常の探索では見えず、実引数の型 <code>IntBuf</code> から探す実引数依存の名前探索（ADL）でだけ見つかります。ここを <code>std::swap(*this, other)</code> と書くと、汎用の <code>std::swap</code> が一時オブジェクトを使った代入で入れ替えようとして、その代入がまた <code>operator=</code> を呼びます。その <code>operator=</code> がまた <code>std::swap</code> を呼ぶので、再帰が終わらずにスタックを使い切ります。
+      </p>
+      <p>
+        <code>swap</code> の中では、メンバを1つずつ入れ替えます。メンバの型 <code>std::size_t</code> と <code>int*</code> には属する名前空間がないので ADL は働かず、<code>using std::swap;</code> を置かずに <code>swap(a.size_, b.size_)</code> と書くと、呼べる関数が見つからずにコンパイルエラーになります。<code>using std::swap;</code> のあとに修飾なしで呼ぶ形にしておけば、メンバの型が自分の <code>swap</code> を持つクラスに変わっても、その <code>swap</code> が選ばれます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。メンバが組み込み型だけのいまは、<code>swap</code> の中を <code>std::swap(a.size_, b.size_)</code> のように修飾して書いても同じように動きます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

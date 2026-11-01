@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="2つの列から、順番を保ったまま飛び飛びに取り出せる共通の列のうち、最も長いものの長さを返す lcsLength を書くHaskell WRITEのドリルです。長さ2000の列どうしでも数秒で終わるように、表の要素どうしの参照を遅延評価に任せます。">
+<title>遅延配列で数える共通部分</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-11-02">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-02" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-11-02",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-11-02",
+      "datePublished": "2026-11-02",
+      "dateModified": "2026-11-02",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "遅延配列で数える共通部分" },
+      "keywords": "longest-common-subsequence, dynamic-programming, laziness, memoization, array",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "2つの列から、順番を保ったまま飛び飛びに取り出せる共通の列のうち、最も長いものの長さを返す lcsLength を書くHaskell WRITEのドリルです。長さ2000の列どうしでも数秒で終わるように、表の要素どうしの参照を遅延評価に任せます。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-02">C23</a>
+  <a href="/cpp/write/2026-11-02">C++26</a>
+  <a href="/rust/write/2026-11-02">Rust 2024</a>
+  <a href="/haskell/write/2026-11-02" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/write/2026-11-02">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-02">READ</a>
+  <a href="/haskell/write/2026-11-02" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-11-02">DEBUG</a>
+</nav>
+
+<main
+  data-topic="遅延配列で数える共通部分"
+  data-tags="longest-common-subsequence dynamic-programming laziness memoization array"
+  data-concepts="最長共通部分列, LCS, 遅延評価によるメモ化, Data.Array, 動的計画法, lazy array, longest common subsequence"
+  data-level="peacock"
+>
+  <h2>2026-11-02</h2>
+  <div class="code-frame">
+    <p class="code-filename">LcsLength.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Data.Array</span>
+
+<span class="fn">lcsLength</span> <span class="op">::</span> (<span class="ty">Eq</span> a) <span class="op">=&gt;</span> [a] <span class="op">-&gt;</span> [a] <span class="op">-&gt;</span> <span class="ty">Int</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    列 <code>xs</code> から要素をいくつか取り除き、残りを元の順に並べたものを <code>xs</code> の部分列と呼びます。取り除く要素は飛び飛びでもかまいません。<code>xs</code> と <code>ys</code> のどちらの部分列でもある列のうち、最も長いものの長さを返す <code>lcsLength</code> を書いてください。どちらかが空なら0です。長さ2000の列どうしでも、数秒以内に答えが出るようにします。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>lcsLength "abcbdab" "bdcaba"</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>4</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>lcsLength [1,2,3] [3,2,1]</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>1</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>lcsLength "abc" ""</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">import</span> <span class="ty">Data.Array</span>
+
+<span class="fn">lcsLength</span> <span class="op">::</span> (<span class="ty">Eq</span> a) <span class="op">=&gt;</span> [a] <span class="op">-&gt;</span> [a] <span class="op">-&gt;</span> <span class="ty">Int</span>
+<span class="fn">lcsLength</span> xs ys = table ! (<span class="nu">0</span>, <span class="nu">0</span>)
+ <span class="kw">where</span>
+  n = length xs
+  m = length ys
+  xa = listArray (<span class="nu">0</span>, n - <span class="nu">1</span>) xs
+  ya = listArray (<span class="nu">0</span>, m - <span class="nu">1</span>) ys
+  table = array ((<span class="nu">0</span>, <span class="nu">0</span>), (n, m)) [((i, j), cell i j) | i <span class="op">&lt;-</span> [<span class="nu">0</span> .. n], j <span class="op">&lt;-</span> [<span class="nu">0</span> .. m]]
+  cell i j
+    | i == n || j == m = <span class="nu">0</span>
+    | xa ! i == ya ! j = <span class="nu">1</span> + table ! (i + <span class="nu">1</span>, j + <span class="nu">1</span>)
+    | otherwise = max (table ! (i + <span class="nu">1</span>, j)) (table ! (i, j + <span class="nu">1</span>))
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = <span class="kw">do</span>
+  print (lcsLength <span class="st">"abcbdab"</span> <span class="st">"bdcaba"</span>)
+  print (lcsLength <span class="st">"abc"</span> <span class="st">""</span>)
+  print (lcsLength [<span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">3</span>] [<span class="nu">3</span>, <span class="nu">2</span>, <span class="nu">1</span> <span class="op">::</span> <span class="ty">Int</span>])
+  print (lcsLength (replicate <span class="nu">2000</span> <span class="st">'a'</span>) (replicate <span class="nu">2000</span> <span class="st">'a'</span>))
+</code></pre>
+      <p>
+        <code>xs</code> の <code>i</code> 番目以降と <code>ys</code> の <code>j</code> 番目以降の答えを <code>cell i j</code> とすると、<code>cell i j</code> は先頭の2要素と、添字を1つ進めた <code>(i + 1, j + 1)</code>、<code>(i + 1, j)</code>、<code>(i, j + 1)</code> の答えから決まります。これを再帰呼び出しでそのまま書くと、同じ <code>(i, j)</code> を何度も計算し直すので、長さ2000では終わりません。
+      </p>
+      <p>
+        すべての <code>(i, j)</code> の答えを配列 <code>table</code> に入れ、<code>cell</code> は再帰呼び出しの代わりに <code>table</code> の要素を読みます。<code>array</code> は要素を評価せずに、まだ計算していない式のまま配列に入れるので、<code>table</code> の要素が <code>table</code> のほかの要素を参照していてもかまいません。<code>table ! (0, 0)</code> が要ると、その式が参照する要素が初めて計算され、計算した値は配列に残るので、どの要素も1回しか計算されません。どの順に表を埋めるかを書く必要はなく、参照の関係から順番が決まります。
+      </p>
+      <p>
+        表は <code>n</code> 行目と <code>m</code> 列目まで作ります。そこは空の列が相手になる場所で、答えは0です。添字を <code>xa ! i</code> で引くのは <code>i &lt; n</code> かつ <code>j &lt; m</code> のときだけなので、入力例3のように片方が空でも範囲の外は読みません。表は (n + 1)(m + 1) 個の要素を持つので、2000 × 2000 でも約400万回の計算で済みます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。表を1行ずつ、前の行から <code>scanl</code> で作っていく書き方なら、前の行だけを持てばよいので、使うメモリも少なくなります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

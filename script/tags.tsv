@@ -119,6 +119,7 @@ display-width	表示幅
 divide-and-conquer	分割統治
 division	除算と剰余
 do-notation	do記法
+double-free	二重解放
 doubling	ダブリング
 drop-scope	dropスコープ
 durability	永続性
@@ -236,6 +237,7 @@ list-comprehension	リスト内包表記
 list-initialization	リスト初期化
 list-monad	リストモナド
 locale	ロケール
+longest-common-subsequence	最長共通部分列
 longest-increasing-subsequence	最長増加部分列
 loop	ループ
 lowest-common-ancestor	最小共通祖先

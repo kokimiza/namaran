@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「標準入出力」を扱ったNamaranのコーディングドリル21問。fread、戻り値、要素の個数、ファイル位置表示子、部分読み込み、short read。">
+<meta name="description" content="「標準入出力」を扱ったNamaranのコーディングドリル24問。std.Io.Writer、バッファ付き出力、flush、標準出力、buffered writer、flush the buffer。">
 <title>標準入出力</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/stdio">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>標準入出力</h2>
 
   <p class="lede">
-    「標準入出力」を扱った21問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「標準入出力」を扱った24問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/read/2026-11-02">Zig / READ · 2026-11-02</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">最後のflushがない</span> <span class="past-concepts">std.Io.Writer, バッファ付き出力, flush, 標準出力, buffered writer, flush the buffer</span></li>
+    <li><a href="/zig/debug/2026-11-02">Zig / DEBUG · 2026-11-02</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">Writerを値で取り出す</span> <span class="past-concepts">std.Io.Writer, interface, @fieldParentPtr, 構造体のコピー, File.Writer, vtable, copying the interface</span></li>
+    <li><a href="/c/read/2026-11-02">C / READ · 2026-11-02</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">printfとroundの丸め</span> <span class="past-concepts">偶数への丸め, 四捨五入, round関数, printf の %.0f, round half to even, round half away from zero, banker's rounding</span></li>
     <li><a href="/c/read/2026-11-01">C / READ · 2026-11-01</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">freadが返す個数</span> <span class="past-concepts">fread, 戻り値, 要素の個数, ファイル位置表示子, 部分読み込み, short read, file position indicator</span></li>
     <li><a href="/c/debug/2026-11-01">C / DEBUG · 2026-11-01</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">見出しを後から埋める</span> <span class="past-concepts">fopen のモード, 追記モード, a+, w+, fseek, 部分書き込み, append mode, overwrite in place</span></li>
     <li><a href="/zig/read/2026-10-30">Zig / READ · 2026-10-30</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">埋める文字と揃える向き</span> <span class="past-concepts">書式指定, 幅と揃え, 埋め文字, ゼロ埋め, 16進数表示, std.Io.Writer.print, fill and alignment</span></li>

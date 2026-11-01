@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="2つの文字列の最も長い共通部分を取り出すつもりの lcs が、lcs &quot;aab&quot; &quot;ab&quot; に、&quot;ab&quot; より長い &quot;aab&quot; を返すHaskell DEBUGのドリルです。一致した文字のあとで、どちらの列を先へ進めるかが問題です。">
+<title>2度使われた一致</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-11-02">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-02" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-11-02",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-11-02",
+      "datePublished": "2026-11-02",
+      "dateModified": "2026-11-02",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "2度使われた一致" },
+      "keywords": "longest-common-subsequence, recursion, as-pattern, pattern-matching",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "2つの文字列の最も長い共通部分を取り出すつもりの lcs が、lcs \"aab\" \"ab\" に、\"ab\" より長い \"aab\" を返すHaskell DEBUGのドリルです。一致した文字のあとで、どちらの列を先へ進めるかが問題です。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-02">C23</a>
+  <a href="/cpp/debug/2026-11-02">C++26</a>
+  <a href="/rust/debug/2026-11-02">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-02" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-02">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-02">READ</a>
+  <a href="/haskell/write/2026-11-02">WRITE</a>
+  <a href="/haskell/debug/2026-11-02" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="2度使われた一致"
+  data-tags="longest-common-subsequence recursion as-pattern pattern-matching"
+  data-concepts="最長共通部分列, LCS, asパターン, 再帰, 一致した要素の消費, longest common subsequence, as-pattern"
+  data-level="peacock"
+>
+  <h2>2026-11-02</h2>
+  <div class="code-frame">
+    <p class="code-filename">Common.hs</p>
+    <pre class="code"><code><span class="fn">lcs</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">String</span>
+<span class="fn">lcs</span> xs'@(x : xs) ys'@(y : ys)
+  | x == y = x : lcs xs ys'
+  | otherwise = longer (lcs xs' ys) (lcs xs ys')
+ <span class="kw">where</span>
+  longer a b = <span class="kw">if</span> length a &gt;= length b <span class="kw">then</span> a <span class="kw">else</span> b
+<span class="fn">lcs</span> _ _ = <span class="st">""</span>
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = putStrLn (lcs <span class="st">"aab"</span> <span class="st">"ab"</span>)
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>lcs</code> は、2つの文字列のどちらからも、文字をいくつか取り除いて残りを元の順に並べれば作れる文字列のうち、最も長いものを返すつもりの関数です。取り除く文字は飛び飛びでかまいません。<code>lcs "aab" "ab"</code> は本来 <code>ab</code> を表示するはずが、いまは <code>"ab"</code> より長い <code>aab</code> を表示します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code>| x == y = x : lcs xs ys'
+</code></pre>
+      <p>
+        先頭の文字が一致したとき、<code>xs</code> だけを進め、<code>ys</code> には一致した <code>y</code> を含む <code>ys'</code> をそのまま渡しています。<code>y</code> は使い終わっていないことになり、<code>xs</code> の次の文字とまた一致できます。<code>lcs "aab" "ab"</code> では、<code>"aab"</code> の1文字目と2文字目の <code>'a'</code> が、どちらも <code>"ab"</code> の同じ <code>'a'</code> と一致し、続く <code>'b'</code> も一致して <code>"aab"</code> ができます。
+      </p>
+      <p>
+        共通部分の文字は、どちらの列でも別々の位置から1回ずつ取る必要があり、<code>"aab"</code> は <code>"ab"</code> からは作れません。結果が <code>ys</code> より長くなったのはこのためです。<code>xs</code> に同じ文字が並ばない入力では、残した <code>y</code> と再び一致する文字が来ないので、このバグは表に出ません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code>| x == y = x : lcs xs ys
+</code></pre>
+      <p>
+        一致した <code>x</code> と <code>y</code> は、結果の1文字として両方の列で使ったので、両方を1つずつ進めます。一致したときは両方を進めても最長を逃さず、<code>longer</code> で2通りを比べる必要もありません。<code>lcs "aab" "ab"</code> は1文字目の <code>'a'</code> どうしを使ったあと <code>lcs "ab" "b"</code> に進み、<code>"ab"</code> を返します。<sup class="fn-ref">1</sup>
+      </p>
+      <ol class="footnotes">
+        <li>先頭どうしが一致したとき、最長の共通部分の1文字目を、先頭の <code>x</code> と <code>y</code> の組に取り替えても、残りの文字はどちらの列でもそれより後ろの位置で組んでいるので、共通部分のままで長さも変わりません。そのため、先頭どうしを使う最長の共通部分が必ずあります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

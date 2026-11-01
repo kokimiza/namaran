@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="int を1つ所有する Buffer を using std::swap; swap(a, b); で入れ替えると、終了時に二重解放で落ちるC++ DEBUGのドリルです。汎用の std::swap がムーブコンストラクタとムーブ代入で何をするかを追うと、原因の行が分かります。">
+<title>swapのあとの二重解放</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-11-02">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-02" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-11-02",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-11-02",
+      "datePublished": "2026-11-02",
+      "dateModified": "2026-11-02",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "swapのあとの二重解放" },
+      "keywords": "swap, move-semantics, destructor, double-free",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "int を1つ所有する Buffer を using std::swap; swap(a, b); で入れ替えると、終了時に二重解放で落ちるC++ DEBUGのドリルです。汎用の std::swap がムーブコンストラクタとムーブ代入で何をするかを追うと、原因の行が分かります。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-02">C23</a>
+  <a href="/cpp/debug/2026-11-02" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-11-02">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-02">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-02">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-02">READ</a>
+  <a href="/cpp/write/2026-11-02">WRITE</a>
+  <a href="/cpp/debug/2026-11-02" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="swapのあとの二重解放"
+  data-tags="swap move-semantics destructor double-free"
+  data-concepts="ムーブコンストラクタ, ムーブ元, 二重解放, std::swap の実装, std::exchange, moved-from state, double free"
+  data-level="hedgehog"
+>
+  <h2>2026-11-02</h2>
+  <div class="code-frame">
+    <p class="code-filename">buffer_swap.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;utility&gt;</span>
+
+<span class="kw">struct</span> <span class="ty">Buffer</span> {
+    <span class="ty">int</span>* data;
+    <span class="kw">explicit</span> <span class="fn">Buffer</span>(<span class="ty">int</span> v) : <span class="fn">data</span>(<span class="kw">new</span> <span class="ty">int</span>(v)) {}
+    <span class="fn">Buffer</span>(<span class="ty">Buffer</span>&amp;&amp; other) <span class="kw">noexcept</span> : <span class="fn">data</span>(other.data) {}
+    <span class="ty">Buffer</span>&amp; <span class="kw">operator</span>=(<span class="ty">Buffer</span>&amp;&amp; other) <span class="kw">noexcept</span> {
+        std::<span class="fn">swap</span>(data, other.data);
+        <span class="kw">return</span> *<span class="kw">this</span>;
+    }
+    ~<span class="fn">Buffer</span>() {
+        <span class="kw">delete</span> data;
+    }
+};
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="ty">Buffer</span> <span class="fn">a</span>(<span class="nu">1</span>), <span class="fn">b</span>(<span class="nu">2</span>);
+    <span class="kw">using</span> std::swap;
+    <span class="fn">swap</span>(a, b);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>Buffer</code> は <code>new</code> で確保した <code>int</code> を1つ所有し、デストラクタで解放するクラスです。このプログラムは <code>a</code> と <code>b</code> の中身を入れ替えて終わるつもりで、本来は何も表示せずに正常終了するはずです。いまは GCC と glibc でビルドして実行すると、終了時に <code>free(): double free detected in tcache 2</code> と表示して異常終了します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="fn">Buffer</span>(<span class="ty">Buffer</span>&amp;&amp; other) <span class="kw">noexcept</span> : <span class="fn">data</span>(other.data) {}
+</code></pre>
+      <p>
+        <code>Buffer</code> は自分の <code>swap</code> を持たないので、<code>swap(a, b)</code> は <code>std::swap</code> を呼びます。<code>std::swap</code> は、<code>a</code> からムーブして一時オブジェクト <code>tmp</code> を作り、<code>a = std::move(b)</code>、<code>b = std::move(tmp)</code> と代入してから <code>tmp</code> を破棄します。このムーブコンストラクタはポインタを写すだけでムーブ元の <code>data</code> を残すので、<code>tmp</code> を作った時点で <code>tmp</code> と <code>a</code> が同じ <code>int</code> を指します。
+      </p>
+      <p>
+        続く2回のムーブ代入はポインタを交換するので、<code>a</code> は <code>b</code> の <code>int</code> を受け取ります。<code>a</code> の元の <code>int</code> は、<code>b</code> に渡ったあとも <code>tmp</code> に残っています。<code>std::swap</code> を抜けるときに <code>tmp</code> のデストラクタがそれを解放し、<code>main</code> の終わりに <code>b</code> のデストラクタが同じ領域をもう一度解放します。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="fn">Buffer</span>(<span class="ty">Buffer</span>&amp;&amp; other) <span class="kw">noexcept</span> : <span class="fn">data</span>(std::<span class="fn">exchange</span>(other.data, <span class="nu">nullptr</span>)) {}
+</code></pre>
+      <p>
+        <code>std::exchange</code> は <code>other.data</code> を <code>nullptr</code> に置き換え、置き換える前の値を返します。ムーブ元は所有を手放した空の状態になり、<code>tmp</code> のデストラクタは <code>delete nullptr</code> になって何もしません。それぞれの <code>int</code> を指すのは <code>a</code> と <code>b</code> の1つずつになり、終了時に1回ずつ解放されます。<sup class="fn-ref">1</sup>
+      </p>
+      <ol class="footnotes">
+        <li>ムーブ代入の側は、<code>data</code> を交換しているので所有が重なりません。<code>Buffer</code> の中で定義したフレンド関数 <code>swap</code> でポインタを交換すれば、<code>std::swap</code> を経由せず、一時オブジェクトも作らずに入れ替えられます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

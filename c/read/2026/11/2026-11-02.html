@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="0.5、1.5、2.5 を printf の %.0f で表示したときと、round で丸めてから表示したときの違いを問うC READのドリルです。ちょうど半分の値を、偶数の側へ丸めるか、0から遠い側へ丸めるかが分かれます。">
+<title>printfとroundの丸め</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-11-02">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-02" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-11-02",
+      "url": "https://namaran.jocarium.productions/c/read/2026-11-02",
+      "datePublished": "2026-11-02",
+      "dateModified": "2026-11-02",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "printfとroundの丸め" },
+      "keywords": "rounding, floating-point, format-string, stdio",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "0.5、1.5、2.5 を printf の %.0f で表示したときと、round で丸めてから表示したときの違いを問うC READのドリルです。ちょうど半分の値を、偶数の側へ丸めるか、0から遠い側へ丸めるかが分かれます。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-02" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-11-02">C++26</a>
+  <a href="/rust/read/2026-11-02">Rust 2024</a>
+  <a href="/haskell/read/2026-11-02">Haskell 2010</a>
+  <a href="/zig/read/2026-11-02">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-02" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-11-02">WRITE</a>
+  <a href="/c/debug/2026-11-02">DEBUG</a>
+</nav>
+
+<main
+  data-topic="printfとroundの丸め"
+  data-tags="rounding floating-point format-string stdio"
+  data-concepts="偶数への丸め, 四捨五入, round関数, printf の %.0f, round half to even, round half away from zero, banker&#x27;s rounding"
+  data-level="hedgehog"
+>
+  <h2>2026-11-02</h2>
+  <div class="code-frame">
+    <p class="code-filename">rounding.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;math.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="fn">printf</span>(<span class="st">"%.0f %.0f %.0f\n"</span>, <span class="nu">0.5</span>, <span class="nu">1.5</span>, <span class="nu">2.5</span>);
+    <span class="fn">printf</span>(<span class="st">"%.0f %.0f %.0f\n"</span>, <span class="fn">round</span>(<span class="nu">0.5</span>), <span class="fn">round</span>(<span class="nu">1.5</span>), <span class="fn">round</span>(<span class="nu">2.5</span>));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        1行目が <code>0 2 2</code>、2行目が <code>1 2 3</code> です。
+      </p>
+      <p>
+        <code>%.0f</code> は値を小数点以下0桁に丸めて表示します。丸め方はそのときの丸めの向きの設定に従い、プログラムの開始時の設定は「最も近い値へ。ちょうど真ん中なら偶数の側へ」です。<code>0.5</code> は0と1の真ん中なので偶数の0に、<code>1.5</code> と <code>2.5</code> はどちらも偶数の2になります。<sup class="fn-ref">1</sup>
+      </p>
+      <p>
+        <code>round</code> は丸めの向きの設定に関係なく、ちょうど真ん中の値を0から遠い側へ丸めます。学校で習う四捨五入と同じで、<code>round(0.5)</code> は1、<code>round(1.5)</code> は2、<code>round(2.5)</code> は3です。結果はどれも整数ちょうどの <code>double</code> なので、<code>%.0f</code> はそのまま表示します。
+      </p>
+      <p>
+        <code>%.0f</code> も四捨五入だと考えると、1行目を <code>1 2 3</code> と答えます。0.5、1.5、2.5 はどれも2進数で誤差なく表せるので、1行目と2行目の違いは表し方の誤差ではなく、丸め方の違いから来ています。
+      </p>
+      <ol class="footnotes">
+        <li>規格は、<code>__STDC_IEC_559__</code> を定義する処理系（GCC と glibc など）について、プログラム開始時の丸めの向きを「最も近い値へ」と定め、<code>printf</code> による10進数への変換もそのときの丸めの向きに従うと定めています。同じ丸めの向きは <code>rint</code> や <code>nearbyint</code> も使います。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

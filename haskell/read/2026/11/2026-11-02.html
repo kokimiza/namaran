@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="前の行から次の行を scanl で作る関数を foldl で2回適用したとき、どんなリストが表示されるかを問うHaskell READのドリルです。左隣は作りかけの新しい行から、真上と左上は前の行から取ります。">
+<title>scanlで作る表の1行</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-11-02">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-02" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-11-02",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-11-02",
+      "datePublished": "2026-11-02",
+      "dateModified": "2026-11-02",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "scanlで作る表の1行" },
+      "keywords": "longest-common-subsequence, dynamic-programming, fold",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "前の行から次の行を scanl で作る関数を foldl で2回適用したとき、どんなリストが表示されるかを問うHaskell READのドリルです。左隣は作りかけの新しい行から、真上と左上は前の行から取ります。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-02">C23</a>
+  <a href="/cpp/read/2026-11-02">C++26</a>
+  <a href="/rust/read/2026-11-02">Rust 2024</a>
+  <a href="/haskell/read/2026-11-02" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/read/2026-11-02">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-02" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-11-02">WRITE</a>
+  <a href="/haskell/debug/2026-11-02">DEBUG</a>
+</nav>
+
+<main
+  data-topic="scanlで作る表の1行"
+  data-tags="longest-common-subsequence dynamic-programming fold"
+  data-concepts="最長共通部分列, LCS, 動的計画法の表, scanl, zip3, foldl, DP table row, longest common subsequence"
+  data-level="hedgehog"
+>
+  <h2>2026-11-02</h2>
+  <div class="code-frame">
+    <p class="code-filename">LcsRow.hs</p>
+    <pre class="code"><code><span class="fn">nextRow</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> <span class="ty">Char</span> <span class="op">-&gt;</span> [<span class="ty">Int</span>]
+<span class="fn">nextRow</span> ys prev x = scanl step <span class="nu">0</span> (zip3 ys prev (drop <span class="nu">1</span> prev))
+ <span class="kw">where</span>
+  step left (y, diag, up)
+    | x == y = diag + <span class="nu">1</span>
+    | otherwise = max left up
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (foldl (nextRow <span class="st">"bab"</span>) [<span class="nu">0</span>, <span class="nu">0</span>, <span class="nu">0</span>, <span class="nu">0</span>] <span class="st">"ab"</span>)
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>[0,1,1,2]</code> です。
+      </p>
+      <p>
+        <code>foldl</code> は初期値 <code>[0,0,0,0]</code> から始めて、<code>"ab"</code> の文字 <code>'a'</code>、<code>'b'</code> の順に <code>nextRow "bab"</code> を適用します。<code>nextRow</code> の中では、<code>zip3</code> が <code>ys</code> の文字 <code>y</code> と、前の行の要素 <code>diag</code>、その1つ右の要素 <code>up</code> を組にします。<code>scanl</code> は先頭に0を置き、組ごとに <code>step</code> で次の要素を作ります。<code>left</code> は <code>scanl</code> が直前に作った要素なので、新しい行の左隣です。
+      </p>
+      <p>
+        <code>'a'</code> の行では、<code>y</code> が <code>'b'</code> のときは <code>max 0 0</code> で0、<code>'a'</code> のときは一致するので <code>diag + 1</code> で1、次の <code>'b'</code> では <code>max 1 0</code> で1になり、<code>[0,0,1,1]</code> ができます。<code>'b'</code> の行では、最初の <code>'b'</code> が一致して 0 + 1 = 1、<code>'a'</code> は <code>max 1 1</code> で1、最後の <code>'b'</code> が一致して、前の行の3番目の1に1を足した2になります。
+      </p>
+      <p>
+        この表は、2つの文字列から順番を保ったまま、飛び飛びでもよいので共通に取り出せる最も長い列の長さを数えています。最後の行の <code>j</code> 番目は、<code>"ab"</code> と <code>"bab"</code> の先頭 <code>j</code> 文字の間でのその長さで、<code>"ab"</code> 全体と <code>"bab"</code> 全体なら <code>"ab"</code> の2です。<code>zip3</code> は3つのうち最も短い <code>drop 1 prev</code> と <code>ys</code> に合わせて3組だけ作るので、<code>scanl</code> の先頭の0と合わせて、どの行も長さ4のまま進みます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

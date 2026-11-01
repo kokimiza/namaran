@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="木のノードをすべて1つの Vec に置き、子を添字で指すアリーナで、新しい子ノードを確保して親につなぐ add_child を書くRust WRITEのドリルです。新しいノードの添字をいつ読むかと、親への可変参照をいつ取るかで、書き方が決まります。">
+<title>添字で指すアリーナの木</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-11-02">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-02" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-11-02",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-11-02",
+      "datePublished": "2026-11-02",
+      "dateModified": "2026-11-02",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "添字で指すアリーナの木" },
+      "keywords": "arena-allocator, tree, borrow, vector",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "木のノードをすべて1つの Vec に置き、子を添字で指すアリーナで、新しい子ノードを確保して親につなぐ add_child を書くRust WRITEのドリルです。新しいノードの添字をいつ読むかと、親への可変参照をいつ取るかで、書き方が決まります。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-02">C23</a>
+  <a href="/cpp/write/2026-11-02">C++26</a>
+  <a href="/rust/write/2026-11-02" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-11-02">Haskell 2010</a>
+  <a href="/zig/write/2026-11-02">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-02">READ</a>
+  <a href="/rust/write/2026-11-02" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-11-02">DEBUG</a>
+</nav>
+
+<main
+  data-topic="添字で指すアリーナの木"
+  data-tags="arena-allocator tree borrow vector"
+  data-concepts="アリーナ, 添字で参照する木, インデックスベースの木, 可変借用, arena allocation, index-based tree, NodeId"
+  data-level="peacock"
+>
+  <h2>2026-11-02</h2>
+  <div class="code-frame">
+    <p class="code-filename">tree_arena.rs</p>
+    <pre class="code"><code><span class="kw">struct</span> <span class="ty">Node</span> {
+    value: <span class="ty">i32</span>,
+    children: <span class="ty">Vec</span>&lt;<span class="ty">usize</span>&gt;,
+}
+
+<span class="kw">fn</span> <span class="fn">add_child</span>(arena: &amp;<span class="kw">mut</span> <span class="ty">Vec</span>&lt;<span class="ty">Node</span>&gt;, parent: <span class="ty">usize</span>, value: <span class="ty">i32</span>) -&gt; <span class="ty">usize</span> {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    木のノードをすべて1つの <code>Vec&lt;Node&gt;</code> の <code>arena</code> に置き、ノードを <code>arena</code> の中の添字で指します。<code>children</code> は子ノードの添字の並びです。値 <code>value</code> を持つ新しいノードを <code>arena</code> の末尾に作り、添字 <code>parent</code> のノードの子の最後に加えて、新しいノードの添字を返す <code>add_child</code> を書いてください。新しいノードはまだ子を持ちません。<code>parent</code> は <code>arena</code> の中の有効な添字とします。例では、呼び出しの前と後の <code>arena</code> を、添字の順に <code>値 [子の添字]</code> を並べて書きます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>[0 []]
+add_child(&amp;mut arena, 0, 7)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>1
+[0 [1], 7 []]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>[0 [1], 7 []]
+add_child(&amp;mut arena, 1, 9)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>2
+[0 [1], 7 [2], 9 []]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>[0 [1], 7 []]
+add_child(&amp;mut arena, 0, 8)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>2
+[0 [1, 2], 7 [], 8 []]</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">add_child</span>(arena: &amp;<span class="kw">mut</span> <span class="ty">Vec</span>&lt;<span class="ty">Node</span>&gt;, parent: <span class="ty">usize</span>, value: <span class="ty">i32</span>) -&gt; <span class="ty">usize</span> {
+    <span class="kw">let</span> id = arena.<span class="fn">len</span>();
+    arena.<span class="fn">push</span>(<span class="ty">Node</span> { value, children: <span class="ty">Vec</span>::<span class="fn">new</span>() });
+    arena[parent].children.<span class="fn">push</span>(id);
+    id
+}
+</code></pre>
+      <p>
+        新しいノードの添字は、<code>push</code> する前の <code>arena.len()</code> です。末尾に積むので、それまでの要素数がそのまま次の添字になります。<code>push</code> のあとに <code>arena.len()</code> を読むなら、1を引く必要があります。
+      </p>
+      <p>
+        親に添字を足すのは、<code>push</code> を終えてからにします。先に <code>let p = &amp;mut arena[parent];</code> で親への可変参照を取り、それを持ったまま <code>arena.push</code> を呼ぶと、<code>arena</code> を2か所から同時に可変で借りることになり、コンパイルできません。この規則があるのは、<code>push</code> が <code>Vec</code> の領域を確保し直して要素を移すことがあり、その前に取った参照が古い領域を指したまま残りうるからです。添字は <code>arena</code> を借りていないので、確保し直しのあとも同じノードを指し続けます。ノードどうしを参照ではなく添字でつなぐのは、このためです。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。添字に <code>struct NodeId(usize)</code> のような専用の型を使うと、ほかの整数と取り違えにくくなります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

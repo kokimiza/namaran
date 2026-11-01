@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="using std::swap; のあとの修飾なしの swap(p, q) と、修飾付きの std::swap(p, q) が、それぞれどの関数を呼ぶかを問うC++ READのドリルです。引数の型の名前空間にある swap が候補に入るかどうかで、出力が変わります。">
+<title>どのswapが呼ばれるか</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-11-02">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-02" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-11-02",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-11-02",
+      "datePublished": "2026-11-02",
+      "dateModified": "2026-11-02",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "どのswapが呼ばれるか" },
+      "keywords": "swap, argument-dependent-lookup, overload-resolution, name-lookup",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "using std::swap; のあとの修飾なしの swap(p, q) と、修飾付きの std::swap(p, q) が、それぞれどの関数を呼ぶかを問うC++ READのドリルです。引数の型の名前空間にある swap が候補に入るかどうかで、出力が変わります。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-02">C23</a>
+  <a href="/cpp/read/2026-11-02" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-11-02">Rust 2024</a>
+  <a href="/haskell/read/2026-11-02">Haskell 2010</a>
+  <a href="/zig/read/2026-11-02">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-02" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-11-02">WRITE</a>
+  <a href="/cpp/debug/2026-11-02">DEBUG</a>
+</nav>
+
+<main
+  data-topic="どのswapが呼ばれるか"
+  data-tags="swap argument-dependent-lookup overload-resolution name-lookup"
+  data-concepts="二段構えのswap, using std::swap, 実引数依存の名前探索, ADL, Koenig lookup, unqualified call, two-step swap"
+  data-level="hedgehog"
+>
+  <h2>2026-11-02</h2>
+  <div class="code-frame">
+    <p class="code-filename">point_swap.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;utility&gt;</span>
+
+<span class="kw">namespace</span> <span class="ty">geo</span> {
+<span class="kw">struct</span> <span class="ty">Point</span> {
+    <span class="ty">int</span> x;
+};
+
+<span class="ty">void</span> <span class="fn">swap</span>(<span class="ty">Point</span>&amp; a, <span class="ty">Point</span>&amp; b) {
+    std::cout &lt;&lt; <span class="st">"geo "</span>;
+    std::<span class="fn">swap</span>(a.x, b.x);
+}
+} <span class="cm">// namespace geo</span>
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    geo::<span class="ty">Point</span> p{<span class="nu">1</span>}, q{<span class="nu">2</span>};
+    <span class="kw">using</span> std::swap;
+    <span class="fn">swap</span>(p, q);
+    std::<span class="fn">swap</span>(p, q);
+    std::cout &lt;&lt; p.x &lt;&lt; q.x &lt;&lt; <span class="st">'\n'</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>geo 12</code> です。
+      </p>
+      <p>
+        修飾なしの <code>swap(p, q)</code> では、2か所から候補が集まります。1つは <code>using std::swap;</code> で見えるようになった <code>std::swap</code> の関数テンプレートです。もう1つは実引数依存の名前探索（ADL）で見つかる <code>geo::swap</code> で、実引数の型 <code>geo::Point</code> が名前空間 <code>geo</code> に属するので、<code>geo</code> の中の関数も探されます。
+      </p>
+      <p>
+        どちらの候補も <code>Point&amp;</code> に実引数をそのまま結び付けるので、変換の良さでは差が付きません。そのときはテンプレートでない関数が選ばれるので、呼ばれるのは <code>geo::swap</code> です。<code>geo</code> と空白が表示され、<code>p.x</code> と <code>q.x</code> は2と1に入れ替わります。
+      </p>
+      <p>
+        次の <code>std::swap(p, q)</code> は名前空間を指定した呼び出しで、ADL は働きません。候補は <code>std::swap</code> だけなので何も表示せずに入れ替え、値は1と2に戻ります。最後の行が表示するのは <code>12</code> です。<code>std::swap</code> も <code>geo::swap</code> を呼ぶと考えると <code>geo geo 12</code> と答え、修飾なしの呼び出しも <code>std::swap</code> だと考えると <code>12</code> だけになります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
