@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="水曜日を3として10日後と11日前の曜日と週を、i32 の / と %、div_euclid と rem_euclid で求めたとき何が表示されるかを問うRust READのドリルです。負の数を割ったとき、商をどちらへ丸め、余りがどの符号になるかが分かれます。">
+<title>曜日を戻す余り</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-11-03">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / READ", "item": "https://namaran.jocarium.productions/rust/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-03" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / READ — 2026-11-03",
+      "url": "https://namaran.jocarium.productions/rust/read/2026-11-03",
+      "datePublished": "2026-11-03",
+      "dateModified": "2026-11-03",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "曜日を戻す余り" },
+      "keywords": "division, modular-arithmetic, integer-arithmetic, date-time",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "水曜日を3として10日後と11日前の曜日と週を、i32 の / と %、div_euclid と rem_euclid で求めたとき何が表示されるかを問うRust READのドリルです。負の数を割ったとき、商をどちらへ丸め、余りがどの符号になるかが分かれます。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-03">C23</a>
+  <a href="/cpp/read/2026-11-03">C++26</a>
+  <a href="/rust/read/2026-11-03" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/read/2026-11-03">Haskell 2010</a>
+  <a href="/zig/read/2026-11-03">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-03" class="active" aria-current="page">READ</a>
+  <a href="/rust/write/2026-11-03">WRITE</a>
+  <a href="/rust/debug/2026-11-03">DEBUG</a>
+</nav>
+
+<main
+  data-topic="曜日を戻す余り"
+  data-tags="division modular-arithmetic integer-arithmetic date-time"
+  data-concepts="曜日の計算, 負の数の剰余, rem_euclid, div_euclid, 切り捨て除算, remainder sign, euclidean division"
+  data-level="hedgehog"
+>
+  <h2>2026-11-03</h2>
+  <div class="code-frame">
+    <p class="code-filename">weekday_shift.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> wednesday = <span class="nu">3</span>;
+    <span class="kw">for</span> days <span class="kw">in</span> [<span class="nu">10</span>, -<span class="nu">11</span>] {
+        <span class="kw">let</span> n: <span class="ty">i32</span> = wednesday + days;
+        <span class="mc">println!</span>(<span class="st">"{} {} {} {}"</span>, n / <span class="nu">7</span>, n % <span class="nu">7</span>, n.<span class="fn">div_euclid</span>(<span class="nu">7</span>), n.<span class="fn">rem_euclid</span>(<span class="nu">7</span>));
+    }
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>1 6 1 6</code> と <code>-1 -1 -2 6</code> の2行です。
+      </p>
+      <p>
+        1行目は <code>n = 3 + 10 = 13</code> です。正の数どうしなら、<code>/</code> と <code>div_euclid</code>、<code>%</code> と <code>rem_euclid</code> は同じ値になり、商 1 と余り 6 が2回並びます。日曜日を 0 と数えるなら、10 日後は翌週の土曜日です。
+      </p>
+      <p>
+        2行目は <code>n = 3 - 11 = -8</code> です。整数の <code>/</code> は商の小数部分を 0 の方向へ切り捨てるので、-8 / 7 = -1.14… は <code>-1</code> になります。<code>%</code> は <code>n == (n / 7) * 7 + n % 7</code> が成り立つように決まるので、<code>-8 - (-1) * 7</code> で <code>-1</code> です。余りの符号は、割られる数 <code>n</code> の符号に合わせて負になります。
+      </p>
+      <p>
+        <code>rem_euclid(7)</code> は、余りがいつも 0 以上 7 未満になるように決めます。-8 = -2 × 7 + 6 なので、余りは <code>6</code>、それに対応する <code>div_euclid(7)</code> の商は <code>-2</code> です。日曜日を 0 と数えるなら、11 日前は2週前の土曜日です。曜日のように、0 から 6 の決まった範囲の添字に戻したい値には <code>rem_euclid</code> を使い、<code>%</code> の結果をそのまま添字にすると、負の数のとき範囲から外れます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/read">Today</a></li>
+    <li><a href="/rust/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

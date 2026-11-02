@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「競合状態」を扱ったNamaranのコーディングドリル6問。キャッシュの一斉失効、再計算の権利を1人に渡す、atomic_exchange、compare and swap、cache stampede、single flight。">
+<meta name="description" content="「競合状態」を扱ったNamaranのコーディングドリル8問。口座間の送金、atomicModifyIORef'、確認と更新を不可分に、Data.Map、check-then-act、atomic transfer。">
 <title>競合状態</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/race-condition">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,12 @@
   <h2>競合状態</h2>
 
   <p class="lede">
-    「競合状態」を扱った6問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「競合状態」を扱った8問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/haskell/write/2026-11-03">Haskell / WRITE · 2026-11-03</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">2つの口座を1度に更新</span> <span class="past-concepts">口座間の送金, atomicModifyIORef', 確認と更新を不可分に, Data.Map, check-then-act, atomic transfer</span></li>
+    <li><a href="/haskell/debug/2026-11-03">Haskell / DEBUG · 2026-11-03</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">戻す側が消す取り置き</span> <span class="past-concepts">modifyIORef', atomicModifyIORef', 更新の消失, 在庫の取り置きと返却, lost update, non-atomic read-modify-write</span></li>
     <li><a href="/c/write/2026-10-25">C / WRITE · 2026-10-25</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">再計算する1人を選ぶ</span> <span class="past-concepts">キャッシュの一斉失効, 再計算の権利を1人に渡す, atomic_exchange, compare and swap, cache stampede, single flight</span></li>
     <li><a href="/haskell/write/2026-09-29">Haskell / WRITE · 2026-09-29</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">確認と更新を一度に</span> <span class="past-concepts">TOCTOU, atomicModifyIORef', 不可分な更新, 在庫の取り置き, check and update, atomic update, race condition</span></li>
     <li><a href="/rust/write/2026-09-26">Rust / WRITE · 2026-09-26</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">確認せずに作る</span> <span class="past-concepts">ロックファイル, create_new, O_EXCL, 存在確認と作成の競合, lock file, atomic file creation, TOCTOU</span></li>

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="同じ行を @splat で並べた2次元配列と、同じ行を指すスライスを @splat で並べた配列を作り、元の行と2次元配列の1か所を書き換えたとき何が表示されるかを問うZig READのドリルです。@splat が複製するのは要素の値で、スライスを複製しても指す先は同じです。">
+<title>@splatで並べた行</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/read/2026-11-03">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / READ", "item": "https://namaran.jocarium.productions/zig/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-03" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / READ — 2026-11-03",
+      "url": "https://namaran.jocarium.productions/zig/read/2026-11-03",
+      "datePublished": "2026-11-03",
+      "dateModified": "2026-11-03",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "@splatで並べた行" },
+      "keywords": "builtin-function, array, slice, pointer",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "同じ行を @splat で並べた2次元配列と、同じ行を指すスライスを @splat で並べた配列を作り、元の行と2次元配列の1か所を書き換えたとき何が表示されるかを問うZig READのドリルです。@splat が複製するのは要素の値で、スライスを複製しても指す先は同じです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-03">C23</a>
+  <a href="/cpp/read/2026-11-03">C++26</a>
+  <a href="/rust/read/2026-11-03">Rust 2024</a>
+  <a href="/haskell/read/2026-11-03">Haskell 2010</a>
+  <a href="/zig/read/2026-11-03" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-03" class="active" aria-current="page">READ</a>
+  <a href="/zig/write/2026-11-03">WRITE</a>
+  <a href="/zig/debug/2026-11-03">DEBUG</a>
+</nav>
+
+<main
+  data-topic="@splatで並べた行"
+  data-tags="builtin-function array slice pointer"
+  data-concepts="@splat, 配列の初期化, 値のコピー, スライスの共有, array initialization, slice aliasing, repeat element"
+  data-level="peacock"
+>
+  <h2>2026-11-03</h2>
+  <div class="code-frame">
+    <p class="code-filename">splat_rows.zig</p>
+    <pre class="code"><code><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {
+    <span class="kw">var</span> buf: [<span class="nu">64</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;
+    <span class="kw">var</span> stdout_writer = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;buf);
+    <span class="kw">const</span> stdout = &amp;stdout_writer.interface;
+    <span class="kw">var</span> row: [<span class="nu">3</span>]<span class="ty">u8</span> = <span class="mc">@splat</span>(<span class="st">'.'</span>);
+    <span class="kw">var</span> grid: [<span class="nu">2</span>][<span class="nu">3</span>]<span class="ty">u8</span> = <span class="mc">@splat</span>(row);
+    <span class="kw">const</span> views: [<span class="nu">2</span>][]<span class="kw">const</span> <span class="ty">u8</span> = <span class="mc">@splat</span>(&amp;row);
+    row[<span class="nu">0</span>] = <span class="st">'x'</span>;
+    grid[<span class="nu">1</span>][<span class="nu">1</span>] = <span class="st">'#'</span>;
+    <span class="kw">for</span> (grid, views) |g, v| {
+        <span class="kw">try</span> stdout.<span class="fn">print</span>(<span class="st">"{s} {s}\n"</span>, .{ g, v });
+    }
+    <span class="kw">try</span> stdout.<span class="fn">flush</span>();
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>... x..</code> と <code>.#. x..</code> の2行です。
+      </p>
+      <p>
+        <code>@splat</code> は、結果の型が決める個数だけ引数の値を並べた配列を作ります。<code>grid</code> の型は <code>[2][3]u8</code> なので、<code>@splat(row)</code> は <code>[3]u8</code> の配列 <code>row</code> を2つ並べます。Zig の配列は値なので、並ぶのは <code>row</code> の中身を写した2つの別々の配列です。そのあと <code>row[0] = 'x'</code> と書き換えても <code>grid</code> の行は変わらず、<code>grid[1][1] = '#'</code> も2行目の配列だけを書き換えます。<code>grid</code> の2行は <code>...</code> と <code>.#.</code> です。
+      </p>
+      <p>
+        <code>views</code> の要素の型は <code>[]const u8</code> のスライスで、<code>@splat(&amp;row)</code> が2つ並べるのは <code>row</code> を指すポインタと長さの組です。スライスを複製しても、指す先の配列は複製されません。2つのスライスはどちらも同じ <code>row</code> を指すので、<code>row[0] = 'x'</code> は両方から見え、どちらの行も <code>x..</code> になります。
+      </p>
+      <p>
+        <code>grid</code> の宣言だけを見て、どの行も同じ1つの <code>row</code> を共有していると読むと、<code>.#.</code> が2行続くか、<code>x</code> が <code>grid</code> にも現れると答えることになります。どちらになるかは、並べる要素が配列の値か、配列を指すスライスかで分かれます。<sup class="fn-ref">1</sup>
+      </p>
+      <ol class="footnotes">
+        <li>以前の Zig には、配列を繰り返して並べる <code>**</code> 演算子があり、<code>[_]u8{'.'} ** 3</code> のように書けました。0.17 の言語リファレンスの演算子の表に <code>**</code> は無く、同じ要素を並べるには <code>@splat</code> を使います。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/read">Today</a></li>
+    <li><a href="/zig/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

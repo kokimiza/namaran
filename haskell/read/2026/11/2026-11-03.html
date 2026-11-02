@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="readIORef stock を let で remaining と名付け、在庫を確かめてから減らす間に別の更新を挟んだとき、最後に何が表示されるかを問うHaskell READのドリルです。let で名前を付けた IO アクションが、使うたびに実行されることを押さえます。">
+<title>名前を付けた読み出し</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-11-03">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-03" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-11-03",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-11-03",
+      "datePublished": "2026-11-03",
+      "dateModified": "2026-11-03",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "名前を付けた読み出し" },
+      "keywords": "toctou, ioref, io, binding",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "readIORef stock を let で remaining と名付け、在庫を確かめてから減らす間に別の更新を挟んだとき、最後に何が表示されるかを問うHaskell READのドリルです。let で名前を付けた IO アクションが、使うたびに実行されることを押さえます。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-03">C23</a>
+  <a href="/cpp/read/2026-11-03">C++26</a>
+  <a href="/rust/read/2026-11-03">Rust 2024</a>
+  <a href="/haskell/read/2026-11-03" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/read/2026-11-03">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-03" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-11-03">WRITE</a>
+  <a href="/haskell/debug/2026-11-03">DEBUG</a>
+</nav>
+
+<main
+  data-topic="名前を付けた読み出し"
+  data-tags="toctou ioref io binding"
+  data-concepts="IOアクションのlet束縛, readIORef, 確認と使用の間, letと&lt;-の違い, let-bound IO action, check then use"
+  data-level="hedgehog"
+>
+  <h2>2026-11-03</h2>
+  <div class="code-frame">
+    <p class="code-filename">Remaining.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Control.Monad</span> (when)
+<span class="kw">import</span> <span class="ty">Data.IORef</span>
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = <span class="kw">do</span>
+  stock <span class="op">&lt;-</span> newIORef (<span class="nu">5</span> <span class="op">::</span> <span class="ty">Int</span>)
+  <span class="kw">let</span> remaining = readIORef stock
+  ok <span class="op">&lt;-</span> (&gt;= <span class="nu">4</span>) &lt;$&gt; remaining
+  modifyIORef stock (subtract <span class="nu">3</span>)
+  when ok $ <span class="kw">do</span>
+    r <span class="op">&lt;-</span> remaining
+    writeIORef stock (r - <span class="nu">4</span>)
+  remaining &gt;&gt;= print
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>-2</code> です。
+      </p>
+      <p>
+        <code>let remaining = readIORef stock</code> は <code>readIORef</code> を実行せず、「<code>stock</code> を読む」という IO アクションに <code>remaining</code> という名前を付けるだけです。<code>remaining</code> は数ではなく <code>IO Int</code> なので、<code>&lt;-</code> や <code>&gt;&gt;=</code> で使われるたびに、その時点の <code>stock</code> を読み直します。このコードでは3回読みます。
+      </p>
+      <p>
+        1回目の <code>(&gt;= 4) &lt;$&gt; remaining</code> は 5 を読み、<code>ok</code> は <code>True</code> になります。次の <code>modifyIORef</code> で <code>stock</code> は 2 に減ります。<code>when ok</code> の中の2回目の <code>remaining</code> は、確かめたときの 5 ではなく今の 2 を読むので、<code>r - 4</code> は -2 で、それが <code>stock</code> に書かれます。最後の <code>remaining &gt;&gt;= print</code> が3回目の読み出しで、<code>-2</code> を表示します。
+      </p>
+      <p>
+        <code>remaining</code> を最初に読んだ値 5 の名前だと読むと、書き込むのは 1 になり、答えは <code>1</code> になります。実際には、確かめたときに満たしていた「4 個以上」という条件が、使うときの在庫 2 では成り立っておらず、在庫は負になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

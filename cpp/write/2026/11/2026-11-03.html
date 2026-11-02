@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="1秒ごとに rate 個のトークンが補充され、capacity 個までたまるトークンバケットから1つ取り出す try_acquire を書くC++ WRITEのドリルです。前回からの経過時間で補充し、長く使われなかったあとでも容量を超えてためないようにします。">
+<title>経過時間で補充する上限</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-11-03">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-03" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-11-03",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-11-03",
+      "datePublished": "2026-11-03",
+      "dateModified": "2026-11-03",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "経過時間で補充する上限" },
+      "keywords": "rate-limiting, struct, boundary",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "1秒ごとに rate 個のトークンが補充され、capacity 個までたまるトークンバケットから1つ取り出す try_acquire を書くC++ WRITEのドリルです。前回からの経過時間で補充し、長く使われなかったあとでも容量を超えてためないようにします。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-03">C23</a>
+  <a href="/cpp/write/2026-11-03" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-11-03">Rust 2024</a>
+  <a href="/haskell/write/2026-11-03">Haskell 2010</a>
+  <a href="/zig/write/2026-11-03">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-03">READ</a>
+  <a href="/cpp/write/2026-11-03" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-11-03">DEBUG</a>
+</nav>
+
+<main
+  data-topic="経過時間で補充する上限"
+  data-tags="rate-limiting struct boundary"
+  data-concepts="トークンバケット, 補充, 容量の上限, バースト, token bucket, refill, burst capacity, rate limiter"
+  data-level="hedgehog"
+>
+  <h2>2026-11-03</h2>
+  <div class="code-frame">
+    <p class="code-filename">token_bucket.cpp</p>
+    <pre class="code"><code><span class="kw">struct</span> <span class="ty">TokenBucket</span> {
+    <span class="ty">long</span> <span class="ty">long</span> capacity;
+    <span class="ty">long</span> <span class="ty">long</span> rate;
+    <span class="ty">long</span> <span class="ty">long</span> tokens;
+    <span class="ty">long</span> <span class="ty">long</span> last;
+};
+
+<span class="ty">bool</span> <span class="fn">try_acquire</span>(<span class="ty">TokenBucket</span>&amp; b, <span class="ty">long</span> <span class="ty">long</span> now) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    トークンバケットは、処理1回ごとにトークンを1つ使わせ、トークンが無いときは処理を断ることで、一定時間あたりの処理の回数を抑える仕組みです。<code>TokenBucket</code> は、ためておけるトークンの上限 <code>capacity</code>、1秒あたりに補充するトークンの数 <code>rate</code>、いまのトークンの数 <code>tokens</code>、最後に補充を計算した時刻 <code>last</code> を持ちます。時刻 <code>now</code> にトークンを1つ取り出す <code>try_acquire</code> を書いてください。まず <code>last</code> から <code>now</code> までの秒数に応じてトークンを補充しますが、<code>capacity</code> を超える分は捨てます。補充後にトークンが1つ以上あれば1つ減らして <code>true</code> を、無ければ <code>false</code> を返します。時刻は秒単位の整数で、<code>now</code> は <code>last</code> 以上とします。例では、バケットを <code>{capacity, rate, tokens, last}</code> と書きます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>b = {3, 1, 0, 0}
+try_acquire(b, 2)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>true
+b = {3, 1, 1, 2}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>b = {3, 1, 0, 0}
+try_acquire(b, 100)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>true
+b = {3, 1, 2, 100}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>b = {3, 2, 0, 5}
+try_acquire(b, 5)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>false
+b = {3, 2, 0, 5}</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="ty">bool</span> <span class="fn">try_acquire</span>(<span class="ty">TokenBucket</span>&amp; b, <span class="ty">long</span> <span class="ty">long</span> now) {
+    b.tokens = std::<span class="fn">min</span>(b.capacity, b.tokens + (now - b.last) * b.rate);
+    b.last = now;
+    <span class="kw">if</span> (b.tokens == <span class="nu">0</span>)
+        <span class="kw">return</span> <span class="nu">false</span>;
+    --b.tokens;
+    <span class="kw">return</span> <span class="nu">true</span>;
+}
+</code></pre>
+      <p>
+        補充する数は、経過した秒数 <code>now - b.last</code> に <code>b.rate</code> を掛けたものです。それを今のトークンに足した値と <code>b.capacity</code> の小さいほうを <code>std::min</code> で選ぶので、上限を超えた分は捨てられます。入力例 2 は 100 秒使われなかったバケットで、足すだけなら 100 個たまりますが、上限で 3 個に抑えられ、1つ使って 2 個が残ります。この上限が、しばらく空いたあとに一度に通せる処理の数を決めます。上限が無いと、長く使われなかったバケットはその間の分をまとめて通してしまい、一定時間あたりの回数を抑える役目を果たせません。
+      </p>
+      <p>
+        補充を計算したら、<code>b.last</code> を <code>now</code> に進めます。進めないと、次の呼び出しで同じ時間の分をもう一度補充してしまいます。トークンが無くて断るときも補充の計算は済んでいるので、<code>b.last</code> は進めたままでかまいません。入力例 3 は経過時間が 0 秒なので補充は無く、<code>false</code> を返します。
+      </p>
+      <p>
+        <code>std::min</code> は2つの引数が同じ型でないとテンプレート引数を推論できないので、メンバをすべて <code>long long</code> にそろえてあります。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

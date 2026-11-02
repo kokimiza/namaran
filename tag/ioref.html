@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「IORef」を扱ったNamaranのコーディングドリル20問。IORef のスナップショット、不変な値、readIORef、modifyIORef、immutable value、mutable reference。">
+<meta name="description" content="「IORef」を扱ったNamaranのコーディングドリル23問。口座間の送金、atomicModifyIORef'、確認と更新を不可分に、Data.Map、check-then-act、atomic transfer。">
 <title>IORef</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/ioref">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>IORef</h2>
 
   <p class="lede">
-    「IORef」を扱った20問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「IORef」を扱った23問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/haskell/write/2026-11-03">Haskell / WRITE · 2026-11-03</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">2つの口座を1度に更新</span> <span class="past-concepts">口座間の送金, atomicModifyIORef', 確認と更新を不可分に, Data.Map, check-then-act, atomic transfer</span></li>
+    <li><a href="/haskell/read/2026-11-03">Haskell / READ · 2026-11-03</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">名前を付けた読み出し</span> <span class="past-concepts">IOアクションのlet束縛, readIORef, 確認と使用の間, letと&lt;-の違い, let-bound IO action, check then use</span></li>
+    <li><a href="/haskell/debug/2026-11-03">Haskell / DEBUG · 2026-11-03</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">戻す側が消す取り置き</span> <span class="past-concepts">modifyIORef', atomicModifyIORef', 更新の消失, 在庫の取り置きと返却, lost update, non-atomic read-modify-write</span></li>
     <li><a href="/haskell/read/2026-10-24">Haskell / READ · 2026-10-24</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">書き換える前に読んだ値</span> <span class="past-concepts">IORef のスナップショット, 不変な値, readIORef, modifyIORef, immutable value, mutable reference, snapshot</span></li>
     <li><a href="/haskell/debug/2026-10-24">Haskell / DEBUG · 2026-10-24</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">毎回作り直される箱</span> <span class="past-concepts">IORef を作るアクション, newIORef, トップレベルの可変状態, 参照透過性, IO action vs value, global mutable state, counter</span></li>
     <li><a href="/haskell/write/2026-10-01">Haskell / WRITE · 2026-10-01</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">同じ箱は一度だけ</span> <span class="past-concepts">IORef の重複を除く, 参照の同一性, 同値と同一, 別名, nub, reference equality, aliasing, identity vs equality</span></li>

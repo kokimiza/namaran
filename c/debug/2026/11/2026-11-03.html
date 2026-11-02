@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="2次元配列の行ごとの合計を表示するつもりのコードが、2行目から前の行までの合計を足し込んだ値を表示するC DEBUGのドリルです。合計を入れる変数をどこで宣言し、どこで0にするかが問題です。">
+<title>行ごとの合計が積み上がる</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-11-03">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-03" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-11-03",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-11-03",
+      "datePublished": "2026-11-03",
+      "dateModified": "2026-11-03",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "行ごとの合計が積み上がる" },
+      "keywords": "naming, loop, multidimensional-array",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "2次元配列の行ごとの合計を表示するつもりのコードが、2行目から前の行までの合計を足し込んだ値を表示するC DEBUGのドリルです。合計を入れる変数をどこで宣言し、どこで0にするかが問題です。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-03" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-11-03">C++26</a>
+  <a href="/rust/debug/2026-11-03">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-03">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-03">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-03">READ</a>
+  <a href="/c/write/2026-11-03">WRITE</a>
+  <a href="/c/debug/2026-11-03" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="行ごとの合計が積み上がる"
+  data-tags="naming loop multidimensional-array"
+  data-concepts="行ごとの合計, 変数の使い回し, 変数の宣言位置, スコープ, accumulator reset, variable scope"
+  data-level="hedgehog"
+>
+  <h2>2026-11-03</h2>
+  <div class="code-frame">
+    <p class="code-filename">row_sums.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="ty">int</span> scores[<span class="nu">3</span>][<span class="nu">4</span>] = {{<span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">3</span>, <span class="nu">4</span>}, {<span class="nu">5</span>, <span class="nu">6</span>, <span class="nu">7</span>, <span class="nu">8</span>}, {<span class="nu">9</span>, <span class="nu">10</span>, <span class="nu">11</span>, <span class="nu">12</span>}};
+    <span class="ty">int</span> sum = <span class="nu">0</span>;
+    <span class="kw">for</span> (<span class="ty">int</span> r = <span class="nu">0</span>; r &lt; <span class="nu">3</span>; r++) {
+        <span class="kw">for</span> (<span class="ty">int</span> c = <span class="nu">0</span>; c &lt; <span class="nu">4</span>; c++) {
+            sum += scores[r][c];
+        }
+        <span class="fn">printf</span>(<span class="st">"row %d: %d\n"</span>, r, sum);
+    }
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    3行4列の <code>scores</code> について、行ごとに4つの値の合計を表示するつもりのプログラムです。コードの中の <code>scores</code> に対して、本来は <code>row 0: 10</code>、<code>row 1: 26</code>、<code>row 2: 42</code> の3行を表示するはずが、いまは <code>row 0: 10</code>、<code>row 1: 36</code>、<code>row 2: 78</code> を表示します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="ty">int</span> sum = <span class="nu">0</span>;
+<span class="kw">for</span> (<span class="ty">int</span> r = <span class="nu">0</span>; r &lt; <span class="nu">3</span>; r++) {
+    <span class="kw">for</span> (<span class="ty">int</span> c = <span class="nu">0</span>; c &lt; <span class="nu">4</span>; c++) {
+        sum += scores[r][c];
+    }
+</code></pre>
+      <p>
+        <code>sum</code> はループの外で一度だけ 0 にされ、そのあとは足されるだけです。0 行目を足し終えた <code>sum</code> は 10 で、1 行目の合計 26 はその上に足されて 36 になります。2 行目ではさらに 42 が加わって 78 です。どの行でも、その行の合計ではなく、0 行目からその行までの合計が表示されます。
+      </p>
+      <p>
+        原因は、<code>sum</code> という1つの変数に「ある行の合計」の役目を3行分続けて負わせていることです。行が変わっても、前の行の値が残ったままになります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">for</span> (<span class="ty">int</span> r = <span class="nu">0</span>; r &lt; <span class="nu">3</span>; r++) {
+    <span class="ty">int</span> sum = <span class="nu">0</span>;
+    <span class="kw">for</span> (<span class="ty">int</span> c = <span class="nu">0</span>; c &lt; <span class="nu">4</span>; c++) {
+        sum += scores[r][c];
+    }
+</code></pre>
+      <p>
+        <code>sum</code> を行のループの本体の中で宣言すると、1 行ごとに新しい <code>sum</code> が 0 から始まります。<code>sum</code> の有効範囲も1つの行の処理の中に限られるので、ループの外から前の行の合計を読み書きすることもできなくなります。ループの前で <code>sum = 0;</code> を足すのではなく宣言ごと内側へ移すと、「1つの行の合計」という役目と変数の有効範囲が一致します。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

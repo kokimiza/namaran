@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="秒数を 時:分:秒 の文字列にするつもりの hms が、3725 秒を 1:02:05 ではなく 1:62:05 と表示するRust DEBUGのドリルです。時に繰り上げた分を、分の値から取り除いているかが問題です。">
+<title>62分の時計</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-11-03">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-03" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-11-03",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-11-03",
+      "datePublished": "2026-11-03",
+      "dateModified": "2026-11-03",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "62分の時計" },
+      "keywords": "division, date-time, format-string, integer-arithmetic",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "秒数を 時:分:秒 の文字列にするつもりの hms が、3725 秒を 1:02:05 ではなく 1:62:05 と表示するRust DEBUGのドリルです。時に繰り上げた分を、分の値から取り除いているかが問題です。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-03">C23</a>
+  <a href="/cpp/debug/2026-11-03">C++26</a>
+  <a href="/rust/debug/2026-11-03" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-03">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-03">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-03">READ</a>
+  <a href="/rust/write/2026-11-03">WRITE</a>
+  <a href="/rust/debug/2026-11-03" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="62分の時計"
+  data-tags="division date-time format-string integer-arithmetic"
+  data-concepts="時分秒への変換, 秒から時刻表示, 余りで桁を取り出す, h:mm:ss, mixed radix, seconds to hours minutes"
+  data-level="hedgehog"
+>
+  <h2>2026-11-03</h2>
+  <div class="code-frame">
+    <p class="code-filename">clock_format.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">hms</span>(secs: <span class="ty">u64</span>) -&gt; <span class="ty">String</span> {
+    <span class="kw">let</span> h = secs / <span class="nu">3600</span>;
+    <span class="kw">let</span> m = secs / <span class="nu">60</span>;
+    <span class="kw">let</span> s = secs % <span class="nu">60</span>;
+    <span class="mc">format!</span>(<span class="st">"{h}:{m:02}:{s:02}"</span>)
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="fn">hms</span>(<span class="nu">3725</span>));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    秒数 <code>secs</code> を「時:分:秒」の文字列にし、分と秒を2桁で表すつもりの <code>hms</code> です。<code>hms(3725)</code> は <code>1:02:05</code> を返すはずが、いまは <code>1:62:05</code> を返し、プログラムは <code>1:62:05</code> を表示します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">let</span> h = secs / <span class="nu">3600</span>;
+<span class="kw">let</span> m = secs / <span class="nu">60</span>;
+<span class="kw">let</span> s = secs % <span class="nu">60</span>;
+</code></pre>
+      <p>
+        <code>secs / 60</code> は、3725 秒が全部で何分かを数えるので 62 になります。そのうち 60 分は <code>h</code> の 1 時間としてすでに数えてあるのに、<code>m</code> には同じ 60 分がまだ入ったままです。秒のほうは <code>secs % 60</code> で分に繰り上げた分を取り除いているので 5 になり、分だけが時に繰り上げた分を取り除かれずに残ります。1 時間を超える秒数では、どれも分が 60 以上になります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">let</span> h = secs / <span class="nu">3600</span>;
+<span class="kw">let</span> m = secs / <span class="nu">60</span> % <span class="nu">60</span>;
+<span class="kw">let</span> s = secs % <span class="nu">60</span>;
+</code></pre>
+      <p>
+        全部で何分かを数えた <code>secs / 60</code> を、さらに 60 で割った余りにすると、時に繰り上げた分が取り除かれて 0 から 59 の値になります。<code>/</code> と <code>%</code> は同じ優先順位で左から結合するので、<code>secs / 60 % 60</code> は <code>(secs / 60) % 60</code> と同じで、62 を 60 で割った余りの 2 が分になります。これで分は秒と同じく「その桁の単位で割り、上の桁へ繰り上げた分を余りで捨てる」形になります。時は一番上の桁なので、捨てる分がなく <code>secs / 3600</code> のままです。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

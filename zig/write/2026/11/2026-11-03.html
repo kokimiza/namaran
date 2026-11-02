@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="コンパイル時に分かる文字列 s を n 回つないだ文字列を返す repeat を、comptime var と ++ で書くZig WRITEのドリルです。++ は長さがコンパイル時に分かる配列にしか使えないので、伸ばしていく変数もループもコンパイル時に評価させます。">
+<title>++で伸ばす繰り返し</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/write/2026-11-03">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / WRITE", "item": "https://namaran.jocarium.productions/zig/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-03" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / WRITE — 2026-11-03",
+      "url": "https://namaran.jocarium.productions/zig/write/2026-11-03",
+      "datePublished": "2026-11-03",
+      "dateModified": "2026-11-03",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "++で伸ばす繰り返し" },
+      "keywords": "comptime, string, loop",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "コンパイル時に分かる文字列 s を n 回つないだ文字列を返す repeat を、comptime var と ++ で書くZig WRITEのドリルです。++ は長さがコンパイル時に分かる配列にしか使えないので、伸ばしていく変数もループもコンパイル時に評価させます。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-03">C23</a>
+  <a href="/cpp/write/2026-11-03">C++26</a>
+  <a href="/rust/write/2026-11-03">Rust 2024</a>
+  <a href="/haskell/write/2026-11-03">Haskell 2010</a>
+  <a href="/zig/write/2026-11-03" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-03">READ</a>
+  <a href="/zig/write/2026-11-03" class="active" aria-current="page">WRITE</a>
+  <a href="/zig/debug/2026-11-03">DEBUG</a>
+</nav>
+
+<main
+  data-topic="++で伸ばす繰り返し"
+  data-tags="comptime string loop"
+  data-concepts="コンパイル時の文字列連結, comptime var, inline for, 配列の連結, string repetition, array concatenation"
+  data-level="hedgehog"
+>
+  <h2>2026-11-03</h2>
+  <div class="code-frame">
+    <p class="code-filename">repeat_text.zig</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">repeat</span>(<span class="kw">comptime</span> s: []<span class="kw">const</span> <span class="ty">u8</span>, <span class="kw">comptime</span> n: <span class="ty">usize</span>) []<span class="kw">const</span> <span class="ty">u8</span> {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    文字列 <code>s</code> を <code>n</code> 回続けてつないだ文字列を返す <code>repeat</code> を書いてください。<code>s</code> と <code>n</code> はどちらもコンパイル時に分かる値で、<code>n</code> が 0 のときは空の文字列を返します。アロケータは使わず、<code>main</code> などの実行時のコードから、<code>comptime</code> を付けずに <code>repeat("ab", 3)</code> と呼べるようにしてください。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>repeat("ab", 3)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>"ababab"</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>repeat("-", 5)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>"-----"</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>repeat("ab", 0)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>""</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">repeat</span>(<span class="kw">comptime</span> s: []<span class="kw">const</span> <span class="ty">u8</span>, <span class="kw">comptime</span> n: <span class="ty">usize</span>) []<span class="kw">const</span> <span class="ty">u8</span> {
+    <span class="kw">comptime</span> <span class="kw">var</span> out: []<span class="kw">const</span> <span class="ty">u8</span> = <span class="st">""</span>;
+    <span class="kw">inline</span> <span class="kw">for</span> (<span class="nu">0</span>..n) |_| {
+        out = out ++ s;
+    }
+    <span class="kw">return</span> out;
+}
+</code></pre>
+      <p>
+        <code>++</code> は、両辺の長さがコンパイル時に分かるときにだけ使えます。そこで、つないでいく途中の文字列を <code>comptime var</code> の <code>out</code> に置き、空の文字列から <code>n</code> 回 <code>out ++ s</code> を代入し直します。<code>out</code> の長さは代入のたびに <code>s.len</code> ずつ伸びますが、どの時点の長さもコンパイル時に決まっているので、次の <code>++</code> も書けます。
+      </p>
+      <p>
+        ループは <code>inline for</code> にします。ふつうの <code>for</code> は実行時に回るループなので、その中で <code>comptime var</code> に代入すると「store to comptime variable depends on runtime condition」というコンパイルエラーになります。<code>comptime</code> の付かない <code>var out</code> にすると、今度は <code>out</code> の長さが実行時の値になり、<code>out ++ s</code> が「unable to resolve comptime value」で止まります。<code>inline for</code> はループをコンパイル時に <code>n</code> 回分に展開するので、<code>out</code> への代入もすべてコンパイル時に済み、関数が返すのはでき上がった文字列を指すスライスだけです。
+      </p>
+      <p>
+        <code>n</code> が 0 なら <code>inline for</code> は1回も展開されず、最初の <code>""</code> がそのまま返ります。掲載したのは参考実装で、唯一の正解ではありません。<sup class="fn-ref">1</sup>
+      </p>
+      <ol class="footnotes">
+        <li>以前の Zig には配列を繰り返す <code>**</code> 演算子があり、<code>s ** n</code> の1つの式で書けました。0.17 の言語リファレンスの演算子の表に <code>**</code> は無く、<code>s ** n</code> と書くとコンパイルエラーになります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/write">Today</a></li>
+    <li><a href="/zig/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -273,6 +273,7 @@ mutex	ミューテックス
 n-plus-one-query	N+1クエリ
 name-lookup	名前探索
 namespace	名前空間
+naming	名前付け
 narrowing-conversion	縮小変換
 never-type	never型
 newtype	newtype

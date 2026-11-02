@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="IORef に入れた Map の口座どうしで送金する transfer を、atomicModifyIORef' を使って書くHaskell WRITEのドリルです。残高の確認と2つの口座の更新を1回の更新にまとめ、送り元と送り先が同じ口座でも残高を増やさないようにします。">
+<title>2つの口座を1度に更新</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-11-03">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-03" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-11-03",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-11-03",
+      "datePublished": "2026-11-03",
+      "dateModified": "2026-11-03",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "2つの口座を1度に更新" },
+      "keywords": "toctou, ioref, atomic, ordered-map, race-condition",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "IORef に入れた Map の口座どうしで送金する transfer を、atomicModifyIORef' を使って書くHaskell WRITEのドリルです。残高の確認と2つの口座の更新を1回の更新にまとめ、送り元と送り先が同じ口座でも残高を増やさないようにします。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-03">C23</a>
+  <a href="/cpp/write/2026-11-03">C++26</a>
+  <a href="/rust/write/2026-11-03">Rust 2024</a>
+  <a href="/haskell/write/2026-11-03" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/write/2026-11-03">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-03">READ</a>
+  <a href="/haskell/write/2026-11-03" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-11-03">DEBUG</a>
+</nav>
+
+<main
+  data-topic="2つの口座を1度に更新"
+  data-tags="toctou ioref atomic ordered-map race-condition"
+  data-concepts="口座間の送金, atomicModifyIORef', 確認と更新を不可分に, Data.Map, check-then-act, atomic transfer"
+  data-level="bison"
+>
+  <h2>2026-11-03</h2>
+  <div class="code-frame">
+    <p class="code-filename">Transfer.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Data.IORef</span>
+<span class="kw">import</span> <span class="kw">qualified</span> <span class="ty">Data.Map</span> <span class="kw">as</span> <span class="ty">M</span>
+
+<span class="fn">transfer</span> <span class="op">::</span> <span class="ty">IORef</span> (<span class="ty">M.Map</span> <span class="ty">String</span> <span class="ty">Int</span>) <span class="op">-&gt;</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">IO</span> <span class="ty">Bool</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>ref</code> には、口座の名前から残高への <code>Map</code> が入っています。口座 <code>from</code> から口座 <code>to</code> へ <code>amount</code> を移す <code>transfer</code> を書いてください。両方の口座があり、<code>from</code> の残高が <code>amount</code> 以上なら、<code>from</code> から <code>amount</code> を引いて <code>to</code> に足し、<code>True</code> を返します。どちらかの口座が無いか、残高が足りなければ、何も変えずに <code>False</code> を返します。<code>from</code> と <code>to</code> が同じ口座のときは、残高が足りれば <code>True</code> を返し、残高は変わりません。複数のスレッドが同じ <code>ref</code> に同時に <code>transfer</code> を呼んでも、残高が負になったり、口座の合計が変わったりしないようにしてください。<code>amount</code> は 0 以上とします。例では、<code>ref</code> の中身を <code>M.toList</code> の結果で書きます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>[("alice",100),("bob",20)]
+transfer ref "alice" "bob" 30</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>True
+[("alice",70),("bob",50)]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>[("alice",70),("bob",50)]
+transfer ref "alice" "alice" 50</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>True
+[("alice",70),("bob",50)]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>[("alice",70),("bob",50)]
+transfer ref "alice" "carol" 10</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>False
+[("alice",70),("bob",50)]</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="fn">transfer</span> <span class="op">::</span> <span class="ty">IORef</span> (<span class="ty">M.Map</span> <span class="ty">String</span> <span class="ty">Int</span>) <span class="op">-&gt;</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">IO</span> <span class="ty">Bool</span>
+<span class="fn">transfer</span> ref from to amount = atomicModifyIORef' ref move
+ <span class="kw">where</span>
+  move accounts = <span class="kw">case</span> (<span class="ty">M</span>.lookup from accounts, <span class="ty">M</span>.member to accounts) <span class="kw">of</span>
+    (<span class="ty">Just</span> balance, <span class="ty">True</span>)
+      | balance &gt;= amount <span class="op">-&gt;</span>
+          (<span class="ty">M</span>.adjust (+ amount) to (<span class="ty">M</span>.adjust (subtract amount) from accounts), <span class="ty">True</span>)
+    _ <span class="op">-&gt;</span> (accounts, <span class="ty">False</span>)
+</code></pre>
+      <p>
+        <code>atomicModifyIORef'</code> に渡す <code>move</code> は、いまの <code>Map</code> を受け取り、新しい <code>Map</code> と <code>transfer</code> の結果の組を返す純粋な関数です。<code>atomicModifyIORef'</code> は、<code>move</code> が読んだ <code>Map</code> と書き戻す <code>Map</code> の間にほかのスレッドの更新を挟ませません。残高の確認と、<code>from</code> と <code>to</code> の2つの更新をすべて <code>move</code> の中で行うので、確かめた残高がそのまま引く残高になります。
+      </p>
+      <p>
+        確認か更新のどれかを外に出すと、それぞれ別の誤りになります。先に <code>readIORef</code> で残高を確かめてから <code>atomicModifyIORef'</code> で引くと、その間にほかのスレッドが同じ口座から引いた分を見落とし、残高が負になりえます。引く側と足す側を別々の <code>atomicModifyIORef'</code> にすると、2回の間に別のスレッドが読む <code>Map</code> では、引いた分がどちらの口座にも無く、合計が減って見えます。<code>to</code> の口座が無いと分かったのが引いたあとなら、引いた分を戻す処理も要ります。
+      </p>
+      <p>
+        <code>from</code> と <code>to</code> が同じ口座のときは、<code>M.adjust</code> を順に2回適用しているので、引いてから同じ額を足して元に戻ります。2つの新しい残高を元の <code>Map</code> から計算して <code>M.insert</code> で書くと、この場合は <code>to</code> への書き込みが <code>from</code> への書き込みを上書きし、残高が <code>amount</code> だけ増えてしまいます。掲載したのは参考実装で、唯一の正解ではありません。<code>Map</code> ごと <code>MVar</code> に入れて <code>modifyMVar</code> で更新しても、同じことができます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

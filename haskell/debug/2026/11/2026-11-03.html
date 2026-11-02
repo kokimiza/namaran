@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="在庫を atomicModifyIORef' で取り置き、modifyIORef' で戻す処理を4つのスレッドで繰り返すと、最後の在庫が最初の10からずれ、10より多くなることもあるHaskell DEBUGのドリルです。在庫が増えすぎる症状から、どの更新が消えたのかを逆にたどります。">
+<title>戻す側が消す取り置き</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-11-03">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-03" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-11-03",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-11-03",
+      "datePublished": "2026-11-03",
+      "dateModified": "2026-11-03",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "戻す側が消す取り置き" },
+      "keywords": "toctou, ioref, atomic, race-condition, thread",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "在庫を atomicModifyIORef' で取り置き、modifyIORef' で戻す処理を4つのスレッドで繰り返すと、最後の在庫が最初の10からずれ、10より多くなることもあるHaskell DEBUGのドリルです。在庫が増えすぎる症状から、どの更新が消えたのかを逆にたどります。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-03">C23</a>
+  <a href="/cpp/debug/2026-11-03">C++26</a>
+  <a href="/rust/debug/2026-11-03">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-03" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-03">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-03">READ</a>
+  <a href="/haskell/write/2026-11-03">WRITE</a>
+  <a href="/haskell/debug/2026-11-03" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="戻す側が消す取り置き"
+  data-tags="toctou ioref atomic race-condition thread"
+  data-concepts="modifyIORef', atomicModifyIORef', 更新の消失, 在庫の取り置きと返却, lost update, non-atomic read-modify-write"
+  data-level="whale"
+>
+  <h2>2026-11-03</h2>
+  <div class="code-frame">
+    <p class="code-filename">Stock.hs</p>
+    <pre class="code"><code><span class="kw">import</span> <span class="ty">Control.Concurrent</span>
+<span class="kw">import</span> <span class="ty">Control.Monad</span>
+<span class="kw">import</span> <span class="ty">Data.IORef</span>
+
+<span class="fn">reserve</span> <span class="op">::</span> <span class="ty">IORef</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">IO</span> <span class="ty">Bool</span>
+<span class="fn">reserve</span> ref = atomicModifyIORef' ref $ \n <span class="op">-&gt;</span> <span class="kw">if</span> n &gt; <span class="nu">0</span> <span class="kw">then</span> (n - <span class="nu">1</span>, <span class="ty">True</span>) <span class="kw">else</span> (n, <span class="ty">False</span>)
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = <span class="kw">do</span>
+  stock <span class="op">&lt;-</span> newIORef (<span class="nu">10</span> <span class="op">::</span> <span class="ty">Int</span>)
+  done <span class="op">&lt;-</span> newEmptyMVar
+  replicateM_ <span class="nu">4</span> . forkIO $ <span class="kw">do</span>
+    replicateM_ <span class="nu">1000000</span> $ <span class="kw">do</span>
+      ok <span class="op">&lt;-</span> reserve stock
+      when ok (modifyIORef' stock (+ <span class="nu">1</span>))
+    putMVar done ()
+  replicateM_ <span class="nu">4</span> (takeMVar done)
+  readIORef stock &gt;&gt;= print
+</code></pre>
+  </div>
+
+  <p class="question">
+    在庫 <code>stock</code> から1つ取り置き、取り置けたらすぐに返す処理を、4つのスレッドがそれぞれ100万回繰り返すプログラムです。取り置いた数と返した数は同じなので、全部のスレッドが終われば在庫は最初の 10 に戻り、<code>10</code> を表示するはずです。いまは GHC でコンパイルして実行するたびに値が変わり、<code>9</code> や <code>7</code>、<code>6</code> と減るほか、<code>12</code> のように最初の在庫より多くなることもあります。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="fn">ok</span> <span class="op">&lt;-</span> reserve stock
+<span class="fn">when</span> ok (modifyIORef' stock (+ <span class="nu">1</span>))
+</code></pre>
+      <p>
+        在庫が 10 より多くなるのが手がかりです。<code>reserve</code> は在庫が 1 以上のときしか引かないので、取り置きが成功した回数は返した回数と等しく、どの更新も正しく反映されていれば最後は 10 に戻ります。10 を超えるのは、どこかで取り置きの「1 を引く」更新が消えたときだけです。<code>reserve</code> の <code>atomicModifyIORef'</code> は、読んでから書くまでの間にほかのスレッドの更新を挟ませないので、消したのは返す側の <code>modifyIORef'</code> です。<code>modifyIORef'</code> は1回の呼び出しに見えますが、中身は <code>readIORef</code> で読んで、1 を足した値を <code>writeIORef</code> で書く2段の操作で、その間にスレッドが切り替わることがあります。
+      </p>
+      <p>
+        たとえば返す側のスレッドが在庫 9 を読んだところで切り替わり、別のスレッドが取り置いて 8 にしたとします。戻ってきた返す側は、読んだ 9 に 1 を足した 10 を書くので、8 にした取り置きは無かったことになります。その取り置きもあとで返されるので、在庫は1つ多くなります。間に入ったのが別の返却なら、その返却が消えて在庫は1つ少なくなります。どちらが何回起きるかはスレッドの切り替わり方で決まるので、結果は実行のたびに変わります。<sup class="fn-ref">1</sup>
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="fn">ok</span> <span class="op">&lt;-</span> reserve stock
+<span class="fn">when</span> ok (atomicModifyIORef' stock (\n <span class="op">-&gt;</span> (n + <span class="nu">1</span>, ())))
+</code></pre>
+      <p>
+        返す側も <code>atomicModifyIORef'</code> で 1 を足します。これで、同じ <code>stock</code> を書き換える箇所はどれも、読んでから書くまでの間にほかのスレッドの更新を挟ませなくなり、どの取り置きも返却も消えません。在庫の確認と引き算を <code>reserve</code> の中で不可分にしても、同じ <code>IORef</code> をほかの箇所が読んでから書いていれば、その間に入った不可分な更新は上書きで消えます。守りたい値を書き換える箇所は、1つ残らず不可分な更新にする必要があります。
+      </p>
+      <ol class="footnotes">
+        <li><code>Data.IORef</code> のドキュメントも、<code>modifyIORef</code> と <code>modifyIORef'</code> は不可分ではないので、複数のスレッドから使う <code>IORef</code> には <code>atomicModifyIORef'</code> を使うよう書いています。このプログラムは <code>-threaded</code> を付けずにコンパイルしても、GHC の実行時システムが一定時間ごとにスレッドを切り替えるので、1つの CPU の上でもこの割り込みが起きます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
