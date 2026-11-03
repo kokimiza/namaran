@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="リストの各要素を、全体の最大値との差に置き換えた gaps を、リストを1回たどるだけで書くHaskell WRITEのドリルです。where の定義が代入ではなく等式であることと遅延評価を結び付け、たどり終えて決まる最大値を、たどる途中の要素の計算に使います。">
+<title>まだ出ない最大値で引く</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-11-04">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-04" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-11-04",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-11-04",
+      "datePublished": "2026-11-04",
+      "dateModified": "2026-11-04",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "まだ出ない最大値で引く" },
+      "keywords": "tying-the-knot, laziness, binding, recursion",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "リストの各要素を、全体の最大値との差に置き換えた gaps を、リストを1回たどるだけで書くHaskell WRITEのドリルです。where の定義が代入ではなく等式であることと遅延評価を結び付け、たどり終えて決まる最大値を、たどる途中の要素の計算に使います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-04">C23</a>
+  <a href="/cpp/write/2026-11-04">C++26</a>
+  <a href="/rust/write/2026-11-04">Rust 2024</a>
+  <a href="/haskell/write/2026-11-04" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/write/2026-11-04">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-04">READ</a>
+  <a href="/haskell/write/2026-11-04" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-11-04">DEBUG</a>
+</nav>
+
+<main
+  data-topic="まだ出ない最大値で引く"
+  data-tags="tying-the-knot laziness binding recursion"
+  data-concepts="循環的な定義, 結び目を作る, 遅延評価, where束縛, 1回の走査, tying the knot, circular program, repmin"
+  data-level="whale"
+>
+  <h2>2026-11-04</h2>
+  <div class="code-frame">
+    <p class="code-filename">Gaps.hs</p>
+    <pre class="code"><code><span class="fn">gaps</span> <span class="op">::</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> [<span class="ty">Int</span>]
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>Int</code> のリストの各要素を、リスト全体の最大値からその要素を引いた値に置き換えたリストを返す <code>gaps</code> を書いてください。リストは先頭から末尾まで1回だけたどり、最大値を求めるために <code>maximum</code> などで別にたどってはいけません。空リストには空リストを返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>gaps [3, 7, 5]</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>[4,0,2]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>gaps [2]</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>[0]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>gaps []</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>[]</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="fn">gaps</span> <span class="op">::</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> [<span class="ty">Int</span>]
+<span class="fn">gaps</span> xs = ys
+ <span class="kw">where</span>
+  (top, ys) = go xs
+  go [] = (minBound, [])
+  go (x : rest) =
+    <span class="kw">let</span> (m, zs) = go rest
+     <span class="kw">in</span> (max x m, top - x : zs)
+</code></pre>
+      <p>
+        1回たどるだけでは、先頭の要素を見ている時点で最大値はまだ分かりません。手続き型の考え方では、最大値を先に求めるか、差をあとで書き直すことになります。Haskell では、<code>where</code> に書いた <code>(top, ys) = go xs</code> は、上から順に実行される手順ではなく、<code>top</code> と <code>ys</code> が何であるかを述べる等式です。そのため、<code>go</code> の中で、<code>go</code> 自身が最後に返す最大値 <code>top</code> を使えます。
+      </p>
+      <p>
+        <code>go</code> は1回の再帰で2つのものを同時に作ります。組の1つ目は残りの最大値と自分を比べた最大値で、ここに <code>top</code> は出てきません。2つ目は各要素の差 <code>top - x</code> のリストです。遅延評価なので、<code>top - x</code> は再帰の最中には計算されず、「あとで <code>top</code> から <code>x</code> を引く」という未評価の式のままリストに入ります。<code>print</code> が要素を表示しようとして初めて <code>top</code> が求められ、そのときには最大値の計算はたどり終えた結果から決まります。最大値の計算が差を必要としないので、定義が循環していても答えは決まります。<sup class="fn-ref">1</sup>
+      </p>
+      <p>
+        空リストでは <code>go []</code> が <code>(minBound, [])</code> を返し、<code>ys</code> は空なので <code>top</code> が使われることはありません。<code>minBound</code> は <code>max</code> でどの要素より大きくならない初期値です。掲載したのは参考実装で、唯一の正解ではありません。<code>foldr</code> で組を畳み込んでも、同じように書けます。
+      </p>
+      <ol class="footnotes">
+        <li>計算の結果を、その計算自身の中で使うこの書き方は、tying the knot(結び目を作る)と呼ばれます。Richard Bird が1984年の論文で、木の葉をすべて最小値に置き換える repmin という問題を、1回の走査で解いてみせたのがよく知られた例です。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

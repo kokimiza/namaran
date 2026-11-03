@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="リストの最後の要素を、空なら既定値を返すつもりの latest が、いつも既定値を返すHaskell DEBUGのドリルです。const が1つ目の引数を返すことと、foldl が畳み込み途中の値を1つ目の引数に渡すことを合わせて、欠陥を見つけます。">
+<title>既定値しか返さない</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-11-04">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-04" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-11-04",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-11-04",
+      "datePublished": "2026-11-04",
+      "dateModified": "2026-11-04",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "既定値しか返さない" },
+      "keywords": "fold, higher-order",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "リストの最後の要素を、空なら既定値を返すつもりの latest が、いつも既定値を返すHaskell DEBUGのドリルです。const が1つ目の引数を返すことと、foldl が畳み込み途中の値を1つ目の引数に渡すことを合わせて、欠陥を見つけます。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-04">C23</a>
+  <a href="/cpp/debug/2026-11-04">C++26</a>
+  <a href="/rust/debug/2026-11-04">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-04" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-04">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-04">READ</a>
+  <a href="/haskell/write/2026-11-04">WRITE</a>
+  <a href="/haskell/debug/2026-11-04" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="既定値しか返さない"
+  data-tags="fold higher-order"
+  data-concepts="const, foldl, 畳み込み, 引数の順序, 最後の要素, const function, left fold, argument order"
+  data-level="hedgehog"
+>
+  <h2>2026-11-04</h2>
+  <div class="code-frame">
+    <p class="code-filename">Latest.hs</p>
+    <pre class="code"><code><span class="fn">latest</span> <span class="op">::</span> a <span class="op">-&gt;</span> [a] <span class="op">-&gt;</span> a
+<span class="fn">latest</span> = foldl const
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = <span class="kw">do</span>
+  print (latest <span class="st">"default"</span> [<span class="st">"blue"</span>, <span class="st">"green"</span>])
+  print (latest <span class="st">"default"</span> [])
+</code></pre>
+  </div>
+
+  <p class="question">
+    リストの最後の要素を返し、リストが空なら1つ目の引数の既定値を返すつもりの <code>latest</code> です。<code>main</code> は <code>["blue", "green"]</code> と空リストを渡します。本来は <code>"green"</code> と <code>"default"</code> を表示するはずが、いまは <code>"default"</code> を2回表示します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="fn">latest</span> = foldl const
+</code></pre>
+      <p>
+        <code>const</code> は <code>const x _ = x</code> と定義された関数で、2つの引数のうち1つ目をそのまま返し、2つ目は捨てます。<code>foldl f z [a, b]</code> は <code>f (f z a) b</code> と計算され、<code>f</code> の1つ目の引数はそれまでの畳み込みの結果、2つ目がリストの次の要素です。
+      </p>
+      <p>
+        この2つを合わせると、<code>foldl const "default" ["blue", "green"]</code> は <code>const (const "default" "blue") "green"</code> になります。内側の <code>const</code> が <code>"blue"</code> を捨てて <code>"default"</code> を返し、外側も <code>"green"</code> を捨てるので、要素がいくつあっても結果は最初の <code>"default"</code> のままです。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="fn">latest</span> = foldl (\_ x <span class="op">-&gt;</span> x)
+</code></pre>
+      <p>
+        畳み込みの関数を、1つ目の引数を捨てて2つ目を返す <code>\_ x -&gt; x</code> にします。各段で新しく来た要素が前の結果に取って代わるので、最後に残るのはリストの最後の要素です。空リストでは関数が1度も呼ばれず、既定値がそのまま返ります。<code>flip const</code> と書いても同じ関数で、hlint はこれを <code>\_ x -&gt; x</code> と書くよう勧めます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

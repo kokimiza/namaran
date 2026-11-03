@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「標準入出力」を扱ったNamaranのコーディングドリル24問。std.Io.Writer、バッファ付き出力、flush、標準出力、buffered writer、flush the buffer。">
+<meta name="description" content="「標準入出力」を扱ったNamaranのコーディングドリル27問。std.Io.Writer、インターフェース、書式指定、16進数、ゼロ埋め、Writer interface。">
 <title>標準入出力</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/stdio">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>標準入出力</h2>
 
   <p class="lede">
-    「標準入出力」を扱った24問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「標準入出力」を扱った27問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/write/2026-11-04">Zig / WRITE · 2026-11-04</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">Writerへ16進で書く</span> <span class="past-concepts">std.Io.Writer, インターフェース, 書式指定, 16進数, ゼロ埋め, Writer interface, hex dump, zero padding</span></li>
+    <li><a href="/zig/read/2026-11-04">Zig / READ · 2026-11-04</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">コンマで区切って読む</span> <span class="past-concepts">std.Io.Reader, takeDelimiter, 区切り文字, 空の欄, 末尾の区切り, delimiter, empty field, trailing delimiter</span></li>
+    <li><a href="/zig/debug/2026-11-04">Zig / DEBUG · 2026-11-04</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">エラーで抜けると消える行</span> <span class="past-concepts">std.Io.Writer, flush, errdefer, tryで抜ける, バッファに残った出力, buffered output, early return, error path</span></li>
     <li><a href="/zig/read/2026-11-02">Zig / READ · 2026-11-02</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">最後のflushがない</span> <span class="past-concepts">std.Io.Writer, バッファ付き出力, flush, 標準出力, buffered writer, flush the buffer</span></li>
     <li><a href="/zig/debug/2026-11-02">Zig / DEBUG · 2026-11-02</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">Writerを値で取り出す</span> <span class="past-concepts">std.Io.Writer, interface, @fieldParentPtr, 構造体のコピー, File.Writer, vtable, copying the interface</span></li>
     <li><a href="/c/read/2026-11-02">C / READ · 2026-11-02</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">printfとroundの丸め</span> <span class="past-concepts">偶数への丸め, 四捨五入, round関数, printf の %.0f, round half to even, round half away from zero, banker's rounding</span></li>

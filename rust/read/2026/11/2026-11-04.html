@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="頂点の座標から多角形の面積の2倍を求める twice_area に、右回りに並べた三角形を渡したときの出力を問うRust READのドリルです。座標から面積を求める式が、頂点を並べた向きで符号の変わる値を返すことを読み取ります。">
+<title>右回りに並べた三角形</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-11-04">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / READ", "item": "https://namaran.jocarium.productions/rust/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-04" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / READ — 2026-11-04",
+      "url": "https://namaran.jocarium.productions/rust/read/2026-11-04",
+      "datePublished": "2026-11-04",
+      "dateModified": "2026-11-04",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "右回りに並べた三角形" },
+      "keywords": "computational-geometry, cross-product, iterator",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "頂点の座標から多角形の面積の2倍を求める twice_area に、右回りに並べた三角形を渡したときの出力を問うRust READのドリルです。座標から面積を求める式が、頂点を並べた向きで符号の変わる値を返すことを読み取ります。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-04">C23</a>
+  <a href="/cpp/read/2026-11-04">C++26</a>
+  <a href="/rust/read/2026-11-04" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/read/2026-11-04">Haskell 2010</a>
+  <a href="/zig/read/2026-11-04">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-04" class="active" aria-current="page">READ</a>
+  <a href="/rust/write/2026-11-04">WRITE</a>
+  <a href="/rust/debug/2026-11-04">DEBUG</a>
+</nav>
+
+<main
+  data-topic="右回りに並べた三角形"
+  data-tags="computational-geometry cross-product iterator"
+  data-concepts="靴紐公式, 多角形の面積, 符号付き面積, 頂点の向き, shoelace formula, signed area, polygon orientation, zip"
+  data-level="peacock"
+>
+  <h2>2026-11-04</h2>
+  <div class="code-frame">
+    <p class="code-filename">signed_area.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">twice_area</span>(p: &amp;[(<span class="ty">i32</span>, <span class="ty">i32</span>)]) -&gt; <span class="ty">i32</span> {
+    p.<span class="fn">iter</span>().<span class="fn">zip</span>(&amp;p[<span class="nu">1</span>..]).<span class="fn">map</span>(|(a, b)| a.<span class="nu">0</span> * b.<span class="nu">1</span> - b.<span class="nu">0</span> * a.<span class="nu">1</span>).<span class="fn">sum</span>()
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> triangle = [(<span class="nu">0</span>, <span class="nu">0</span>), (<span class="nu">0</span>, <span class="nu">4</span>), (<span class="nu">3</span>, <span class="nu">0</span>), (<span class="nu">0</span>, <span class="nu">0</span>)];
+    <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="fn">twice_area</span>(&amp;triangle) / <span class="nu">2</span>);
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>-6</code> です。
+      </p>
+      <p>
+        <code>triangle</code> は最後に最初の頂点 <code>(0, 0)</code> をもう一度置いた閉じた並びで、<code>p.iter().zip(&amp;p[1..])</code> は隣り合う頂点の組 <code>(a, b)</code> を、辺の数と同じ3組作ります。各組の <code>a.0 * b.1 - b.0 * a.1</code> は、原点と <code>a</code> と <code>b</code> を頂点とする三角形の面積の2倍に、原点から見て <code>a</code> から <code>b</code> へ左回りなら正、右回りなら負の符号を付けた値です。これを全部の辺について足すと、多角形の外の部分は打ち消し合い、多角形の面積の2倍だけが残ります。<sup class="fn-ref">1</sup>
+      </p>
+      <p>
+        この和は面積そのものではなく、符号が付いたままです。頂点を左回りに並べれば正、右回りに並べれば負になり、<code>twice_area</code> はどこでも絶対値をとっていません。<code>(0, 0)</code> から <code>(0, 4)</code> へ上がり、<code>(3, 0)</code> へ右下に進んで戻る並びは右回りです。3組の値は順に <code>0 * 4 - 0 * 0 = 0</code>、<code>0 * 0 - 3 * 4 = -12</code>、<code>3 * 0 - 0 * 0 = 0</code> で、和は <code>-12</code> です。2で割った <code>-6</code> が表示されます。直角を挟む辺が3と4の三角形なので面積は 6 ですが、絶対値をとらない限り、出てくるのは向きの付いた <code>-6</code> です。
+      </p>
+      <ol class="footnotes">
+        <li>頂点の座標から多角形の面積を求めるこの式は、靴紐公式(くつひもこうしき、shoelace formula)と呼ばれます。x 座標と y 座標を2列に並べ、斜めに掛けて足し引きする様子が、靴紐を交差させて通す形に似ていることからの名前です。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/read">Today</a></li>
+    <li><a href="/rust/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="ループの中で作ったラムダを std::function の vector にため、あとでまとめて呼ぶC++ DEBUGのドリルです。参照でキャプチャした変数がループの1周ごとに破棄され、ためたラムダがぶら下がった参照を読む欠陥を直します。">
+<title>ためた挨拶が名前を失う</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-11-04">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-04" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-11-04",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-11-04",
+      "datePublished": "2026-11-04",
+      "dateModified": "2026-11-04",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "ためた挨拶が名前を失う" },
+      "keywords": "type-erasure, lambda, dangling-pointer, lifetime, undefined-behavior",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "ループの中で作ったラムダを std::function の vector にため、あとでまとめて呼ぶC++ DEBUGのドリルです。参照でキャプチャした変数がループの1周ごとに破棄され、ためたラムダがぶら下がった参照を読む欠陥を直します。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-04">C23</a>
+  <a href="/cpp/debug/2026-11-04" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-11-04">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-04">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-04">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-04">READ</a>
+  <a href="/cpp/write/2026-11-04">WRITE</a>
+  <a href="/cpp/debug/2026-11-04" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main
+  data-topic="ためた挨拶が名前を失う"
+  data-tags="type-erasure lambda dangling-pointer lifetime undefined-behavior"
+  data-concepts="std::function, ラムダの参照キャプチャ, ダングリング参照, 寿命, type erasure, capture by reference, dangling reference, use after scope"
+  data-level="hedgehog"
+>
+  <h2>2026-11-04</h2>
+  <div class="code-frame">
+    <p class="code-filename">greeters.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;functional&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    std::<span class="ty">vector</span>&lt;std::<span class="ty">function</span>&lt;<span class="ty">void</span>()&gt;&gt; greeters;
+    <span class="kw">for</span> (std::<span class="ty">string</span> name : {<span class="st">"Alice"</span>, <span class="st">"Bob"</span>}) {
+        greeters.<span class="fn">push_back</span>([&amp;name] { std::cout &lt;&lt; <span class="st">"Hello, "</span> &lt;&lt; name &lt;&lt; <span class="st">'\n'</span>; });
+    }
+    <span class="kw">for</span> (<span class="kw">const</span> <span class="kw">auto</span>&amp; greet : greeters) {
+        <span class="fn">greet</span>();
+    }
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    名前ごとの挨拶を <code>std::function</code> の <code>vector</code> にためておき、あとでまとめて実行するつもりのプログラムです。入力はなく、本来は <code>Hello, Alice</code> と <code>Hello, Bob</code> の2行を表示するはずが、いまは名前が正しく出ません。手元の g++ のビルドでは <code>Hello, Bob</code> が2行出ましたが、何が出るかは決まっておらず、AddressSanitizer を付けて実行すると異常終了します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">for</span> (std::<span class="ty">string</span> name : {<span class="st">"Alice"</span>, <span class="st">"Bob"</span>}) {
+    greeters.<span class="fn">push_back</span>([&amp;name] { std::cout &lt;&lt; <span class="st">"Hello, "</span> &lt;&lt; name &lt;&lt; <span class="st">'\n'</span>; });
+}
+</code></pre>
+      <p>
+        <code>[&amp;name]</code> は <code>name</code> を参照でキャプチャするので、ラムダが持つのは <code>name</code> を指す参照だけです。<code>std::function</code> はラムダをコピーして持ちますが、コピーされるのはこの参照で、文字列そのものではありません。<code>name</code> は範囲 <code>for</code> の1周ごとに作られて、その周の終わりに破棄されます。
+      </p>
+      <p>
+        2つ目の <code>for</code> でラムダを呼ぶときには、どちらの <code>name</code> も破棄されたあとです。破棄された変数を参照で読むのは未定義動作で、手元のビルドでは、最後の周で <code>"Bob"</code> が入った場所がそのまま読めたため、2行とも <code>Bob</code> になりました。AddressSanitizer はこの読み出しを stack-use-after-scope として止めます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">for</span> (std::<span class="ty">string</span> name : {<span class="st">"Alice"</span>, <span class="st">"Bob"</span>}) {
+    greeters.<span class="fn">push_back</span>([name] { std::cout &lt;&lt; <span class="st">"Hello, "</span> &lt;&lt; name &lt;&lt; <span class="st">'\n'</span>; });
+}
+</code></pre>
+      <p>
+        <code>[name]</code> とコピーでキャプチャすると、ラムダはその周の <code>name</code> の文字列を自分のメンバとして持ちます。<code>std::function</code> はそのラムダごとコピーするので、<code>name</code> が破棄されたあとも <code>"Alice"</code> と <code>"Bob"</code> は <code>greeters</code> の中に残り、2行の挨拶が順に表示されます。あとで呼ぶために保存するラムダでは、キャプチャした変数がその時点でもまだ生きているかを確かめ、生きていないならコピーで持たせます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

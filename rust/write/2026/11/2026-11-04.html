@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="頂点の座標を順に並べたスライスから、多角形の面積を f64 で返す area を書くRust WRITEのドリルです。隣り合う頂点の座標を掛けて足し引きする式を、最後の頂点と最初の頂点の組も含めて組み立てます。">
+<title>頂点の座標から面積</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-11-04">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-04" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-11-04",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-11-04",
+      "datePublished": "2026-11-04",
+      "dateModified": "2026-11-04",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "頂点の座標から面積" },
+      "keywords": "computational-geometry, cross-product, iterator, integer-arithmetic",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "頂点の座標を順に並べたスライスから、多角形の面積を f64 で返す area を書くRust WRITEのドリルです。隣り合う頂点の座標を掛けて足し引きする式を、最後の頂点と最初の頂点の組も含めて組み立てます。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-04">C23</a>
+  <a href="/cpp/write/2026-11-04">C++26</a>
+  <a href="/rust/write/2026-11-04" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-11-04">Haskell 2010</a>
+  <a href="/zig/write/2026-11-04">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-04">READ</a>
+  <a href="/rust/write/2026-11-04" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-11-04">DEBUG</a>
+</nav>
+
+<main
+  data-topic="頂点の座標から面積"
+  data-tags="computational-geometry cross-product iterator integer-arithmetic"
+  data-concepts="靴紐公式, 多角形の面積, 座標から面積, 最後の辺, shoelace formula, polygon area, wrap around"
+  data-level="hedgehog"
+>
+  <h2>2026-11-04</h2>
+  <div class="code-frame">
+    <p class="code-filename">polygon_area.rs</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">area</span>(p: &amp;[(<span class="ty">i64</span>, <span class="ty">i64</span>)]) -&gt; <span class="ty">f64</span> {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    頂点の座標 <code>p</code> を、多角形の周に沿って順に並べたスライスを受け取り、その多角形の面積を返す <code>area</code> を書いてください。多角形の辺どうしは交わらず、頂点は左回りに並んでいても右回りに並んでいてもかまいません。最後の頂点と最初の頂点の間にも辺があり、最初の頂点を末尾にもう一度置くことはしません。頂点が3個未満なら <code>0.0</code> を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>area(&amp;[(1, 1), (5, 1), (5, 4)])</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>6.0</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>area(&amp;[(0, 0), (0, 2), (2, 2), (2, 0)])</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>4.0</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>area(&amp;[(0, 0), (1, 0), (0, 1)])</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>0.5</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">area</span>(p: &amp;[(<span class="ty">i64</span>, <span class="ty">i64</span>)]) -&gt; <span class="ty">f64</span> {
+    <span class="kw">let</span> n = p.<span class="fn">len</span>();
+    <span class="kw">let</span> twice: <span class="ty">i64</span> = (<span class="nu">0</span>..n)
+        .<span class="fn">map</span>(|i| {
+            <span class="kw">let</span> (a, b) = (p[i], p[(i + <span class="nu">1</span>) % n]);
+            a.<span class="nu">0</span> * b.<span class="nu">1</span> - b.<span class="nu">0</span> * a.<span class="nu">1</span>
+        })
+        .<span class="fn">sum</span>();
+    twice.<span class="fn">abs</span>() <span class="kw">as</span> <span class="ty">f64</span> / <span class="nu">2.0</span>
+}
+</code></pre>
+      <p>
+        隣り合う2頂点 <code>a</code> と <code>b</code> について <code>a.0 * b.1 - b.0 * a.1</code> を計算し、すべての辺について足し合わせると、多角形の面積の2倍になります。1つの項は、原点と <code>a</code> と <code>b</code> を頂点とする三角形の面積の2倍に、左回りなら正、右回りなら負の符号を付けたものです。辺ごとの三角形を足し合わせると、多角形の外にはみ出した部分は符号が逆の項と打ち消し合います。<sup class="fn-ref">1</sup>
+      </p>
+      <p>
+        和には頂点の並びの向きで符号が付くので、<code>abs</code> で絶対値をとってから2で割ります。入力例 2 は右回りの並びで、和は <code>-8</code> です。最後の頂点と最初の頂点の組は、添字 <code>(i + 1) % n</code> で作ります。<code>i</code> が最後の <code>n - 1</code> のとき、相手の添字が 0 に戻ります。この組を落とすと、閉じていない折れ線の分しか足されず、入力例 1 は <code>5.5</code> になってしまいます。
+      </p>
+      <p>
+        座標が整数なので、和は <code>i64</code> のまま正確に求め、最後に1回だけ <code>f64</code> にしています。面積の2倍は必ず整数で、2で割った結果は整数か、端数が 0.5 のどちらかです。頂点が0個なら和は空で 0 に、1個なら唯一の項が <code>a.0 * a.1 - a.0 * a.1 = 0</code> に、2個なら往復の2項が打ち消し合って 0 になるので、3個未満の場合を別に書く必要はありません。掲載したのは参考実装で、唯一の正解ではありません。<code>p.iter().zip(p.iter().cycle().skip(1))</code> で、隣り合う組を最後の頂点から最初の頂点への組まで作ることもできます。
+      </p>
+      <ol class="footnotes">
+        <li>この式は靴紐公式(くつひもこうしき、shoelace formula)と呼ばれます。x 座標と y 座標を2列に並べ、斜めに掛けて足し引きする様子が、靴紐を交差させて通す形に似ていることからの名前です。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

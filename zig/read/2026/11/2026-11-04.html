@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="std.Io.Reader.fixed で作った Reader から takeDelimiter でコンマ区切りの欄を読み、括弧で囲んで表示するZig READのドリルです。続いたコンマの間にできる空の欄と、末尾のコンマのあとに欄ができないことを読み取ります。">
+<title>コンマで区切って読む</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/read/2026-11-04">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / READ", "item": "https://namaran.jocarium.productions/zig/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-04" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / READ — 2026-11-04",
+      "url": "https://namaran.jocarium.productions/zig/read/2026-11-04",
+      "datePublished": "2026-11-04",
+      "dateModified": "2026-11-04",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "コンマで区切って読む" },
+      "keywords": "stdio, parsing, string, csv",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "std.Io.Reader.fixed で作った Reader から takeDelimiter でコンマ区切りの欄を読み、括弧で囲んで表示するZig READのドリルです。続いたコンマの間にできる空の欄と、末尾のコンマのあとに欄ができないことを読み取ります。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-04">C23</a>
+  <a href="/cpp/read/2026-11-04">C++26</a>
+  <a href="/rust/read/2026-11-04">Rust 2024</a>
+  <a href="/haskell/read/2026-11-04">Haskell 2010</a>
+  <a href="/zig/read/2026-11-04" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-04" class="active" aria-current="page">READ</a>
+  <a href="/zig/write/2026-11-04">WRITE</a>
+  <a href="/zig/debug/2026-11-04">DEBUG</a>
+</nav>
+
+<main
+  data-topic="コンマで区切って読む"
+  data-tags="stdio parsing string csv"
+  data-concepts="std.Io.Reader, takeDelimiter, 区切り文字, 空の欄, 末尾の区切り, delimiter, empty field, trailing delimiter"
+  data-level="hedgehog"
+>
+  <h2>2026-11-04</h2>
+  <div class="code-frame">
+    <p class="code-filename">fields.zig</p>
+    <pre class="code"><code><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {
+    <span class="kw">var</span> buf: [<span class="nu">64</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;
+    <span class="kw">var</span> stdout_writer = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;buf);
+    <span class="kw">const</span> stdout = &amp;stdout_writer.interface;
+    <span class="kw">var</span> r: std.<span class="ty">Io</span>.<span class="ty">Reader</span> = .<span class="fn">fixed</span>(<span class="st">"ab,,c,"</span>);
+    <span class="kw">while</span> (<span class="kw">try</span> r.<span class="fn">takeDelimiter</span>(<span class="st">','</span>)) |field| {
+        <span class="kw">try</span> stdout.<span class="fn">print</span>(<span class="st">"[{s}]"</span>, .{field});
+    }
+    <span class="kw">try</span> stdout.<span class="fn">print</span>(<span class="st">"\n"</span>, .{});
+    <span class="kw">try</span> stdout.<span class="fn">flush</span>();
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>[ab][][c]</code> です。
+      </p>
+      <p>
+        <code>std.Io.Reader.fixed</code> は、渡した文字列そのものを読み出し元にする Reader を作ります。<code>takeDelimiter(',')</code> は、次のコンマの手前までをスライスで返し、読む位置をそのコンマの後ろへ進めます。返すスライスにコンマは含まれません。読むものが残っていなければ <code>null</code> を返すので、<code>while</code> はそこで終わります。
+      </p>
+      <p>
+        <code>"ab,,c,"</code> では、1回目が <code>ab</code> を返して1つ目のコンマの後ろへ進みます。2回目はすぐ次がコンマなので、長さ0のスライスを返して2つ目のコンマを越えます。続いたコンマの間には空の欄が1つあり、<code>[]</code> と表示されます。3回目は <code>c</code> を返して最後のコンマを越えます。4回目は読むものが残っていないので <code>null</code> です。末尾のコンマの後ろに空の欄があるとは扱わず、<code>[]</code> はもう出ません。
+      </p>
+      <p>
+        <code>takeDelimiter</code> は、区切り文字が見つからないまま読み出し元の終わりに来たときも、そこまでの残りを最後の欄として返します。<code>"ab,,c"</code> のように末尾のコンマが無くても、同じ <code>[ab][][c]</code> になります。<sup class="fn-ref">1</sup>
+      </p>
+      <ol class="footnotes">
+        <li>似た名前の <code>takeDelimiterExclusive</code> は、区切り文字の手前で止まり、区切り文字を読み飛ばしません。続けて呼ぶと、同じ区切り文字の手前で空のスライスを返し続けます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/read">Today</a></li>
+    <li><a href="/zig/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

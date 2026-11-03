@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="do ブロックの let で税率 rate を定義して withTax を作ったあと、別の let で rate を定義し直すHaskell READのドリルです。後から同じ名前を定義しても、先に作った withTax が見ている rate は変わらないことを読み取ります。">
+<title>2度目のletで税率を下げる</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-11-04">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-04" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-11-04",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-11-04",
+      "datePublished": "2026-11-04",
+      "dateModified": "2026-11-04",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "2度目のletで税率を下げる" },
+      "keywords": "shadowing, binding, immutability, closure",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "do ブロックの let で税率 rate を定義して withTax を作ったあと、別の let で rate を定義し直すHaskell READのドリルです。後から同じ名前を定義しても、先に作った withTax が見ている rate は変わらないことを読み取ります。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-04">C23</a>
+  <a href="/cpp/read/2026-11-04">C++26</a>
+  <a href="/rust/read/2026-11-04">Rust 2024</a>
+  <a href="/haskell/read/2026-11-04" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/read/2026-11-04">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-04" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-11-04">WRITE</a>
+  <a href="/haskell/debug/2026-11-04">DEBUG</a>
+</nav>
+
+<main
+  data-topic="2度目のletで税率を下げる"
+  data-tags="shadowing binding immutability closure"
+  data-concepts="let束縛, シャドーイング, 再代入ではない, 不変, 定数と不変, let binding, shadowing, immutable binding"
+  data-level="hedgehog"
+>
+  <h2>2026-11-04</h2>
+  <div class="code-frame">
+    <p class="code-filename">Tax.hs</p>
+    <pre class="code"><code><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = <span class="kw">do</span>
+  <span class="kw">let</span> rate = <span class="nu">10</span> <span class="op">::</span> <span class="ty">Int</span>
+      withTax price = price + price * rate `div` <span class="nu">100</span>
+  <span class="kw">let</span> rate = <span class="nu">8</span> <span class="op">::</span> <span class="ty">Int</span>
+  print (withTax <span class="nu">1000</span>, rate)
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <p>
+        <code>(1100,8)</code> です。
+      </p>
+      <p>
+        Haskell の <code>let</code> は、変数に値を代入する文ではなく、名前と値を結び付ける定義です。2つ目の <code>let rate = 8 :: Int</code> は、1つ目の <code>rate</code> を書き換えるのではなく、同じ名前の新しい変数を作ります。新しい <code>rate</code> が見えるのはこの行より後ろだけで、外側の古い <code>rate</code> は、その範囲で隠れるだけで 10 のまま残ります。
+      </p>
+      <p>
+        <code>withTax</code> の本体の <code>rate</code> は、<code>withTax</code> を定義した1つ目の <code>let</code> の中で見えていた <code>rate</code> で、その値は 10 です。どの <code>rate</code> を指すかは定義を書いた場所で決まり、あとから同じ名前が現れても変わりません。<code>withTax 1000</code> は <code>1000 + 1000 * 10 `div` 100</code> で 1100 です。<code>*</code> と <code>`div`</code> は同じ優先順位の左結合なので、掛け算が先です。組の2つ目の <code>rate</code> は最後の行から見える新しい方で 8 なので、<code>(1100,8)</code> と表示されます。税率が 8 に下がったと読んで <code>(1080,8)</code> と答えると、<code>let</code> を代入として読んだことになります。
+      </p>
+      <p>
+        同じ名前を内側で定義し直すことは、<code>-Wall</code> を付けると <code>-Wname-shadowing</code> の警告として知らされます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
