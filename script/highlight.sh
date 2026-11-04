@@ -19,6 +19,10 @@
 #            as a gate, so a page cannot be published unhighlighted or with
 #            hand-edited spans.
 #
+# New templates opt in with <main class="drill">. Their tokens are also
+# wrapped in code-line spans; CSS adds the gutter numbers and diff marks.
+# Legacy pages retain their original token-only markup.
+#
 # Only the markup changes: for every block, the text a reader sees (spans
 # removed, entities decoded) is asserted to be identical before and after.
 # Output escapes only < > & (as &lt; &gt; &amp;), the same set the pages use.
@@ -325,7 +329,7 @@ def lex(lang, text):
     return out
 
 
-def render(lang, raw):
+def render(lang, raw, numbered=False):
     text = plain(raw)
     merged = []
     for tok, cls in lex(lang, text):
@@ -333,10 +337,27 @@ def render(lang, raw):
             merged[-1][0] += tok
         else:
             merged.append([tok, cls])
-    out = "".join(
-        f'<span class="{cls}">{esc(tok)}</span>' if cls else esc(tok)
-        for tok, cls in merged
-    )
+    def token(tok, cls):
+        return f'<span class="{cls}">{esc(tok)}</span>' if cls else esc(tok)
+
+    if numbered:
+        # Split tokens after lexing, so multiline strings/comments keep their
+        # colour. Newlines stay outside the line wrappers: stripping spans
+        # recovers the exact source, including blank lines and a trailing LF.
+        lines, current = [], []
+        for tok, cls in merged:
+            parts = tok.split("\n")
+            for i, part in enumerate(parts):
+                if i:
+                    lines.append('<span class="code-line">' + "".join(current) + '</span>\n')
+                    current = []
+                if part:
+                    current.append(token(part, cls))
+        if current:
+            lines.append('<span class="code-line">' + "".join(current) + '</span>')
+        out = "".join(lines)
+    else:
+        out = "".join(token(tok, cls) for tok, cls in merged)
     if plain(out) != text:
         sys.exit("internal error: highlighting changed the code text")
     return out
@@ -348,7 +369,9 @@ def highlight(path):
     if lang not in LANGS:
         sys.exit(f"error: {path}: not a drill page ({{lang}}/{{type}}/YYYY/MM/*.html)")
     before = path.read_text(encoding="utf-8")
-    after = BLOCK.sub(lambda m: m.group(1) + render(lang, m.group(2)) + m.group(3), before)
+    # New templates opt in; published pages keep their original markup.
+    numbered = bool(re.search(r'<main\b[^>]*\bclass="[^"]*\bdrill\b[^"]*"', before))
+    after = BLOCK.sub(lambda m: m.group(1) + render(lang, m.group(2), numbered) + m.group(3), before)
     return before, after
 
 
