@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「参照カウント」を扱ったNamaranのコーディングドリル2問。RefCellの二重借用、Rc::ptr_eq、一時値の寿命、already borrowed、BorrowMutError、Rc aliasing。">
+<meta name="description" content="「参照カウント」を扱ったNamaranのコーディングドリル3問。RefCellの二重借用、Rc::ptr_eq、一時値の寿命、already borrowed、BorrowMutError、Rc aliasing。">
 <title>参照カウント</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/reference-counting">
 <link rel="stylesheet" href="/style.css">
@@ -32,12 +32,13 @@
   <h2>参照カウント</h2>
 
   <p class="lede">
-    「参照カウント」を扱った2問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「参照カウント」を扱った3問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
     <li><a href="/rust/write/2026-10-03">Rust / WRITE · 2026-10-03</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">共有されたVecを併合</span> <span class="past-concepts">RefCellの二重借用, Rc::ptr_eq, 一時値の寿命, already borrowed, BorrowMutError, Rc aliasing</span></li>
     <li><a href="/rust/read/2026-10-03">Rust / READ · 2026-10-03</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">複製した統計の行方</span> <span class="past-concepts">derive(Clone), Rcのclone, Cellの共有, 浅いコピーと深いコピー, shared mutable state, Rc clone shares</span></li>
+    <li><a href="/cpp/read/2026-08-30">C++ / READ · 2026-08-30</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">確かめた後に消えた所有者</span> <span class="past-concepts">weak_ptr, expired, lock, shared_ptr, 確認と使用の間, check then use, time of check to time of use</span></li>
   </ul>
 
   <p><a href="/topics">ほかのお題を見る</a></p>

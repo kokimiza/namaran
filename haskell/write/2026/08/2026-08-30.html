@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="文字列を読み取る型クラス Parse に、2つ組 (a, b) のインスタンスを書くHaskell WRITEのドリルです。コンマの左右をどの型として読むかは、結果の型からインスタンスが選びます。入れ子の組も読めるように区切る位置を決めます。">
+<title>組の読み取りを型で選ぶ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-08-30">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-30" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-08-30",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-08-30",
+      "datePublished": "2026-08-30",
+      "dateModified": "2026-08-30",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "組の読み取りを型で選ぶ" },
+      "keywords": "typeclass, parsing, tuple, maybe",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "文字列を読み取る型クラス Parse に、2つ組 (a, b) のインスタンスを書くHaskell WRITEのドリルです。コンマの左右をどの型として読むかは、結果の型からインスタンスが選びます。入れ子の組も読めるように区切る位置を決めます。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-08-30">C23</a>
+  <a href="/cpp/write/2026-08-30">C++26</a>
+  <a href="/rust/write/2026-08-30">Rust 2024</a>
+  <a href="/haskell/write/2026-08-30" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/write/2026-08-30">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-08-30">READ</a>
+  <a href="/haskell/write/2026-08-30" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-08-30">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="組の読み取りを型で選ぶ"
+  data-tags="typeclass parsing tuple maybe"
+  data-concepts="型クラス, インスタンス, インスタンスの文脈, 戻り値の型による選択, 構文解析, type class instance, return type polymorphism"
+  data-level="peacock"
+>
+  <h2>2026-08-30</h2>
+  <div class="code-frame">
+    <p class="code-filename">Parse.hs</p>
+    <pre class="code"><code><span class="kw">class</span> <span class="ty">Parse</span> a <span class="kw">where</span>
+  parse <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">Maybe</span> a
+
+<span class="kw">instance</span> <span class="ty">Parse</span> <span class="ty">Bool</span> <span class="kw">where</span>
+  parse <span class="st">"True"</span> = <span class="ty">Just</span> <span class="ty">True</span>
+  parse <span class="st">"False"</span> = <span class="ty">Just</span> <span class="ty">False</span>
+  parse _ = <span class="ty">Nothing</span>
+
+<span class="kw">instance</span> <span class="ty">Parse</span> <span class="ty">Int</span> <span class="kw">where</span>
+  parse s = <span class="kw">case</span> reads s <span class="kw">of</span>
+    [(n, <span class="st">""</span>)] <span class="op">-&gt;</span> <span class="ty">Just</span> n
+    _ <span class="op">-&gt;</span> <span class="ty">Nothing</span>
+
+<span class="kw">instance</span> (<span class="ty">Parse</span> a, <span class="ty">Parse</span> b) <span class="op">=&gt;</span> <span class="ty">Parse</span> (a, b) <span class="kw">where</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>parse</code> は文字列を型 <code>a</code> の値として読み、読めなければ <code>Nothing</code> を返します。<code>Parse a</code> と <code>Parse b</code> のインスタンスがあるとき、<code>"左,右"</code> の形の文字列を組 <code>(a, b)</code> として読む <code>Parse (a, b)</code> のインスタンスを書いてください。最初のコンマの左を <code>a</code>、右の残り全部を <code>b</code> として読み、どちらかが読めないか、コンマが無ければ <code>Nothing</code> です。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>parse "12,True" :: Maybe (Int, Bool)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>Just (12,True)</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>parse "1,2,False" :: Maybe (Int, (Int, Bool))</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>Just (1,(2,False))</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>parse "12" :: Maybe (Int, Bool)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>Nothing</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="kw">instance</span> (<span class="ty">Parse</span> a, <span class="ty">Parse</span> b) <span class="op">=&gt;</span> <span class="ty">Parse</span> (a, b) <span class="kw">where</span>
+  parse s = <span class="kw">case</span> break (== <span class="st">','</span>) s <span class="kw">of</span>
+    (l, <span class="st">','</span> : r) <span class="op">-&gt;</span> <span class="kw">do</span>
+      x <span class="op">&lt;-</span> parse l
+      y <span class="op">&lt;-</span> parse r
+      return (x, y)
+    _ <span class="op">-&gt;</span> <span class="ty">Nothing</span>
+</code></pre>
+      </div>
+      <p>
+        <code>break (== ',') s</code> は、<code>s</code> を最初のコンマの手前で2つに分けます。コンマがあれば右側はコンマから始まるので、パターン <code>(l, ',' : r)</code> でコンマを外した残りを <code>r</code> に取り出します。コンマが無ければ右側は空になり、2つ目の腕で <code>Nothing</code> を返します。<code>parse l</code> と <code>parse r</code> は同じ名前の関数を呼んでいるように見えますが、使われるインスタンスは別です。組み立てる結果の型が <code>Maybe (a, b)</code> なので、<code>parse l</code> の型は <code>Maybe a</code>、<code>parse r</code> の型は <code>Maybe b</code> に決まり、インスタンスの文脈 <code>(Parse a, Parse b)</code> で受け取った <code>a</code> と <code>b</code> それぞれの <code>parse</code> が呼ばれます。引数の型ではなく、返す値の型でどの実装を使うかが決まります。<code>Maybe</code> の <code>do</code> は、<code>parse l</code> か <code>parse r</code> のどちらかが <code>Nothing</code> ならそこで <code>Nothing</code> になり、両方が <code>Just</code> のときだけ <code>return (x, y)</code> で組を <code>Just</code> に包みます。
+      </p>
+      <p>
+        入力例 2 の型 <code>(Int, (Int, Bool))</code> では、右側の <code>b</code> が組 <code>(Int, Bool)</code> です。最初のコンマで <code>"1"</code> と <code>"2,False"</code> に分けると、<code>parse "2,False"</code> には今書いた <code>Parse (a, b)</code> のインスタンスがもう一度使われ、<code>Just (2,False)</code> が返ります。入れ子の組のための特別な処理は要りません。最後のコンマで分けると、左の <code>"1,2"</code> を <code>Int</code> として読めずに <code>Nothing</code> になるので、区切るのは最初のコンマです。入力例 3 はコンマが無いので <code>Nothing</code> です。掲載したのは参考実装で、唯一の正解ではありません。<code>do</code> の代わりに、<code>case (parse l, parse r) of</code> で場合分けして <code>(Just x, Just y) -&gt; Just (x, y)</code> と書いてもかまいません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="weak_ptr の expired で生きていることを確かめてから、所有者の shared_ptr を手放し、そのあとで lock するC++ READのドリルです。確かめた結果が確かめた時点のものでしかないことを、lock が返す空の shared_ptr から読み取ります。">
+<title>確かめた後に消えた所有者</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-08-30">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-30" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-08-30",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-08-30",
+      "datePublished": "2026-08-30",
+      "dateModified": "2026-08-30",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "確かめた後に消えた所有者" },
+      "keywords": "toctou, smart-pointer, reference-counting",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "weak_ptr の expired で生きていることを確かめてから、所有者の shared_ptr を手放し、そのあとで lock するC++ READのドリルです。確かめた結果が確かめた時点のものでしかないことを、lock が返す空の shared_ptr から読み取ります。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-08-30">C23</a>
+  <a href="/cpp/read/2026-08-30" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-08-30">Rust 2024</a>
+  <a href="/haskell/read/2026-08-30">Haskell 2010</a>
+  <a href="/zig/read/2026-08-30">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-08-30" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-08-30">WRITE</a>
+  <a href="/cpp/debug/2026-08-30">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="確かめた後に消えた所有者"
+  data-tags="toctou smart-pointer reference-counting"
+  data-concepts="weak_ptr, expired, lock, shared_ptr, 確認と使用の間, check then use, time of check to time of use"
+  data-level="hedgehog"
+>
+  <h2>2026-08-30</h2>
+  <div class="code-frame">
+    <p class="code-filename">snapshot.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;memory&gt;</span>
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="kw">auto</span> owner = std::make_shared&lt;<span class="ty">int</span>&gt;(<span class="nu">42</span>);
+    std::<span class="ty">weak_ptr</span>&lt;<span class="ty">int</span>&gt; watcher = owner;
+    <span class="ty">bool</span> alive = !watcher.<span class="fn">expired</span>();
+    owner.<span class="fn">reset</span>();
+    <span class="kw">if</span> (alive) {
+        <span class="kw">auto</span> p = watcher.<span class="fn">lock</span>();
+        std::cout &lt;&lt; (p ? *p : -<span class="nu">1</span>) &lt;&lt; <span class="st">'\n'</span>;
+    }
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>-1</samp></pre>
+      </div>
+      <p>
+        <code>watcher</code> は <code>std::weak_ptr</code> なので、<code>42</code> を持つオブジェクトを見ているだけで、所有はしていません。所有者は <code>owner</code> の1つだけです。<code>watcher.expired()</code> を呼んだ時点では <code>owner</code> がまだ持っているので <code>false</code> が返り、<code>alive</code> は <code>true</code> になります。<code>alive</code> はこの時点の答えを写した <code>bool</code> で、あとで所有者がいなくなっても書き換わりません。
+      </p>
+      <p>
+        次の <code>owner.reset()</code> で最後の所有者が手放すので、<code>42</code> のオブジェクトはその場で破棄されます。<code>if (alive)</code> は古い答えを見て本体に入り、そこで <code>watcher.lock()</code> を呼びます。<code>lock</code> は、その時点でオブジェクトが残っていれば所有権を1つ分けた <code>shared_ptr</code> を、残っていなければ空の <code>shared_ptr</code> を返します。いまは破棄済みなので <code>p</code> は空で、条件演算子は <code>-1</code> を選びます。
+      </p>
+      <p>
+        <code>alive</code> が <code>true</code> だったことから <code>42</code> と読むと間違えます。確かめてから使うまでの間に所有者が手放せば、確かめた結果は役に立ちません。<code>weak_ptr</code> では、<code>expired</code> で確かめずに <code>lock</code> の戻り値を確かめます。<code>lock</code> で受け取った <code>p</code> が所有者の1つになるので、<code>p</code> が空でなければ、<code>p</code> を使い終えるまでオブジェクトは破棄されません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

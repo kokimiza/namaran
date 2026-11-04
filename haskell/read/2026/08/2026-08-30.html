@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="関数を2回適用する多相な twice を4つ並べ、(+ 1) を 0 に何回適用するかを読むHaskell READのドリルです。どの twice も呼ばれる場所ごとに別の型で使われることと、回数が掛け算ではなく累乗で増える見方を見つけます。">
+<title>twiceを重ねた回数</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-08-30">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-30" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-08-30",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-08-30",
+      "datePublished": "2026-08-30",
+      "dateModified": "2026-08-30",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "twiceを重ねた回数" },
+      "keywords": "parametric-polymorphism, higher-order, function-composition, currying",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "関数を2回適用する多相な twice を4つ並べ、(+ 1) を 0 に何回適用するかを読むHaskell READのドリルです。どの twice も呼ばれる場所ごとに別の型で使われることと、回数が掛け算ではなく累乗で増える見方を見つけます。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-08-30">C23</a>
+  <a href="/cpp/read/2026-08-30">C++26</a>
+  <a href="/rust/read/2026-08-30">Rust 2024</a>
+  <a href="/haskell/read/2026-08-30" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/read/2026-08-30">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-08-30" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-08-30">WRITE</a>
+  <a href="/haskell/debug/2026-08-30">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="twiceを重ねた回数"
+  data-tags="parametric-polymorphism higher-order function-composition currying"
+  data-concepts="多相関数, 型変数, 高階関数, 関数合成, 部分適用, parametric polymorphism, higher-order function, Church numeral"
+  data-level="whale"
+>
+  <h2>2026-08-30</h2>
+  <div class="code-frame">
+    <p class="code-filename">Twice.hs</p>
+    <pre class="code"><code><span class="fn">twice</span> <span class="op">::</span> (a <span class="op">-&gt;</span> a) <span class="op">-&gt;</span> a <span class="op">-&gt;</span> a
+<span class="fn">twice</span> f = f . f
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (twice twice twice twice (+ <span class="nu">1</span>) (<span class="nu">0</span> <span class="op">::</span> <span class="ty">Int</span>))
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>65536</samp></pre>
+      </div>
+      <p>
+        関数適用は左結合なので、<code>twice twice twice twice (+ 1) 0</code> は <code>((((twice twice) twice) twice) (+ 1)) 0</code> です。<code>twice</code> の型 <code>(a -&gt; a) -&gt; a -&gt; a</code> の <code>a</code> には、使う場所ごとに別の型が入ります。一番右の <code>twice</code> では <code>a</code> が <code>Int -&gt; Int</code> で、その左の <code>twice</code> では <code>a</code> が「関数を受け取って関数を返す関数」の型になり、左へ行くほど型は大きくなります。<code>twice</code> は中身を見ずに関数を2回呼ぶだけなので、どの型に対しても同じ1つの定義が使えます。
+      </p>
+      <p>
+        <code>twice twice</code> を <code>(+ 1)</code> に当てはめていくように1段ずつ展開すると、すぐに追い切れなくなります。そこで「関数 <code>h</code> を受け取り、<code>h</code> を k 回適用する関数を返す」関数を、k 回の関数と呼んで考えます。<code>twice</code> は 2 回の関数です。k 回の関数 <code>g</code> を <code>h</code> の m 回適用に当てはめると、m 回を k 回繰り返すので m × k 回適用の関数が返ります。<code>g</code> を1回使うたびに、回数は k 倍になります。<code>twice g</code> は <code>g</code> を2回使うので、<code>g</code> が k 回の関数なら <code>twice g</code> は k × k 回の関数です。同じように、n 回の関数に k 回の関数を渡すと、<code>g</code> を n 回使うので、k の n 乗回の関数になります。
+      </p>
+      <p>
+        この見方で左から順に数えます。<code>twice twice</code> は 2 回の関数に 2 回の関数を渡すので、2 の 2 乗で 4 回の関数です。<code>(twice twice) twice</code> は 4 回の関数に <code>twice</code> を渡すので 2 の 4 乗で 16 回、<code>((twice twice) twice) twice</code> は 2 の 16 乗で 65536 回の関数です。最後にこれを <code>(+ 1)</code> と <code>0</code> に当てはめると、0 に 1 を 65536 回足して <code>65536</code> になります。
+      </p>
+      <p>
+        「2回」が4つ並んでいるので 2 × 2 × 2 × 2 で 16 回と読むと、<code>16</code> と答えることになります。掛け算になるのは、<code>twice (twice (twice (twice (+ 1))))</code> のように、どの <code>twice</code> も <code>Int -&gt; Int</code> の関数を受け取るときです。この問題では <code>twice</code> が <code>twice</code> そのものを受け取るので、受け取った側は「回数を2倍にする」操作を2回行い、回数は掛け算ではなく累乗で増えます。<sup class="fn-ref">1</sup>
+      </p>
+      <ol class="footnotes">
+        <li>k 回の関数で自然数 k を表す方法は、チャーチ数（Church numeral）と呼ばれます。n 回の関数に k 回の関数を渡すと k の n 乗回の関数になる、という本文の計算は、この表し方で累乗を計算する定義そのものです。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

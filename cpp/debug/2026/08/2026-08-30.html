@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="上限つきで残高を移す transfer が、残高が上限より少ないときだけ送り元を 0 にして送り先に何も届けないC++ DEBUGのドリルです。std::min が返す参照と const 参照の引数が、確かめた額と使う額をずらします。">
+<title>送った額が途中で変わる</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-08-30">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-30" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-08-30",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-08-30",
+      "datePublished": "2026-08-30",
+      "dateModified": "2026-08-30",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "送った額が途中で変わる" },
+      "keywords": "toctou, reference, aliasing, pass-by-value",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "上限つきで残高を移す transfer が、残高が上限より少ないときだけ送り元を 0 にして送り先に何も届けないC++ DEBUGのドリルです。std::min が返す参照と const 参照の引数が、確かめた額と使う額をずらします。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-08-30">C23</a>
+  <a href="/cpp/debug/2026-08-30" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-08-30">Rust 2024</a>
+  <a href="/haskell/debug/2026-08-30">Haskell 2010</a>
+  <a href="/zig/debug/2026-08-30">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-08-30">READ</a>
+  <a href="/cpp/write/2026-08-30">WRITE</a>
+  <a href="/cpp/debug/2026-08-30" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="送った額が途中で変わる"
+  data-tags="toctou reference aliasing pass-by-value"
+  data-concepts="std::min, const参照, エイリアス, 値渡し, 確認と使用の間, const reference, aliasing, check then use"
+  data-level="whale"
+>
+  <h2>2026-08-30</h2>
+  <div class="code-frame">
+    <p class="code-filename">transfer.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;algorithm&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+
+<span class="ty">void</span> <span class="fn">transfer</span>(<span class="ty">int</span>&amp; from, <span class="ty">int</span>&amp; to, <span class="kw">const</span> <span class="ty">int</span>&amp; amount) {
+    <span class="kw">if</span> (amount &lt;= from) {
+        from -= amount;
+        to += amount;
+    }
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="ty">int</span> alice = <span class="nu">30</span>;
+    <span class="ty">int</span> bob = <span class="nu">0</span>;
+    <span class="kw">const</span> <span class="ty">int</span> cap = <span class="nu">50</span>;
+    <span class="fn">transfer</span>(alice, bob, std::<span class="fn">min</span>(alice, cap));
+    std::cout &lt;&lt; alice &lt;&lt; <span class="st">' '</span> &lt;&lt; bob &lt;&lt; <span class="st">'\n'</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>from</code> から <code>to</code> へ <code>amount</code> を移す <code>transfer</code> で、<code>main</code> は <code>alice</code> の残高から最大 <code>cap</code> までを <code>bob</code> へ移します。<code>alice</code> が 30、<code>cap</code> が 50 なので、本来は 30 が移って <code>0 30</code> が出るはずが、いまは <code>0 0</code> が出て、30 がどこにも残りません。<code>alice</code> が <code>cap</code> 以上のとき（たとえば 80 なら <code>30 50</code>）は正しく動きます。直すのは <code>transfer</code> の中だけにしてください。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="ty">void</span> <span class="fn">transfer</span>(<span class="ty">int</span>&amp; from, <span class="ty">int</span>&amp; to, <span class="kw">const</span> <span class="ty">int</span>&amp; amount) {
+    <span class="kw">if</span> (amount &lt;= from) {
+        from -= amount;
+        to += amount;
+    }
+}
+</code></pre>
+      <p>
+        <code>transfer</code> だけを見ると、<code>amount</code> を確かめてから <code>from</code> を減らし、同じ <code>amount</code> を <code>to</code> に足すので、減った額と増えた額は等しく見えます。この読み方は、<code>amount</code> が <code>from</code> とは別の値であることを前提にしています。ところが <code>const int&amp;</code> は値を受け取るのではなく、呼び出し側のどこかの変数を指す別名で、<code>const</code> は「この名前を通しては書き換えない」という意味しか持ちません。別名の先がほかの名前を通して書き換われば、<code>amount</code> を読んだ結果も変わります。
+      </p>
+      <p>
+        <code>main</code> が渡した <code>std::min(alice, cap)</code> も、そうした別名の1つです。<code>std::min</code> は値のコピーを返さず、2つの引数のうち小さいほうへの <code>const</code> 参照を返します。30 と 50 では <code>alice</code> への参照が返るので、<code>amount</code> は <code>alice</code> の別名で、<code>from</code> と同じ変数を指します。<code>amount &lt;= from</code> の確認は 30 で通りますが、<code>from -= amount</code> で <code>alice</code> が 0 になった時点で <code>amount</code> を読んでも 0 です。続く <code>to += amount</code> は 0 を足すので、<code>0 0</code> になります。<code>alice</code> が 80 のときは <code>cap</code> への参照が返り、<code>cap</code> は書き換わらないので、正しく動きます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="ty">void</span> <span class="fn">transfer</span>(<span class="ty">int</span>&amp; from, <span class="ty">int</span>&amp; to, <span class="ty">int</span> amount) {
+    <span class="kw">if</span> (amount &lt;= from) {
+        from -= amount;
+        to += amount;
+    }
+}
+</code></pre>
+      <p>
+        <code>amount</code> を値で受け取ると、呼び出した時点の 30 が <code>transfer</code> の中のコピーに入ります。このコピーは <code>alice</code> とは別の変数なので、<code>from -= amount</code> で <code>alice</code> が 0 になっても <code>amount</code> は 30 のままで、確かめた額、引いた額、足した額の3つが同じになります。<code>amount</code> に <code>from</code> や <code>to</code> そのものを渡されても、同じ理由で正しく動きます。<code>int</code> のように小さい型は、コピーの手間を省くために参照で受け取る理由がありません。<sup class="fn-ref">1</sup>
+      </p>
+      <ol class="footnotes">
+        <li>同じ心配は標準ライブラリの側にもあります。<code>v.push_back(v[0])</code> の引数は <code>v</code> 自身の要素への参照で、<code>push_back</code> が領域を取り直すと古い要素は消えます。標準はこの呼び出しも正しく動くことを求めているので、標準ライブラリの実装は古い要素を消す前に新しい要素を作ります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="2次元のスライスから target を含む最初の行の番号を返す findRow を書くZig WRITEのドリルです。外側の for にラベルを付け、内側から break :outer で番号を持って抜け、見つからなかったときの null を for の else に置きます。">
+<title>見つけた行を値で返す</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/write/2026-08-30">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / WRITE", "item": "https://namaran.jocarium.productions/zig/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-30" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / WRITE — 2026-08-30",
+      "url": "https://namaran.jocarium.productions/zig/write/2026-08-30",
+      "datePublished": "2026-08-30",
+      "dateModified": "2026-08-30",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "見つけた行を値で返す" },
+      "keywords": "continue-break, loop, optional, slice",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "2次元のスライスから target を含む最初の行の番号を返す findRow を書くZig WRITEのドリルです。外側の for にラベルを付け、内側から break :outer で番号を持って抜け、見つからなかったときの null を for の else に置きます。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-08-30">C23</a>
+  <a href="/cpp/write/2026-08-30">C++26</a>
+  <a href="/rust/write/2026-08-30">Rust 2024</a>
+  <a href="/haskell/write/2026-08-30">Haskell 2010</a>
+  <a href="/zig/write/2026-08-30" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-08-30">READ</a>
+  <a href="/zig/write/2026-08-30" class="active" aria-current="page">WRITE</a>
+  <a href="/zig/debug/2026-08-30">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="見つけた行を値で返す"
+  data-tags="continue-break loop optional slice"
+  data-concepts="ラベル付きbreak, for の else, ループを式として使う, オプショナル型, labeled break, loop expression, for else"
+  data-level="hedgehog"
+>
+  <h2>2026-08-30</h2>
+  <div class="code-frame">
+    <p class="code-filename">find_row.zig</p>
+    <pre class="code"><code><span class="kw">fn</span> <span class="fn">findRow</span>(grid: []<span class="kw">const</span> []<span class="kw">const</span> <span class="ty">i32</span>, target: <span class="ty">i32</span>) ?<span class="ty">usize</span> {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    行ごとに長さの違う整数の表 <code>grid</code> から、<code>target</code> を1つでも含む最初の行の番号（0 から数える）を返す <code>findRow</code> を書いてください。どの行にも無いとき、<code>grid</code> が空のときは <code>null</code> を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>findRow(&amp;.{ &amp;.{ 4, 1 }, &amp;.{ 8, 3 }, &amp;.{ 3, 9 } }, 3)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>1</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>findRow(&amp;.{ &amp;.{ 4, 1 }, &amp;.{ 8, 3 }, &amp;.{ 3, 9 } }, 5)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>null</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>findRow(&amp;.{}, 1)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>null</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="kw">fn</span> <span class="fn">findRow</span>(grid: []<span class="kw">const</span> []<span class="kw">const</span> <span class="ty">i32</span>, target: <span class="ty">i32</span>) ?<span class="ty">usize</span> {
+    <span class="kw">return</span> <span class="lt">outer</span>: <span class="kw">for</span> (grid, <span class="nu">0</span>..) |row, i| {
+        <span class="kw">for</span> (row) |v| {
+            <span class="kw">if</span> (v == target) <span class="kw">break</span> <span class="lt">:outer</span> i;
+        }
+    } <span class="kw">else</span> <span class="nu">null</span>;
+}
+</code></pre>
+      </div>
+      <p>
+        Zig の <code>for</code> は値を持つ式として書けます。<code>break</code> に値を付けて抜ければ、その値が <code>for</code> 全体の値になり、一度も <code>break</code> せずに回り切ったときは <code>else</code> の後ろの値になります。ただしラベルの無い <code>break</code> は一番内側のループを抜けるだけなので、内側の <code>for (row)</code> の中で <code>break i</code> と書いても、外側の <code>for</code> の値にはなりません。外側に <code>outer:</code> とラベルを付け、<code>break :outer i</code> と書くと、内側と外側の2つのループを一度に抜け、<code>i</code> が外側の <code>for</code> の値になります。戻り値の型 <code>?usize</code> には、<code>usize</code> の <code>i</code> も <code>null</code> もそのまま入ります。
+      </p>
+      <p>
+        入力例 1 では、0 行目の <code>{ 4, 1 }</code> に 3 は無く、内側のループが回り切って外側の次の周へ進みます。1 行目の <code>{ 8, 3 }</code> で <code>v == target</code> になり、<code>break :outer 1</code> で抜けるので、2 行目の 3 は調べません。入力例 2 と 3 はどちらも <code>break</code> に一度も届かずに外側のループが終わるので、<code>else null</code> の <code>null</code> が返ります。<code>grid</code> が空なら、外側のループは1周もせずに <code>else</code> へ進みます。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。内側で見つけた時点で <code>return i;</code> と書き、ループの後ろに <code>return null;</code> を置いてもかまいません。各行を <code>std.mem.findScalar(i32, row, target) != null</code> で調べれば、内側のループ自体が要らなくなります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/write">Today</a></li>
+    <li><a href="/zig/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

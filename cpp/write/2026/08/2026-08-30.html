@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="複数のスレッドから呼ばれても在庫を負にしない take を、ロックを使わずに std::atomic で書くC++ WRITEのドリルです。残りを確かめることと減らすことを compare_exchange_weak の1回の操作にまとめます。">
+<title>在庫を確かめて減らす</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-08-30">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-30" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-08-30",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-08-30",
+      "datePublished": "2026-08-30",
+      "dateModified": "2026-08-30",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "在庫を確かめて減らす" },
+      "keywords": "toctou, atomic, race-condition",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "複数のスレッドから呼ばれても在庫を負にしない take を、ロックを使わずに std::atomic で書くC++ WRITEのドリルです。残りを確かめることと減らすことを compare_exchange_weak の1回の操作にまとめます。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-08-30">C23</a>
+  <a href="/cpp/write/2026-08-30" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-08-30">Rust 2024</a>
+  <a href="/haskell/write/2026-08-30">Haskell 2010</a>
+  <a href="/zig/write/2026-08-30">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-08-30">READ</a>
+  <a href="/cpp/write/2026-08-30" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-08-30">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="在庫を確かめて減らす"
+  data-tags="toctou atomic race-condition"
+  data-concepts="compare_exchange_weak, CASループ, 確認と更新, 競合状態, compare-and-swap, check then act, lock-free"
+  data-level="peacock"
+>
+  <h2>2026-08-30</h2>
+  <div class="code-frame">
+    <p class="code-filename">take_stock.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;atomic&gt;</span>
+
+<span class="ty">bool</span> <span class="fn">take</span>(std::<span class="ty">atomic</span>&lt;<span class="ty">int</span>&gt;&amp; stock, <span class="ty">int</span> n) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    在庫の数 <code>stock</code> が <code>n</code> 以上なら <code>n</code> だけ減らして <code>true</code> を、足りなければ <code>stock</code> を変えずに <code>false</code> を返す <code>take</code> を書いてください。<code>n</code> は 0 以上です。複数のスレッドが同じ <code>stock</code> に対して同時に <code>take</code> を呼んでも、<code>stock</code> が負にならず、<code>true</code> を返した分だけ正確に減るようにします。<code>std::mutex</code> などのロックは使いません。例では、呼ぶ前の <code>stock</code> の値を <code>stock = 5;</code> のように前に書き、出力には戻り値と呼んだあとの <code>stock</code> を並べます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>stock = 5; take(stock, 3)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>true, stock = 2</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>stock = 2; take(stock, 3)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>false, stock = 2</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>stock = 2; take(stock, 2)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>true, stock = 0</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="ty">bool</span> <span class="fn">take</span>(std::<span class="ty">atomic</span>&lt;<span class="ty">int</span>&gt;&amp; stock, <span class="ty">int</span> n) {
+    <span class="ty">int</span> current = stock.<span class="fn">load</span>();
+    <span class="kw">while</span> (current &gt;= n) {
+        <span class="kw">if</span> (stock.<span class="fn">compare_exchange_weak</span>(current, current - n)) {
+            <span class="kw">return</span> <span class="nu">true</span>;
+        }
+    }
+    <span class="kw">return</span> <span class="nu">false</span>;
+}
+</code></pre>
+      </div>
+      <p>
+        <code>if (stock &gt;= n) { stock -= n; return true; }</code> と書くと、1つのスレッドでは正しく動きます。<code>stock</code> の読み出しと <code>-=</code> はどちらも不可分ですが、その2つの間に隙間があります。<code>stock</code> が 1 のとき、2つのスレッドが <code>take(stock, 1)</code> を同時に呼ぶと、両方が <code>stock &gt;= 1</code> を確かめ終えてから両方が減らし、<code>stock</code> は <code>-1</code> になります。確かめた時点の値と、減らす時点の値が同じだという保証はありません。
+      </p>
+      <p>
+        <code>compare_exchange_weak(current, current - n)</code> は、<code>stock</code> がまだ <code>current</code> と等しければ <code>current - n</code> に書き換えて <code>true</code> を返す、という確認と書き換えを1回の不可分な操作で行います。その間に別のスレッドが <code>stock</code> を変えていれば書き換えずに <code>false</code> を返し、そのときの <code>stock</code> の値を <code>current</code> に書き戻します。ループの条件 <code>current &gt;= n</code> は、この新しい値で確かめ直されます。足りなくなっていれば <code>false</code> を返し、まだ足りていればもう一度書き換えを試みます。<code>weak</code> の版は、値が等しくても失敗することがありますが、ループで試し直すので結果は変わりません。
+      </p>
+      <p>
+        入力例 3 の <code>stock = 2; take(stock, 2)</code> は、<code>2 &gt;= 2</code> なので書き換えが成功し、<code>stock</code> はちょうど 0 になります。入力例 2 は最初から <code>2 &gt;= 3</code> が偽なので、一度も書き換えずに <code>false</code> を返します。検証では、在庫 1000 に対して8つのスレッドが1000回ずつ <code>take(shared, 1)</code> を呼び、<code>true</code> がちょうど1000回返って在庫が 0 で止まることを確かめました。掲載したのは参考実装で、唯一の正解ではありません。<code>compare_exchange_strong</code> を使っても、ループの形は同じです。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

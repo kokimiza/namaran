@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="4つのスレッドが10万回ずつ数える HITS が、40万に届かず実行のたびに違う値になるRust DEBUGのドリルです。static mut から atomic 型に移したあとも、load と store を分けると間に別のスレッドの更新が入って消えることを直します。">
+<title>読んで足して書く数え役</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-08-30">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-30" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-08-30",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-08-30",
+      "datePublished": "2026-08-30",
+      "dateModified": "2026-08-30",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "読んで足して書く数え役" },
+      "keywords": "atomic, race-condition, static-storage, thread",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "4つのスレッドが10万回ずつ数える HITS が、40万に届かず実行のたびに違う値になるRust DEBUGのドリルです。static mut から atomic 型に移したあとも、load と store を分けると間に別のスレッドの更新が入って消えることを直します。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-08-30">C23</a>
+  <a href="/cpp/debug/2026-08-30">C++26</a>
+  <a href="/rust/debug/2026-08-30" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-08-30">Haskell 2010</a>
+  <a href="/zig/debug/2026-08-30">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-08-30">READ</a>
+  <a href="/rust/write/2026-08-30">WRITE</a>
+  <a href="/rust/debug/2026-08-30" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="読んで足して書く数え役"
+  data-tags="atomic race-condition static-storage thread"
+  data-concepts="AtomicU32, fetch_add, load と store, 更新の取りこぼし, 読み出し・変更・書き込み, lost update, read-modify-write"
+  data-level="hedgehog"
+>
+  <h2>2026-08-30</h2>
+  <div class="code-frame">
+    <p class="code-filename">hits.rs</p>
+    <pre class="code"><code><span class="kw">use</span> std::sync::atomic::{<span class="ty">AtomicU32</span>, <span class="ty">Ordering</span>};
+<span class="kw">use</span> std::thread;
+
+<span class="kw">static</span> <span class="nu">HITS</span>: <span class="ty">AtomicU32</span> = <span class="ty">AtomicU32</span>::<span class="fn">new</span>(<span class="nu">0</span>);
+
+<span class="kw">fn</span> <span class="fn">hit</span>() {
+    <span class="kw">let</span> n = <span class="nu">HITS</span>.<span class="fn">load</span>(<span class="ty">Ordering</span>::<span class="ty">Relaxed</span>);
+    <span class="nu">HITS</span>.<span class="fn">store</span>(n + <span class="nu">1</span>, <span class="ty">Ordering</span>::<span class="ty">Relaxed</span>);
+}
+
+<span class="kw">fn</span> <span class="fn">main</span>() {
+    <span class="kw">let</span> workers: <span class="ty">Vec</span>&lt;_&gt; =
+        (<span class="nu">0</span>..<span class="nu">4</span>).<span class="fn">map</span>(|_| thread::<span class="fn">spawn</span>(|| (<span class="nu">0</span>..<span class="nu">100_000</span>).<span class="fn">for_each</span>(|_| <span class="fn">hit</span>()))).<span class="fn">collect</span>();
+    workers.<span class="fn">into_iter</span>().<span class="fn">for_each</span>(|w| w.<span class="fn">join</span>().<span class="fn">unwrap</span>());
+    <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="nu">HITS</span>.<span class="fn">load</span>(<span class="ty">Ordering</span>::<span class="ty">Relaxed</span>));
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>hit</code> を呼ぶたびに、プログラム全体で共有する <code>HITS</code> を1つ増やすつもりのコードです。<code>main</code> は4つのスレッドでそれぞれ10万回 <code>hit</code> を呼ぶので、本来は <code>400000</code> が出ます。いまは <code>151913</code>、<code>107933</code>、<code>148191</code> のように、40万より小さい値が実行のたびに違って出ます。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">hit</span>() {
+    <span class="kw">let</span> n = <span class="nu">HITS</span>.<span class="fn">load</span>(<span class="ty">Ordering</span>::<span class="ty">Relaxed</span>);
+    <span class="nu">HITS</span>.<span class="fn">store</span>(n + <span class="nu">1</span>, <span class="ty">Ordering</span>::<span class="ty">Relaxed</span>);
+}
+</code></pre>
+      <p>
+        <code>HITS.load</code> と <code>HITS.store</code> は、それぞれ1回ずつなら途中で割り込まれない操作です。しかし <code>hit</code> はこの2つを別々に呼んでおり、読んでから書くまでの間には別のスレッドが入れます。<code>HITS</code> が 7 のときに2つのスレッドがほぼ同時に <code>hit</code> に入ると、両方が <code>n</code> に 7 を読み、両方が 8 を書きます。2回呼んだのに1しか増えず、片方の更新が消えます。4つのスレッドが同時に回っている間はこれが何度も起き、どれだけ消えるかはスレッドの進み方で変わるので、結果は40万より小さく、毎回違う値になります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="kw">fn</span> <span class="fn">hit</span>() {
+    <span class="nu">HITS</span>.<span class="fn">fetch_add</span>(<span class="nu">1</span>, <span class="ty">Ordering</span>::<span class="ty">Relaxed</span>);
+}
+</code></pre>
+      <p>
+        <code>fetch_add(1, ...)</code> は、今の値を読み、1を足し、書き戻すまでを1つの不可分な操作として行います。2つのスレッドが同時に呼んでも、一方が書き戻すまでもう一方は古い値を読めないので、7 から始まれば必ず 9 になります。40万回の呼び出しがそれぞれ1ずつ増やし、<code>400000</code> が出ます。<code>Ordering::Relaxed</code> のままでよいのは、ここで欲しいのが <code>HITS</code> 1つの数の正しさだけで、ほかの変数との読み書きの順序は問わないからです。<sup class="fn-ref">1</sup>
+      </p>
+      <ol class="footnotes">
+        <li><code>static mut HITS: u32</code> に <code>HITS += 1</code> と書いていたコードを atomic 型へ移すとき、この load と store の2行に書き換えてしまうことがあります。元の <code>HITS += 1</code> も同じ消え方をするうえ、複数のスレッドから同時に書くのは未定義動作でした。atomic 型にすると未定義動作ではなくなりますが、増やす処理を1つの操作にしなければ数は合いません。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

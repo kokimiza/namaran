@@ -106,6 +106,7 @@ deep-copy	深いコピー
 default	デフォルト値
 default-argument	デフォルト引数
 default-argument-promotion	既定の実引数拡張
+defer	defer文
 depth-first-search	深さ優先探索
 deque	両端キュー
 deref-coercion	Deref型強制
@@ -196,6 +197,7 @@ infinite-list	無限リスト
 infinite-loop	無限ループ
 inheritance	継承
 init-statement	初期化文
+initialization	初期化
 initialization-order	初期化順序
 inline-else	inline else
 inline-function	インライン関数
