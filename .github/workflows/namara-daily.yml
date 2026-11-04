@@ -40,7 +40,7 @@ on:
   workflow_dispatch:
     inputs:
       date:
-        description: "Drill date, YYYY-MM-DD (empty: today in Asia/Tokyo)"
+        description: "Drill date, YYYY-MM-DD (empty: today in Asia/Tokyo). A given date is rewritten from scratch: its existing pages are deleted."
         required: false
         default: ""
 
@@ -64,6 +64,7 @@ jobs:
       contents: read
     outputs:
       date: ${{ steps.plan.outputs.date }}
+      replace: ${{ steps.plan.outputs.replace }}
       combos: ${{ steps.plan.outputs.combos }}
       levels: ${{ steps.plan.outputs.levels }}
       topics: ${{ steps.plan.outputs.topics }}
@@ -84,8 +85,20 @@ jobs:
           [[ "$date" =~ ^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$ ]] ||
             { echo "::error::not a YYYY-MM-DD date: $date"; exit 1; }
 
-          # Published pages are never edited (doc/basic-design.md §7.1), so
-          # only combos without a page for this date are written.
+          # A date given by hand means "write that day again": its pages are
+          # removed first and all 15 combos are rewritten. The removal is
+          # committed here, locally and never pushed, so the patch still adds
+          # each page as a new file; verify and publish remove the same pages
+          # before applying it. A scheduled run never replaces anything
+          # (doc/basic-design.md §7.1): it writes only combos without a page.
+          replace=""
+          if [ -n "$INPUT_DATE" ]; then
+            replace=1
+            git rm -q --ignore-unmatch -- "*/*/${date:0:4}/${date:5:2}/$date.html"
+            git diff --cached --quiet ||
+              git -c user.name=namara -c user.email=namara@localhost commit -q -m "drop $date"
+          fi
+
           combos=""
           for lang in c cpp rust haskell zig; do
             for type in read write debug; do
@@ -109,6 +122,7 @@ jobs:
 
           {
             echo "date=$date"
+            echo "replace=$replace"
             echo "combos=$combos"
             echo "levels=$levels"
             echo "verify_dir=$verify_dir"
@@ -390,7 +404,13 @@ jobs:
           ./script/check-patch.sh "$DATE" "$RUNNER_TEMP/namara-drop/drills.patch" $LEVELS
 
       - name: Apply the patch
-        run: git apply --index "$RUNNER_TEMP/namara-drop/drills.patch"
+        env:
+          DATE: ${{ needs.write.outputs.date }}
+          REPLACE: ${{ needs.write.outputs.replace }}
+        run: |
+          set -euo pipefail
+          [ -z "$REPLACE" ] || git rm -q --ignore-unmatch -- "*/*/${DATE:0:4}/${DATE:5:2}/$DATE.html"
+          git apply --index "$RUNNER_TEMP/namara-drop/drills.patch"
 
       - name: Install toolchains
         uses: ./.github/actions/toolchains
@@ -431,7 +451,9 @@ jobs:
       # but re-inserted by script/content.sh into the current archive.html,
       # which keeps the list newest-first instead of producing a merge
       # conflict. If a dated page already exists on main, applying fails and
-      # nothing is published: published pages are never overwritten.
+      # nothing is published: published pages are never overwritten — except
+      # on a run with a date given by hand, which removes that date's pages
+      # first and publishes the rewritten ones in their place.
       # check-patch.sh and content.sh run from this checkout of main each
       # time, never from the patch.
       - name: Commit and push
@@ -440,6 +462,7 @@ jobs:
           COMBOS: ${{ needs.write.outputs.combos }}
           LEVELS: ${{ needs.write.outputs.levels }}
           TOPICS: ${{ needs.write.outputs.topics }}
+          REPLACE: ${{ needs.write.outputs.replace }}
         run: |
           set -euo pipefail
           patch_file="$RUNNER_TEMP/namara-drop/drills.patch"
@@ -450,6 +473,7 @@ jobs:
           for attempt in 1 2 3; do
             git fetch --quiet origin main
             git reset --quiet --hard origin/main
+            [ -z "$REPLACE" ] || git rm -q --ignore-unmatch -- "*/*/${DATE:0:4}/${DATE:5:2}/$DATE.html"
             # shellcheck disable=SC2086 # LEVELS is a space-separated list
             ./script/check-patch.sh "$DATE" "$patch_file" $LEVELS
             git apply --index --exclude='*/archive.html' "$patch_file"
