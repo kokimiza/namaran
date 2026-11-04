@@ -582,6 +582,98 @@ pre.code ::selection {
   color: var(--slab);
 }
 
+/* New drill templates only. Line numbers and diff marks are CSS content,
+   so copying a listing still yields just the source. Published HTML keeps
+   the original layout. The highlighter supplies one span per source line. */
+.drill pre.code {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.drill pre.code > code {
+  display: grid;
+  width: max-content;
+  min-width: 100%;
+  counter-reset: code-line;
+}
+
+.drill .code-line {
+  display: block;
+  position: relative;
+  min-height: 1.7em;
+  padding: 0 1.5rem 0 4rem;
+  counter-increment: code-line;
+}
+
+.drill .code-line::before {
+  content: counter(code-line);
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3rem;
+  padding-right: 0.75rem;
+  border-right: 1px solid var(--slab-rule);
+  background: var(--slab-bar);
+  color: #8ba6c8;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  user-select: none;
+}
+
+.drill .diff-added,
+.drill .right + pre.code {
+  --diff-bg: #1a3027;
+  --diff-ink: #9bd6a8;
+  --diff-mark: "+";
+}
+
+.drill .wrong + pre.code {
+  --diff-bg: #352329;
+  --diff-ink: #f0a29a;
+  --diff-mark: "−";
+}
+
+.drill .diff-added .code-line,
+.drill .wrong + pre.code .code-line,
+.drill .right + pre.code .code-line {
+  padding-left: 5rem;
+  background: var(--diff-bg);
+}
+
+.drill .diff-added .code-line::after,
+.drill .wrong + pre.code .code-line::after,
+.drill .right + pre.code .code-line::after {
+  content: var(--diff-mark);
+  position: absolute;
+  left: 3.5rem;
+  color: var(--diff-ink);
+  user-select: none;
+}
+
+.drill .answer-body .code-frame pre.code {
+  margin-top: 0;
+}
+
+.drill .answer-body > .code-frame:first-child {
+  margin-top: 0;
+}
+
+/* READ's result speaks in the same terminal voice as the code. Explanatory
+   prose remains on paper below it; results are never syntax highlighted. */
+.drill pre.output {
+  margin: 0;
+  padding: var(--s-sibling) 1.5rem;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.7;
+  white-space: pre;
+  scrollbar-color: var(--slab-rule) transparent;
+}
+
+.drill pre.output samp {
+  font: inherit;
+}
+
 /* ---------- syntax ---------- */
 
 pre.code .kw,
