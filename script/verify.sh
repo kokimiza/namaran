@@ -63,7 +63,7 @@
 # combo's ok/ng/bug files, indented as it is there (a block may be shifted
 # left as a whole, nothing more) — so the code readers see is the code that
 # was checked and formatted — READ/DEBUG question code (outside
-# <details>) is at most 21 lines, a WRITE page's examples sit in
+# <details>) is at most 18 lines, a WRITE page's examples sit in
 # <div class="examples">, a DEBUG answer is Wrong + listing then Right +
 # listing, the Japanese prose has none of the patterns the humanizer-ja-tech
 # revision pass removes (AI stock phrases, dashes, full-width alphanumerics,
@@ -347,7 +347,7 @@ page = pathlib.Path(root, lang, typ, date[:4], date[5:7], f"{date}.html")
 archive = pathlib.Path(root, lang, typ, "archive.html")
 exts = {"c": "c", "cpp": "cpp", "rust": "rs", "haskell": "hs", "zig": "zig"}
 # The only markup allowed inside <code>: script/highlight.sh's token spans.
-spans = re.compile(r'<span class="(?:kw|ty|fn|st|nu|cm|pp|mc|lt|op)">|</span>')
+spans = re.compile(r'<span class="(?:kw|ty|fn|st|nu|cm|pp|mc|lt|op|code-line)">|</span>')
 problems = []
 
 s = page.read_text(encoding="utf-8")
@@ -480,10 +480,10 @@ for block in re.findall(r'<pre class="code"><code>(.*?)</code></pre>', s, re.S):
 # READ/DEBUG code is read in full before answering, so it must stay small
 # (doc/requirements.md §12). Over the limit is a badly chosen problem: pick
 # another angle, don't squeeze lines. <details> (the answer) doesn't count.
-MAX_LINES = 21
+MAX_LINES = 18
 if typ in ("read", "debug"):
     question = re.sub(r"<details.*?</details>", "", s, flags=re.S)
-    n = sum(len(b.strip("\n").splitlines())
+    n = sum(len(html.unescape(spans.sub("", b)).strip("\n").splitlines())
             for b in re.findall(r'<pre class="code"><code>(.*?)</code></pre>', question, re.S))
     if n > MAX_LINES:
         problems.append(f"question code is {n} lines; {typ.upper()} must fit in {MAX_LINES}"
@@ -492,6 +492,12 @@ if typ in ("read", "debug"):
 # The shape each type's template gives (script/template-{type}.html).
 if typ == "write" and '<div class="examples">' not in s:
     problems.append('WRITE needs its input/output examples in <div class="examples">')
+if "drill" in attrs.get("class", "").split() and typ == "read":
+    if not re.search(r'<div class="code-frame answer-output"[^>]*>\s*'
+                     r'<p class="code-filename">Output</p>\s*'
+                     r'<pre class="output"><samp>.+?</samp></pre>\s*</div>',
+                     s[s.find('<details class="answer">'):], re.S):
+        problems.append('READ needs its result in the Output terminal (<pre class="output"><samp>)')
 if typ == "debug":
     answer = s[s.find('<details class="answer">'):]
     if not re.search(r'<h3 class="wrong">Wrong</h3>\s*<pre class="code">.*?'
