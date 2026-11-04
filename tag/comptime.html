@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「コンパイル時実行」を扱ったNamaranのコーディングドリル16問。コンパイル時の文字列連結、comptime var、inline for、配列の連結、string repetition、array concatenation。">
+<meta name="description" content="「コンパイル時実行」を扱ったNamaranのコーディングドリル19問。comptime T: type、汎用関数、std.fmt.parseInt、カンマ区切り、範囲外の検出、error.Overflow。">
 <title>コンパイル時実行</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/comptime">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>コンパイル時実行</h2>
 
   <p class="lede">
-    「コンパイル時実行」を扱った16問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「コンパイル時実行」を扱った19問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/write/2026-11-05">Zig / WRITE · 2026-11-05</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">型を受け取って数を読む</span> <span class="past-concepts">comptime T: type, 汎用関数, std.fmt.parseInt, カンマ区切り, 範囲外の検出, error.Overflow, generic parse function, comma separated integers</span></li>
+    <li><a href="/zig/read/2026-11-05">Zig / READ · 2026-11-05</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">型ごとに作られる関数</span> <span class="past-concepts">comptime T: type, 汎用関数, 関数の実体化, 関数の中のstruct, コンテナ変数, generic function, monomorphization, static local variable</span></li>
+    <li><a href="/zig/debug/2026-11-05">Zig / DEBUG · 2026-11-05</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">要素の型で足す合計</span> <span class="past-concepts">anytype, comptime T: type, 汎用関数, 整数のオーバーフロー, 和の型, @TypeOf, integer overflow, generic sum, accumulator type</span></li>
     <li><a href="/zig/write/2026-11-03">Zig / WRITE · 2026-11-03</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">++で伸ばす繰り返し</span> <span class="past-concepts">コンパイル時の文字列連結, comptime var, inline for, 配列の連結, string repetition, array concatenation</span></li>
     <li><a href="/zig/debug/2026-11-03">Zig / DEBUG · 2026-11-03</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">実行時の++を返す</span> <span class="past-concepts">配列の連結, 実行時の++, ローカル変数へのスライス, 寿命, dangling slice, array concatenation at runtime, stack memory</span></li>
     <li><a href="/zig/write/2026-10-25">Zig / WRITE · 2026-10-25</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">型の合うフィールドを数える</span> <span class="past-concepts">comptime var, inline for, @typeInfo, フィールドの型を数える, コンパイル時の集計, type reflection, comptime_int</span></li>

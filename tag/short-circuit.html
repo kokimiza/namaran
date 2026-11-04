@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「短絡評価」を扱ったNamaranのコーディングドリル8問。キャッシュの一斉失効、再計算を1つに絞る、atomic_flag_test_and_set、短絡評価、cache stampede、single flight。">
+<meta name="description" content="「短絡評価」を扱ったNamaranのコーディングドリル9問。イテレータアダプタ、遅延評価、map と find の順序、1要素ずつ流れる、途中で止まる、iterator adapter。">
 <title>短絡評価</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/short-circuit">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>短絡評価</h2>
 
   <p class="lede">
-    「短絡評価」を扱った8問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「短絡評価」を扱った9問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/read/2026-11-05">Rust / READ · 2026-11-05</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">mapとfindが交互に動く</span> <span class="past-concepts">イテレータアダプタ, 遅延評価, map と find の順序, 1要素ずつ流れる, 途中で止まる, iterator adapter, lazy iterator, short-circuit</span></li>
     <li><a href="/c/read/2026-10-25">C / READ · 2026-10-25</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">取ったまま返さない鍵</span> <span class="past-concepts">キャッシュの一斉失効, 再計算を1つに絞る, atomic_flag_test_and_set, 短絡評価, cache stampede, single flight, lock leak</span></li>
     <li><a href="/cpp/debug/2026-10-24">C++ / DEBUG · 2026-10-24</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">値が無いと通るテスト</span> <span class="past-concepts">テストの判定, std::optional の比較, nullopt を見逃すテスト, from_chars, optional comparison, vacuous pass, test helper</span></li>
     <li><a href="/haskell/read/2026-10-11">Haskell / READ · 2026-10-11</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">割り算を含む無限リスト</span> <span class="past-concepts">遅延評価, 無限リスト, 要素の評価, 短絡評価, ゼロ除算, lazy evaluation, infinite list, short-circuit evaluation, division by zero</span></li>

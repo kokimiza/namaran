@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="std::array を memcpy で複製する snapshot が、先頭の要素しか写さないC++ DEBUGのドリルです。memcpy の3つ目の引数がバイト数なのに、要素数を返す size() を渡していることを見抜いて直します。">
+<title>要素数で渡したmemcpy</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-11-05">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-05" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-11-05",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-11-05",
+      "datePublished": "2026-11-05",
+      "dateModified": "2026-11-05",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "要素数で渡したmemcpy" },
+      "keywords": "array, sizeof, buffer-overflow",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "std::array を memcpy で複製する snapshot が、先頭の要素しか写さないC++ DEBUGのドリルです。memcpy の3つ目の引数がバイト数なのに、要素数を返す size() を渡していることを見抜いて直します。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-05">C23</a>
+  <a href="/cpp/debug/2026-11-05" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-11-05">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-05">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-05">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-05">READ</a>
+  <a href="/cpp/write/2026-11-05">WRITE</a>
+  <a href="/cpp/debug/2026-11-05" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="要素数で渡したmemcpy"
+  data-tags="array sizeof buffer-overflow"
+  data-concepts="std::array::size, memcpy のバイト数, 要素数とバイト数, 組み込み配列からの書き換え, std::array size, memcpy byte count, element count"
+  data-level="peacock"
+>
+  <h2>2026-11-05</h2>
+  <div class="code-frame">
+    <p class="code-filename">snapshot.cpp</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;array&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;cstring&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+
+std::<span class="ty">array</span>&lt;<span class="ty">int</span>, <span class="nu">4</span>&gt; <span class="fn">snapshot</span>(<span class="kw">const</span> std::<span class="ty">array</span>&lt;<span class="ty">int</span>, <span class="nu">4</span>&gt;&amp; live) {
+    std::<span class="ty">array</span>&lt;<span class="ty">int</span>, <span class="nu">4</span>&gt; copy{};
+    std::<span class="fn">memcpy</span>(copy.<span class="fn">data</span>(), live.<span class="fn">data</span>(), live.<span class="fn">size</span>());
+    <span class="kw">return</span> copy;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    std::<span class="ty">array</span>&lt;<span class="ty">int</span>, <span class="nu">4</span>&gt; live = {<span class="nu">10</span>, <span class="nu">20</span>, <span class="nu">30</span>, <span class="nu">40</span>};
+    <span class="kw">for</span> (<span class="ty">int</span> x : <span class="fn">snapshot</span>(live)) {
+        std::cout &lt;&lt; x &lt;&lt; <span class="st">' '</span>;
+    }
+    std::cout &lt;&lt; <span class="st">'\n'</span>;
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    計測値の配列 <code>live</code> の複製を作って返す <code>snapshot</code> です。<code>{10, 20, 30, 40}</code> を渡して複製の要素を表示すると、いまは <code>10 0 0 0</code> と表示されます。本来は <code>10 20 30 40</code> と表示されるはずです。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code>    std::<span class="fn">memcpy</span>(copy.<span class="fn">data</span>(), live.<span class="fn">data</span>(), live.<span class="fn">size</span>());
+</code></pre>
+      <p>
+        <code>std::memcpy</code> の3つ目の引数は、写すバイト数です。<code>live.size()</code> が返すのは要素の個数の 4 で、<code>int</code> が4バイトの環境では、写されるのは先頭の4バイトで、<code>live[0]</code> の 10 の分しかありません。<code>copy</code> は <code>{}</code> で 0 に初期化してあるので、残りの3つは 0 のまま返り、<code>10 0 0 0</code> と表示されます。
+      </p>
+      <p>
+        組み込み配列の <code>int live[4]</code> なら、<code>memcpy(copy, live, sizeof live)</code> と書くのが定番でした。<code>sizeof live</code> は配列全体のバイト数の 16 です。<code>std::array</code> に書き換えるときに、配列の大きさを返すものとして <code>size()</code> を選ぶと、意味がバイト数から要素数に変わります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code>    std::<span class="fn">memcpy</span>(copy.<span class="fn">data</span>(), live.<span class="fn">data</span>(), live.<span class="fn">size</span>() * <span class="kw">sizeof</span> live[<span class="nu">0</span>]);
+</code></pre>
+      <p>
+        要素数に要素1つのバイト数 <code>sizeof live[0]</code> を掛けると、4 × 4 の 16 バイトになり、4つの要素がすべて写ります。<code>sizeof live[0]</code> は要素の型から決まるので、<code>int</code> の大きさが環境ごとに違っても、要素の型を <code>double</code> に変えても正しいバイト数になります。
+      </p>
+      <p>
+        <code>std::array</code> は組み込み配列と違って代入でコピーできるクラスなので、この関数は <code>return live;</code> の1行でも書けます。コピーをコンパイラに任せれば、バイト数を数える必要そのものがなくなります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

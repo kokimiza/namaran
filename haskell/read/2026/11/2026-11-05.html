@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="最大値の位置を探して区間を縮める1段の処理 step を、iterate で繰り返した最初の3つを表示するHaskell READのドリルです。区間を三等分する2点の値を比べ、どちら側を捨てるかを2段ぶん追います。">
+<title>三等分点で区間を縮める</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-11-05">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-05" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-11-05",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-11-05",
+      "datePublished": "2026-11-05",
+      "dateModified": "2026-11-05",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "三等分点で区間を縮める" },
+      "keywords": "ternary-search, unimodal-function, infinite-list, laziness",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "最大値の位置を探して区間を縮める1段の処理 step を、iterate で繰り返した最初の3つを表示するHaskell READのドリルです。区間を三等分する2点の値を比べ、どちら側を捨てるかを2段ぶん追います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-05">C23</a>
+  <a href="/cpp/read/2026-11-05">C++26</a>
+  <a href="/rust/read/2026-11-05">Rust 2024</a>
+  <a href="/haskell/read/2026-11-05" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/read/2026-11-05">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-05" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-11-05">WRITE</a>
+  <a href="/haskell/debug/2026-11-05">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="三等分点で区間を縮める"
+  data-tags="ternary-search unimodal-function infinite-list laziness"
+  data-concepts="三分探索, 単峰関数, 区間を縮める, iterate, 最大値の位置, ternary search, unimodal function, iterate take"
+  data-level="hedgehog"
+>
+  <h2>2026-11-05</h2>
+  <div class="code-frame">
+    <p class="code-filename">Narrow.hs</p>
+    <pre class="code"><code><span class="fn">step</span> <span class="op">::</span> (<span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Int</span>) <span class="op">-&gt;</span> (<span class="ty">Int</span>, <span class="ty">Int</span>) <span class="op">-&gt;</span> (<span class="ty">Int</span>, <span class="ty">Int</span>)
+<span class="fn">step</span> f (lo, hi)
+  | f m1 &lt; f m2 = (m1 + <span class="nu">1</span>, hi)
+  | otherwise = (lo, m2 - <span class="nu">1</span>)
+ <span class="kw">where</span>
+  m1 = lo + (hi - lo) `div` <span class="nu">3</span>
+  m2 = hi - (hi - lo) `div` <span class="nu">3</span>
+
+<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
+<span class="fn">main</span> = print (take <span class="nu">3</span> (iterate (step f) (<span class="nu">0</span>, <span class="nu">30</span>)))
+ <span class="kw">where</span>
+  f x = negate (abs (x - <span class="nu">20</span>))
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>[(0,30),(11,30),(11,23)]</samp></pre>
+      </div>
+      <p>
+        <code>iterate g x</code> は <code>x</code>、<code>g x</code>、<code>g (g x)</code> と続く無限のリストで、先頭は <code>g</code> を1回も適用していない <code>x</code> そのものです。<code>take 3</code> が取り出すのは、初めの区間 <code>(0,30)</code> と、<code>step</code> を1回、2回適用した区間の3つです。リストは遅延評価されるので、4つ目より後ろは計算されません。
+      </p>
+      <p>
+        <code>step</code> は区間を三等分する2点 <code>m1</code> と <code>m2</code> で <code>f</code> を比べます。<code>f</code> は 20 で最大になり、そこから離れるほど小さくなる関数です。<code>f m1 &lt; f m2</code> なら、最大の位置は <code>m1</code> より右にあるので左側を捨てて <code>(m1 + 1, hi)</code> に、そうでなければ <code>m2</code> より左にあるので <code>(lo, m2 - 1)</code> に縮めます。1回目は <code>(0,30)</code> の幅が 30 で、<code>div</code> で 3 に割った 10 から <code>m1 = 10</code>、<code>m2 = 20</code> です。<code>f 10</code> は -10、<code>f 20</code> は 0 で、-10 &lt; 0 なので <code>(11,30)</code> になります。
+      </p>
+      <p>
+        2回目は幅が 19 で、<code>19 `div` 3</code> は小数点以下を切り捨てた 6 なので、<code>m1 = 17</code>、<code>m2 = 24</code> です。<code>f 17</code> は -3、<code>f 24</code> は -4 で、-3 &lt; -4 は偽なので <code>otherwise</code> の枝に進み、<code>(11,23)</code> になります。最大の位置 20 は、どちらの区間にも残っています。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

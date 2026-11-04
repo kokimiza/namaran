@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="行末の改行を strcspn で取り除いてから strlen で長さを数えるC READのドリルです。CRLF で終わる行、LF で終わる行、改行の無い行が、それぞれ何文字と数えられるかを追います。">
+<title>改行を落とした行の長さ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-11-05">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-05" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-11-05",
+      "url": "https://namaran.jocarium.productions/c/read/2026-11-05",
+      "datePublished": "2026-11-05",
+      "dateModified": "2026-11-05",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "改行を落とした行の長さ" },
+      "keywords": "line-ending, string, null-terminated-string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "行末の改行を strcspn で取り除いてから strlen で長さを数えるC READのドリルです。CRLF で終わる行、LF で終わる行、改行の無い行が、それぞれ何文字と数えられるかを追います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-05" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-11-05">C++26</a>
+  <a href="/rust/read/2026-11-05">Rust 2024</a>
+  <a href="/haskell/read/2026-11-05">Haskell 2010</a>
+  <a href="/zig/read/2026-11-05">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-05" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-11-05">WRITE</a>
+  <a href="/c/debug/2026-11-05">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="改行を落とした行の長さ"
+  data-tags="line-ending string null-terminated-string"
+  data-concepts="改行コード, CRLF, LF, strcspn, 行末の改行を取り除く, 復帰文字, carriage return, strip newline"
+  data-level="hedgehog"
+>
+  <h2>2026-11-05</h2>
+  <div class="code-frame">
+    <p class="code-filename">line_length.c</p>
+    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string.h&gt;</span>
+
+<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
+    <span class="ty">char</span> lines[][<span class="nu">8</span>] = {<span class="st">"ab\r\n"</span>, <span class="st">"cd\n"</span>, <span class="st">"ef"</span>};
+    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; <span class="nu">3</span>; i++) {
+        lines[i][<span class="fn">strcspn</span>(lines[i], <span class="st">"\n"</span>)] = <span class="st">'\0'</span>;
+        <span class="fn">printf</span>(<span class="st">"%zu\n"</span>, <span class="fn">strlen</span>(lines[i]));
+    }
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>3
+2
+2</samp></pre>
+      </div>
+      <p>
+        <code>strcspn(s, "\n")</code> は、<code>s</code> の先頭から数えて、2つ目の引数に含まれる文字が最初に現れる位置を返します。探す文字は <code>'\n'</code> の1つだけで、<code>'\r'</code> はほかの文字と同じ扱いです。返った位置に <code>'\0'</code> を書くと、文字列はその <code>'\n'</code> の手前で終わります。
+      </p>
+      <p>
+        1行目の <code>"ab\r\n"</code> では、<code>'\n'</code> は先頭から4文字目にあり、<code>strcspn</code> は 3 を返します。そこを <code>'\0'</code> にすると残るのは <code>"ab\r"</code> で、<code>strlen</code> は <code>'\r'</code> も1文字に数えて 3 です。2行目の <code>"cd\n"</code> は <code>'\n'</code> だけが落ちて 2 になります。3行目の <code>"ef"</code> には <code>'\n'</code> が無いので、<code>strcspn</code> は文字列の長さ 2 を返し、もともと <code>'\0'</code> がある場所に <code>'\0'</code> を書き直すだけです。
+      </p>
+      <p>
+        Windows で作ったテキストの行は <code>"\r\n"</code> の2文字で終わります。<code>'\n'</code> だけを探して落とすと、1行目のように <code>'\r'</code> が行末に残り、見た目は <code>ab</code> でも長さは 3 になります。<code>'\r'</code> も落とすなら、2つ目の引数を <code>"\r\n"</code> にします。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

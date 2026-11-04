@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「遅延評価」を扱ったNamaranのコーディングドリル39問。循環的な定義、結び目を作る、遅延評価、where束縛、1回の走査、tying the knot。">
+<meta name="description" content="「遅延評価」を扱ったNamaranのコーディングドリル43問。scan、状態を持つイテレータ、None で打ち切る、checked_sub、残金、iterator scan。">
 <title>遅延評価</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/laziness">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,14 @@
   <h2>遅延評価</h2>
 
   <p class="lede">
-    「遅延評価」を扱った39問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「遅延評価」を扱った43問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/write/2026-11-05">Rust / WRITE · 2026-11-05</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">買えなくなるまで数える</span> <span class="past-concepts">scan, 状態を持つイテレータ, None で打ち切る, checked_sub, 残金, iterator scan, stateful iterator, early termination</span></li>
+    <li><a href="/rust/read/2026-11-05">Rust / READ · 2026-11-05</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">mapとfindが交互に動く</span> <span class="past-concepts">イテレータアダプタ, 遅延評価, map と find の順序, 1要素ずつ流れる, 途中で止まる, iterator adapter, lazy iterator, short-circuit</span></li>
+    <li><a href="/rust/debug/2026-11-05">Rust / DEBUG · 2026-11-05</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">取り出しすぎた1文字</span> <span class="past-concepts">take_while, by_ref, 条件を満たさない最初の要素, peekable, next_if, 数と単位に分ける, take_while consumes, iterator by_ref, peekable iterator</span></li>
+    <li><a href="/haskell/read/2026-11-05">Haskell / READ · 2026-11-05</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">三等分点で区間を縮める</span> <span class="past-concepts">三分探索, 単峰関数, 区間を縮める, iterate, 最大値の位置, ternary search, unimodal function, iterate take</span></li>
     <li><a href="/haskell/write/2026-11-04">Haskell / WRITE · 2026-11-04</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">まだ出ない最大値で引く</span> <span class="past-concepts">循環的な定義, 結び目を作る, 遅延評価, where束縛, 1回の走査, tying the knot, circular program, repmin</span></li>
     <li><a href="/haskell/write/2026-11-02">Haskell / WRITE · 2026-11-02</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">遅延配列で数える共通部分</span> <span class="past-concepts">最長共通部分列, LCS, 遅延評価によるメモ化, Data.Array, 動的計画法, lazy array, longest common subsequence</span></li>
     <li><a href="/haskell/debug/2026-10-31">Haskell / DEBUG · 2026-10-31</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">一歩ずつ進まない競争</span> <span class="past-concepts">正格フィールド, 正格性注釈, 遅延評価, トランポリン, 交互に進める計算, strict field, bang pattern, laziness</span></li>

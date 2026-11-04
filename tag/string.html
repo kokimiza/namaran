@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「文字列」を扱ったNamaranのコーディングドリル85問。std.Io.Reader、takeDelimiter、区切り文字、空の欄、末尾の区切り、delimiter。">
+<meta name="description" content="「文字列」を扱ったNamaranのコーディングドリル89問。take_while、by_ref、条件を満たさない最初の要素、peekable、next_if、数と単位に分ける。">
 <title>文字列</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/string">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,14 @@
   <h2>文字列</h2>
 
   <p class="lede">
-    「文字列」を扱った85問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「文字列」を扱った89問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/debug/2026-11-05">Rust / DEBUG · 2026-11-05</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">取り出しすぎた1文字</span> <span class="past-concepts">take_while, by_ref, 条件を満たさない最初の要素, peekable, next_if, 数と単位に分ける, take_while consumes, iterator by_ref, peekable iterator</span></li>
+    <li><a href="/c/write/2026-11-05">C / WRITE · 2026-11-05</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">改行をその場でそろえる</span> <span class="past-concepts">改行コードの統一, CRLF, CR, LF, その場で書き換える, 読み位置と書き位置, normalize line endings, in-place</span></li>
+    <li><a href="/c/read/2026-11-05">C / READ · 2026-11-05</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">改行を落とした行の長さ</span> <span class="past-concepts">改行コード, CRLF, LF, strcspn, 行末の改行を取り除く, 復帰文字, carriage return, strip newline</span></li>
+    <li><a href="/c/debug/2026-11-05">C / DEBUG · 2026-11-05</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">改行だけの行を削る</span> <span class="past-concepts">行末の空白を削る, 空行, CRLF, size_t の0から1を引く, 範囲外アクセス, trim trailing whitespace, empty line, out of bounds, stack buffer underflow</span></li>
     <li><a href="/zig/read/2026-11-04">Zig / READ · 2026-11-04</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">コンマで区切って読む</span> <span class="past-concepts">std.Io.Reader, takeDelimiter, 区切り文字, 空の欄, 末尾の区切り, delimiter, empty field, trailing delimiter</span></li>
     <li><a href="/zig/write/2026-11-03">Zig / WRITE · 2026-11-03</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">++で伸ばす繰り返し</span> <span class="past-concepts">コンパイル時の文字列連結, comptime var, inline for, 配列の連結, string repetition, array concatenation</span></li>
     <li><a href="/zig/write/2026-11-02">Zig / WRITE · 2026-11-02</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">書いた文字列を返す</span> <span class="past-concepts">std.Io.Writer.Allocating, toOwnedSlice, defer, deinit, アロケータ, 所有権の受け渡し, allocating writer, caller owns memory</span></li>

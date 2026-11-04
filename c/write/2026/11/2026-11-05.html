@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="CRLF と単独の CR を LF にそろえ、文字列をその場で書き換えて新しい長さを返す関数を書くC WRITEのドリルです。読む位置と書く位置を分け、CR の次の文字を見て2文字の改行を1文字にまとめます。">
+<title>改行をその場でそろえる</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-11-05">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-05" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-11-05",
+      "url": "https://namaran.jocarium.productions/c/write/2026-11-05",
+      "datePublished": "2026-11-05",
+      "dateModified": "2026-11-05",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "改行をその場でそろえる" },
+      "keywords": "line-ending, string, two-pointer-technique, null-terminated-string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "CRLF と単独の CR を LF にそろえ、文字列をその場で書き換えて新しい長さを返す関数を書くC WRITEのドリルです。読む位置と書く位置を分け、CR の次の文字を見て2文字の改行を1文字にまとめます。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-05" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-11-05">C++26</a>
+  <a href="/rust/write/2026-11-05">Rust 2024</a>
+  <a href="/haskell/write/2026-11-05">Haskell 2010</a>
+  <a href="/zig/write/2026-11-05">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-05">READ</a>
+  <a href="/c/write/2026-11-05" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-11-05">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="改行をその場でそろえる"
+  data-tags="line-ending string two-pointer-technique null-terminated-string"
+  data-concepts="改行コードの統一, CRLF, CR, LF, その場で書き換える, 読み位置と書き位置, normalize line endings, in-place"
+  data-level="bison"
+>
+  <h2>2026-11-05</h2>
+  <div class="code-frame">
+    <p class="code-filename">normalize_newlines.c</p>
+    <pre class="code"><code><span class="ty">size_t</span> <span class="fn">normalize_newlines</span>(<span class="ty">char</span>* s) {
+}
+</code></pre>
+  </div>
+
+  <p class="question">
+    文字列 <code>s</code> の改行をすべて <code>'\n'</code> の1文字にそろえる <code>normalize_newlines</code> を書いてください。<code>"\r\n"</code> の2文字と、後ろに <code>'\n'</code> が続かない単独の <code>'\r'</code> を、それぞれ <code>'\n'</code> 1文字に置き換えます。別の配列は使わずに <code>s</code> をその場で書き換え、書き換えたあとの長さを返します。空文字列なら何も変えずに 0 を返します。例では、入力例に呼ぶ前の <code>s</code> を、出力例に返り値と呼んだあとの <code>s</code> を、C の文字列リテラルで書きます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>s = "a\r\nb\rc\n"</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>6, s = "a\nb\nc\n"</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>s = "\r\r\n"</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>2, s = "\n\n"</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>s = ""</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>0, s = ""</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="ty">size_t</span> <span class="fn">normalize_newlines</span>(<span class="ty">char</span>* s) {
+    <span class="ty">size_t</span> w = <span class="nu">0</span>;
+    <span class="ty">size_t</span> r = <span class="nu">0</span>;
+    <span class="kw">while</span> (s[r] != <span class="st">'\0'</span>) {
+        <span class="ty">char</span> c = s[r++];
+        <span class="kw">if</span> (c == <span class="st">'\r'</span>) {
+            c = <span class="st">'\n'</span>;
+            <span class="kw">if</span> (s[r] == <span class="st">'\n'</span>) {
+                r++;
+            }
+        }
+        s[w++] = c;
+    }
+    s[w] = <span class="st">'\0'</span>;
+    <span class="kw">return</span> w;
+}
+</code></pre>
+      </div>
+      <p>
+        読む位置 <code>r</code> と書く位置 <code>w</code> を別々に持ち、<code>r</code> で1文字読むたびに <code>w</code> へ高々1文字を書きます。<code>w</code> は <code>r</code> を追い越さないので、書き込む場所はいつも読み終えた範囲にあり、まだ読んでいない文字を上書きしません。別の配列を使わずにその場で書き換えられるのは、置き換えで文字列が長くならないからです。最後に <code>s[w]</code> へ <code>'\0'</code> を書いて文字列を終わらせ、<code>w</code> を長さとして返します。
+      </p>
+      <p>
+        <code>'\r'</code> を読んだら、その文字が <code>"\r\n"</code> の前半なのか単独の <code>'\r'</code> なのかを、次の文字 <code>s[r]</code> で決めます。<code>'\n'</code> なら <code>r</code> を1つ進めて読み飛ばし、どちらの場合も <code>'\n'</code> を1文字だけ書きます。入力例 2 の <code>"\r\r\n"</code> では、1文字目の <code>'\r'</code> の次は <code>'\r'</code> なので単独の改行として <code>'\n'</code> になり、2文字目と3文字目は <code>"\r\n"</code> として1つの <code>'\n'</code> になります。読んだ <code>'\r'</code> は終端より前にあるので、次の <code>s[r]</code> は遠くても終端の <code>'\0'</code> で、配列の外は読みません。
+      </p>
+      <p>
+        どれか1つの規則だけで書くと、入力例のどこかで外れます。<code>'\r'</code> と <code>'\n'</code> をそれぞれ <code>'\n'</code> に置き換えるだけなら、<code>"\r\n"</code> が改行2つになって入力例 1 は長さ 7 です。<code>'\r'</code> を消すだけなら、入力例 1 の <code>b</code> と <code>c</code> の間の改行がなくなります。終端の <code>'\0'</code> を書き忘れると、入力例 1 の <code>s</code> の後ろに元の文字列の最後の1文字 <code>'\n'</code> が残ります。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
