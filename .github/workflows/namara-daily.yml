@@ -134,7 +134,7 @@ jobs:
           - zig-docs のツールが使えないときは、zig env が示す std_dir の下のソースと、zig 本体と同じディレクトリにある doc/langref.html を読む。
           - 標準出力への書き方など、この版で確かめた書き方は SKILL.md の「Zig」の節にある。zig/ の過去ページがまだ無い組は、同じ種別のほかの言語の直近ページを書式の参考にする(SKILL.md §2)。
 
-          コードは .claude/skills/namara-daily/ponytail.md の規律で短く書く。書き始める前にこのファイルを最後まで読む。READ・DEBUG のコードは21行以内で、超えたら作問ミスとして切り口から作り直す(行を詰めて収めない)。
+          コードは .claude/skills/namara-daily/ponytail.md の規律で短く書く。書き始める前にこのファイルを最後まで読む。READ・DEBUG のコードは18行以内で、超えたら作問ミスとして切り口から作り直す(行を詰めて収めない)。
 
           これは GitHub Actions 上の非対話実行である(SKILL.md「非対話実行」を参照)。
           - 検証用ソースは $verify_dir/{lang}/{type}/ に置き、次のコマンドが全件通るまで直す:
