@@ -443,7 +443,7 @@ if not archive.is_file():
 elif f'href="/{lang}/{typ}/{date}"' not in archive.read_text(encoding="utf-8"):
     problems.append(f"{archive.relative_to(root)} has no line for {date}")
 
-for code in re.findall(r"<code>(.*?)</code>", s, re.S):
+for code in re.findall(r"<(?:code|samp)>(.*?)</(?:code|samp)>", s, re.S):
     if re.search(r"<|&(?!lt;|gt;|amp;|quot;|#39;)", spans.sub("", code)):
         problems.append(f"unescaped < or & inside <code>: {code[:60]!r}")
 
@@ -483,7 +483,7 @@ for block in re.findall(r'<pre class="code"><code>(.*?)</code></pre>', s, re.S):
 MAX_LINES = 18
 if typ in ("read", "debug"):
     question = re.sub(r"<details.*?</details>", "", s, flags=re.S)
-    n = sum(len(html.unescape(spans.sub("", b)).strip("\n").splitlines())
+    n = sum(len(html.unescape(spans.sub("", b)).splitlines())
             for b in re.findall(r'<pre class="code"><code>(.*?)</code></pre>', question, re.S))
     if n > MAX_LINES:
         problems.append(f"question code is {n} lines; {typ.upper()} must fit in {MAX_LINES}"
