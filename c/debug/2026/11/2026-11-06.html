@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="32ビットの整数をシフトとマスクで2進数・8進数・16進数の全桁に変換するC DEBUGのドリルです。32が3で割り切れないとき、桁の区切りをどちらの端からそろえるかを扱います。">
+<title>8進数だけ桁がずれる</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-11-06">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-06" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-11-06",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-11-06",
+      "datePublished": "2026-11-06",
+      "dateModified": "2026-11-06",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "8進数だけ桁がずれる" },
+      "keywords": "radix-conversion, bit-operation, loop, off-by-one",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "32ビットの整数をシフトとマスクで2進数・8進数・16進数の全桁に変換するC DEBUGのドリルです。32が3で割り切れないとき、桁の区切りをどちらの端からそろえるかを扱います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-06" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-11-06">C++26</a>
+  <a href="/rust/debug/2026-11-06">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-06">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-06">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-06">READ</a>
+  <a href="/c/write/2026-11-06">WRITE</a>
+  <a href="/c/debug/2026-11-06" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="8進数だけ桁がずれる"
+  data-tags="radix-conversion bit-operation loop off-by-one"
+  data-concepts="基数変換, 8進数, 16進数, ビットシフト, ビットマスク, 桁の区切り, radix conversion, octal, bit shift, bit mask"
+  data-level="bison"
+>
+  <h2>2026-11-06</h2>
+  <div class="code-frame">
+    <p class="code-filename">print_radix.c</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stdint.h&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">void</span> <span class="fn">print_radix</span>(<span class="ty">uint32_t</span> x, <span class="ty">int</span> k) {</span>
+<span class="code-line">    <span class="kw">for</span> (<span class="ty">int</span> s = <span class="nu">32</span> - k; s &gt;= <span class="nu">0</span>; s -= k) {</span>
+<span class="code-line">        <span class="fn">putchar</span>(<span class="st">"0123456789abcdef"</span>[(x &gt;&gt; s) &amp; ((<span class="nu">1u</span> &lt;&lt; k) - <span class="nu">1</span>)]);</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="fn">putchar</span>(<span class="st">'\n'</span>);</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {</span>
+<span class="code-line">    <span class="fn">print_radix</span>(<span class="nu">493</span>, <span class="nu">4</span>);</span>
+<span class="code-line">    <span class="fn">print_radix</span>(<span class="nu">493</span>, <span class="nu">3</span>);</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>print_radix(x, k)</code> は、32ビットの <code>x</code> を2の <code>k</code> 乗進数で表し、先頭の0も省かずに全桁を1行に表示するつもりの関数です。<code>k</code> には1、3、4のどれかを渡します。<code>main</code> のとおり493を16進数と8進数で表示すると、いまは <code>000001ed</code> と <code>0000000173</code> が出ます。本来の出力は <code>000001ed</code> と <code>00000000755</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line"><span class="kw">for</span> (<span class="ty">int</span> s = <span class="nu">32</span> - k; s &gt;= <span class="nu">0</span>; s -= k) {</span>
+<span class="code-line">    <span class="fn">putchar</span>(<span class="st">"0123456789abcdef"</span>[(x &gt;&gt; s) &amp; ((<span class="nu">1u</span> &lt;&lt; k) - <span class="nu">1</span>)]);</span>
+<span class="code-line">}</span>
+</code></pre>
+      <p>
+        2の <code>k</code> 乗進数の1桁は <code>k</code> ビットで、桁の区切りは最下位ビットから <code>k</code> ビットずつ数えて決まります。ループの <code>s</code> は各桁の最下位ビットの位置で、<code>(x &gt;&gt; s) &amp; ((1u &lt;&lt; k) - 1)</code> がその桁を取り出します。ところが <code>s</code> は <code>32 - k</code> から始まるので、区切りは最上位ビットの側から数えられています。<code>k = 4</code> では 28, 24, …, 0 と進み、32が4で割り切れるので最後にちょうど0に着き、16進数は正しく出ます。<code>k = 3</code> では 29, 26, …, 2 と進んだあと、次の -1 でループを抜けます。ビット0と1は一度も読まれず、すべての区切りが本来の位置から2ビット上にずれます。
+      </p>
+      <p>
+        493は2進数で <code>111101101</code> です。本来の区切りなら下から <code>101</code>、<code>101</code>、<code>111</code> の 5, 5, 7 になります。ずれた区切りではビット2〜4、5〜7、8〜10を読むので、<code>493 &gt;&gt; 2</code> = 123 の下3ビットが3、<code>493 &gt;&gt; 5</code> = 15 の下3ビットが7、<code>493 &gt;&gt; 8</code> = 1 が1になり、上位の0が7桁付いた <code>0000000173</code> が表示されます。「32は3で割り切れないので、はみ出した最上位の桁が欠けるだけだ」と考えると、桁が1つ減った <code>0000000755</code> を予想します。実際に欠けるのは最下位の2ビットで、その影響は全部の桁に及びます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line"><span class="kw">for</span> (<span class="ty">int</span> s = <span class="nu">31</span> / k * k; s &gt;= <span class="nu">0</span>; s -= k) {</span>
+<span class="code-line">    <span class="fn">putchar</span>(<span class="st">"0123456789abcdef"</span>[(x &gt;&gt; s) &amp; ((<span class="nu">1u</span> &lt;&lt; k) - <span class="nu">1</span>)]);</span>
+<span class="code-line">}</span>
+</code></pre>
+      <p>
+        <code>31 / k * k</code> は31以下で最大の <code>k</code> の倍数です。<code>s</code> が <code>k</code> の倍数から始まれば、<code>k</code> ずつ減らしたときに必ず0を通るので、区切りが最下位ビットにそろいます。<code>k = 3</code> では <code>s</code> が30から始まって11桁を表示し、<code>00000000755</code> になります。32ビットのうち最上位の桁はビット30と31の2ビットしか持たず、<code>x &gt;&gt; 30</code> は0〜3にしかなりませんが、マスクは3ビット分のままで困りません。<code>k = 4</code> では <code>31 / 4 * 4</code> が28、<code>k = 1</code> では31なので、16進数と2進数の出力は前と変わりません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

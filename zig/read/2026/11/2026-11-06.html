@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="型を返す関数 Counter(start) が作る構造体に名前空間の変数を置き、Counter(0) を2回呼んで書き換えるZig READのドリルです。comptime の関数呼び出しが同じ引数で同じ型を返すことを扱います。">
+<title>同じ引数で作った型</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/read/2026-11-06">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / READ", "item": "https://namaran.jocarium.productions/zig/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-06" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / READ — 2026-11-06",
+      "url": "https://namaran.jocarium.productions/zig/read/2026-11-06",
+      "datePublished": "2026-11-06",
+      "dateModified": "2026-11-06",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "同じ引数で作った型" },
+      "keywords": "comptime, generic-programming, namespace, static-storage, struct",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "型を返す関数 Counter(start) が作る構造体に名前空間の変数を置き、Counter(0) を2回呼んで書き換えるZig READのドリルです。comptime の関数呼び出しが同じ引数で同じ型を返すことを扱います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-06">C23</a>
+  <a href="/cpp/read/2026-11-06">C++26</a>
+  <a href="/rust/read/2026-11-06">Rust 2024</a>
+  <a href="/haskell/read/2026-11-06">Haskell 2010</a>
+  <a href="/zig/read/2026-11-06" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-06" class="active" aria-current="page">READ</a>
+  <a href="/zig/write/2026-11-06">WRITE</a>
+  <a href="/zig/debug/2026-11-06">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="同じ引数で作った型"
+  data-tags="comptime generic-programming namespace static-storage struct"
+  data-concepts="型を返す関数, comptime関数呼び出しのメモ化, 名前空間としての構造体, コンテナレベルの変数, type function, comptime memoization, container-level variable, generic type identity"
+  data-level="peacock"
+>
+  <h2>2026-11-06</h2>
+  <div class="code-frame">
+    <p class="code-filename">counters.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">Counter</span>(<span class="kw">comptime</span> start: <span class="ty">u32</span>) <span class="ty">type</span> {</span>
+<span class="code-line">    <span class="kw">return</span> <span class="kw">struct</span> {</span>
+<span class="code-line">        <span class="kw">var</span> n: <span class="ty">u32</span> = start;</span>
+<span class="code-line">    };</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {</span>
+<span class="code-line">    <span class="kw">var</span> out: [<span class="nu">64</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line">    <span class="kw">var</span> w = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;out);</span>
+<span class="code-line">    <span class="ty">Counter</span>(<span class="nu">0</span>).n += <span class="nu">1</span>;</span>
+<span class="code-line">    <span class="ty">Counter</span>(<span class="nu">0</span>).n += <span class="nu">1</span>;</span>
+<span class="code-line">    <span class="ty">Counter</span>(<span class="nu">5</span>).n += <span class="nu">1</span>;</span>
+<span class="code-line">    <span class="kw">try</span> w.interface.<span class="fn">print</span>(<span class="st">"{d} {d}\n"</span>, .{ <span class="ty">Counter</span>(<span class="nu">0</span>).n, <span class="ty">Counter</span>(<span class="nu">5</span>).n });</span>
+<span class="code-line">    <span class="kw">try</span> w.interface.<span class="fn">flush</span>();</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>2 6</samp></pre>
+      </div>
+      <p>
+        <code>Counter</code> は型を返す関数で、返す構造体にはフィールドが無く、<code>var n</code> だけを持ちます。<code>var n</code> はフィールドではなく、その構造体という名前空間に置いた変数（container-level variable）で、型1つにつき1つしかありません。<code>Counter(0).n</code> は「<code>Counter(0)</code> が返した型の名前空間にある <code>n</code>」です。
+      </p>
+      <p>
+        <code>start</code> は <code>comptime</code> 引数なので、<code>Counter(0)</code> の呼び出しはコンパイル時に評価されます。Zig はコンパイル時の関数呼び出しの結果を覚えておき（langref の言葉では memoized）、同じ引数でもう一度呼ばれれば同じ結果を返します。そのため <code>Counter(0)</code> を何度書いても同じ1つの型になり、2回の <code>Counter(0).n += 1</code> は同じ <code>n</code> を0から2に増やします。<code>Counter(5)</code> は引数が違うので別の型で、<code>n</code> も別にあり、5から1増えて6です。
+      </p>
+      <p>
+        <code>return struct { ... }</code> を、呼ぶたびに新しい構造体を作る式と読むと、<code>+=</code> も表示もそれぞれ別の <code>n</code> に対して行われることになり、初期値のままの <code>0 5</code> を答えます。標準ライブラリの <code>std.ArrayList(u8)</code> をどこで書いても同じ型として扱えるのも、同じ仕組みによるものです。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/read">Today</a></li>
+    <li><a href="/zig/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

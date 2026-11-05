@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="荷物を2つのグループに分けたときの重さの差の最小値を、ビット全探索で全部の分け方を試して求めるRust WRITEのドリルです。片方のグループの和から、もう片方の和を全体の和で求めます。">
+<title>2つに分けた重さの差</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-11-06">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-06" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-11-06",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-11-06",
+      "datePublished": "2026-11-06",
+      "dateModified": "2026-11-06",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "2つに分けた重さの差" },
+      "keywords": "subset-enumeration, bitmask, iterator",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "荷物を2つのグループに分けたときの重さの差の最小値を、ビット全探索で全部の分け方を試して求めるRust WRITEのドリルです。片方のグループの和から、もう片方の和を全体の和で求めます。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-06">C23</a>
+  <a href="/cpp/write/2026-11-06">C++26</a>
+  <a href="/rust/write/2026-11-06" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-11-06">Haskell 2010</a>
+  <a href="/zig/write/2026-11-06">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-06">READ</a>
+  <a href="/rust/write/2026-11-06" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-11-06">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="2つに分けた重さの差"
+  data-tags="subset-enumeration bitmask iterator"
+  data-concepts="ビット全探索, 部分集合の列挙, 分割問題, 補集合, abs_diff, bit brute force, subset enumeration, partition problem, complement"
+  data-level="hedgehog"
+>
+  <h2>2026-11-06</h2>
+  <div class="code-frame">
+    <p class="code-filename">balance.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">min_diff</span>(w: &amp;[<span class="ty">u32</span>]) -&gt; <span class="ty">u32</span> {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    荷物の重さの並び <code>w</code> を受け取り、すべての荷物を2つのグループに分けたときの、グループごとの重さの合計の差の最小値を返す <code>min_diff</code> を書いてください。どちらかのグループが空になってもかまいません。荷物は20個以下で、1つもなければ0を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>min_diff(&amp;[3, 1, 4, 2, 2])</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>min_diff(&amp;[10, 3])</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>7</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>min_diff(&amp;[])</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">min_diff</span>(w: &amp;[<span class="ty">u32</span>]) -&gt; <span class="ty">u32</span> {</span>
+<span class="code-line">    <span class="kw">let</span> total: <span class="ty">u32</span> = w.<span class="fn">iter</span>().<span class="fn">sum</span>();</span>
+<span class="code-line">    (<span class="nu">0</span>..<span class="nu">1u32</span> &lt;&lt; w.<span class="fn">len</span>())</span>
+<span class="code-line">        .<span class="fn">map</span>(|mask| {</span>
+<span class="code-line">            <span class="kw">let</span> s: <span class="ty">u32</span> =</span>
+<span class="code-line">                w.<span class="fn">iter</span>().<span class="fn">enumerate</span>().<span class="fn">filter</span>(|&amp;(i, _)| mask &gt;&gt; i &amp; <span class="nu">1</span> == <span class="nu">1</span>).<span class="fn">map</span>(|(_, x)| x).<span class="fn">sum</span>();</span>
+<span class="code-line">            total.<span class="fn">abs_diff</span>(<span class="nu">2</span> * s)</span>
+<span class="code-line">        })</span>
+<span class="code-line">        .<span class="fn">min</span>()</span>
+<span class="code-line">        .<span class="fn">unwrap</span>()</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="fn">min_diff</span>(&amp;[<span class="nu">3</span>, <span class="nu">1</span>, <span class="nu">4</span>, <span class="nu">2</span>, <span class="nu">2</span>]));</span>
+<span class="code-line">    <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="fn">min_diff</span>(&amp;[<span class="nu">10</span>, <span class="nu">3</span>]));</span>
+</code></pre>
+      </div>
+      <p>
+        荷物が <var>n</var> 個なら、それぞれを片方のグループに入れるかどうかで分け方は2<sup><var>n</var></sup> 通りあり、0以上2<sup><var>n</var></sup> 未満の整数 <code>mask</code> の <code>i</code> ビット目を「<code>i</code> 番目の荷物を入れる」と読めば、1つの整数で1つの分け方を表せます。<code>mask</code> のグループの重さを <code>s</code> とすると、もう一方のグループには残りがすべて入るので、その重さは全体の和 <code>total</code> から <code>s</code> を引いた値です。2つのグループの差 <code>(total - s)</code> と <code>s</code> の差は、<code>total</code> と <code>2 * s</code> の差に等しいので、もう一方のグループの和を数え直す必要はありません。<code>u32</code> の引き算は負になると panic するので、<code>abs_diff</code> で符号を気にせず差を取っています。これは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        入力例1は全体が12で、<code>3 + 1 + 2</code> の6を選ぶ <code>mask</code> で <code>12.abs_diff(12)</code> が0になります。入力例2は、10と3を別のグループにしたときの7が最小です。入力例3では <code>w.len()</code> が0なので <code>1u32 &lt;&lt; 0</code> は1で、<code>mask</code> は0の1回だけ回り、空のグループどうしの差0を返します。範囲が空にならないので、<code>min()</code> の結果は必ず <code>Some</code> で、<code>unwrap()</code> は panic しません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

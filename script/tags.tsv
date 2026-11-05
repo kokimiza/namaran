@@ -332,6 +332,7 @@ queue	キュー
 quicksort	クイックソート
 quine	Quine
 race-condition	競合状態
+radix-conversion	基数変換
 radix-sort	基数ソート
 raii	RAII
 random-number-generator	乱数生成器

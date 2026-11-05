@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="std::u8string_view を受け取る再帰の編集距離（Levenshtein distance）に、見た目が同じ2つの「café」を渡すC++ READのドリルです。UTF-8 のバイト単位で距離を数えると何が起きるかを問います。">
+<title>同じ見た目の距離</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-11-06">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-06" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-11-06",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-11-06",
+      "datePublished": "2026-11-06",
+      "dateModified": "2026-11-06",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "同じ見た目の距離" },
+      "keywords": "edit-distance, utf-8, unicode, recursion, string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "std::u8string_view を受け取る再帰の編集距離（Levenshtein distance）に、見た目が同じ2つの「café」を渡すC++ READのドリルです。UTF-8 のバイト単位で距離を数えると何が起きるかを問います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-06">C23</a>
+  <a href="/cpp/read/2026-11-06" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-11-06">Rust 2024</a>
+  <a href="/haskell/read/2026-11-06">Haskell 2010</a>
+  <a href="/zig/read/2026-11-06">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-06" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-11-06">WRITE</a>
+  <a href="/cpp/debug/2026-11-06">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="同じ見た目の距離"
+  data-tags="edit-distance utf-8 unicode recursion string"
+  data-concepts="編集距離, レーベンシュタイン距離, UTF-8, char8_t, 結合文字, Unicode正規化, edit distance, Levenshtein distance, combining character, code unit"
+  data-level="bison"
+>
+  <h2>2026-11-06</h2>
+  <div class="code-frame">
+    <p class="code-filename">utf8_distance.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;algorithm&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;print&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;string_view&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">dist</span>(std::u8string_view a, std::u8string_view b) {</span>
+<span class="code-line">    <span class="kw">if</span> (a.<span class="fn">empty</span>() || b.<span class="fn">empty</span>()) {</span>
+<span class="code-line">        <span class="kw">return</span> a.<span class="fn">size</span>() + b.<span class="fn">size</span>();</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="ty">int</span> sub = <span class="fn">dist</span>(a.<span class="fn">substr</span>(<span class="nu">1</span>), b.<span class="fn">substr</span>(<span class="nu">1</span>)) + (a[<span class="nu">0</span>] != b[<span class="nu">0</span>]);</span>
+<span class="code-line">    <span class="kw">return</span> std::<span class="fn">min</span>({sub, <span class="fn">dist</span>(a.<span class="fn">substr</span>(<span class="nu">1</span>), b) + <span class="nu">1</span>, <span class="fn">dist</span>(a, b.<span class="fn">substr</span>(<span class="nu">1</span>)) + <span class="nu">1</span>});</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    std::<span class="fn">println</span>(<span class="st">"{}"</span>, <span class="fn">dist</span>(<span class="st">u8"café"</span>, <span class="st">u8"café"</span>));</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>3</samp></pre>
+      </div>
+      <p>
+        <code>dist</code> は、先頭の要素を置き換える・<code>a</code> から1つ消す・<code>a</code> に1つ足すの3通りを試し、一方が空になったら残りの長さを足す、という再帰で編集距離を求めています。比べる単位は <code>std::u8string_view</code> の要素、つまり <code>char8_t</code> の1バイトで、文字ではありません。<code>u8</code> 付きのリテラルは UTF-8 で符号化されるので、<code>\u00e9</code> のように U+0080〜U+07FF の範囲にある文字はそれぞれ2バイトになります。
+      </p>
+      <p>
+        <code>\u00e9</code> は1文字で「é」を表し、UTF-8 では <code>C3 A9</code> です。<code>\u0301</code> は直前の文字に鋭アクセントを重ねる結合文字<sup class="fn-ref">1</sup>で、<code>e</code> の後ろに置くと画面には同じ「é」が出ます。こちらは UTF-8 で <code>CC 81</code> です。そのため <code>a</code> は <code>63 61 66 C3 A9</code> の5バイト、<code>b</code> は <code>63 61 66 65 CC 81</code> の6バイトになります。先頭の <code>caf</code> の3バイトは一致して距離0のまま進み、残りの <code>C3 A9</code> と <code>65 CC 81</code> には共通のバイトが1つもありません。1回の操作で直せるのは1バイトだけなので、長いほうの3バイトのそれぞれに1回ずつ操作が要り、2回の置き換えと1回の挿入で3になります。
+      </p>
+      <p>
+        画面に出る文字で比べると、どちらも「café」なので0に見えます。文字の並びとして比べても、é を e に置き換えてアクセントを1つ足すので2です。バイト単位で比べると気付いても、<code>b</code> 側の <code>e</code> が <code>a</code> と一致すると思うと2になりますが、<code>a</code> には <code>65</code> のバイトがありません。é の2バイトはどちらも0x80以上で、ASCII の <code>e</code> とは一致しないからです。
+      </p>
+      <ol class="footnotes">
+        <li>結合文字（combining character）は、単独では表示されず、直前の文字に記号を重ねる文字です。同じ見た目の文字列を1つの表現にそろえる処理は Unicode 正規化（Unicode normalization）と呼ばれ、é を1文字にまとめる形が NFC、e と結合文字に分ける形が NFD です。距離を文字の見た目で測りたいなら、比べる前に両方を同じ形にそろえます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="符号なし整数を2進数・8進数・16進数などの文字列に変換する関数を書くC WRITEのドリルです。割った余りが下の桁から出ることと、0の扱いを確かめます。">
+<title>余りを逆に並べる</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-11-06">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-06" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-11-06",
+      "url": "https://namaran.jocarium.productions/c/write/2026-11-06",
+      "datePublished": "2026-11-06",
+      "dateModified": "2026-11-06",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "余りを逆に並べる" },
+      "keywords": "radix-conversion, division, string, loop",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "符号なし整数を2進数・8進数・16進数などの文字列に変換する関数を書くC WRITEのドリルです。割った余りが下の桁から出ることと、0の扱いを確かめます。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-06" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-11-06">C++26</a>
+  <a href="/rust/write/2026-11-06">Rust 2024</a>
+  <a href="/haskell/write/2026-11-06">Haskell 2010</a>
+  <a href="/zig/write/2026-11-06">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-06">READ</a>
+  <a href="/c/write/2026-11-06" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-11-06">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="余りを逆に並べる"
+  data-tags="radix-conversion division string loop"
+  data-concepts="基数変換, n進数, 2進数, 16進数, 割り算の余り, 文字列の反転, radix conversion, base conversion, number to string"
+  data-level="hedgehog"
+>
+  <h2>2026-11-06</h2>
+  <div class="code-frame">
+    <p class="code-filename">to_base.c</p>
+    <pre class="code"><code><span class="code-line"><span class="ty">void</span> <span class="fn">to_base</span>(<span class="ty">uint32_t</span> n, <span class="ty">uint32_t</span> base, <span class="ty">char</span>* out) {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>n</code> を <code>base</code> 進数で表した文字列を <code>out</code> に書き込む <code>to_base</code> を書いてください。<code>base</code> は2以上16以下で、10以上の桁は小文字の <code>a</code>〜<code>f</code> で表します。先頭に余分な <code>0</code> は付けず、<code>n</code> が0のときは <code>"0"</code> にします。<code>out</code> には33バイト以上の領域があるものとします。例では、呼び出したあとの <code>out</code> の中身を書きます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>to_base(255, 16, out)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>"ff"</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>to_base(493, 8, out)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>"755"</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>to_base(0, 2, out)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>"0"</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="ty">void</span> <span class="fn">to_base</span>(<span class="ty">uint32_t</span> n, <span class="ty">uint32_t</span> base, <span class="ty">char</span>* out) {</span>
+<span class="code-line">    <span class="ty">char</span> buf[<span class="nu">33</span>];</span>
+<span class="code-line">    <span class="ty">int</span> len = <span class="nu">0</span>;</span>
+<span class="code-line">    <span class="kw">do</span> {</span>
+<span class="code-line">        buf[len++] = <span class="st">"0123456789abcdef"</span>[n % base];</span>
+<span class="code-line">        n /= base;</span>
+<span class="code-line">    } <span class="kw">while</span> (n &gt; <span class="nu">0</span>);</span>
+<span class="code-line">    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; len; i++) {</span>
+<span class="code-line">        out[i] = buf[len - <span class="nu">1</span> - i];</span>
+<span class="code-line">    }</span>
+<span class="code-line">    out[len] = <span class="st">'\0'</span>;</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        <code>n</code> を <code>base</code> で割った余りは、<code>base</code> 進数で表したときの一番下の桁です。商の <code>n / base</code> は残りの桁を表す数なので、割り算を繰り返すと余りが下の桁から順に1つずつ出てきます。文字列は上の桁から書くので、参考実装では出てきた桁をいったん <code>buf</code> にためて、最後に逆の順で <code>out</code> へ写しています。余りから文字への変換は、文字列リテラル <code>"0123456789abcdef"</code> を配列として添字で引けば、10以上の桁も同じ式で書けます。これは参考実装で、唯一の正解ではありません。<code>out</code> の末尾から前へ向かって書き、最後に先頭へ詰める書き方もあります。
+      </p>
+      <p>
+        <code>while (n &gt; 0)</code> で回すと、入力例3の <code>n</code> が0のときに一度も桁が出ず、空文字列になります。<code>do</code>〜<code>while</code> にすれば本体が少なくとも1回実行されるので、0から余り0が1つ出て <code>"0"</code> になります。入力例2では、493を8で割ると余り5・商61、61を8で割ると余り5・商7、7を8で割ると余り7・商0となり、出た順の 5, 5, 7 を逆に並べて <code>"755"</code> です。<code>out</code> に求めた33バイトは、32ビットの最大値を2進数で表した32桁と終端の <code>'\0'</code> の分です。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

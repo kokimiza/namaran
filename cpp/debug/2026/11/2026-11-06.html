@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="2次元の表で編集距離（Levenshtein distance）を求める関数が、表の0行目と0列目を初期化し忘れて0を返すC++ DEBUGのドリルです。空文字列との距離という表の端の意味を扱います。">
+<title>0のままの表の端</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-11-06">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-06" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-11-06",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-11-06",
+      "datePublished": "2026-11-06",
+      "dateModified": "2026-11-06",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "0のままの表の端" },
+      "keywords": "edit-distance, dynamic-programming, initialization, boundary",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "2次元の表で編集距離（Levenshtein distance）を求める関数が、表の0行目と0列目を初期化し忘れて0を返すC++ DEBUGのドリルです。空文字列との距離という表の端の意味を扱います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-06">C23</a>
+  <a href="/cpp/debug/2026-11-06" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-11-06">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-06">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-06">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-06">READ</a>
+  <a href="/cpp/write/2026-11-06">WRITE</a>
+  <a href="/cpp/debug/2026-11-06" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="0のままの表の端"
+  data-tags="edit-distance dynamic-programming initialization boundary"
+  data-concepts="編集距離, レーベンシュタイン距離, 動的計画法, 表の初期化, 境界条件, edit distance, Levenshtein distance, DP table initialization, base case"
+  data-level="hedgehog"
+>
+  <h2>2026-11-06</h2>
+  <div class="code-frame">
+    <p class="code-filename">typo_distance.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;algorithm&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;print&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;string_view&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">distance</span>(std::<span class="ty">string_view</span> a, std::<span class="ty">string_view</span> b) {</span>
+<span class="code-line">    <span class="ty">int</span> d[<span class="nu">16</span>][<span class="nu">16</span>] = {};</span>
+<span class="code-line">    <span class="kw">for</span> (std::<span class="ty">size_t</span> i = <span class="nu">1</span>; i &lt;= a.<span class="fn">size</span>(); ++i) {</span>
+<span class="code-line">        <span class="kw">for</span> (std::<span class="ty">size_t</span> j = <span class="nu">1</span>; j &lt;= b.<span class="fn">size</span>(); ++j) {</span>
+<span class="code-line">            <span class="ty">int</span> sub = d[i - <span class="nu">1</span>][j - <span class="nu">1</span>] + (a[i - <span class="nu">1</span>] != b[j - <span class="nu">1</span>]);</span>
+<span class="code-line">            d[i][j] = std::<span class="fn">min</span>({d[i - <span class="nu">1</span>][j] + <span class="nu">1</span>, d[i][j - <span class="nu">1</span>] + <span class="nu">1</span>, sub});</span>
+<span class="code-line">        }</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="kw">return</span> d[a.<span class="fn">size</span>()][b.<span class="fn">size</span>()];</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    std::<span class="fn">println</span>(<span class="st">"{}"</span>, <span class="fn">distance</span>(<span class="st">"cat"</span>, <span class="st">"concat"</span>));</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>distance</code> は、15文字以下の2つの単語について、1文字の挿入・削除・置き換えを1回と数えて <code>a</code> を <code>b</code> に変える最小の回数を返すつもりの関数です。<code>distance("cat", "concat")</code> を表示すると、いまは <code>0</code> が出ます。本来は <code>con</code> の3文字を足す分の <code>3</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line"><span class="ty">int</span> d[<span class="nu">16</span>][<span class="nu">16</span>] = {};</span>
+<span class="code-line"><span class="kw">for</span> (std::<span class="ty">size_t</span> i = <span class="nu">1</span>; i &lt;= a.<span class="fn">size</span>(); ++i) {</span>
+</code></pre>
+      <p>
+        <code>d[i][j]</code> は、<code>a</code> の先頭 <code>i</code> 文字を <code>b</code> の先頭 <code>j</code> 文字に変える最小の回数です。ループは <code>i</code> と <code>j</code> が1以上のところだけを埋め、0行目と0列目は <code>= {}</code> で入れた0のまま残ります。0列目の <code>d[i][0]</code> は <code>a</code> の先頭 <code>i</code> 文字を空文字列に変える回数で、本来は <code>i</code> 文字を消す <code>i</code> 回です。0行目の <code>d[0][j]</code> も同じく、空文字列から <code>b</code> の先頭 <code>j</code> 文字を作る <code>j</code> 回でなければなりません。
+      </p>
+      <p>
+        端が0だと、どちらかの先頭の文字を何文字でも0回で足したり消したりできることになります。<code>d[0][3]</code> が0なので、<code>concat</code> の <code>con</code> を足す分がただになり、残りの <code>cat</code> どうしは一致して <code>d[3][6]</code> も0になります。<code>distance("abc", "")</code> のように <code>b</code> が空のときは内側のループが一度も回らず、<code>d[3][0]</code> の0がそのまま返ります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line"><span class="ty">int</span> d[<span class="nu">16</span>][<span class="nu">16</span>] = {};</span>
+<span class="code-line"><span class="kw">for</span> (std::<span class="ty">size_t</span> i = <span class="nu">0</span>; i &lt;= a.<span class="fn">size</span>(); ++i) {</span>
+<span class="code-line">    d[i][<span class="nu">0</span>] = i;</span>
+<span class="code-line">}</span>
+<span class="code-line"><span class="kw">for</span> (std::<span class="ty">size_t</span> j = <span class="nu">0</span>; j &lt;= b.<span class="fn">size</span>(); ++j) {</span>
+<span class="code-line">    d[<span class="nu">0</span>][j] = j;</span>
+<span class="code-line">}</span>
+</code></pre>
+      <p>
+        表を埋める前に、0列目を <code>d[i][0] = i</code>、0行目を <code>d[0][j] = j</code> にします。どちらも、片方が空文字列のときは、もう一方の文字数だけ削除か挿入をするしかないからです。<code>d[0][3]</code> が3になるので、<code>con</code> を足す3回が数えられ、<code>distance("cat", "concat")</code> は3を返します。<code>d[0][0]</code> だけは、空文字列どうしで0回のまま正しい値です。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

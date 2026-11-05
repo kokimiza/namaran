@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="ピボットより小さい値と大きい値をリスト内包表記で分けて小さい方から k 番目を探す Quickselect に、ピボットと同じ値を含むリストを渡すHaskell READのドリルです。どちらの側にも入らない要素が順位をずらします。">
+<title>ピボットと同じ値の行方</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-11-06">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-06" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-11-06",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-11-06",
+      "datePublished": "2026-11-06",
+      "dateModified": "2026-11-06",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "ピボットと同じ値の行方" },
+      "keywords": "selection-algorithm, list-comprehension, recursion",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "ピボットより小さい値と大きい値をリスト内包表記で分けて小さい方から k 番目を探す Quickselect に、ピボットと同じ値を含むリストを渡すHaskell READのドリルです。どちらの側にも入らない要素が順位をずらします。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-06">C23</a>
+  <a href="/cpp/read/2026-11-06">C++26</a>
+  <a href="/rust/read/2026-11-06">Rust 2024</a>
+  <a href="/haskell/read/2026-11-06" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/read/2026-11-06">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-06" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-11-06">WRITE</a>
+  <a href="/haskell/debug/2026-11-06">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="ピボットと同じ値の行方"
+  data-tags="selection-algorithm list-comprehension recursion"
+  data-concepts="Quickselect, k番目に小さい要素, ピボット, 重複要素, リスト内包表記, quickselect, k-th smallest, duplicate elements, pivot"
+  data-level="peacock"
+>
+  <h2>2026-11-06</h2>
+  <div class="code-frame">
+    <p class="code-filename">Select.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="fn">select</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> <span class="ty">Int</span></span>
+<span class="code-line"><span class="fn">select</span> _ [] = error <span class="st">"out of range"</span></span>
+<span class="code-line"><span class="fn">select</span> k (p : xs)</span>
+<span class="code-line">  | k &lt; n = select k smaller</span>
+<span class="code-line">  | k == n = p</span>
+<span class="code-line">  | otherwise = select (k - n - <span class="nu">1</span>) [x | x <span class="op">&lt;-</span> xs, x &gt; p]</span>
+<span class="code-line"> <span class="kw">where</span></span>
+<span class="code-line">  smaller = [x | x <span class="op">&lt;-</span> xs, x &lt; p]</span>
+<span class="code-line">  n = length smaller</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()</span>
+<span class="code-line"><span class="fn">main</span> = print (select <span class="nu">3</span> [<span class="nu">2</span>, <span class="nu">4</span>, <span class="nu">2</span>, <span class="nu">1</span>, <span class="nu">3</span>])</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>4</samp></pre>
+      </div>
+      <p>
+        <code>select k</code> は、先頭の <code>p</code> より小さい要素を <code>smaller</code> に集め、その個数 <code>n</code> と <code>k</code> を比べて、0始まりで <code>k</code> 番目に小さい要素がどこにあるかを決めます。<code>k &lt; n</code> なら <code>smaller</code> の中、<code>k == n</code> なら <code>p</code> 自身、それより大きければ右側で、右側では <code>smaller</code> と <code>p</code> の分の <code>n + 1</code> 個を <code>k</code> から引きます。この引き算が正しいのは、<code>p</code> より前に並ぶ要素が <code>smaller</code> と <code>p</code> だけのときです。
+      </p>
+      <p>
+        右側を作る内包表記の条件は <code>x &gt; p</code> なので、<code>p</code> と等しい要素は <code>smaller</code> にも右側にも入りません。最初の呼び出しでは <code>p = 2</code> で、<code>smaller</code> は <code>[1]</code>、<code>n</code> は1です。<code>k = 3</code> は1より大きいので、<code>select 1 [4, 3]</code> に進み、2番目の <code>2</code> はここで消えます。<code>[4, 3]</code> では <code>p = 4</code> で <code>smaller</code> が <code>[3]</code>、<code>n = 1</code> が <code>k</code> と等しいので <code>4</code> が返ります。
+      </p>
+      <p>
+        並べ替えると <code>[1, 2, 2, 3, 4]</code> なので、3番目（0始まり）は <code>3</code> だと読むのが自然です。消えた <code>2</code> は本来 <code>3</code> と <code>4</code> より前に並ぶ要素で、それが抜けた右側では順位がすべて1つ繰り上がり、<code>3</code> のあった位置に <code>4</code> が来ます。重複が無いリストなら、この内包表記の分け方でも正しい値が返ります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

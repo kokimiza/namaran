@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="リスト全体を並べ替えずに、小さい方から k 番目の要素を Maybe Int で返す Quickselect を書くHaskell WRITEのドリルです。範囲外の k が空リストの場合に自然に行き着く書き方を扱います。">
+<title>範囲外はNothingに</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-11-06">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-06" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-11-06",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-11-06",
+      "datePublished": "2026-11-06",
+      "dateModified": "2026-11-06",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "範囲外はNothingに" },
+      "keywords": "selection-algorithm, maybe, recursion, pattern-matching",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "リスト全体を並べ替えずに、小さい方から k 番目の要素を Maybe Int で返す Quickselect を書くHaskell WRITEのドリルです。範囲外の k が空リストの場合に自然に行き着く書き方を扱います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-06">C23</a>
+  <a href="/cpp/write/2026-11-06">C++26</a>
+  <a href="/rust/write/2026-11-06">Rust 2024</a>
+  <a href="/haskell/write/2026-11-06" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/write/2026-11-06">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-06">READ</a>
+  <a href="/haskell/write/2026-11-06" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-11-06">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="範囲外はNothingに"
+  data-tags="selection-algorithm maybe recursion pattern-matching"
+  data-concepts="Quickselect, k番目に小さい要素, Maybe, partition, 範囲外の添字, quickselect, k-th smallest, out of range index"
+  data-level="peacock"
+>
+  <h2>2026-11-06</h2>
+  <div class="code-frame">
+    <p class="code-filename">Kth.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="fn">kth</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> <span class="ty">Maybe</span> <span class="ty">Int</span></span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    リスト全体を並べ替えずに、小さい方から数えて <code>k</code> 番目（0始まり）の要素を返す <code>kth</code> を書いてください。同じ値が複数あれば別々の要素として数えます。<code>k</code> が負か、要素の個数以上なら <code>Nothing</code> を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>kth 2 [7, 1, 5, 3]</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>Just 5</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>kth 1 [4, 1, 4]</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>Just 4</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>kth 3 [2, 8, 6]</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>Nothing</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="kw">import</span> <span class="ty">Data.List</span> (partition)</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">kth</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> <span class="ty">Maybe</span> <span class="ty">Int</span></span>
+<span class="code-line"><span class="fn">kth</span> _ [] = <span class="ty">Nothing</span></span>
+<span class="code-line"><span class="fn">kth</span> k (p : xs)</span>
+<span class="code-line">  | k &lt; n = kth k smaller</span>
+<span class="code-line">  | k == n = <span class="ty">Just</span> p</span>
+<span class="code-line">  | otherwise = kth (k - n - <span class="nu">1</span>) larger</span>
+<span class="code-line"> <span class="kw">where</span></span>
+<span class="code-line">  (smaller, larger) = partition (&lt; p) xs</span>
+<span class="code-line">  n = length smaller</span>
+</code></pre>
+      </div>
+      <p>
+        先頭の <code>p</code> を基準に、残りを <code>partition (&lt; p)</code> で <code>p</code> より小さい <code>smaller</code> とそれ以外の <code>larger</code> に分けます。小さい方から並べると <code>smaller</code> の <code>n</code> 個、<code>p</code>、<code>larger</code> の順になるので、<code>k &lt; n</code> なら答えは <code>smaller</code> の中の <code>k</code> 番目、<code>k == n</code> なら <code>p</code> です。それより大きければ答えは <code>larger</code> の中にあり、前にある <code>n + 1</code> 個を引いた <code>k - n - 1</code> 番目を探します。進むのは片側だけなので、使わなかった側は並べ替えられません。<code>p</code> と等しい要素は <code>larger</code> に入るので、入力例2の2つの <code>4</code> は両方とも数えられます。これは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        範囲外の <code>k</code> のために長さを先に調べる必要はありません。<code>k</code> が要素の個数以上なら、右へ進むたびに <code>k</code> は残りの個数以上のまま減っていき、いつか空リストで呼ばれます。入力例3では <code>p = 2</code> で <code>n = 0</code>、<code>kth 2 [8, 6]</code> に進み、次に <code>p = 8</code> で <code>n = 1</code> なので <code>kth 0 []</code> になって <code>Nothing</code> です。<code>k</code> が負なら <code>k &lt; n</code> がいつも成り立って左へ進み続け、やはり空リストに着きます。空リストの節で <code>Nothing</code> を返すだけで、どちらの範囲外も扱えます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

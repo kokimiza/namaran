@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="硬貨の選び方をビット全探索ですべて試し、合計がちょうど価格になるかを調べる関数が、全部の硬貨を使う選び方だけを試さないRust DEBUGのドリルです。終端を含まない範囲 .. と部分集合の個数を扱います。">
+<title>全部使う組だけ試さない</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-11-06">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-06" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-11-06",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-11-06",
+      "datePublished": "2026-11-06",
+      "dateModified": "2026-11-06",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "全部使う組だけ試さない" },
+      "keywords": "subset-enumeration, bitmask, off-by-one, half-open-interval",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "硬貨の選び方をビット全探索ですべて試し、合計がちょうど価格になるかを調べる関数が、全部の硬貨を使う選び方だけを試さないRust DEBUGのドリルです。終端を含まない範囲 .. と部分集合の個数を扱います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-06">C23</a>
+  <a href="/cpp/debug/2026-11-06">C++26</a>
+  <a href="/rust/debug/2026-11-06" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-06">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-06">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-06">READ</a>
+  <a href="/rust/write/2026-11-06">WRITE</a>
+  <a href="/rust/debug/2026-11-06" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="全部使う組だけ試さない"
+  data-tags="subset-enumeration bitmask off-by-one half-open-interval"
+  data-concepts="ビット全探索, 部分集合の列挙, 半開区間, 範囲式, off-by-one, bit brute force, subset enumeration, exclusive range"
+  data-level="hedgehog"
+>
+  <h2>2026-11-06</h2>
+  <div class="code-frame">
+    <p class="code-filename">exact_change.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">can_pay</span>(coins: &amp;[<span class="ty">u32</span>], price: <span class="ty">u32</span>) -&gt; <span class="ty">bool</span> {</span>
+<span class="code-line">    <span class="kw">let</span> n = coins.<span class="fn">len</span>();</span>
+<span class="code-line">    (<span class="nu">0</span>..(<span class="nu">1</span> &lt;&lt; n) - <span class="nu">1</span>).<span class="fn">any</span>(|mask| {</span>
+<span class="code-line">        <span class="kw">let</span> sum: <span class="ty">u32</span> = (<span class="nu">0</span>..n).<span class="fn">filter</span>(|i| mask &gt;&gt; i &amp; <span class="nu">1</span> == <span class="nu">1</span>).<span class="fn">map</span>(|i| coins[i]).<span class="fn">sum</span>();</span>
+<span class="code-line">        sum == price</span>
+<span class="code-line">    })</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="fn">can_pay</span>(&amp;[<span class="nu">50</span>, <span class="nu">10</span>, <span class="nu">100</span>], <span class="nu">160</span>));</span>
+<span class="code-line">    <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="fn">can_pay</span>(&amp;[<span class="nu">50</span>, <span class="nu">10</span>, <span class="nu">100</span>], <span class="nu">60</span>));</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>can_pay</code> は、手持ちの硬貨 <code>coins</code> からいくつかを選び、合計がちょうど <code>price</code> になる選び方があるかを返すつもりの関数です。<code>main</code> のとおり、50円・10円・100円の硬貨で160円と60円を調べると、いまは <code>false</code> と <code>true</code> が表示されます。160円は3枚とも使えば払えるので、本来の出力は <code>true</code> と <code>true</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line">(<span class="nu">0</span>..(<span class="nu">1</span> &lt;&lt; n) - <span class="nu">1</span>).<span class="fn">any</span>(|mask| {</span>
+</code></pre>
+      <p>
+        <code>mask</code> の <code>i</code> ビット目が1なら <code>coins[i]</code> を選ぶので、<code>n</code> 枚の硬貨の選び方は0から2<sup><var>n</var></sup> − 1 までの2<sup><var>n</var></sup> 個の整数で表されます。Rust の <code>a..b</code> は <code>b</code> を含まない範囲なので、<code>0..(1 &lt;&lt; n) - 1</code> は0から2<sup><var>n</var></sup> − 2 までで終わり、最後の2<sup><var>n</var></sup> − 1 が抜けます。2<sup><var>n</var></sup> − 1 は下から <var>n</var> ビットがすべて1の数で、全部の硬貨を選ぶ選び方です。
+      </p>
+      <p>
+        硬貨が3枚なら <code>mask</code> は0から6までで、3枚とも使う7（<code>0b111</code>）が試されません。160円になる選び方は 50 + 10 + 100 の1通りだけなので、<code>any</code> は <code>false</code> を返します。60円は50円と10円の <code>mask = 3</code> で見つかるので、こちらは正しく <code>true</code> です。全部を使う組み合わせが要る入力でだけ結果が変わるので、少ない硬貨で払える例を試しても見つかりません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line">(<span class="nu">0</span>..<span class="nu">1</span> &lt;&lt; n).<span class="fn">any</span>(|mask| {</span>
+</code></pre>
+      <p>
+        範囲の終わりを <code>1 &lt;&lt; n</code> にすると、<code>..</code> が終端を含まないので、<code>mask</code> はちょうど0から2<sup><var>n</var></sup> − 1 までの2<sup><var>n</var></sup> 個を回ります。<code>&lt;&lt;</code> は <code>..</code> より強く結び付くので、括弧は要りません。「最大の <code>mask</code> まで」と書きたいなら、終端を含む <code>0..=(1 &lt;&lt; n) - 1</code> でも同じ範囲になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

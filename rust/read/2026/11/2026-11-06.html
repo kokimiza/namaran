@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="3つの数から和が5になる選び方を、0から7までの整数のビットで部分集合を表して全部試すRust READのドリルです。どのビットがどの要素に当たり、2進数でどう表示されるかを問います。">
+<title>和が5になる選び方</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-11-06">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / READ", "item": "https://namaran.jocarium.productions/rust/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-06" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / READ — 2026-11-06",
+      "url": "https://namaran.jocarium.productions/rust/read/2026-11-06",
+      "datePublished": "2026-11-06",
+      "dateModified": "2026-11-06",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "和が5になる選び方" },
+      "keywords": "subset-enumeration, bitmask, format-string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "3つの数から和が5になる選び方を、0から7までの整数のビットで部分集合を表して全部試すRust READのドリルです。どのビットがどの要素に当たり、2進数でどう表示されるかを問います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-06">C23</a>
+  <a href="/cpp/read/2026-11-06">C++26</a>
+  <a href="/rust/read/2026-11-06" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/read/2026-11-06">Haskell 2010</a>
+  <a href="/zig/read/2026-11-06">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-06" class="active" aria-current="page">READ</a>
+  <a href="/rust/write/2026-11-06">WRITE</a>
+  <a href="/rust/debug/2026-11-06">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="和が5になる選び方"
+  data-tags="subset-enumeration bitmask format-string"
+  data-concepts="ビット全探索, 部分集合の列挙, ビットマスク, 2進数表示, bit brute force, subset enumeration, bitmask, binary formatting"
+  data-level="hedgehog"
+>
+  <h2>2026-11-06</h2>
+  <div class="code-frame">
+    <p class="code-filename">pick_five.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="kw">let</span> items = [<span class="nu">2</span>, <span class="nu">3</span>, <span class="nu">5</span>];</span>
+<span class="code-line">    <span class="kw">for</span> mask <span class="kw">in</span> <span class="nu">0</span>..<span class="nu">1</span> &lt;&lt; items.<span class="fn">len</span>() {</span>
+<span class="code-line">        <span class="kw">let</span> sum: <span class="ty">i32</span> = (<span class="nu">0</span>..items.<span class="fn">len</span>()).<span class="fn">filter</span>(|&amp;i| mask &gt;&gt; i &amp; <span class="nu">1</span> == <span class="nu">1</span>).<span class="fn">map</span>(|i| items[i]).<span class="fn">sum</span>();</span>
+<span class="code-line">        <span class="kw">if</span> sum == <span class="nu">5</span> {</span>
+<span class="code-line">            <span class="mc">println!</span>(<span class="st">"{mask:03b}"</span>);</span>
+<span class="code-line">        }</span>
+<span class="code-line">    }</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>011
+100</samp></pre>
+      </div>
+      <p>
+        <code>&lt;&lt;</code> は <code>..</code> より強く結び付くので、<code>0..1 &lt;&lt; items.len()</code> は <code>0..8</code> です。<code>mask</code> は0から7までを順にとり、その <code>i</code> ビット目が1なら <code>items[i]</code> を選ぶ、という読み方で3要素の部分集合8通りを1つずつ表します。<code>mask &gt;&gt; i &amp; 1 == 1</code> は <code>((mask &gt;&gt; i) &amp; 1) == 1</code> と読まれ、<code>i</code> ビット目を調べています。
+      </p>
+      <p>
+        和が5になる選び方は、<code>items[0]</code> と <code>items[1]</code> の 2 + 3 と、<code>items[2]</code> だけの5の2通りです。前者はビット0と1が立つ <code>mask = 3</code>、後者はビット2だけが立つ <code>mask = 4</code> で、ループは小さい順に回るので3が先に表示されます。<code>{mask:03b}</code> は <code>mask</code> を2進数で、0で埋めた3桁にして表示します。2進数の表記は普通の数と同じく下の桁が右なので、ビット0は右端です。3は <code>011</code>、4は <code>100</code> になります。配列の並びにつられてビット0を左端に置くと、<code>110</code> と <code>001</code> を答えてしまいます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/read">Today</a></li>
+    <li><a href="/rust/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

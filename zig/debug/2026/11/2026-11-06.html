@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="配列の要素を var に代入してからメソッドで在庫を減らし、元の配列が変わらないZig DEBUGのドリルです。構造体の代入はコピーであることと、メソッド呼び出しが渡すアドレスを扱います。">
+<title>コピーに売った在庫</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/debug/2026-11-06">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / DEBUG", "item": "https://namaran.jocarium.productions/zig/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-06" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / DEBUG — 2026-11-06",
+      "url": "https://namaran.jocarium.productions/zig/debug/2026-11-06",
+      "datePublished": "2026-11-06",
+      "dateModified": "2026-11-06",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "コピーに売った在庫" },
+      "keywords": "struct, pass-by-value, pointer, mutability",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "配列の要素を var に代入してからメソッドで在庫を減らし、元の配列が変わらないZig DEBUGのドリルです。構造体の代入はコピーであることと、メソッド呼び出しが渡すアドレスを扱います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-06">C23</a>
+  <a href="/cpp/debug/2026-11-06">C++26</a>
+  <a href="/rust/debug/2026-11-06">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-06">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-06" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-06">READ</a>
+  <a href="/zig/write/2026-11-06">WRITE</a>
+  <a href="/zig/debug/2026-11-06" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="コピーに売った在庫"
+  data-tags="struct pass-by-value pointer mutability"
+  data-concepts="構造体のメソッド, 構造体のコピー, selfをポインタで受ける, 要素へのポインタ, struct method, struct copy, pointer receiver, value semantics"
+  data-level="hedgehog"
+>
+  <h2>2026-11-06</h2>
+  <div class="code-frame">
+    <p class="code-filename">sell.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">const</span> <span class="ty">Item</span> = <span class="kw">struct</span> {</span>
+<span class="code-line">    stock: <span class="ty">u32</span>,</span>
+<span class="code-line">    <span class="kw">fn</span> <span class="fn">sell</span>(self: *<span class="ty">Item</span>) <span class="ty">void</span> {</span>
+<span class="code-line">        self.stock -= <span class="nu">1</span>;</span>
+<span class="code-line">    }</span>
+<span class="code-line">};</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {</span>
+<span class="code-line">    <span class="kw">var</span> out: [<span class="nu">64</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line">    <span class="kw">var</span> w = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;out);</span>
+<span class="code-line">    <span class="kw">const</span> items = [_]<span class="ty">Item</span>{ .{ .stock = <span class="nu">3</span> }, .{ .stock = <span class="nu">5</span> } };</span>
+<span class="code-line">    <span class="kw">var</span> item = items[<span class="nu">1</span>];</span>
+<span class="code-line">    item.<span class="fn">sell</span>();</span>
+<span class="code-line">    <span class="kw">try</span> w.interface.<span class="fn">print</span>(<span class="st">"{d}\n"</span>, .{items[<span class="nu">1</span>].stock});</span>
+<span class="code-line">    <span class="kw">try</span> w.interface.<span class="fn">flush</span>();</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    在庫が3個と5個の2つの品目のうち、2つ目の品目を1個売ってから、その在庫を表示するつもりのプログラムです。いまは <code>5</code> が表示されます。本来は1個減った <code>4</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line"><span class="kw">const</span> items = [_]<span class="ty">Item</span>{ .{ .stock = <span class="nu">3</span> }, .{ .stock = <span class="nu">5</span> } };</span>
+<span class="code-line"><span class="kw">var</span> item = items[<span class="nu">1</span>];</span>
+<span class="code-line">item.<span class="fn">sell</span>();</span>
+</code></pre>
+      <p>
+        Zig の構造体の代入は値のコピーです。<code>var item = items[1];</code> は <code>items[1]</code> と同じ中身を持つ新しい変数 <code>item</code> を作り、<code>items[1]</code> との結び付きはそこで切れます。<code>item.sell()</code> は <code>Item.sell(&amp;item)</code> と同じ呼び出しで、<code>self</code> にはコピーである <code>item</code> のアドレスが入ります。減るのは <code>item.stock</code> だけで、5から4になったあとは誰にも読まれず、<code>items[1].stock</code> は5のまま表示されます。
+      </p>
+      <p>
+        <code>items</code> が <code>const</code> なのも、この欠陥の表れです。Zig は書き換えないローカル変数を <code>var</code> で宣言するとコンパイルエラーにするので、このコードでは <code>items</code> を <code>const</code> にしないと通りません。売ったはずの配列を、コンパイラは一度も書き換えられていないものとして扱っています。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line"><span class="kw">var</span> items = [_]<span class="ty">Item</span>{ .{ .stock = <span class="nu">3</span> }, .{ .stock = <span class="nu">5</span> } };</span>
+<span class="code-line"><span class="kw">const</span> item = &amp;items[<span class="nu">1</span>];</span>
+<span class="code-line">item.<span class="fn">sell</span>();</span>
+</code></pre>
+      <p>
+        <code>&amp;items[1]</code> で要素そのものへのポインタを取れば、<code>item</code> は <code>*Item</code> になります。ポインタに対する <code>item.sell()</code> は、そのポインタをそのまま <code>self</code> に渡すので、<code>items[1].stock</code> が4に減ります。<code>items</code> は <code>var</code> に戻します。<code>const</code> の配列の要素へのポインタは <code>*const Item</code> で、<code>*Item</code> を受け取る <code>sell</code> には渡せないからです。<code>item</code> 自身は別の要素を指し直さないので <code>const</code> で宣言します。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/debug">Today</a></li>
+    <li><a href="/zig/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
