@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="Double の区間を三等分して最小の位置を探す argMin が、範囲を広げると終わらなくなるHaskell DEBUGのドリルです。大きな値の近くでは隣り合う Double の間隔が 1e-9 より広く、三等分点が端に丸められて区間が縮まなくなることを見抜き、終了条件を直します。">
-<title>縮まなくなった区間</title>
+<meta name="description" content="「キー=値」の行を where の組のパターンで分ける関数が、= の無い行ではキーしか使わなくても例外で止まる Haskell DEBUG のドリルです。where の束縛が遅延パターンであることと、変数を1つ使った時点でパターン全体が照合されることを扱います。">
+<title>キーだけ使っても落ちる</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-11-05">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,12 +28,12 @@
       "dateModified": "2026-11-05",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "縮まなくなった区間" },
-      "keywords": "ternary-search, unimodal-function, floating-point, infinite-loop, numerical-analysis",
+      "about": { "@type": "Thing", "name": "キーだけ使っても落ちる" },
+      "keywords": "irrefutable-pattern, laziness, pattern-matching, tuple",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
-      "description": "Double の区間を三等分して最小の位置を探す argMin が、範囲を広げると終わらなくなるHaskell DEBUGのドリルです。大きな値の近くでは隣り合う Double の間隔が 1e-9 より広く、三等分点が端に丸められて区間が縮まなくなることを見抜き、終了条件を直します。"
+      "description": "「キー=値」の行を where の組のパターンで分ける関数が、= の無い行ではキーしか使わなくても例外で止まる Haskell DEBUG のドリルです。where の束縛が遅延パターンであることと、変数を1つ使った時点でパターン全体が照合されることを扱います。"
     }
   ]
 }
@@ -62,67 +62,51 @@
 </nav>
 
 <main class="drill"
-  data-topic="縮まなくなった区間"
-  data-tags="ternary-search unimodal-function floating-point infinite-loop numerical-analysis"
-  data-concepts="三分探索, 浮動小数点数の間隔, 終了条件, 区間が縮まない, 無限ループ, ternary search, floating point spacing, ulp, termination condition"
-  data-level="whale"
+  data-topic="キーだけ使っても落ちる"
+  data-tags="irrefutable-pattern laziness pattern-matching tuple"
+  data-concepts="反駁不能パターン, 遅延パターン, where の束縛, パターン束縛, 入れ子のパターン, irrefutable pattern, lazy pattern binding, pattern binding failure"
+  data-level="bison"
 >
   <h2>2026-11-05</h2>
   <div class="code-frame">
-    <p class="code-filename">ArgMin.hs</p>
-    <pre class="code"><code><span class="fn">argMin</span> <span class="op">::</span> (<span class="ty">Double</span> <span class="op">-&gt;</span> <span class="ty">Double</span>) <span class="op">-&gt;</span> <span class="ty">Double</span> <span class="op">-&gt;</span> <span class="ty">Double</span> <span class="op">-&gt;</span> <span class="ty">Double</span>
-<span class="fn">argMin</span> f lo hi
-  | hi - lo &lt; <span class="nu">1e-9</span> = lo
-  | f m1 &lt; f m2 = argMin f lo m2
-  | otherwise = argMin f m1 hi
- <span class="kw">where</span>
-  m1 = lo + (hi - lo) / <span class="nu">3</span>
-  m2 = hi - (hi - lo) / <span class="nu">3</span>
-
-<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
-<span class="fn">main</span> = <span class="kw">do</span>
-  print (argMin (\x <span class="op">-&gt;</span> (x - <span class="nu">2</span>) * (x - <span class="nu">2</span>)) <span class="nu">0</span> <span class="nu">10</span>)
-  print (argMin (\x <span class="op">-&gt;</span> (x - <span class="nu">2e8</span>) * (x - <span class="nu">2e8</span>)) <span class="nu">0</span> <span class="nu">1e9</span>)
+    <p class="code-filename">ConfigKeys.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="fn">parse</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> (<span class="ty">String</span>, <span class="ty">String</span>)</span>
+<span class="code-line"><span class="fn">parse</span> s = (k, v)</span>
+<span class="code-line"> <span class="kw">where</span></span>
+<span class="code-line">  (k, _ : v) = break (== <span class="st">'='</span>) s</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()</span>
+<span class="code-line"><span class="fn">main</span> = mapM_ (putStrLn . fst . parse) [<span class="st">"a=1"</span>, <span class="st">"flag"</span>, <span class="st">"b=2"</span>]</span>
 </code></pre>
   </div>
 
   <p class="question">
-    <code>[lo, hi]</code> で、ある位置までは減り続けてそこから増え続ける関数 <code>f</code> について、最小になる位置を、幅が 1e-9 未満になるまで区間を縮めて求める <code>argMin</code> です。1つ目の呼び出しは <code>1.999999999475721</code> を返しますが、2つ目の呼び出しがいつまでも終わらず、プログラムが止まりません。本来は2行目に <code>2.0e8</code> の近くの値が表示されて終わるはずです。
+    設定の行を最初の <code>=</code> の前と後ろに分けて組で返すつもりの <code>parse</code> です。<code>=</code> の無い行は、行全体をキーとし、値を空文字列とする約束です。<code>main</code> は3行のキーだけを順に表示します。本来は <code>a</code>、<code>flag</code>、<code>b</code> の3行を表示するはずが、いまは <code>a</code> だけを表示したあと、<code>Non-exhaustive patterns in (k, _ : v)</code> という例外で止まります。
   </p>
 
   <details class="answer">
     <summary>Answer</summary>
     <div class="answer-body">
       <h3 class="wrong">Wrong</h3>
-      <pre class="code"><code><span class="fn">argMin</span> f lo hi
-  | hi - lo &lt; <span class="nu">1e-9</span> = lo
-  | f m1 &lt; f m2 = argMin f lo m2
-  | otherwise = argMin f m1 hi
- <span class="kw">where</span>
-  m1 = lo + (hi - lo) / <span class="nu">3</span>
-  m2 = hi - (hi - lo) / <span class="nu">3</span>
+      <pre class="code"><code><span class="code-line">(k, _ : v) = break (== <span class="st">'='</span>) s</span>
 </code></pre>
       <p>
-        <code>Double</code> が表せる数は飛び飛びで、隣り合う2つの数の間隔は、値の大きさにほぼ比例して広がります。有効数字が2進数で53桁しかないので、間隔は値のおよそ 2<sup>-52</sup> 倍です。2 の近くでは 4e-16 ほどですが、2.0e8 の近くでは約 3e-8 あり、1e-9 よりずっと広くなります。2つ目の呼び出しの区間は 2.0e8 の近くまで縮みますが、そこで <code>lo</code> と <code>hi</code> が別の数である限り、<code>hi - lo</code> は少なくとも間隔1つ分の約 3e-8 で、1つ目の枝の <code>hi - lo &lt; 1e-9</code> は決して真になりません。
+        <code>where</code> や <code>let</code> でパターンを使って束縛すると、そのパターンには暗黙に <code>~</code> が付き、定義した時点では照合されません。そのため <code>parse "flag"</code> そのものは失敗せず、組 <code>(k, v)</code> を返します。<code>fst</code> が取り出すのも <code>k</code> だけで、<code>v</code> は使われません。
       </p>
       <p>
-        区間の幅が間隔1つ分まで縮んだところで、<code>(hi - lo) / 3</code> は間隔の3分の1になります。<code>lo</code> にそれを足した結果は、最も近い <code>Double</code> に丸められて <code>lo</code> に戻り、<code>m2</code> も同じように <code>hi</code> に戻ります。すると次の再帰は、どちらの枝に進んでも <code>argMin f lo hi</code> と同じ引数になり、同じ計算を永遠に繰り返します。1つ目の呼び出しが終わったのは、2 の近くの間隔が 1e-9 より狭く、幅が 1e-9 を下回るまで縮められたからです。
+        ところが、遅延したパターンは、変数のどれか1つが使われた時点で全体がまとめて照合されます。<code>putStrLn</code> が <code>k</code> を求めると、<code>break (== '=') "flag"</code> の結果 <code>("flag", "")</code> が <code>(k, _ : v)</code> 全体と照合され、2つ目の成分の空文字列が <code>_ : v</code> に合わずに失敗します。<code>k</code> が使うのは1つ目の成分だけですが、<code>k</code> だけを先に取り出す途中の段階はありません。<code>"a=1"</code> では <code>("a", "=1")</code> が合うので、<code>a</code> は表示されます。
       </p>
       <h3 class="right">Right</h3>
-      <pre class="code"><code><span class="fn">argMin</span> f lo hi
-  | hi - lo &lt; <span class="nu">1e-9</span> || m1 &lt;= lo || m2 &gt;= hi = lo
-  | f m1 &lt; f m2 = argMin f lo m2
-  | otherwise = argMin f m1 hi
- <span class="kw">where</span>
-  m1 = lo + (hi - lo) / <span class="nu">3</span>
-  m2 = hi - (hi - lo) / <span class="nu">3</span>
+      <pre class="code"><code><span class="code-line"><span class="fn">parse</span> s = (k, drop <span class="nu">1</span> rest)</span>
+<span class="code-line"> <span class="kw">where</span></span>
+<span class="code-line">  (k, rest) = break (== <span class="st">'='</span>) s</span>
 </code></pre>
       <p>
-        三等分点が区間の内側に入らなくなったら、それ以上は区間を縮められないので、そこで止めます。<code>m1 &lt;= lo</code> か <code>m2 &gt;= hi</code> になるのは、幅が値の大きさに対する <code>Double</code> の間隔の数個分まで縮んだときだけで、そのときの <code>lo</code> は <code>Double</code> で表せる範囲で、最小の位置のすぐそばにあります。2つ目の呼び出しは <code>2.0e8</code> を返し、間隔が 1e-9 より狭い1つ目の呼び出しでは、これまでどおり幅の条件で止まります。
+        パターンを、どんな組にも合う <code>(k, rest)</code> にし、先頭の <code>=</code> を外す処理は <code>drop 1</code> に任せます。<code>drop 1</code> は空文字列に対しても空文字列を返すので、<code>=</code> の無い行でも失敗せず、約束どおり値が空文字列になります。<code>k</code> を使ったときの照合も必ず成功するので、<code>flag</code> と <code>b</code> も表示されます。<sup class="fn-ref">1</sup>
       </p>
-      <p>
-        幅の条件を値の大きさに比例させる(<code>1e-9 * max 1 (abs lo)</code> など)か、再帰の回数を決めておく直し方でも止まります。どちらも、浮動小数点数の間隔より細かい幅を終わりの条件にしない、という点は同じです。
-      </p>
+      <ol class="footnotes">
+        <li>GHC 9.2 以降は、合わない値がありうるパターン束縛を <code>-Wall</code> に含まれる <code>-Wincomplete-uni-patterns</code> で警告します。<code>~</code> を明示したパターンも同じく警告の対象です。</li>
+      </ol>
     </div>
   </details>
 </main>

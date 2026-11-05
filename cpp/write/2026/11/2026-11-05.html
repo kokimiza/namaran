@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="2行3列の行列を std::array の入れ子で受け取り、3行2列に転置して値で返す関数を書くC++ WRITEのドリルです。入れ子の型のどちらが行でどちらが列かを読み取り、組み込み配列では書けない配列の戻り値を使います。">
-<title>入れ子の配列を転置</title>
+<meta name="description" content="0〜9の数字だけでできた文字列を、標準の変換関数を使わずに int の値に直す C++ WRITE のドリルです。数字の文字から &#x27;0&#x27; を引いて値を得ることと、上の桁から10倍して足していく組み立て方を扱います。">
+<title>数字の列を整数に戻す</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-11-05">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,12 +28,12 @@
       "dateModified": "2026-11-05",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "入れ子の配列を転置" },
-      "keywords": "array, multidimensional-array, pass-by-value",
+      "about": { "@type": "Thing", "name": "数字の列を整数に戻す" },
+      "keywords": "string, type-conversion, integer-arithmetic",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
-      "description": "2行3列の行列を std::array の入れ子で受け取り、3行2列に転置して値で返す関数を書くC++ WRITEのドリルです。入れ子の型のどちらが行でどちらが列かを読み取り、組み込み配列では書けない配列の戻り値を使います。"
+      "description": "0〜9の数字だけでできた文字列を、標準の変換関数を使わずに int の値に直す C++ WRITE のドリルです。数字の文字から '0' を引いて値を得ることと、上の桁から10倍して足していく組み立て方を扱います。"
     }
   ]
 }
@@ -62,35 +62,41 @@
 </nav>
 
 <main class="drill"
-  data-topic="入れ子の配列を転置"
-  data-tags="array multidimensional-array pass-by-value"
-  data-concepts="std::array の入れ子, 2次元配列, 行列の転置, 配列を値で返す, nested std::array, transpose, return array by value"
+  data-topic="数字の列を整数に戻す"
+  data-tags="string type-conversion integer-arithmetic"
+  data-concepts="文字と数値の変換, 数字の文字から値へ, c - &#x27;0&#x27;, 10進数の解析, character to digit, parse integer, Horner&#x27;s method"
   data-level="hedgehog"
 >
   <h2>2026-11-05</h2>
   <div class="code-frame">
-    <p class="code-filename">transpose.cpp</p>
-    <pre class="code"><code>std::<span class="ty">array</span>&lt;std::<span class="ty">array</span>&lt;<span class="ty">int</span>, <span class="nu">2</span>&gt;, <span class="nu">3</span>&gt; <span class="fn">transpose</span>(<span class="kw">const</span> std::<span class="ty">array</span>&lt;std::<span class="ty">array</span>&lt;<span class="ty">int</span>, <span class="nu">3</span>&gt;, <span class="nu">2</span>&gt;&amp; m) {
-}
+    <p class="code-filename">parse_digits.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="ty">int</span> <span class="fn">parse_digits</span>(std::<span class="ty">string_view</span> s) {</span>
+<span class="code-line">}</span>
 </code></pre>
   </div>
 
   <p class="question">
-    2行3列の行列 <code>m</code> の行と列を入れ替えた、3行2列の行列を返す <code>transpose</code> を書いてください。<code>m[i][j]</code> は <code>i</code> 行 <code>j</code> 列の要素で、返す行列の <code>j</code> 行 <code>i</code> 列には <code>m[i][j]</code> が入ります。<code>m</code> は書き換えません。
+    <code>'0'</code> から <code>'9'</code> の数字だけでできた文字列 <code>s</code> を10進数として読み、その値を返す <code>parse_digits</code> を書いてください。<code>std::stoi</code> や <code>std::from_chars</code> などの標準の変換関数は使いません。<code>s</code> が空なら0を返します。値は <code>int</code> に収まるものとします。
   </p>
 
   <div class="examples">
     <div class="example">
       <p class="example-label">入力例 1</p>
-      <pre class="io"><code>transpose({{{1, 2, 3}, {4, 5, 6}}})</code></pre>
+      <pre class="io"><code>parse_digits("407")</code></pre>
       <p class="example-label">出力例 1</p>
-      <pre class="io"><code>{{1, 4}, {2, 5}, {3, 6}}</code></pre>
+      <pre class="io"><code>407</code></pre>
     </div>
     <div class="example">
       <p class="example-label">入力例 2</p>
-      <pre class="io"><code>transpose({{{0, -1, 0}, {7, 0, 0}}})</code></pre>
+      <pre class="io"><code>parse_digits("007")</code></pre>
       <p class="example-label">出力例 2</p>
-      <pre class="io"><code>{{0, 7}, {-1, 0}, {0, 0}}</code></pre>
+      <pre class="io"><code>7</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>parse_digits("")</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>0</code></pre>
     </div>
   </div>
 
@@ -99,25 +105,20 @@
     <div class="answer-body">
       <div class="code-frame diff-added" aria-label="追加する参考実装">
         <p class="code-filename">Reference</p>
-        <pre class="code"><code>std::<span class="ty">array</span>&lt;std::<span class="ty">array</span>&lt;<span class="ty">int</span>, <span class="nu">2</span>&gt;, <span class="nu">3</span>&gt; <span class="fn">transpose</span>(<span class="kw">const</span> std::<span class="ty">array</span>&lt;std::<span class="ty">array</span>&lt;<span class="ty">int</span>, <span class="nu">3</span>&gt;, <span class="nu">2</span>&gt;&amp; m) {
-    std::<span class="ty">array</span>&lt;std::<span class="ty">array</span>&lt;<span class="ty">int</span>, <span class="nu">2</span>&gt;, <span class="nu">3</span>&gt; t{};
-    <span class="kw">for</span> (std::<span class="ty">size_t</span> i = <span class="nu">0</span>; i &lt; <span class="nu">2</span>; ++i) {
-        <span class="kw">for</span> (std::<span class="ty">size_t</span> j = <span class="nu">0</span>; j &lt; <span class="nu">3</span>; ++j) {
-            t[j][i] = m[i][j];
-        }
-    }
-    <span class="kw">return</span> t;
-}
+        <pre class="code"><code><span class="code-line"><span class="ty">int</span> <span class="fn">parse_digits</span>(std::<span class="ty">string_view</span> s) {</span>
+<span class="code-line">    <span class="ty">int</span> n = <span class="nu">0</span>;</span>
+<span class="code-line">    <span class="kw">for</span> (<span class="ty">char</span> c : s) {</span>
+<span class="code-line">        n = n * <span class="nu">10</span> + (c - <span class="st">'0'</span>);</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="kw">return</span> n;</span>
+<span class="code-line">}</span>
 </code></pre>
       </div>
       <p>
-        <code>std::array&lt;std::array&lt;int, 3&gt;, 2&gt;</code> は、外側の <code>std::array</code> が要素を2つ持ち、その1つ1つが <code>int</code> 3つの <code>std::array</code> です。<code>m[i]</code> で行を選び、<code>m[i][j]</code> で列を選ぶので、外側の要素数 2 が行の数、内側の 3 が列の数になります。返す型 <code>std::array&lt;std::array&lt;int, 2&gt;, 3&gt;</code> は同じ読み方で3行2列です。組み込み配列の <code>int m[2][3]</code> と比べると、行の数と列の数を書く順番が逆になります。
+        数字1文字の値は <code>c - '0'</code> で得られます。C++ の規格は、<code>'0'</code> から <code>'9'</code> の文字コードが連続して小さい順に並ぶことを保証しているので、<code>'7' - '0'</code> はどの処理系でも7です。文字列の左から1文字ずつ読み、それまでの値を10倍してからその桁を足すと、読み終えたときに全体の値ができています。これは参考実装で、唯一の正解ではありません。<code>std::accumulate</code> で同じ計算を書くこともできます。
       </p>
       <p>
-        本体では <code>t</code> を <code>{}</code> ですべて 0 に初期化してから、<code>i</code> を 0 から 1、<code>j</code> を 0 から 2 まで回して <code>t[j][i] = m[i][j]</code> を6回行います。入力例 1 の <code>m[0][2]</code> の 3 は <code>t[2][0]</code> に入り、3行目は <code>{3, 6}</code> になります。添字はどちらも <code>m</code> の大きさに合わせて回しているので、範囲の外には書きません。
-      </p>
-      <p>
-        組み込み配列は関数の戻り値の型にできませんが、<code>std::array</code> は普通のクラスの値なので、作った <code>t</code> をそのまま <code>return</code> できます。引数は <code>const</code> の参照で受け、6つの要素をコピーせずに読むだけにしています。掲載したのは参考実装で、唯一の正解ではありません。
+        入力例1では、<code>n</code> は0から4、40、407と増えます。10倍すると、それまでに読んだ桁が1つずつ上の位へ移るので、右端の桁が1の位に残ります。入力例2の先頭の0は、0を10倍しても0なので値に影響せず、最後の <code>'7'</code> で7になります。空の文字列ではループが一度も回らず、初期値の0が返ります。
       </p>
     </div>
   </details>

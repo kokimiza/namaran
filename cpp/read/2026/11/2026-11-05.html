@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="値で受け取る関数テンプレートに、組み込み配列と std::array を渡したときの違いを読むC++ READのドリルです。T が何に推論されるかで、関数の中の書き換えが呼び出し側に届くかどうかが分かれます。">
-<title>値で受けたはずの配列</title>
+<meta name="description" content="式 '0' + n を std::max で文字 '5' と比べて表示するC++ READのドリルです。char と int の足し算の結果の型と、std::max のテンプレート引数の推論を扱います。">
+<title>'0'+nとstd::max</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-11-05">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,12 +28,12 @@
       "dateModified": "2026-11-05",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "値で受けたはずの配列" },
-      "keywords": "pointer-decay, array, type-deduction, pass-by-value, template",
+      "about": { "@type": "Thing", "name": "'0'+nとstd::max" },
+      "keywords": "integer-promotion, template, type-deduction",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
-      "description": "値で受け取る関数テンプレートに、組み込み配列と std::array を渡したときの違いを読むC++ READのドリルです。T が何に推論されるかで、関数の中の書き換えが呼び出し側に届くかどうかが分かれます。"
+      "description": "式 '0' + n を std::max で文字 '5' と比べて表示するC++ READのドリルです。char と int の足し算の結果の型と、std::max のテンプレート引数の推論を扱います。"
     }
   ]
 }
@@ -62,28 +62,22 @@
 </nav>
 
 <main class="drill"
-  data-topic="値で受けたはずの配列"
-  data-tags="pointer-decay array type-deduction pass-by-value template"
-  data-concepts="配列からポインタへの変換, テンプレート引数の推論, std::array, 組み込み配列, 値渡し, array to pointer decay, template argument deduction, built-in array"
+  data-topic="'0'+nとstd::max"
+  data-tags="integer-promotion template type-deduction"
+  data-concepts="整数昇格, 文字と数値の変換, テンプレート引数の推論, std::max, integer promotion, template argument deduction, char arithmetic"
   data-level="peacock"
 >
   <h2>2026-11-05</h2>
   <div class="code-frame">
-    <p class="code-filename">bump.cpp</p>
-    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;array&gt;</span>
-<span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
-
-<span class="kw">template</span> &lt;<span class="kw">class</span> <span class="ty">T</span>&gt; <span class="ty">void</span> <span class="fn">bump</span>(<span class="ty">T</span> x) {
-    x[<span class="nu">0</span>] += <span class="nu">10</span>;
-}
-
-<span class="ty">int</span> <span class="fn">main</span>() {
-    <span class="ty">int</span> a[<span class="nu">2</span>] = {<span class="nu">1</span>, <span class="nu">2</span>};
-    std::<span class="ty">array</span>&lt;<span class="ty">int</span>, <span class="nu">2</span>&gt; s = {<span class="nu">1</span>, <span class="nu">2</span>};
-    <span class="fn">bump</span>(a);
-    <span class="fn">bump</span>(s);
-    std::cout &lt;&lt; a[<span class="nu">0</span>] &lt;&lt; <span class="st">' '</span> &lt;&lt; s[<span class="nu">0</span>] &lt;&lt; <span class="st">'\n'</span>;
-}
+    <p class="code-filename">best_digit.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;algorithm&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="ty">int</span> n = <span class="nu">3</span>;</span>
+<span class="code-line">    <span class="ty">char</span> best = std::<span class="fn">max</span>(<span class="st">'5'</span>, <span class="st">'0'</span> + n);</span>
+<span class="code-line">    std::cout &lt;&lt; best &lt;&lt; <span class="st">'\n'</span>;</span>
+<span class="code-line">}</span>
 </code></pre>
   </div>
 
@@ -96,16 +90,16 @@
     <div class="answer-body">
       <div class="code-frame answer-output" aria-label="実行結果">
         <p class="code-filename">Output</p>
-        <pre class="output"><samp>11 1</samp></pre>
+        <pre class="output"><samp>コンパイルエラー</samp></pre>
       </div>
       <p>
-        <code>bump</code> の引数 <code>T x</code> は値渡しなので、どちらの呼び出しも引数のコピーを受け取ります。違いが出るのは <code>T</code> が何に推論されるかです。値渡しの引数に組み込み配列を渡すと、推論の前に配列は先頭要素を指すポインタに変換されるので、<code>bump(a)</code> の <code>T</code> は <code>int[2]</code> ではなく <code>int*</code> になります。コピーされるのはポインタだけで、<code>x[0]</code> は <code>a[0]</code> そのものを指し、<code>+= 10</code> で <code>a[0]</code> が 11 になります。
+        <code>'0' + n</code> の型は <code>char</code> ではなく <code>int</code> です。<code>char</code> と <code>int</code> を足すと、<code>'0'</code> は足し算の前に <code>int</code> へ変換され、結果も <code>int</code> になります。値は文字 <code>'3'</code> の番号と等しくなりますが、型は整数のままです。
       </p>
       <p>
-        <code>std::array&lt;int, 2&gt;</code> は組み込み配列を1つ持つクラスで、ポインタへの変換は起きません。<code>bump(s)</code> の <code>T</code> は <code>std::array&lt;int, 2&gt;</code> になり、<code>x</code> は2つの要素ごとコピーされた別のオブジェクトです。書き換わるのはそのコピーの先頭要素で、<code>s[0]</code> は 1 のまま残ります。
+        <code>std::max</code> は <code>template&lt;class T&gt; const T&amp; max(const T&amp; a, const T&amp; b)</code> の形で、2つの引数から同じ1つの <code>T</code> を推論します。1つ目の <code>'5'</code> からは <code>char</code>、2つ目の <code>'0' + n</code> からは <code>int</code> が推論され、食い違うので呼び出せる <code>max</code> がありません。テンプレート引数の推論では <code>char</code> から <code>int</code> への変換を試さないので、普通の関数なら通る呼び出しでもここで止まります。
       </p>
       <p>
-        <code>T x</code> を「配列をまるごとコピーして受け取る」と読むと、どちらも書き換わらずに <code>1 1</code> と答えることになります。組み込み配列は値渡しの引数としてはコピーできず、関数の引数に <code>int x[2]</code> と書いても <code>int* x</code> と同じ意味になります。テンプレートの推論もこれと同じ扱いで、配列をコピーして渡したいときに <code>std::array</code> を使う理由はここにあります。
+        <code>'0' + n</code> を文字の <code>'3'</code> と読むと、<code>'5'</code> との大きいほうで <code>5</code> が出ると考えたくなります。動くようにするには、<code>std::max&lt;char&gt;('5', '0' + n)</code> と型を明示するか、<code>char('0' + n)</code> と <code>char</code> に戻してから渡します。どちらでも <code>5</code> が表示されます。
       </p>
     </div>
   </details>

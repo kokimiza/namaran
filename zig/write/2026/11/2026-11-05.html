@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="カンマで区切った10進数を、引数で受け取った型 T の整数として読み、バッファに入れて返す汎用関数を書くZig WRITEのドリルです。comptime T: type を std.fmt.parseInt に渡して範囲の検査を任せ、空の欄や範囲外の数をエラーで返します。">
-<title>型を受け取って数を読む</title>
+<meta name="description" content="下限と上限を持つ構造体 Range に、値 x を含むように範囲を広げるメソッド extend を書く Zig WRITE のドリルです。書き換えるメソッドが self をポインタで受けることと、@min・@max で下限と上限を更新することを扱います。">
+<title>範囲を広げるメソッド</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/zig/write/2026-11-05">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,12 +28,12 @@
       "dateModified": "2026-11-05",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "型を受け取って数を読む" },
-      "keywords": "comptime, generic-programming, parsing, error-handling, integer-overflow",
+      "about": { "@type": "Thing", "name": "範囲を広げるメソッド" },
+      "keywords": "struct, pointer, builtin-function",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
-      "description": "カンマで区切った10進数を、引数で受け取った型 T の整数として読み、バッファに入れて返す汎用関数を書くZig WRITEのドリルです。comptime T: type を std.fmt.parseInt に渡して範囲の検査を任せ、空の欄や範囲外の数をエラーで返します。"
+      "description": "下限と上限を持つ構造体 Range に、値 x を含むように範囲を広げるメソッド extend を書く Zig WRITE のドリルです。書き換えるメソッドが self をポインタで受けることと、@min・@max で下限と上限を更新することを扱います。"
     }
   ]
 }
@@ -62,43 +62,46 @@
 </nav>
 
 <main class="drill"
-  data-topic="型を受け取って数を読む"
-  data-tags="comptime generic-programming parsing error-handling integer-overflow"
-  data-concepts="comptime T: type, 汎用関数, std.fmt.parseInt, カンマ区切り, 範囲外の検出, error.Overflow, generic parse function, comma separated integers"
-  data-level="bison"
+  data-topic="範囲を広げるメソッド"
+  data-tags="struct pointer builtin-function"
+  data-concepts="構造体のメソッド, selfをポインタで受ける, @min, @max, struct method, pointer receiver, mutating method"
+  data-level="hedgehog"
 >
   <h2>2026-11-05</h2>
   <div class="code-frame">
-    <p class="code-filename">parse_list.zig</p>
-    <pre class="code"><code><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);
-
-<span class="kw">fn</span> <span class="fn">parseList</span>(<span class="kw">comptime</span> <span class="ty">T</span>: <span class="ty">type</span>, buf: []<span class="ty">T</span>, text: []<span class="kw">const</span> <span class="ty">u8</span>) ![]<span class="ty">T</span> {
-}
+    <p class="code-filename">range.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">const</span> <span class="ty">Range</span> = <span class="kw">struct</span> {</span>
+<span class="code-line">    lo: <span class="ty">i32</span>,</span>
+<span class="code-line">    hi: <span class="ty">i32</span>,</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="kw">fn</span> <span class="fn">extend</span>(self: *<span class="ty">Range</span>, x: <span class="ty">i32</span>) <span class="ty">void</span> {</span>
+<span class="code-line">    }</span>
+<span class="code-line">};</span>
 </code></pre>
   </div>
 
   <p class="question">
-    カンマで区切った10進数の並び <code>text</code> を型 <code>T</code> の整数として読み、先頭から順に <code>buf</code> へ入れて、入れた部分のスライスを返す <code>parseList</code> を書いてください。<code>T</code> の範囲に収まらない数があれば <code>error.Overflow</code> を、数として読めない欄(空の欄を含む)があれば <code>error.InvalidCharacter</code> を返します。<code>buf</code> の長さは、<code>text</code> の欄の数より短くないものとします。例の出力は、返したスライスを <code>{any}</code> で書式化したものか、返したエラーです。
+    <code>Range</code> は <code>lo</code> 以上 <code>hi</code> 以下の整数の範囲を表します。範囲が <code>x</code> を含むように、必要なら <code>lo</code> を下げるか <code>hi</code> を上げて、範囲を最小限だけ広げるメソッド <code>extend</code> を書いてください。<code>x</code> がすでに範囲に入っていれば何も変えません。例では、<code>var r: Range = .{ .lo = 3, .hi = 5 };</code> と作った <code>r</code> に対して呼び出しを順に行い、そのあとの <code>r</code> を書きます。
   </p>
 
   <div class="examples">
     <div class="example">
       <p class="example-label">入力例 1</p>
-      <pre class="io"><code>parseList(u8, &amp;buf, "1,20,255")</code></pre>
+      <pre class="io"><code>r.extend(8);</code></pre>
       <p class="example-label">出力例 1</p>
-      <pre class="io"><code>{ 1, 20, 255 }</code></pre>
+      <pre class="io"><code>.{ .lo = 3, .hi = 8 }</code></pre>
     </div>
     <div class="example">
       <p class="example-label">入力例 2</p>
-      <pre class="io"><code>parseList(u8, &amp;buf, "1,256")</code></pre>
+      <pre class="io"><code>r.extend(8); r.extend(-1);</code></pre>
       <p class="example-label">出力例 2</p>
-      <pre class="io"><code>error.Overflow</code></pre>
+      <pre class="io"><code>.{ .lo = -1, .hi = 8 }</code></pre>
     </div>
     <div class="example">
       <p class="example-label">入力例 3</p>
-      <pre class="io"><code>parseList(i8, &amp;buf, "-128,7")</code></pre>
+      <pre class="io"><code>r.extend(4);</code></pre>
       <p class="example-label">出力例 3</p>
-      <pre class="io"><code>{ -128, 7 }</code></pre>
+      <pre class="io"><code>.{ .lo = 3, .hi = 5 }</code></pre>
     </div>
   </div>
 
@@ -107,24 +110,17 @@
     <div class="answer-body">
       <div class="code-frame diff-added" aria-label="追加する参考実装">
         <p class="code-filename">Reference</p>
-        <pre class="code"><code><span class="kw">fn</span> <span class="fn">parseList</span>(<span class="kw">comptime</span> <span class="ty">T</span>: <span class="ty">type</span>, buf: []<span class="ty">T</span>, text: []<span class="kw">const</span> <span class="ty">u8</span>) ![]<span class="ty">T</span> {
-    <span class="kw">var</span> it = std.mem.<span class="fn">splitScalar</span>(<span class="ty">u8</span>, text, <span class="st">','</span>);
-    <span class="kw">var</span> n: <span class="ty">usize</span> = <span class="nu">0</span>;
-    <span class="kw">while</span> (it.<span class="fn">next</span>()) |field| : (n += <span class="nu">1</span>) {
-        buf[n] = <span class="kw">try</span> std.fmt.<span class="fn">parseInt</span>(<span class="ty">T</span>, field, <span class="nu">10</span>);
-    }
-    <span class="kw">return</span> buf[<span class="nu">0</span>..n];
-}
+        <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">extend</span>(self: *<span class="ty">Range</span>, x: <span class="ty">i32</span>) <span class="ty">void</span> {</span>
+<span class="code-line">    self.lo = <span class="mc">@min</span>(self.lo, x);</span>
+<span class="code-line">    self.hi = <span class="mc">@max</span>(self.hi, x);</span>
+<span class="code-line">}</span>
 </code></pre>
       </div>
       <p>
-        受け取った <code>T</code> は、そのまま <code>std.fmt.parseInt(T, field, 10)</code> に渡します。<code>parseInt</code> も <code>comptime T: type</code> を受け取る関数で、<code>T</code> の範囲で桁を積み上げ、収まらなくなった時点で <code>error.Overflow</code> を返します。範囲の検査を自分で書かなくても、<code>u8</code> なら 256 が、<code>i8</code> なら -129 が範囲外になり、入力例 3 の -128 は <code>i8</code> に収まります。空の欄や数字以外の文字には <code>error.InvalidCharacter</code> が返り、どちらのエラーも <code>try</code> がそのまま呼び出し元へ返します。戻り値の型 <code>![]T</code> は、エラーの集合をコンパイラが関数の本体から推論する error union です。
+        <code>extend</code> は呼び出し元の <code>r</code> を書き換えるので、<code>self</code> を <code>*Range</code> で受けます。<code>r.extend(8)</code> と書くと、Zig は <code>r</code> のアドレスを取って <code>Range.extend(&amp;r, 8)</code> として呼ぶので、呼び出し側に <code>&amp;</code> は要りません。<code>self.lo</code> のようにポインタからフィールドを読み書きするときも、<code>.*</code> を書かずに済みます。<code>self: Range</code> と値で受けると <code>self</code> は書き換えられない引数になり、代入はコンパイルエラーになります。
       </p>
       <p>
-        欄を切り出すのは <code>std.mem.splitScalar(u8, text, ',')</code> です。区切りの間が空でも長さ0の欄として返すので、<code>"1,,2"</code> の2つ目の欄は <code>parseInt</code> に渡って <code>error.InvalidCharacter</code> になります。入れた個数は <code>while</code> の継続式 <code>n += 1</code> で数え、最後に <code>buf[0..n]</code> を返します。<code>buf</code> をまるごと返すと、入力例 1 のように欄が3つでも、何も入れていない残りの要素まで呼び出し元に見えてしまいます。
-      </p>
-      <p>
-        いったん <code>i64</code> で読み、<code>@intCast</code> で <code>T</code> に縮める書き方では、入力例 2 は <code>error.Overflow</code> になりません。<code>@intCast</code> は値が収まらないとき illegal behavior になり、Debug ビルドではエラーを返さずに panic で止まるからです。範囲外をエラーとして返すには、読む段階から <code>T</code> を使います。掲載したのは参考実装で、唯一の正解ではありません。
+        新しい下限は今の下限と <code>x</code> の小さいほう、新しい上限は大きいほうで、組み込み関数の <code>@min</code> と <code>@max</code> がそのまま使えます。入力例1では8が上限の5より大きいので <code>hi</code> だけが8になり、入力例2で続けて -1 を渡すと <code>lo</code> が -1 になります。入力例3の4は3以上5以下なので、<code>@min(3, 4)</code> は3、<code>@max(5, 4)</code> は5で、何も変わりません。これは参考実装で、唯一の正解ではありません。<code>if (x &lt; self.lo)</code> と <code>if (x &gt; self.hi)</code> で分けて代入しても同じ結果になります。
       </p>
     </div>
   </details>

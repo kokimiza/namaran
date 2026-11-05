@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「イテレータ」を扱ったNamaranのコーディングドリル49問。scan、状態を持つイテレータ、None で打ち切る、checked_sub、残金、iterator scan。">
+<meta name="description" content="「イテレータ」を扱ったNamaranのコーディングドリル48問。ループの終了条件、符号なし整数、checked_sub、std::iter::successors、アンダーフロー、unsigned underflow。">
 <title>イテレータ</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/iterator">
 <link rel="stylesheet" href="/style.css">
@@ -32,13 +32,12 @@
   <h2>イテレータ</h2>
 
   <p class="lede">
-    「イテレータ」を扱った49問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「イテレータ」を扱った48問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
-    <li><a href="/rust/write/2026-11-05">Rust / WRITE · 2026-11-05</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">買えなくなるまで数える</span> <span class="past-concepts">scan, 状態を持つイテレータ, None で打ち切る, checked_sub, 残金, iterator scan, stateful iterator, early termination</span></li>
-    <li><a href="/rust/read/2026-11-05">Rust / READ · 2026-11-05</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">mapとfindが交互に動く</span> <span class="past-concepts">イテレータアダプタ, 遅延評価, map と find の順序, 1要素ずつ流れる, 途中で止まる, iterator adapter, lazy iterator, short-circuit</span></li>
-    <li><a href="/rust/debug/2026-11-05">Rust / DEBUG · 2026-11-05</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">取り出しすぎた1文字</span> <span class="past-concepts">take_while, by_ref, 条件を満たさない最初の要素, peekable, next_if, 数と単位に分ける, take_while consumes, iterator by_ref, peekable iterator</span></li>
+    <li><a href="/rust/write/2026-11-05">Rust / WRITE · 2026-11-05</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">0で止まるカウントダウン</span> <span class="past-concepts">ループの終了条件, 符号なし整数, checked_sub, std::iter::successors, アンダーフロー, unsigned underflow, loop termination</span></li>
+    <li><a href="/rust/debug/2026-11-05">Rust / DEBUG · 2026-11-05</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">上限を過ぎても回るfilter</span> <span class="past-concepts">filter と take_while, 無限イテレータ, std::iter::successors, 整数オーバーフロー, ループの終了条件, infinite iterator, overflow check, panic</span></li>
     <li><a href="/rust/write/2026-11-04">Rust / WRITE · 2026-11-04</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">頂点の座標から面積</span> <span class="past-concepts">靴紐公式, 多角形の面積, 座標から面積, 最後の辺, shoelace formula, polygon area, wrap around</span></li>
     <li><a href="/rust/read/2026-11-04">Rust / READ · 2026-11-04</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">右回りに並べた三角形</span> <span class="past-concepts">靴紐公式, 多角形の面積, 符号付き面積, 頂点の向き, shoelace formula, signed area, polygon orientation, zip</span></li>
     <li><a href="/rust/read/2026-11-01">Rust / READ · 2026-11-01</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">take_whileで打ち切る</span> <span class="past-concepts">take_while, 枝刈り, filterとの違い, 部分和, 再帰, pruning, subset sum</span></li>

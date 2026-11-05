@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「型推論」を扱ったNamaranのコーディングドリル18問。anytype、comptime T: type、汎用関数、整数のオーバーフロー、和の型、@TypeOf。">
+<meta name="description" content="「型推論」を扱ったNamaranのコーディングドリル17問。整数昇格、文字と数値の変換、テンプレート引数の推論、std::max、integer promotion、template argument deduction。">
 <title>型推論</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/type-deduction">
 <link rel="stylesheet" href="/style.css">
@@ -32,12 +32,11 @@
   <h2>型推論</h2>
 
   <p class="lede">
-    「型推論」を扱った18問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「型推論」を扱った17問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
-    <li><a href="/zig/debug/2026-11-05">Zig / DEBUG · 2026-11-05</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">要素の型で足す合計</span> <span class="past-concepts">anytype, comptime T: type, 汎用関数, 整数のオーバーフロー, 和の型, @TypeOf, integer overflow, generic sum, accumulator type</span></li>
-    <li><a href="/cpp/read/2026-11-05">C++ / READ · 2026-11-05</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">値で受けたはずの配列</span> <span class="past-concepts">配列からポインタへの変換, テンプレート引数の推論, std::array, 組み込み配列, 値渡し, array to pointer decay, template argument deduction, built-in array</span></li>
+    <li><a href="/cpp/read/2026-11-05">C++ / READ · 2026-11-05</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">'0'+nとstd::max</span> <span class="past-concepts">整数昇格, 文字と数値の変換, テンプレート引数の推論, std::max, integer promotion, template argument deduction, char arithmetic</span></li>
     <li><a href="/haskell/read/2026-11-01">Haskell / READ · 2026-11-01</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">同じ文字列を3通りに読む</span> <span class="past-concepts">read, 型注釈, 型推論, 戻り値の型で決まる多相, Read型クラス, return type polymorphism, type annotation</span></li>
     <li><a href="/haskell/debug/2026-11-01">Haskell / DEBUG · 2026-11-01</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">保存した平均が読めない</span> <span class="past-concepts">read, show, 型注釈, 型推論, 往復変換, no parse, round trip, Prelude.read</span></li>
     <li><a href="/zig/read/2026-10-23">Zig / READ · 2026-10-23</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">型を調べた呼び出しの回数</span> <span class="past-concepts">@TypeOf, @typeInfo, ピア型解決, 評価されない式, peer type resolution, no runtime side effects, type reflection</span></li>

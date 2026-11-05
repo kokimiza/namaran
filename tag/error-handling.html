@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「エラー処理」を扱ったNamaranのコーディングドリル30問。comptime T: type、汎用関数、std.fmt.parseInt、カンマ区切り、範囲外の検出、error.Overflow。">
+<meta name="description" content="「エラー処理」を扱ったNamaranのコーディングドリル29問。std.Io.Writer、flush、errdefer、tryで抜ける、バッファに残った出力、buffered output。">
 <title>エラー処理</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/error-handling">
 <link rel="stylesheet" href="/style.css">
@@ -32,11 +32,10 @@
   <h2>エラー処理</h2>
 
   <p class="lede">
-    「エラー処理」を扱った30問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「エラー処理」を扱った29問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
-    <li><a href="/zig/write/2026-11-05">Zig / WRITE · 2026-11-05</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">型を受け取って数を読む</span> <span class="past-concepts">comptime T: type, 汎用関数, std.fmt.parseInt, カンマ区切り, 範囲外の検出, error.Overflow, generic parse function, comma separated integers</span></li>
     <li><a href="/zig/debug/2026-11-04">Zig / DEBUG · 2026-11-04</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">エラーで抜けると消える行</span> <span class="past-concepts">std.Io.Writer, flush, errdefer, tryで抜ける, バッファに残った出力, buffered output, early return, error path</span></li>
     <li><a href="/zig/write/2026-11-02">Zig / WRITE · 2026-11-02</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">書いた文字列を返す</span> <span class="past-concepts">std.Io.Writer.Allocating, toOwnedSlice, defer, deinit, アロケータ, 所有権の受け渡し, allocating writer, caller owns memory</span></li>
     <li><a href="/haskell/write/2026-11-01">Haskell / WRITE · 2026-11-01</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">読めなければNothing</span> <span class="past-concepts">reads, read, 安全な読み取り, 読み残し, Maybe, ReadS, readMaybe, safe parsing</span></li>

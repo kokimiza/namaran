@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「構造体」を扱ったNamaranのコーディングドリル31問。トークンバケット、補充、容量の上限、バースト、token bucket、refill。">
+<meta name="description" content="「構造体」を扱ったNamaranのコーディングドリル34問。構造体のメソッド、selfをポインタで受ける、@min、@max、struct method、pointer receiver。">
 <title>構造体</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/struct">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>構造体</h2>
 
   <p class="lede">
-    「構造体」を扱った31問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「構造体」を扱った34問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/write/2026-11-05">Zig / WRITE · 2026-11-05</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">範囲を広げるメソッド</span> <span class="past-concepts">構造体のメソッド, selfをポインタで受ける, @min, @max, struct method, pointer receiver, mutating method</span></li>
+    <li><a href="/zig/read/2026-11-05">Zig / READ · 2026-11-05</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">2つのラベルと1つの配列</span> <span class="past-concepts">構造体のメソッド, 名前空間としての構造体, コンテナレベルの変数, スライスの長さ, std.mem.print, container-level variable, struct method, slice aliasing</span></li>
+    <li><a href="/zig/debug/2026-11-05">Zig / DEBUG · 2026-11-05</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">先頭の棚に集める在庫</span> <span class="past-concepts">構造体のメソッド, selfと引数のエイリアシング, 同じ構造体を指す2つのポインタ, 代入の順序, struct method, pointer aliasing, self-assignment</span></li>
     <li><a href="/cpp/write/2026-11-03">C++ / WRITE · 2026-11-03</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">経過時間で補充する上限</span> <span class="past-concepts">トークンバケット, 補充, 容量の上限, バースト, token bucket, refill, burst capacity, rate limiter</span></li>
     <li><a href="/zig/write/2026-11-01">Zig / WRITE · 2026-11-01</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">まだ無い最小値</span> <span class="past-concepts">デフォルトのフィールド値, 構造体リテラル, オプショナル型, null, orelse, 最小値と最大値, default field values, optional</span></li>
     <li><a href="/zig/read/2026-11-01">Zig / READ · 2026-11-01</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">入れ子のデフォルト値</span> <span class="past-concepts">デフォルトのフィールド値, 宣言リテラル, .init, 構造体リテラル, 入れ子の構造体, default field values, decl literal</span></li>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「改行コード」を扱ったNamaranのコーディングドリル13問。改行コードの統一、CRLF、CR、LF、その場で書き換える、読み位置と書き位置。">
+<meta name="description" content="「改行コード」を扱ったNamaranのコーディングドリル10問。std::getline、抽出演算子のあとの改行、istream::ignore、std::ws、数字のあとにgetline、getline after cin。">
 <title>改行コード</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/line-ending">
 <link rel="stylesheet" href="/style.css">
@@ -32,13 +32,10 @@
   <h2>改行コード</h2>
 
   <p class="lede">
-    「改行コード」を扱った13問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「改行コード」を扱った10問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
-    <li><a href="/c/write/2026-11-05">C / WRITE · 2026-11-05</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">改行をその場でそろえる</span> <span class="past-concepts">改行コードの統一, CRLF, CR, LF, その場で書き換える, 読み位置と書き位置, normalize line endings, in-place</span></li>
-    <li><a href="/c/read/2026-11-05">C / READ · 2026-11-05</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">改行を落とした行の長さ</span> <span class="past-concepts">改行コード, CRLF, LF, strcspn, 行末の改行を取り除く, 復帰文字, carriage return, strip newline</span></li>
-    <li><a href="/c/debug/2026-11-05">C / DEBUG · 2026-11-05</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">改行だけの行を削る</span> <span class="past-concepts">行末の空白を削る, 空行, CRLF, size_t の0から1を引く, 範囲外アクセス, trim trailing whitespace, empty line, out of bounds, stack buffer underflow</span></li>
     <li><a href="/cpp/write/2026-10-08">C++ / WRITE · 2026-10-08</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">件数の行のあとの名前</span> <span class="past-concepts">std::getline, 抽出演算子のあとの改行, istream::ignore, std::ws, 数字のあとにgetline, getline after cin, leftover newline</span></li>
     <li><a href="/cpp/read/2026-10-08">C++ / READ · 2026-10-08</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">カンマで区切る行</span> <span class="past-concepts">std::getline, 区切り文字, 改行が残る, CSVの読み込み, getline delimiter, newline in token</span></li>
     <li><a href="/cpp/debug/2026-10-08">C++ / DEBUG · 2026-10-08</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">ENDで止まらない</span> <span class="past-concepts">CRLF, 改行コード, std::getline, 行末の\r, 文字列の比較, carriage return, Windows line endings</span></li>

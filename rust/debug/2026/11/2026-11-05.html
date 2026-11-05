@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="15kg を数字の部分と単位に分ける split_quantity が、単位の先頭の1文字を落とすRust DEBUGのドリルです。take_while が止まるために、条件を満たさない最初の要素まで取り出して捨てることを見抜き、peekable と next_if で直します。">
-<title>取り出しすぎた1文字</title>
+<meta name="description" content="2の累乗を無限に作るイテレータを filter で絞って数えたために、上限を過ぎても値を作り続けて掛け算のオーバーフローで panic する Rust DEBUG のドリルです。filter が条件を満たさなくなっても止まらないことと、デバッグビルドのオーバーフロー検査を扱います。">
+<title>上限を過ぎても回るfilter</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-11-05">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,12 +28,12 @@
       "dateModified": "2026-11-05",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "取り出しすぎた1文字" },
-      "keywords": "iterator, laziness, parsing, string",
+      "about": { "@type": "Thing", "name": "上限を過ぎても回るfilter" },
+      "keywords": "iterator, infinite-loop, integer-overflow, laziness",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
-      "description": "15kg を数字の部分と単位に分ける split_quantity が、単位の先頭の1文字を落とすRust DEBUGのドリルです。take_while が止まるために、条件を満たさない最初の要素まで取り出して捨てることを見抜き、peekable と next_if で直します。"
+      "description": "2の累乗を無限に作るイテレータを filter で絞って数えたために、上限を過ぎても値を作り続けて掛け算のオーバーフローで panic する Rust DEBUG のドリルです。filter が条件を満たさなくなっても止まらないことと、デバッグビルドのオーバーフロー検査を扱います。"
     }
   ]
 }
@@ -62,56 +62,51 @@
 </nav>
 
 <main class="drill"
-  data-topic="取り出しすぎた1文字"
-  data-tags="iterator laziness parsing string"
-  data-concepts="take_while, by_ref, 条件を満たさない最初の要素, peekable, next_if, 数と単位に分ける, take_while consumes, iterator by_ref, peekable iterator"
-  data-level="hedgehog"
+  data-topic="上限を過ぎても回るfilter"
+  data-tags="iterator infinite-loop integer-overflow laziness"
+  data-concepts="filter と take_while, 無限イテレータ, std::iter::successors, 整数オーバーフロー, ループの終了条件, infinite iterator, overflow check, panic"
+  data-level="bison"
 >
   <h2>2026-11-05</h2>
   <div class="code-frame">
-    <p class="code-filename">quantity.rs</p>
-    <pre class="code"><code><span class="kw">fn</span> <span class="fn">split_quantity</span>(s: &amp;<span class="ty">str</span>) -&gt; (<span class="ty">String</span>, <span class="ty">String</span>) {
-    <span class="kw">let</span> <span class="kw">mut</span> chars = s.<span class="fn">chars</span>();
-    <span class="kw">let</span> digits: <span class="ty">String</span> = chars.<span class="fn">by_ref</span>().<span class="fn">take_while</span>(|c| c.<span class="fn">is_ascii_digit</span>()).<span class="fn">collect</span>();
-    <span class="kw">let</span> unit: <span class="ty">String</span> = chars.<span class="fn">collect</span>();
-    (digits, unit)
-}
-
-<span class="kw">fn</span> <span class="fn">main</span>() {
-    <span class="mc">println!</span>(<span class="st">"{:?}"</span>, <span class="fn">split_quantity</span>(<span class="st">"15kg"</span>));
-}
+    <p class="code-filename">powers_below.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">powers_below</span>(limit: <span class="ty">i32</span>) -&gt; <span class="ty">usize</span> {</span>
+<span class="code-line">    std::iter::<span class="fn">successors</span>(<span class="fn">Some</span>(<span class="nu">1</span>), |&amp;p| <span class="fn">Some</span>(p * <span class="nu">2</span>)).<span class="fn">filter</span>(|&amp;p| p &lt; limit).<span class="fn">count</span>()</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="fn">powers_below</span>(<span class="nu">50</span>));</span>
+<span class="code-line">}</span>
 </code></pre>
   </div>
 
   <p class="question">
-    <code>"15kg"</code> のような文字列を、先頭に続く数字の部分と、残りの単位の部分に分ける <code>split_quantity</code> です。<code>split_quantity("15kg")</code> を表示すると、いまは <code>("15", "g")</code> と表示されます。本来は <code>("15", "kg")</code> と表示されるはずです。
+    1, 2, 4, 8, … と続く2の累乗のうち、<code>limit</code> 未満のものの個数を返すつもりの <code>powers_below</code> です。<code>powers_below(50)</code> は本来 <code>6</code> を返して表示するはずが、いまはデバッグビルドで実行すると何も表示されず、2行目で <code>attempt to multiply with overflow</code> の panic が起きて終わります。
   </p>
 
   <details class="answer">
     <summary>Answer</summary>
     <div class="answer-body">
       <h3 class="wrong">Wrong</h3>
-      <pre class="code"><code>    <span class="kw">let</span> <span class="kw">mut</span> chars = s.<span class="fn">chars</span>();
-    <span class="kw">let</span> digits: <span class="ty">String</span> = chars.<span class="fn">by_ref</span>().<span class="fn">take_while</span>(|c| c.<span class="fn">is_ascii_digit</span>()).<span class="fn">collect</span>();
-    <span class="kw">let</span> unit: <span class="ty">String</span> = chars.<span class="fn">collect</span>();
+      <pre class="code"><code><span class="code-line">std::iter::<span class="fn">successors</span>(<span class="fn">Some</span>(<span class="nu">1</span>), |&amp;p| <span class="fn">Some</span>(p * <span class="nu">2</span>)).<span class="fn">filter</span>(|&amp;p| p &lt; limit).<span class="fn">count</span>()</span>
 </code></pre>
       <p>
-        <code>take_while</code> は、条件を満たさない要素を見た時点で止まります。ところが、満たすかどうかを調べるには、その要素を元のイテレータから <code>next</code> で取り出すしかありません。<code>"15kg"</code> では <code>'1'</code> と <code>'5'</code> を通したあと、<code>'k'</code> を取り出して条件が偽になったところで終わり、<code>'k'</code> は戻されずに捨てられます。
+        <code>successors</code> のクロージャは常に <code>Some</code> を返すので、このイテレータは終わりません。<code>filter</code> は条件に合わない値を捨てるだけで、条件が偽になっても止まりません。64を捨てたあとも128、256と次の値を求め続け、<code>count</code> はイテレータが終わるのを待ち続けます。値が大きくなる順に並んでいて、64以降に条件を満たす値がもう無いことは、<code>filter</code> には分かりません。
       </p>
       <p>
-        <code>by_ref</code> のおかげで <code>chars</code> は <code>take_while</code> のあとも使えますが、読む位置はもう <code>'k'</code> の後ろです。続く <code>chars.collect()</code> が集めるのは <code>'g'</code> だけで、単位は <code>"g"</code> になります。
+        値は <code>i32</code> なので、<code>p</code> が <code>1 &lt;&lt; 30</code> に達すると、次の <code>p * 2</code> は <code>i32</code> の最大値を超えます。デバッグビルドでは整数のオーバーフローが検査され、ここで panic します。止まらないはずのループが panic で終わるので、症状は無限ループではなく掛け算の panic として見えます。リリースビルドでは検査が無く値が折り返すので、panic せずに回り続けます。
       </p>
       <h3 class="right">Right</h3>
-      <pre class="code"><code>    <span class="kw">let</span> <span class="kw">mut</span> chars = s.<span class="fn">chars</span>().<span class="fn">peekable</span>();
-    <span class="kw">let</span> digits: <span class="ty">String</span> = std::iter::<span class="fn">from_fn</span>(|| chars.<span class="fn">next_if</span>(|c| c.<span class="fn">is_ascii_digit</span>())).<span class="fn">collect</span>();
-    <span class="kw">let</span> unit: <span class="ty">String</span> = chars.<span class="fn">collect</span>();
+      <pre class="code"><code><span class="code-line">std::iter::<span class="fn">successors</span>(<span class="fn">Some</span>(<span class="nu">1</span>), |&amp;p| <span class="fn">Some</span>(p * <span class="nu">2</span>))</span>
+<span class="code-line">    .<span class="fn">take_while</span>(|&amp;p| p &lt; limit)</span>
+<span class="code-line">    .<span class="fn">count</span>()</span>
 </code></pre>
       <p>
-        <code>peekable</code> で包んだイテレータの <code>next_if</code> は、次の要素を先に覗き、条件を満たすときだけ取り出して <code>Some</code> で返します。満たさなければ <code>None</code> を返し、その要素は取り出さずに残します。<code>std::iter::from_fn</code> で <code>next_if</code> を繰り返し呼ぶと、<code>'k'</code> の手前で止まって <code>"15"</code> が集まり、<code>chars.collect()</code> は <code>'k'</code> から読み始めて <code>"kg"</code> を返します。数字だけの <code>"3"</code> なら、単位は空文字列です。
+        <code>take_while</code> は、条件が初めて偽になった時点でイテレータ全体を終わらせます。1, 2, 4, 8, 16, 32 を通したあと64で条件が偽になり、そこで終わるので <code>count</code> は6を返します。64より先の値は求められないので、掛け算がオーバーフローするところまで進むこともありません。大きくなる一方の列を上限で切るときは、捨てる <code>filter</code> ではなく、打ち切る <code>take_while</code> を使います。<sup class="fn-ref">1</sup>
       </p>
-      <p>
-        文字列のまま分けるなら、<code>s.find(|c: char| !c.is_ascii_digit())</code> で最初の数字でない文字の位置を求め、<code>split_at</code> で2つに切る書き方もあります。こちらは要素を取り出さずに位置だけを求めるので、取り出しすぎる心配がありません。
-      </p>
+      <ol class="footnotes">
+        <li><code>(1..).filter(…).count()</code> のように終わりの無い範囲を直接書いた場合は、Clippy の <code>infinite_iter</code> が検出します。<code>successors</code> のようにクロージャが次の値を決める形は、終わるかどうかを Clippy が判断できないので、警告が出ません。</li>
+      </ol>
     </div>
   </details>
 </main>

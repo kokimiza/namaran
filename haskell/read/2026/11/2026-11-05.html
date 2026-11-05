@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="最大値の位置を探して区間を縮める1段の処理 step を、iterate で繰り返した最初の3つを表示するHaskell READのドリルです。区間を三等分する2点の値を比べ、どちら側を捨てるかを2段ぶん追います。">
-<title>三等分点で区間を縮める</title>
+<meta name="description" content="Maybe を受ける関数の最初の等式に ~ を付けたパターンがあるとき、Nothing を渡すとどの等式が選ばれるかを読む Haskell READ のドリルです。~ を付けたパターンがどんな値とも照合に成功し、後ろの等式に届かなくなることを扱います。">
+<title>~付きのJustで場合分け</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-11-05">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,12 +28,12 @@
       "dateModified": "2026-11-05",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "三等分点で区間を縮める" },
-      "keywords": "ternary-search, unimodal-function, infinite-list, laziness",
+      "about": { "@type": "Thing", "name": "~付きのJustで場合分け" },
+      "keywords": "irrefutable-pattern, pattern-matching, maybe, laziness",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
-      "description": "最大値の位置を探して区間を縮める1段の処理 step を、iterate で繰り返した最初の3つを表示するHaskell READのドリルです。区間を三等分する2点の値を比べ、どちら側を捨てるかを2段ぶん追います。"
+      "description": "Maybe を受ける関数の最初の等式に ~ を付けたパターンがあるとき、Nothing を渡すとどの等式が選ばれるかを読む Haskell READ のドリルです。~ を付けたパターンがどんな値とも照合に成功し、後ろの等式に届かなくなることを扱います。"
     }
   ]
 }
@@ -62,26 +62,20 @@
 </nav>
 
 <main class="drill"
-  data-topic="三等分点で区間を縮める"
-  data-tags="ternary-search unimodal-function infinite-list laziness"
-  data-concepts="三分探索, 単峰関数, 区間を縮める, iterate, 最大値の位置, ternary search, unimodal function, iterate take"
-  data-level="hedgehog"
+  data-topic="~付きのJustで場合分け"
+  data-tags="irrefutable-pattern pattern-matching maybe laziness"
+  data-concepts="反駁不能パターン, 遅延パターン, ~パターン, 等式の照合順序, irrefutable pattern, lazy pattern, pattern matching order"
+  data-level="peacock"
 >
   <h2>2026-11-05</h2>
   <div class="code-frame">
-    <p class="code-filename">Narrow.hs</p>
-    <pre class="code"><code><span class="fn">step</span> <span class="op">::</span> (<span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Int</span>) <span class="op">-&gt;</span> (<span class="ty">Int</span>, <span class="ty">Int</span>) <span class="op">-&gt;</span> (<span class="ty">Int</span>, <span class="ty">Int</span>)
-<span class="fn">step</span> f (lo, hi)
-  | f m1 &lt; f m2 = (m1 + <span class="nu">1</span>, hi)
-  | otherwise = (lo, m2 - <span class="nu">1</span>)
- <span class="kw">where</span>
-  m1 = lo + (hi - lo) `div` <span class="nu">3</span>
-  m2 = hi - (hi - lo) `div` <span class="nu">3</span>
-
-<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
-<span class="fn">main</span> = print (take <span class="nu">3</span> (iterate (step f) (<span class="nu">0</span>, <span class="nu">30</span>)))
- <span class="kw">where</span>
-  f x = negate (abs (x - <span class="nu">20</span>))
+    <p class="code-filename">Describe.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="fn">describe</span> <span class="op">::</span> <span class="ty">Maybe</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">String</span></span>
+<span class="code-line"><span class="fn">describe</span> ~(<span class="ty">Just</span> _) = <span class="st">"some"</span></span>
+<span class="code-line"><span class="fn">describe</span> <span class="ty">Nothing</span> = <span class="st">"none"</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()</span>
+<span class="code-line"><span class="fn">main</span> = mapM_ (putStrLn . describe) [<span class="ty">Just</span> <span class="nu">3</span>, <span class="ty">Nothing</span>]</span>
 </code></pre>
   </div>
 
@@ -94,17 +88,21 @@
     <div class="answer-body">
       <div class="code-frame answer-output" aria-label="実行結果">
         <p class="code-filename">Output</p>
-        <pre class="output"><samp>[(0,30),(11,30),(11,23)]</samp></pre>
+        <pre class="output"><samp>some
+some</samp></pre>
       </div>
       <p>
-        <code>iterate g x</code> は <code>x</code>、<code>g x</code>、<code>g (g x)</code> と続く無限のリストで、先頭は <code>g</code> を1回も適用していない <code>x</code> そのものです。<code>take 3</code> が取り出すのは、初めの区間 <code>(0,30)</code> と、<code>step</code> を1回、2回適用した区間の3つです。リストは遅延評価されるので、4つ目より後ろは計算されません。
+        関数の等式は上から順に試され、引数がパターンに合った最初の等式が使われます。普通の <code>Just _</code> なら、<code>Nothing</code> は合わずに2つ目の等式へ進みます。ところが <code>~</code> を付けた <code>~(Just _)</code> は、その場では照合をしません。中の変数が初めて使われたときに照合する約束だけをして、どんな値にも合ったことにします。
       </p>
       <p>
-        <code>step</code> は区間を三等分する2点 <code>m1</code> と <code>m2</code> で <code>f</code> を比べます。<code>f</code> は 20 で最大になり、そこから離れるほど小さくなる関数です。<code>f m1 &lt; f m2</code> なら、最大の位置は <code>m1</code> より右にあるので左側を捨てて <code>(m1 + 1, hi)</code> に、そうでなければ <code>m2</code> より左にあるので <code>(lo, m2 - 1)</code> に縮めます。1回目は <code>(0,30)</code> の幅が 30 で、<code>div</code> で 3 に割った 10 から <code>m1 = 10</code>、<code>m2 = 20</code> です。<code>f 10</code> は -10、<code>f 20</code> は 0 で、-10 &lt; 0 なので <code>(11,30)</code> になります。
+        そのため <code>describe Nothing</code> も1つ目の等式で受け止められ、<code>"some"</code> になります。<code>_</code> は値を使わないので、あとで照合が行われる機会も無く、失敗も起きません。2つ目の等式 <code>describe Nothing = "none"</code> には、どの引数も届きません。
       </p>
       <p>
-        2回目は幅が 19 で、<code>19 `div` 3</code> は小数点以下を切り捨てた 6 なので、<code>m1 = 17</code>、<code>m2 = 24</code> です。<code>f 17</code> は -3、<code>f 24</code> は -4 で、-3 &lt; -4 は偽なので <code>otherwise</code> の枝に進み、<code>(11,23)</code> になります。最大の位置 20 は、どちらの区間にも残っています。
+        見慣れた <code>Just</code> と <code>Nothing</code> の場合分けとして読むと、2行目は <code>none</code> になります。<code>~</code> が付いたパターンは失敗しないので、それより後ろに書いた等式は使われません。<sup class="fn-ref">1</sup>
       </p>
+      <ol class="footnotes">
+        <li>GHC の <code>-Wall</code> は、届かない2つ目の等式を redundant（冗長）と警告します。1つ目の等式を <code>~(Just n) = "some " ++ show n</code> にすると、<code>Nothing</code> のときは <code>n</code> を使った時点で照合が行われて失敗し、例外になります。</li>
+      </ol>
     </div>
   </details>
 </main>

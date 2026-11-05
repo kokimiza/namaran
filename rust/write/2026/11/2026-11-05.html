@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="予算で商品を先頭から順に買い、買えない商品が出たところで止めたときに何個買えたかを返す関数を書くRust WRITEのドリルです。残金を scan の状態に持ち、checked_sub が None を返したところで連鎖を打ち切ります。">
-<title>買えなくなるまで数える</title>
+<meta name="description" content="u32 の値から一定の幅で引いていき、0を下回る手前で止めた数列を返す Rust WRITE のドリルです。符号なし整数では「0未満になったら止める」と書けないことと、引けなくなったところで終わる繰り返しの書き方を扱います。">
+<title>0で止まるカウントダウン</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-11-05">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,12 +28,12 @@
       "dateModified": "2026-11-05",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "買えなくなるまで数える" },
-      "keywords": "iterator, laziness, checked-arithmetic",
+      "about": { "@type": "Thing", "name": "0で止まるカウントダウン" },
+      "keywords": "loop, integer-overflow, iterator, boundary",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
-      "description": "予算で商品を先頭から順に買い、買えない商品が出たところで止めたときに何個買えたかを返す関数を書くRust WRITEのドリルです。残金を scan の状態に持ち、checked_sub が None を返したところで連鎖を打ち切ります。"
+      "description": "u32 の値から一定の幅で引いていき、0を下回る手前で止めた数列を返す Rust WRITE のドリルです。符号なし整数では「0未満になったら止める」と書けないことと、引けなくなったところで終わる繰り返しの書き方を扱います。"
     }
   ]
 }
@@ -62,41 +62,41 @@
 </nav>
 
 <main class="drill"
-  data-topic="買えなくなるまで数える"
-  data-tags="iterator laziness checked-arithmetic"
-  data-concepts="scan, 状態を持つイテレータ, None で打ち切る, checked_sub, 残金, iterator scan, stateful iterator, early termination"
+  data-topic="0で止まるカウントダウン"
+  data-tags="loop integer-overflow iterator boundary"
+  data-concepts="ループの終了条件, 符号なし整数, checked_sub, std::iter::successors, アンダーフロー, unsigned underflow, loop termination"
   data-level="peacock"
 >
   <h2>2026-11-05</h2>
   <div class="code-frame">
-    <p class="code-filename">affordable.rs</p>
-    <pre class="code"><code><span class="kw">fn</span> <span class="fn">affordable</span>(prices: &amp;[<span class="ty">u32</span>], budget: <span class="ty">u32</span>) -&gt; <span class="ty">usize</span> {
-}
+    <p class="code-filename">countdown.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">countdown</span>(from: <span class="ty">u32</span>, step: <span class="ty">u32</span>) -&gt; <span class="ty">Vec</span>&lt;<span class="ty">u32</span>&gt; {</span>
+<span class="code-line">}</span>
 </code></pre>
   </div>
 
   <p class="question">
-    所持金 <code>budget</code> で、値段の並び <code>prices</code> の商品を先頭から順に1つずつ買っていくとき、何個買えるかを返す <code>affordable</code> を書いてください。残りのお金で買えない商品に出会ったら、そこで買い物をやめます。その後ろにもっと安い商品があっても買いません。<code>prices</code> が空なら 0 です。
+    <code>from</code> から始めて <code>step</code> ずつ減らした値を、0以上のものだけ大きい順に並べて返す <code>countdown</code> を書いてください。<code>step</code> は1以上です。<code>from</code> が0なら <code>[0]</code> を返します。
   </p>
 
   <div class="examples">
     <div class="example">
       <p class="example-label">入力例 1</p>
-      <pre class="io"><code>affordable(&amp;[3, 4, 5, 1], 8)</code></pre>
+      <pre class="io"><code>countdown(10, 3)</code></pre>
       <p class="example-label">出力例 1</p>
-      <pre class="io"><code>2</code></pre>
+      <pre class="io"><code>[10, 7, 4, 1]</code></pre>
     </div>
     <div class="example">
       <p class="example-label">入力例 2</p>
-      <pre class="io"><code>affordable(&amp;[2, 2, 2], 6)</code></pre>
+      <pre class="io"><code>countdown(6, 2)</code></pre>
       <p class="example-label">出力例 2</p>
-      <pre class="io"><code>3</code></pre>
+      <pre class="io"><code>[6, 4, 2, 0]</code></pre>
     </div>
     <div class="example">
       <p class="example-label">入力例 3</p>
-      <pre class="io"><code>affordable(&amp;[9, 1], 8)</code></pre>
+      <pre class="io"><code>countdown(0, 5)</code></pre>
       <p class="example-label">出力例 3</p>
-      <pre class="io"><code>0</code></pre>
+      <pre class="io"><code>[0]</code></pre>
     </div>
   </div>
 
@@ -105,25 +105,16 @@
     <div class="answer-body">
       <div class="code-frame diff-added" aria-label="追加する参考実装">
         <p class="code-filename">Reference</p>
-        <pre class="code"><code><span class="kw">fn</span> <span class="fn">affordable</span>(prices: &amp;[<span class="ty">u32</span>], budget: <span class="ty">u32</span>) -&gt; <span class="ty">usize</span> {
-    prices
-        .<span class="fn">iter</span>()
-        .<span class="fn">scan</span>(budget, |left, &amp;p| {
-            *left = left.<span class="fn">checked_sub</span>(p)?;
-            <span class="fn">Some</span>(())
-        })
-        .<span class="fn">count</span>()
-}
+        <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">countdown</span>(from: <span class="ty">u32</span>, step: <span class="ty">u32</span>) -&gt; <span class="ty">Vec</span>&lt;<span class="ty">u32</span>&gt; {</span>
+<span class="code-line">    std::iter::<span class="fn">successors</span>(<span class="fn">Some</span>(from), |&amp;n| n.<span class="fn">checked_sub</span>(step)).<span class="fn">collect</span>()</span>
+<span class="code-line">}</span>
 </code></pre>
       </div>
       <p>
-        <code>scan</code> は、要素をまたいで持ち越す状態を1つ持ったイテレータを作ります。最初の引数 <code>budget</code> が状態の初期値で、クロージャは状態への可変参照 <code>left</code> と要素を受け取り、<code>Option</code> を返します。<code>Some</code> ならその値を次へ流し、<code>None</code> を返すとイテレータはそこで終わり、後ろの要素はもう取り出しません。
+        符号付き整数なら「引いてから、負になったら止める」と書けますが、<code>u32</code> には負の値がありません。<code>1 - 3</code> のように0を下回る引き算は、デバッグビルドでは panic し、リリースビルドでは大きな正の値に折り返します。<code>while n &gt;= 0</code> と書いても条件は常に真で、終了条件になりません。止めるかどうかは、引く前に「引けるか」で決める必要があります。
       </p>
       <p>
-        クロージャの中では、残金 <code>left</code> から値段を <code>checked_sub</code> で引きます。<code>u32</code> の引き算が 0 を下回るときは <code>None</code> が返り、<code>?</code> がそれをクロージャの戻り値にするので、買えない商品のところで連鎖が止まります。買えたときは <code>Some(())</code> を流し、最後の <code>count</code> がその個数を数えます。入力例 1 では 3 と 4 を買って残金が 1 になり、5 で <code>None</code> になるので、後ろの 1 は見ずに 2 を返します。入力例 2 は残金がちょうど 0 になる場合で、0 になる引き算は <code>Some(0)</code> なので3個目まで数えます。
-      </p>
-      <p>
-        <code>filter</code> で「買える商品だけ」を残すと、5 を飛ばして後ろの 1 も買い、入力例 1 は 3 になります。<code>filter</code> は条件に合わない要素を捨てて次の要素へ進むだけで、イテレータを終わらせることはできません。掲載したのは参考実装で、唯一の正解ではありません。累計を流す <code>scan</code> と、累計が予算以下のあいだだけ続ける <code>take_while</code> をつないでも書けます。
+        <code>checked_sub</code> は、引き算の結果が0以上なら <code>Some</code> に包んで返し、0を下回るなら <code>None</code> を返します。<code>std::iter::successors</code> は最初の値 <code>Some(from)</code> から、直前の値をクロージャに渡して次の値を作り、<code>None</code> が返ったところで終わるイテレータです。入力例1では10、7、4、1と進み、<code>1.checked_sub(3)</code> が <code>None</code> なので1で止まります。入力例2では <code>2 - 2 = 0</code> がまだ引ける値なので0まで並び、入力例3では最初の0から5を引けずに <code>[0]</code> になります。これは参考実装で、唯一の正解ではありません。<code>loop</code> の中で <code>checked_sub</code> の結果を <code>match</code> し、<code>None</code> で <code>break</code> しても同じものが書けます。
       </p>
     </div>
   </details>

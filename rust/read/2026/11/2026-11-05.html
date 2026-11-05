@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="範囲に map と find をつなぎ、各クロージャの中で表示するRust READのドリルです。イテレータの連鎖が段ごとにまとめてではなく1要素ずつ処理され、find が見つけた時点で後ろの要素を取り出さないことを追います。">
-<title>mapとfindが交互に動く</title>
+<meta name="description" content="Vec から pop した値が偶数なら半分にして積み直す while let ループを追う Rust READ のドリルです。pop が末尾から取り出すことと、Vec が空になって None が返ったときにループが終わることを扱います。">
+<title>積み直しながら空にする</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-11-05">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,12 +28,12 @@
       "dateModified": "2026-11-05",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "mapとfindが交互に動く" },
-      "keywords": "iterator, laziness, short-circuit, side-effect",
+      "about": { "@type": "Thing", "name": "積み直しながら空にする" },
+      "keywords": "loop, vector, stack, pattern-matching",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
-      "description": "範囲に map と find をつなぎ、各クロージャの中で表示するRust READのドリルです。イテレータの連鎖が段ごとにまとめてではなく1要素ずつ処理され、find が見つけた時点で後ろの要素を取り出さないことを追います。"
+      "description": "Vec から pop した値が偶数なら半分にして積み直す while let ループを追う Rust READ のドリルです。pop が末尾から取り出すことと、Vec が空になって None が返ったときにループが終わることを扱います。"
     }
   ]
 }
@@ -62,26 +62,25 @@
 </nav>
 
 <main class="drill"
-  data-topic="mapとfindが交互に動く"
-  data-tags="iterator laziness short-circuit side-effect"
-  data-concepts="イテレータアダプタ, 遅延評価, map と find の順序, 1要素ずつ流れる, 途中で止まる, iterator adapter, lazy iterator, short-circuit"
-  data-level="peacock"
+  data-topic="積み直しながら空にする"
+  data-tags="loop vector stack pattern-matching"
+  data-concepts="while let, Vec::pop, ループの終了条件, 後入れ先出し, LIFO, loop termination, Option"
+  data-level="hedgehog"
 >
   <h2>2026-11-05</h2>
   <div class="code-frame">
-    <p class="code-filename">first_even_square.rs</p>
-    <pre class="code"><code><span class="kw">fn</span> <span class="fn">main</span>() {
-    <span class="kw">let</span> first = (<span class="nu">1</span>..=<span class="nu">6</span>)
-        .<span class="fn">map</span>(|x| {
-            <span class="mc">print!</span>(<span class="st">"m{x} "</span>);
-            x * x
-        })
-        .<span class="fn">find</span>(|x| {
-            <span class="mc">print!</span>(<span class="st">"f{x} "</span>);
-            x % <span class="nu">2</span> == <span class="nu">0</span>
-        });
-    <span class="mc">println!</span>(<span class="st">"{first:?}"</span>);
-}
+    <p class="code-filename">halve_stack.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="kw">let</span> <span class="kw">mut</span> v = <span class="mc">vec!</span>[<span class="nu">3</span>, <span class="nu">8</span>];</span>
+<span class="code-line">    <span class="kw">let</span> <span class="kw">mut</span> out = <span class="ty">Vec</span>::<span class="fn">new</span>();</span>
+<span class="code-line">    <span class="kw">while</span> <span class="kw">let</span> <span class="fn">Some</span>(x) = v.<span class="fn">pop</span>() {</span>
+<span class="code-line">        <span class="kw">if</span> x % <span class="nu">2</span> == <span class="nu">0</span> {</span>
+<span class="code-line">            v.<span class="fn">push</span>(x / <span class="nu">2</span>);</span>
+<span class="code-line">        }</span>
+<span class="code-line">        out.<span class="fn">push</span>(x);</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="mc">println!</span>(<span class="st">"{out:?}"</span>);</span>
+<span class="code-line">}</span>
 </code></pre>
   </div>
 
@@ -94,16 +93,16 @@
     <div class="answer-body">
       <div class="code-frame answer-output" aria-label="実行結果">
         <p class="code-filename">Output</p>
-        <pre class="output"><samp>m1 f1 m2 f4 Some(4)</samp></pre>
+        <pre class="output"><samp>[8, 4, 2, 1, 3]</samp></pre>
       </div>
       <p>
-        <code>map</code> は呼んだ時点では何も計算せず、クロージャを抱えた新しいイテレータを返すだけです。値を取り出すのは最後の <code>find</code> で、<code>find</code> が <code>next</code> を呼ぶたびに、<code>map</code> は範囲から1つ受け取ってクロージャを1回だけ通し、その結果を渡します。1つの要素が <code>map</code> と <code>find</code> を通り抜けてから、次の要素が範囲から出てきます。
+        <code>while let Some(x) = v.pop()</code> は、毎回の繰り返しの前に <code>v.pop()</code> を呼び、<code>Some</code> が返る間だけ本体を実行します。<code>pop</code> は <code>Vec</code> の末尾から1つ取り出し、空なら <code>None</code> を返すので、ループは <code>v</code> が空になったところで終わります。本体の中で <code>push</code> した値も末尾に入るので、次の <code>pop</code> で先に取り出されます。
       </p>
       <p>
-        1つ目の要素 1 は <code>map</code> で <code>m1</code> を表示して 1 になり、<code>find</code> が <code>f1</code> を表示します。1 は偶数でないので、<code>find</code> は次を求めます。2 は <code>m2</code> を表示して 4 になり、<code>f4</code> を表示したところで条件を満たします。<code>find</code> はそこで <code>Some(4)</code> を返し、それ以上 <code>next</code> を呼ばないので、3 から 6 は範囲から取り出されず、<code>map</code> のクロージャも通りません。
+        最初の <code>pop</code> は末尾の8を返し、8は偶数なので4を積んでから <code>out</code> に8を足します。このとき <code>v</code> は <code>[3, 4]</code> です。次は4を取り出して2を積み、その次は2を取り出して1を積みます。1は奇数なので何も積まず、<code>v</code> には3だけが残ります。最後に3を取り出すと <code>v</code> は空になり、次の <code>pop</code> が <code>None</code> を返してループを抜けます。
       </p>
       <p>
-        配列の処理のように、<code>map</code> が6つすべてを先に変換してから <code>find</code> が探すと読むと、<code>m1</code> から <code>m6</code> が先に並びます。そう動くのは、途中で <code>collect</code> して <code>Vec</code> を作った場合です。
+        <code>vec![3, 8]</code> を先頭から読む順番だと思うと、3が先に出て <code>[3, 8, 4, 2, 1]</code> になります。積み直した値が先に処理されるのは、取り出す側と積む側がどちらも末尾だからです。半分にし続けた値はいずれ奇数になるので、このループは必ず終わります。
       </p>
     </div>
   </details>

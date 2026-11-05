@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="anytype で受けた配列の合計を返す汎用関数が、u8 の配列で integer overflow の panic を起こすZig DEBUGのドリルです。和を入れる変数の型が要素の型 u8 になっていることを見抜き、和の型を comptime T: type で受け取るように直します。">
-<title>要素の型で足す合計</title>
+<meta name="description" content="棚の在庫を1つの棚へ集めるメソッドを、その棚自身も含むループで呼んだために在庫が消える Zig DEBUG のドリルです。メソッド呼び出しで self と引数が同じ構造体を指しうることと、加算と0クリアの順序の組み合わせを扱います。">
+<title>先頭の棚に集める在庫</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/zig/debug/2026-11-05">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,12 +28,12 @@
       "dateModified": "2026-11-05",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "要素の型で足す合計" },
-      "keywords": "integer-overflow, generic-programming, comptime, type-deduction, panic",
+      "about": { "@type": "Thing", "name": "先頭の棚に集める在庫" },
+      "keywords": "struct, pointer, aliasing, loop",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
-      "description": "anytype で受けた配列の合計を返す汎用関数が、u8 の配列で integer overflow の panic を起こすZig DEBUGのドリルです。和を入れる変数の型が要素の型 u8 になっていることを見抜き、和の型を comptime T: type で受け取るように直します。"
+      "description": "棚の在庫を1つの棚へ集めるメソッドを、その棚自身も含むループで呼んだために在庫が消える Zig DEBUG のドリルです。メソッド呼び出しで self と引数が同じ構造体を指しうることと、加算と0クリアの順序の組み合わせを扱います。"
     }
   ]
 }
@@ -62,68 +62,67 @@
 </nav>
 
 <main class="drill"
-  data-topic="要素の型で足す合計"
-  data-tags="integer-overflow generic-programming comptime type-deduction panic"
-  data-concepts="anytype, comptime T: type, 汎用関数, 整数のオーバーフロー, 和の型, @TypeOf, integer overflow, generic sum, accumulator type"
+  data-topic="先頭の棚に集める在庫"
+  data-tags="struct pointer aliasing loop"
+  data-concepts="構造体のメソッド, selfと引数のエイリアシング, 同じ構造体を指す2つのポインタ, 代入の順序, struct method, pointer aliasing, self-assignment"
   data-level="bison"
 >
   <h2>2026-11-05</h2>
   <div class="code-frame">
-    <p class="code-filename">total.zig</p>
-    <pre class="code"><code><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);
-
-<span class="kw">fn</span> <span class="fn">sum</span>(xs: <span class="kw">anytype</span>) <span class="mc">@TypeOf</span>(xs[<span class="nu">0</span>]) {
-    <span class="kw">var</span> total: <span class="mc">@TypeOf</span>(xs[<span class="nu">0</span>]) = <span class="nu">0</span>;
-    <span class="kw">for</span> (xs) |x| total += x;
-    <span class="kw">return</span> total;
-}
-
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {
-    <span class="kw">var</span> buf: [<span class="nu">64</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;
-    <span class="kw">var</span> stdout_writer = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;buf);
-    <span class="kw">const</span> stdout = &amp;stdout_writer.interface;
-    <span class="kw">const</span> data = [_]<span class="ty">u8</span>{ <span class="nu">200</span>, <span class="nu">100</span> };
-    <span class="kw">try</span> stdout.<span class="fn">print</span>(<span class="st">"{d}\n"</span>, .{<span class="fn">sum</span>(data)});
-    <span class="kw">try</span> stdout.<span class="fn">flush</span>();
-}
+    <p class="code-filename">shelves.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">const</span> <span class="ty">Shelf</span> = <span class="kw">struct</span> {</span>
+<span class="code-line">    stock: <span class="ty">u32</span>,</span>
+<span class="code-line">    <span class="kw">fn</span> <span class="fn">absorb</span>(self: *<span class="ty">Shelf</span>, other: *<span class="ty">Shelf</span>) <span class="ty">void</span> {</span>
+<span class="code-line">        self.stock += other.stock;</span>
+<span class="code-line">        other.stock = <span class="nu">0</span>;</span>
+<span class="code-line">    }</span>
+<span class="code-line">};</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {</span>
+<span class="code-line">    <span class="kw">var</span> out: [<span class="nu">64</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line">    <span class="kw">var</span> w = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;out);</span>
+<span class="code-line">    <span class="kw">var</span> shelves = [_]<span class="ty">Shelf</span>{ .{ .stock = <span class="nu">3</span> }, .{ .stock = <span class="nu">4</span> }, .{ .stock = <span class="nu">5</span> } };</span>
+<span class="code-line">    <span class="kw">for</span> (&amp;shelves) |*s| shelves[<span class="nu">0</span>].<span class="fn">absorb</span>(s);</span>
+<span class="code-line">    <span class="kw">try</span> w.interface.<span class="fn">print</span>(<span class="st">"{d}\n"</span>, .{shelves[<span class="nu">0</span>].stock});</span>
+<span class="code-line">    <span class="kw">try</span> w.interface.<span class="fn">flush</span>();</span>
+<span class="code-line">}</span>
 </code></pre>
   </div>
 
   <p class="question">
-    整数の配列やスライスを受け取り、要素の和を返す汎用の <code>sum</code> です。<code>[_]u8{ 200, 100 }</code> を渡すと、いまは何も表示されずに <code>panic: integer overflow</code> で止まります。本来は <code>300</code> と表示されるはずです。
+    3つの棚の在庫をすべて先頭の棚に集め、先頭の棚の在庫を表示するつもりのプログラムです。在庫は3個、4個、5個なので、本来は <code>12</code> と表示されるはずが、いまは <code>9</code> と表示されます。
   </p>
 
   <details class="answer">
     <summary>Answer</summary>
     <div class="answer-body">
       <h3 class="wrong">Wrong</h3>
-      <pre class="code"><code><span class="kw">fn</span> <span class="fn">sum</span>(xs: <span class="kw">anytype</span>) <span class="mc">@TypeOf</span>(xs[<span class="nu">0</span>]) {
-    <span class="kw">var</span> total: <span class="mc">@TypeOf</span>(xs[<span class="nu">0</span>]) = <span class="nu">0</span>;
-    <span class="kw">for</span> (xs) |x| total += x;
-    <span class="kw">return</span> total;
-}
+      <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">absorb</span>(self: *<span class="ty">Shelf</span>, other: *<span class="ty">Shelf</span>) <span class="ty">void</span> {</span>
+<span class="code-line">    self.stock += other.stock;</span>
+<span class="code-line">    other.stock = <span class="nu">0</span>;</span>
+<span class="code-line">}</span>
 </code></pre>
       <p>
-        <code>anytype</code> の引数は、渡された値の型をそのまま受け取ります。<code>data</code> は <code>[2]u8</code> なので <code>xs[0]</code> は <code>u8</code> で、戻り値の型も和を入れる <code>total</code> の型も、<code>@TypeOf(xs[0])</code> と書いたとおり <code>u8</code> に決まります。<code>u8</code> に入るのは 255 までで、1回目の足し算で <code>total</code> が 200 になったあと、2回目の <code>200 + 100</code> は 300 になって収まりません。
+        <code>shelves[0].absorb(s)</code> は <code>Shelf.absorb(&amp;shelves[0], s)</code> と同じ呼び出しで、<code>self</code> には先頭の棚のアドレスが入ります。ループは <code>&amp;shelves</code> の全要素を回るので、1回目の <code>s</code> も先頭の棚 <code>&amp;shelves[0]</code> です。このとき <code>self</code> と <code>other</code> は同じ棚を指します。
       </p>
       <p>
-        Zig の整数の <code>+</code> は、C の符号なし整数のように 256 で割った余りへ折り返しません。結果が型に収まらないことは illegal behavior で、安全検査のある Debug ビルドでは、その場で <code>integer overflow</code> の panic になります。そのため <code>print</code> まで進まず、何も表示されません。
+        1回目では、まず <code>self.stock += other.stock</code> で在庫が3 + 3 = 6になり、続く <code>other.stock = 0</code> が同じ棚を0にします。先頭の棚にあった3個はここで消えます。2回目と3回目は別の棚なので、4と5が正しく移って 0 + 4 + 5 = 9が表示されます。<code>other</code> を空にする処理も足す処理も、別々の棚なら正しく、同じ棚を指したときだけ順序が結果を壊します。
       </p>
       <h3 class="right">Right</h3>
-      <pre class="code"><code><span class="kw">fn</span> <span class="fn">sum</span>(<span class="kw">comptime</span> <span class="ty">T</span>: <span class="ty">type</span>, xs: <span class="kw">anytype</span>) <span class="ty">T</span> {
-    <span class="kw">var</span> total: <span class="ty">T</span> = <span class="nu">0</span>;
-    <span class="kw">for</span> (xs) |x| total += x;
-    <span class="kw">return</span> total;
-}
-
-    <span class="kw">try</span> stdout.<span class="fn">print</span>(<span class="st">"{d}\n"</span>, .{<span class="fn">sum</span>(<span class="ty">u32</span>, data)});
+      <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">absorb</span>(self: *<span class="ty">Shelf</span>, other: *<span class="ty">Shelf</span>) <span class="ty">void</span> {</span>
+<span class="code-line">    <span class="kw">const</span> moved = other.stock;</span>
+<span class="code-line">    other.stock = <span class="nu">0</span>;</span>
+<span class="code-line">    self.stock += moved;</span>
+<span class="code-line">}</span>
 </code></pre>
       <p>
-        和の型を <code>comptime T: type</code> で受け取り、<code>total</code> と戻り値をその型にします。<code>u8</code> の要素 <code>x</code> は、より広い <code>u32</code> の <code>total</code> へ足すときに暗黙に <code>u32</code> へ変換されるので、2回目の足し算は <code>u32</code> で行われて 300 が収まります。要素の側は <code>anytype</code> のままなので、配列でもスライスでも、<code>for</code> で回せるものなら渡せます。
+        移す量を先に <code>moved</code> に取り出し、<code>other</code> を空にしてから <code>self</code> に足します。別々の棚なら結果は前と変わりません。同じ棚なら、3を取り出して0にし、そこへ3を足し戻すので、在庫は3のまま残ります。2回目と3回目で4と5が足されて12になります。呼び出し側が自分自身を渡しても壊れないので、ループから先頭の棚を除く必要もありません。<sup class="fn-ref">1</sup>
       </p>
-      <p>
-        <code>total</code> の型を <code>u64</code> のような1つの型に固定しても、この呼び出しは直ります。ただし <code>[_]i32{ -5, 3 }</code> のような符号付きの配列では、<code>i32</code> の要素を <code>u64</code> に暗黙には変換できず、コンパイルが通らなくなります。どの型で足せばあふれないかは、要素の型からは決まらず、値の範囲を知っている呼び出し側にしか分かりません。そこで和の型だけは、呼び出し側が引数で指定します。
-      </p>
+      <ol class="footnotes">
+        <li>関数の先頭で <code>if (self == other) return;</code> と、同じ棚なら何もしないようにしても直ります。Zig のポインタは <code>==</code> でアドレスを比べられます。</li>
+      </ol>
     </div>
   </details>
 </main>

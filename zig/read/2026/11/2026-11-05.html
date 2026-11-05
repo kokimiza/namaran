@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="comptime T: type を受け取る汎用関数が、渡された型ごとに別の関数として作られることを読むZig READのドリルです。関数の中で宣言した struct の変数 last が、u8 と u16 の呼び出しでそれぞれどう数えられるかを追います。">
-<title>型ごとに作られる関数</title>
+<meta name="description" content="構造体の中に var で置いたバッファへラベルを書き、返したスライスを2つ並べて表示する Zig READ のドリルです。構造体の中の var がインスタンスごとではなく1つだけあることと、スライスが作ったときの長さのまま同じバッファを指すことを扱います。">
+<title>2つのラベルと1つの配列</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/zig/read/2026-11-05">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,12 +28,12 @@
       "dateModified": "2026-11-05",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "型ごとに作られる関数" },
-      "keywords": "comptime, generic-programming, static-storage",
+      "about": { "@type": "Thing", "name": "2つのラベルと1つの配列" },
+      "keywords": "struct, static-storage, slice, namespace",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
-      "description": "comptime T: type を受け取る汎用関数が、渡された型ごとに別の関数として作られることを読むZig READのドリルです。関数の中で宣言した struct の変数 last が、u8 と u16 の呼び出しでそれぞれどう数えられるかを追います。"
+      "description": "構造体の中に var で置いたバッファへラベルを書き、返したスライスを2つ並べて表示する Zig READ のドリルです。構造体の中の var がインスタンスごとではなく1つだけあることと、スライスが作ったときの長さのまま同じバッファを指すことを扱います。"
     }
   ]
 }
@@ -62,31 +62,32 @@
 </nav>
 
 <main class="drill"
-  data-topic="型ごとに作られる関数"
-  data-tags="comptime generic-programming static-storage"
-  data-concepts="comptime T: type, 汎用関数, 関数の実体化, 関数の中のstruct, コンテナ変数, generic function, monomorphization, static local variable"
-  data-level="peacock"
+  data-topic="2つのラベルと1つの配列"
+  data-tags="struct static-storage slice namespace"
+  data-concepts="構造体のメソッド, 名前空間としての構造体, コンテナレベルの変数, スライスの長さ, std.mem.print, container-level variable, struct method, slice aliasing"
+  data-level="bison"
 >
   <h2>2026-11-05</h2>
   <div class="code-frame">
-    <p class="code-filename">next_id.zig</p>
-    <pre class="code"><code><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);
-
-<span class="kw">fn</span> <span class="fn">nextId</span>(<span class="kw">comptime</span> <span class="ty">T</span>: <span class="ty">type</span>) <span class="ty">T</span> {
-    <span class="kw">const</span> <span class="ty">S</span> = <span class="kw">struct</span> {
-        <span class="kw">var</span> last: <span class="ty">T</span> = <span class="nu">0</span>;
-    };
-    <span class="ty">S</span>.last += <span class="nu">1</span>;
-    <span class="kw">return</span> <span class="ty">S</span>.last;
-}
-
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {
-    <span class="kw">var</span> buf: [<span class="nu">64</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;
-    <span class="kw">var</span> stdout_writer = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;buf);
-    <span class="kw">const</span> stdout = &amp;stdout_writer.interface;
-    <span class="kw">try</span> stdout.<span class="fn">print</span>(<span class="st">"{d} {d} {d} {d}\n"</span>, .{ <span class="fn">nextId</span>(<span class="ty">u8</span>), <span class="fn">nextId</span>(<span class="ty">u8</span>), <span class="fn">nextId</span>(<span class="ty">u16</span>), <span class="fn">nextId</span>(<span class="ty">u8</span>) });
-    <span class="kw">try</span> stdout.<span class="fn">flush</span>();
-}
+    <p class="code-filename">labels.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">const</span> <span class="ty">Item</span> = <span class="kw">struct</span> {</span>
+<span class="code-line">    id: <span class="ty">u32</span>,</span>
+<span class="code-line">    <span class="kw">var</span> buf: [<span class="nu">16</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line">    <span class="kw">fn</span> <span class="fn">label</span>(self: <span class="ty">Item</span>) ![]<span class="kw">const</span> <span class="ty">u8</span> {</span>
+<span class="code-line">        <span class="kw">return</span> std.mem.<span class="fn">print</span>(&amp;buf, <span class="st">"item-{d}"</span>, .{self.id});</span>
+<span class="code-line">    }</span>
+<span class="code-line">};</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {</span>
+<span class="code-line">    <span class="kw">var</span> out: [<span class="nu">64</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line">    <span class="kw">var</span> w = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;out);</span>
+<span class="code-line">    <span class="kw">const</span> a = <span class="kw">try</span> <span class="ty">Item</span>.<span class="fn">label</span>(.{ .id = <span class="nu">7</span> });</span>
+<span class="code-line">    <span class="kw">const</span> b = <span class="kw">try</span> <span class="ty">Item</span>.<span class="fn">label</span>(.{ .id = <span class="nu">12</span> });</span>
+<span class="code-line">    <span class="kw">try</span> w.interface.<span class="fn">print</span>(<span class="st">"{s} {s}\n"</span>, .{ a, b });</span>
+<span class="code-line">    <span class="kw">try</span> w.interface.<span class="fn">flush</span>();</span>
+<span class="code-line">}</span>
 </code></pre>
   </div>
 
@@ -99,16 +100,16 @@
     <div class="answer-body">
       <div class="code-frame answer-output" aria-label="実行結果">
         <p class="code-filename">Output</p>
-        <pre class="output"><samp>1 2 1 3</samp></pre>
+        <pre class="output"><samp>item-1 item-12</samp></pre>
       </div>
       <p>
-        <code>comptime T: type</code> を受け取る関数は、呼び出しで渡された型ごとに、別の関数として作られます。<code>nextId(u8)</code> と <code>nextId(u16)</code> は名前が同じでも中身は別々の関数で、同じ <code>u8</code> でもう一度呼ぶと、前に作った <code>u8</code> 用の関数がそのまま使われます。関数の中で宣言した <code>struct</code> も、この関数ごとに1つずつ別の型になります。その中の <code>var last</code> は関数の局所変数ではなく、struct に属するコンテナの変数(container-level variable)なので、プログラムの開始から終わりまで1つだけ存在し、呼び出しをまたいで値が残ります。
+        <code>Item</code> の中の <code>id: u32,</code> はフィールドで、値ごとに1つずつあります。<code>var buf: [16]u8 = undefined;</code> はフィールドではなく、<code>Item</code> という名前空間に置いた変数（container-level variable）です。値をいくつ作っても <code>buf</code> はプログラム全体で1つしかなく、<code>label</code> は呼ばれるたびに同じ <code>buf</code> の先頭から書きます。<code>Item</code> 型の値 <code>x</code> があれば、<code>Item.label(x)</code> と <code>x.label()</code> は同じ呼び出しです。メソッドは、名前空間にある関数を値から呼べるようにしたものにすぎません。
       </p>
       <p>
-        タプルの要素は左から順に評価されます。1つ目の <code>nextId(u8)</code> は <code>u8</code> 用の <code>last</code> を 0 から 1 にして 1 を返し、2つ目は同じ <code>last</code> を 2 にします。3つ目の <code>nextId(u16)</code> が使うのは <code>u16</code> 用の関数の <code>last</code> で、<code>u8</code> 用とは別の変数なので、0 から数えて 1 です。4つ目でまた <code>u8</code> 用に戻り、2 の続きの 3 を返します。
+        <code>std.mem.print</code> は文字列をコピーして返すのではなく、書いた範囲を指す <code>buf</code> のスライスを返します。スライスは先頭の位置と長さの組なので、<code>a</code> は <code>buf</code> の先頭から6バイトを指します。この時点の中身は <code>item-7</code> です。続く <code>label</code> が同じ <code>buf</code> の先頭に <code>item-12</code> を書くと、<code>b</code> は先頭から7バイトを指します。<code>a</code> の長さは6のままなので、上書きされた <code>buf</code> の先頭6バイト <code>item-1</code> を見ることになります。
       </p>
       <p>
-        <code>last</code> がプログラム全体で1つだと読むと、<code>1 2 3 4</code> になります。<code>struct</code> が呼ぶたびに作り直されると読むと、<code>1 1 1 1</code> です。型は実行時ではなくコンパイル時に作られ、同じ引数で作った型は同じものになります。標準ライブラリの <code>std.ArrayList(u8)</code> を2か所で書いても同じ型として扱えるのは、この規則があるからです。
+        <code>buf</code> を値ごとにあるものと読むと <code>item-7 item-12</code> になり、2つのスライスが同じ場所を指すことに気付いても、長さまで新しい文字列に合わせて変わると考えると <code>item-12 item-12</code> になります。
       </p>
     </div>
   </details>

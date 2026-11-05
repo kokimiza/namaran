@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="行末の改行を strcspn で取り除いてから strlen で長さを数えるC READのドリルです。CRLF で終わる行、LF で終わる行、改行の無い行が、それぞれ何文字と数えられるかを追います。">
-<title>改行を落とした行の長さ</title>
+<meta name="description" content="2個か3個だけ取れる石取りゲームのGrundy数を、mex（現れない最小の非負整数）で順に求めて並べるC READのドリルです。石が1個残っていても取れる手が無い局面に気付けるかを問います。">
+<title>1個は取れない石取り</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-11-05">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,12 +28,12 @@
       "dateModified": "2026-11-05",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "改行を落とした行の長さ" },
-      "keywords": "line-ending, string, null-terminated-string",
+      "about": { "@type": "Thing", "name": "1個は取れない石取り" },
+      "keywords": "grundy-number, dynamic-programming, boundary",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
-      "description": "行末の改行を strcspn で取り除いてから strlen で長さを数えるC READのドリルです。CRLF で終わる行、LF で終わる行、改行の無い行が、それぞれ何文字と数えられるかを追います。"
+      "description": "2個か3個だけ取れる石取りゲームのGrundy数を、mex（現れない最小の非負整数）で順に求めて並べるC READのドリルです。石が1個残っていても取れる手が無い局面に気付けるかを問います。"
     }
   ]
 }
@@ -62,24 +62,30 @@
 </nav>
 
 <main class="drill"
-  data-topic="改行を落とした行の長さ"
-  data-tags="line-ending string null-terminated-string"
-  data-concepts="改行コード, CRLF, LF, strcspn, 行末の改行を取り除く, 復帰文字, carriage return, strip newline"
-  data-level="hedgehog"
+  data-topic="1個は取れない石取り"
+  data-tags="grundy-number dynamic-programming boundary"
+  data-concepts="Grundy数, mex, 石取りゲーム, 取れる手が無い局面, Grundy number, subtraction game, terminal position"
+  data-level="peacock"
 >
   <h2>2026-11-05</h2>
   <div class="code-frame">
-    <p class="code-filename">line_length.c</p>
-    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
-<span class="pp">#include</span> <span class="st">&lt;string.h&gt;</span>
-
-<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
-    <span class="ty">char</span> lines[][<span class="nu">8</span>] = {<span class="st">"ab\r\n"</span>, <span class="st">"cd\n"</span>, <span class="st">"ef"</span>};
-    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; <span class="nu">3</span>; i++) {
-        lines[i][<span class="fn">strcspn</span>(lines[i], <span class="st">"\n"</span>)] = <span class="st">'\0'</span>;
-        <span class="fn">printf</span>(<span class="st">"%zu\n"</span>, <span class="fn">strlen</span>(lines[i]));
-    }
-}
+    <p class="code-filename">grundy_table.c</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {</span>
+<span class="code-line">    <span class="ty">int</span> g[<span class="nu">10</span>] = {<span class="nu">0</span>};</span>
+<span class="code-line">    <span class="kw">for</span> (<span class="ty">int</span> n = <span class="nu">0</span>; n &lt; <span class="nu">10</span>; n++) {</span>
+<span class="code-line">        <span class="ty">int</span> seen[<span class="nu">3</span>] = {<span class="nu">0</span>};</span>
+<span class="code-line">        <span class="kw">for</span> (<span class="ty">int</span> m = <span class="nu">2</span>; m &lt;= <span class="nu">3</span> &amp;&amp; m &lt;= n; m++) {</span>
+<span class="code-line">            seen[g[n - m]] = <span class="nu">1</span>;</span>
+<span class="code-line">        }</span>
+<span class="code-line">        <span class="kw">while</span> (seen[g[n]]) {</span>
+<span class="code-line">            g[n]++;</span>
+<span class="code-line">        }</span>
+<span class="code-line">        <span class="fn">printf</span>(<span class="st">"%d"</span>, g[n]);</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="fn">printf</span>(<span class="st">"\n"</span>);</span>
+<span class="code-line">}</span>
 </code></pre>
   </div>
 
@@ -92,19 +98,23 @@
     <div class="answer-body">
       <div class="code-frame answer-output" aria-label="実行結果">
         <p class="code-filename">Output</p>
-        <pre class="output"><samp>3
-2
-2</samp></pre>
+        <pre class="output"><samp>0011200112</samp></pre>
       </div>
       <p>
-        <code>strcspn(s, "\n")</code> は、<code>s</code> の先頭から数えて、2つ目の引数に含まれる文字が最初に現れる位置を返します。探す文字は <code>'\n'</code> の1つだけで、<code>'\r'</code> はほかの文字と同じ扱いです。返った位置に <code>'\0'</code> を書くと、文字列はその <code>'\n'</code> の手前で終わります。
+        内側の <code>for</code> は、石が <code>n</code> 個の山から2個か3個を取ったあとの局面 <code>n - m</code> を調べ、その値 <code>g[n - m]</code> に印を付けます。続く <code>while</code> は <code>g[n]</code> を0から1ずつ増やし、印の無い最初の値で止まります。<code>g[n]</code> は、1手で移れる局面の値に現れない最小の非負整数です。これは「2個か3個取る」石取りゲームのGrundy数<sup class="fn-ref">1</sup>で、0の局面は手番の人が負けます。
       </p>
       <p>
-        1行目の <code>"ab\r\n"</code> では、<code>'\n'</code> は先頭から4文字目にあり、<code>strcspn</code> は 3 を返します。そこを <code>'\0'</code> にすると残るのは <code>"ab\r"</code> で、<code>strlen</code> は <code>'\r'</code> も1文字に数えて 3 です。2行目の <code>"cd\n"</code> は <code>'\n'</code> だけが落ちて 2 になります。3行目の <code>"ef"</code> には <code>'\n'</code> が無いので、<code>strcspn</code> は文字列の長さ 2 を返し、もともと <code>'\0'</code> がある場所に <code>'\0'</code> を書き直すだけです。
+        ループの条件 <code>m &lt;= n</code> により、石が2個未満の山では内側のループが一度も回りません。<code>n = 0</code> だけでなく <code>n = 1</code> も、印が1つも無いまま <code>g[1] = 0</code> になります。石が1個残っていても、1個は取れないので打てる手がありません。
       </p>
       <p>
-        Windows で作ったテキストの行は <code>"\r\n"</code> の2文字で終わります。<code>'\n'</code> だけを探して落とすと、1行目のように <code>'\r'</code> が行末に残り、見た目は <code>ab</code> でも長さは 3 になります。<code>'\r'</code> も落とすなら、2つ目の引数を <code>"\r\n"</code> にします。
+        あとは順に埋まります。<code>g[2]</code> は <code>g[0] = 0</code> だけを見て1、<code>g[3]</code> は <code>g[1]</code> と <code>g[0]</code> がどちらも0なので1です。<code>g[4]</code> は <code>g[2] = 1</code> と <code>g[1] = 0</code> を見て2、<code>g[5]</code> は <code>g[3]</code> と <code>g[2]</code> がどちらも1なので0、<code>g[6]</code> は2と1を見て0になります。<code>g[5]</code> と <code>g[6]</code> が <code>g[0]</code> と <code>g[1]</code> と同じ0なので、ここから先は5個ごとに <code>0 0 1 1 2</code> を繰り返します。
       </p>
+      <p>
+        見慣れた「1〜<var>k</var> 個を取れる」ゲームでは値が <code>n % (k + 1)</code> になり、0は <var>k</var> + 1 個ごとに1回しか現れません。その形に引きずられて <code>g[1] = 1</code> から始めると、<code>g[2]</code> 以降もすべてずれます。1個を取れないこのゲームでは、5個ごとに0が2つ続きます。
+      </p>
+      <ol class="footnotes">
+        <li>Grundy数（グランディ数、Grundy number）は、手が無い局面を0とし、それ以外の局面では1手で移れる局面のGrundy数に現れない最小の非負整数とする値です。0の局面からはどう打っても0でない局面に移り、0でない局面からは0の局面に移る手があるので、0かどうかで手番の人の勝ち負けが決まります。</li>
+      </ol>
     </div>
   </details>
 </main>

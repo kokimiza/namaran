@@ -97,7 +97,6 @@
   <url><loc>https://namaran.jocarium.productions/tag/display-width</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/division</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/double-free</loc></url>
-  <url><loc>https://namaran.jocarium.productions/tag/doubling</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/drop-scope</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/durability</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/dyn-compatibility</loc></url>
@@ -139,6 +138,7 @@
   <url><loc>https://namaran.jocarium.productions/tag/gray-code</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/greatest-common-divisor</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/greedy-algorithm</loc></url>
+  <url><loc>https://namaran.jocarium.productions/tag/grundy-number</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/guard</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/half-open-interval</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/hash-function</loc></url>
@@ -167,6 +167,7 @@
   <url><loc>https://namaran.jocarium.productions/tag/invariant</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/io</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/ioref</loc></url>
+  <url><loc>https://namaran.jocarium.productions/tag/irrefutable-pattern</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/iterator-invalidation</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/iterator</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/keyset-pagination</loc></url>
@@ -345,7 +346,6 @@
   <url><loc>https://namaran.jocarium.productions/tag/trampoline</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/tree</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/tuple</loc></url>
-  <url><loc>https://namaran.jocarium.productions/tag/two-pointer-technique</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/twos-complement</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/tying-the-knot</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/type-conversion</loc></url>
