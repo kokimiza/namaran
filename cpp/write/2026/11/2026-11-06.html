@@ -106,20 +106,20 @@
       <div class="code-frame diff-added" aria-label="追加する参考実装">
         <p class="code-filename">Reference</p>
         <pre class="code"><code><span class="code-line"><span class="ty">int</span> <span class="fn">edit_distance</span>(std::<span class="ty">string_view</span> a, std::<span class="ty">string_view</span> b) {</span>
-<span class="code-line">    std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt; <span class="fn">row</span>(b.<span class="fn">size</span>() + <span class="nu">1</span>);</span>
-<span class="code-line">    <span class="kw">for</span> (std::<span class="ty">size_t</span> j = <span class="nu">0</span>; j &lt;= b.<span class="fn">size</span>(); ++j) {</span>
-<span class="code-line">        row[j] = j;</span>
-<span class="code-line">    }</span>
-<span class="code-line">    <span class="kw">for</span> (std::<span class="ty">size_t</span> i = <span class="nu">1</span>; i &lt;= a.<span class="fn">size</span>(); ++i) {</span>
-<span class="code-line">        <span class="ty">int</span> diag = row[<span class="nu">0</span>];</span>
-<span class="code-line">        row[<span class="nu">0</span>] = i;</span>
-<span class="code-line">        <span class="kw">for</span> (std::<span class="ty">size_t</span> j = <span class="nu">1</span>; j &lt;= b.<span class="fn">size</span>(); ++j) {</span>
-<span class="code-line">            <span class="ty">int</span> up = row[j];</span>
-<span class="code-line">            row[j] = std::<span class="fn">min</span>({up + <span class="nu">1</span>, row[j - <span class="nu">1</span>] + <span class="nu">1</span>, diag + (a[i - <span class="nu">1</span>] != b[j - <span class="nu">1</span>])});</span>
-<span class="code-line">            diag = up;</span>
-<span class="code-line">        }</span>
-<span class="code-line">    }</span>
-<span class="code-line">    <span class="kw">return</span> row[b.<span class="fn">size</span>()];</span>
+<span class="code-line ins">    std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt; <span class="fn">row</span>(b.<span class="fn">size</span>() + <span class="nu">1</span>);</span>
+<span class="code-line ins">    <span class="kw">for</span> (std::<span class="ty">size_t</span> j = <span class="nu">0</span>; j &lt;= b.<span class="fn">size</span>(); ++j) {</span>
+<span class="code-line ins">        row[j] = j;</span>
+<span class="code-line ins">    }</span>
+<span class="code-line ins">    <span class="kw">for</span> (std::<span class="ty">size_t</span> i = <span class="nu">1</span>; i &lt;= a.<span class="fn">size</span>(); ++i) {</span>
+<span class="code-line ins">        <span class="ty">int</span> diag = row[<span class="nu">0</span>];</span>
+<span class="code-line ins">        row[<span class="nu">0</span>] = i;</span>
+<span class="code-line ins">        <span class="kw">for</span> (std::<span class="ty">size_t</span> j = <span class="nu">1</span>; j &lt;= b.<span class="fn">size</span>(); ++j) {</span>
+<span class="code-line ins">            <span class="ty">int</span> up = row[j];</span>
+<span class="code-line ins">            row[j] = std::<span class="fn">min</span>({up + <span class="nu">1</span>, row[j - <span class="nu">1</span>] + <span class="nu">1</span>, diag + (a[i - <span class="nu">1</span>] != b[j - <span class="nu">1</span>])});</span>
+<span class="code-line ins">            diag = up;</span>
+<span class="code-line ins">        }</span>
+<span class="code-line ins">    }</span>
+<span class="code-line ins">    <span class="kw">return</span> row[b.<span class="fn">size</span>()];</span>
 <span class="code-line">}</span>
 </code></pre>
       </div>

@@ -97,9 +97,9 @@
     <summary>Answer</summary>
     <div class="answer-body">
       <h3 class="wrong">Wrong</h3>
-      <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">pair</span>(x: <span class="ty">u8</span>) []<span class="kw">const</span> <span class="ty">u8</span> {</span>
+      <pre class="code"><code><span class="code-line del"><span class="kw">fn</span> <span class="fn">pair</span>(x: <span class="ty">u8</span>) []<span class="chg"><span class="kw">const</span></span> <span class="ty">u8</span> {</span>
 <span class="code-line">    <span class="kw">const</span> arr = [<span class="nu">2</span>]<span class="ty">u8</span>{ x, x + <span class="nu">1</span> };</span>
-<span class="code-line">    <span class="kw">return</span> &amp;arr;</span>
+<span class="code-line del">    <span class="kw">return</span> <span class="chg">&amp;</span>arr;</span>
 <span class="code-line">}</span>
 </code></pre>
       <p>
@@ -109,9 +109,9 @@
         続く <code>pair(7)</code> は同じ場所を自分の <code>arr</code> に使い、そこへ <code>7</code> と <code>8</code> を書き込みます。<code>a</code> と <code>b</code> は同じ場所を指しているので、Debug ビルドでは両方から <code>7 8</code> が読めます。寿命の終わった場所を読むのは illegal behavior で、安全検査でも見つからないので、ビルドの設定によって読める値が変わります。
       </p>
       <h3 class="right">Right</h3>
-      <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">pair</span>(x: <span class="ty">u8</span>) [<span class="nu">2</span>]<span class="ty">u8</span> {</span>
+      <pre class="code"><code><span class="code-line ins"><span class="kw">fn</span> <span class="fn">pair</span>(x: <span class="ty">u8</span>) [<span class="chg"><span class="nu">2</span></span>]<span class="ty">u8</span> {</span>
 <span class="code-line">    <span class="kw">const</span> arr = [<span class="nu">2</span>]<span class="ty">u8</span>{ x, x + <span class="nu">1</span> };</span>
-<span class="code-line">    <span class="kw">return</span> arr;</span>
+<span class="code-line ins">    <span class="kw">return</span> arr;</span>
 <span class="code-line">}</span>
 </code></pre>
       <p>

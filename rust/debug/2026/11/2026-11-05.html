@@ -88,7 +88,7 @@
     <summary>Answer</summary>
     <div class="answer-body">
       <h3 class="wrong">Wrong</h3>
-      <pre class="code"><code><span class="code-line">std::iter::<span class="fn">successors</span>(<span class="fn">Some</span>(<span class="nu">1</span>), |&amp;p| <span class="fn">Some</span>(p * <span class="nu">2</span>)).<span class="fn">filter</span>(|&amp;p| p &lt; limit).<span class="fn">count</span>()</span>
+      <pre class="code"><code><span class="code-line del">std::iter::<span class="fn">successors</span>(<span class="fn">Some</span>(<span class="nu">1</span>), |&amp;p| <span class="fn">Some</span>(p * <span class="nu">2</span>))<span class="chg">.<span class="fn">filter</span>(|&amp;p| p &lt; limit).<span class="fn">count</span>()</span></span>
 </code></pre>
       <p>
         <code>successors</code> のクロージャは常に <code>Some</code> を返すので、このイテレータは終わりません。<code>filter</code> は条件に合わない値を捨てるだけで、条件が偽になっても止まりません。64を捨てたあとも128、256と次の値を求め続け、<code>count</code> はイテレータが終わるのを待ち続けます。値が大きくなる順に並んでいて、64以降に条件を満たす値がもう無いことは、<code>filter</code> には分かりません。
@@ -97,9 +97,9 @@
         値は <code>i32</code> なので、<code>p</code> が <code>1 &lt;&lt; 30</code> に達すると、次の <code>p * 2</code> は <code>i32</code> の最大値を超えます。デバッグビルドでは整数のオーバーフローが検査され、ここで panic します。止まらないはずのループが panic で終わるので、症状は無限ループではなく掛け算の panic として見えます。リリースビルドでは検査が無く値が折り返すので、panic せずに回り続けます。
       </p>
       <h3 class="right">Right</h3>
-      <pre class="code"><code><span class="code-line">std::iter::<span class="fn">successors</span>(<span class="fn">Some</span>(<span class="nu">1</span>), |&amp;p| <span class="fn">Some</span>(p * <span class="nu">2</span>))</span>
-<span class="code-line">    .<span class="fn">take_while</span>(|&amp;p| p &lt; limit)</span>
-<span class="code-line">    .<span class="fn">count</span>()</span>
+      <pre class="code"><code><span class="code-line ins">std::iter::<span class="fn">successors</span>(<span class="fn">Some</span>(<span class="nu">1</span>), |&amp;p| <span class="fn">Some</span>(p * <span class="nu">2</span>))</span>
+<span class="code-line ins">    .<span class="fn">take_while</span>(|&amp;p| p &lt; limit)</span>
+<span class="code-line ins">    .<span class="fn">count</span>()</span>
 </code></pre>
       <p>
         <code>take_while</code> は、条件が初めて偽になった時点でイテレータ全体を終わらせます。1, 2, 4, 8, 16, 32 を通したあと64で条件が偽になり、そこで終わるので <code>count</code> は6を返します。64より先の値は求められないので、掛け算がオーバーフローするところまで進むこともありません。大きくなる一方の列を上限で切るときは、捨てる <code>filter</code> ではなく、打ち切る <code>take_while</code> を使います。<sup class="fn-ref">1</sup>

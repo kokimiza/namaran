@@ -91,7 +91,7 @@
     <summary>Answer</summary>
     <div class="answer-body">
       <h3 class="wrong">Wrong</h3>
-      <pre class="code"><code><span class="code-line"><span class="fn">codes</span> n = filter (&lt; <span class="nu">2</span> ^ n) grays</span>
+      <pre class="code"><code><span class="code-line del"><span class="fn">codes</span> n = <span class="chg">filter (&lt;</span> <span class="nu">2</span> ^ n) grays</span>
 </code></pre>
       <p>
         <code>filter</code> は遅延評価なので、無限リストにかけても条件を満たす要素を先頭から1つずつ返せます。<code>print</code> は <code>[0,1,3,2,6,7,5,4</code> までの文字を作りますが、閉じ括弧 <code>]</code> を出すには、この先に <code>8</code> 未満の値がもう無いことを確かめる必要があります。<code>filter</code> にはそれが分からないので、<code>i = 8</code> 以降の値を1つずつ調べ続け、リストの終わりに着くことはありません。表示しかけた文字は出力のバッファにたまり、改行も来ずバッファもいっぱいにならないので、画面には何も出ません。
@@ -100,7 +100,7 @@
         <code>filter</code> を選んだのは、<code>grays</code> の値が <code>0, 1, 3, 2, 6, 7, 5, 4</code> と大きくなったり小さくなったりするので、「最初に条件を外れた値で止める <code>takeWhile</code> では、途中で切れてしまう」と考えたからでしょう。けれども <code>i `shiftR` 1</code> は <code>i</code> の最上位ビットより上にビットを持たないので、<code>i</code> と符号の最上位ビットは同じ位置にあります。<code>i</code> が <code>n</code> ビットに収まるときに限って符号も収まるので、<code>n</code> ビットの符号は <code>grays</code> の先頭の <code>2 ^ n</code> 個にすべて並び、その後ろには1つも現れません。
       </p>
       <h3 class="right">Right</h3>
-      <pre class="code"><code><span class="code-line"><span class="fn">codes</span> n = take (<span class="nu">2</span> ^ n) grays</span>
+      <pre class="code"><code><span class="code-line ins"><span class="fn">codes</span> n = <span class="chg">take</span> (<span class="nu">2</span> ^ n) grays</span>
 </code></pre>
       <p>
         <code>take (2 ^ n)</code> は、先頭から <code>2 ^ n</code> 個を取ったところでリストを閉じ、<code>grays</code> の残りを調べません。上で見たとおり、先頭の <code>2 ^ n</code> 個が <code>n</code> ビットに収まる符号のすべてなので、<code>codes 3</code> は <code>i = 0</code> から <code>7</code> の8個だけを計算し、<code>[0,1,3,2,6,7,5,4]</code> を表示して終わります。<sup class="fn-ref">1</sup>

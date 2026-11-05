@@ -95,7 +95,7 @@
     <summary>Answer</summary>
     <div class="answer-body">
       <h3 class="wrong">Wrong</h3>
-      <pre class="code"><code><span class="code-line"><span class="kw">for</span> (<span class="ty">int</span> s = <span class="nu">32</span> - k; s &gt;= <span class="nu">0</span>; s -= k) {</span>
+      <pre class="code"><code><span class="code-line del"><span class="kw">for</span> (<span class="ty">int</span> s = <span class="chg"><span class="nu">32</span> -</span> k; s &gt;= <span class="nu">0</span>; s -= k) {</span>
 <span class="code-line">    <span class="fn">putchar</span>(<span class="st">"0123456789abcdef"</span>[(x &gt;&gt; s) &amp; ((<span class="nu">1u</span> &lt;&lt; k) - <span class="nu">1</span>)]);</span>
 <span class="code-line">}</span>
 </code></pre>
@@ -106,7 +106,7 @@
         493は2進数で <code>111101101</code> です。本来の区切りなら下から <code>101</code>、<code>101</code>、<code>111</code> の 5, 5, 7 になります。ずれた区切りではビット2〜4、5〜7、8〜10を読むので、<code>493 &gt;&gt; 2</code> = 123 の下3ビットが3、<code>493 &gt;&gt; 5</code> = 15 の下3ビットが7、<code>493 &gt;&gt; 8</code> = 1 が1になり、上位の0が7桁付いた <code>0000000173</code> が表示されます。「32は3で割り切れないので、はみ出した最上位の桁が欠けるだけだ」と考えると、桁が1つ減った <code>0000000755</code> を予想します。実際に欠けるのは最下位の2ビットで、その影響は全部の桁に及びます。
       </p>
       <h3 class="right">Right</h3>
-      <pre class="code"><code><span class="code-line"><span class="kw">for</span> (<span class="ty">int</span> s = <span class="nu">31</span> / k * k; s &gt;= <span class="nu">0</span>; s -= k) {</span>
+      <pre class="code"><code><span class="code-line ins"><span class="kw">for</span> (<span class="ty">int</span> s = <span class="chg"><span class="nu">31</span> / k *</span> k; s &gt;= <span class="nu">0</span>; s -= k) {</span>
 <span class="code-line">    <span class="fn">putchar</span>(<span class="st">"0123456789abcdef"</span>[(x &gt;&gt; s) &amp; ((<span class="nu">1u</span> &lt;&lt; k) - <span class="nu">1</span>)]);</span>
 <span class="code-line">}</span>
 </code></pre>

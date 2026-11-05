@@ -94,7 +94,7 @@
     <div class="answer-body">
       <h3 class="wrong">Wrong</h3>
       <pre class="code"><code><span class="code-line"><span class="kw">let</span> twice = [xs, xs].<span class="fn">concat</span>();</span>
-<span class="code-line"><span class="fn">mean</span>(&amp;twice) == <span class="nu">2.0</span> * <span class="fn">mean</span>(xs)</span>
+<span class="code-line del"><span class="fn">mean</span>(&amp;twice) == <span class="chg"><span class="nu">2.0</span> *</span> <span class="fn">mean</span>(xs)</span>
 </code></pre>
       <p>
         <code>[xs, xs].concat()</code> は <code>[1.0, 2.0, 4.0, 1.0, 2.0, 4.0]</code> を作ります。列を2回つなげると和は <code>7.0</code> から <code>14.0</code> の2倍になりますが、要素の個数も <code>3</code> から <code>6</code> の2倍になるので、平均は <code>7.0 / 3.0</code> のまま変わりません。検査は和に成り立つ「2倍になる」という関係を平均に当てはめていて、左辺は <code>7.0 / 3.0</code>、右辺は <code>14.0 / 3.0</code> です。平均が 0 でない列なら、左辺は右辺のおよそ半分にしかならず、<code>xs</code> が何であっても検査は通りません。
@@ -104,7 +104,7 @@
       </p>
       <h3 class="right">Right</h3>
       <pre class="code"><code><span class="code-line"><span class="kw">let</span> twice = [xs, xs].<span class="fn">concat</span>();</span>
-<span class="code-line"><span class="fn">mean</span>(&amp;twice) == <span class="fn">mean</span>(xs)</span>
+<span class="code-line ins"><span class="fn">mean</span>(&amp;twice) == <span class="fn">mean</span>(xs)</span>
 </code></pre>
       <p>
         比べる関係を「2回つなげても平均は変わらない」に直すと、両辺はどちらも <code>7.0 / 3.0</code> になり、<code>true</code> が出ます。この入力の要素と和はどれも誤差なく表せる整数なので、左辺の <code>14.0 / 6.0</code> と右辺の <code>7.0 / 3.0</code> は同じ真の値を丸めた結果になり、浮動小数点数でも <code>==</code> で一致します。<sup class="fn-ref">1</sup>

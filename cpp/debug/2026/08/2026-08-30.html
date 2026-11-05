@@ -100,7 +100,7 @@
     <div class="answer-body">
       <h3 class="wrong">Wrong</h3>
       <pre class="code"><code><span class="code-line">std::ranges::<span class="fn">stable_sort</span>(v, std::greater{}, &amp;<span class="ty">Player</span>::score);</span>
-<span class="code-line">std::ranges::<span class="fn">sort</span>(v, {}, &amp;<span class="ty">Player</span>::name);</span>
+<span class="code-line del">std::ranges::<span class="fn">sort</span>(v, {}, &amp;<span class="ty">Player</span>::name);</span>
 </code></pre>
       <p>
         1行目で点数の降順 <code>amy zoe kim bob</code> に並びますが、2行目の <code>sort</code> は名前だけを比べて列全体を並べ直します。4人の名前はすべて違うので、名前の順で前後が決まらない組は1つも無く、1行目が作った順序はどこにも残りません。結果は名前の順の <code>amy bob kim zoe</code> です。
@@ -109,7 +109,7 @@
         <code>sort</code> は安定ではないので、つい <code>stable_sort</code> に変えたくなりますが、それでは直りません。安定なソートが元の順序を残すのは、比べるキーが等しい要素どうしだけで、この列では名前が等しい組が無いからです。並べ替えを重ねたとき主のキーになるのは、最後に並べたほうのキーです。
       </p>
       <h3 class="right">Right</h3>
-      <pre class="code"><code><span class="code-line">std::ranges::<span class="fn">sort</span>(v, {}, &amp;<span class="ty">Player</span>::name);</span>
+      <pre class="code"><code><span class="code-line ins">std::ranges::<span class="fn">sort</span>(v, {}, &amp;<span class="ty">Player</span>::name);</span>
 <span class="code-line">std::ranges::<span class="fn">stable_sort</span>(v, std::greater{}, &amp;<span class="ty">Player</span>::score);</span>
 </code></pre>
       <p>

@@ -93,7 +93,7 @@
     <summary>Answer</summary>
     <div class="answer-body">
       <h3 class="wrong">Wrong</h3>
-      <pre class="code"><code><span class="code-line">(<span class="nu">0</span>..(<span class="nu">1</span> &lt;&lt; n) - <span class="nu">1</span>).<span class="fn">any</span>(|mask| {</span>
+      <pre class="code"><code><span class="code-line del">(<span class="nu">0</span>..<span class="chg">(</span><span class="nu">1</span> &lt;&lt; n<span class="chg">) - <span class="nu">1</span></span>).<span class="fn">any</span>(|mask| {</span>
 </code></pre>
       <p>
         <code>mask</code> の <code>i</code> ビット目が1なら <code>coins[i]</code> を選ぶので、<code>n</code> 枚の硬貨の選び方は0から2<sup><var>n</var></sup> − 1 までの2<sup><var>n</var></sup> 個の整数で表されます。Rust の <code>a..b</code> は <code>b</code> を含まない範囲なので、<code>0..(1 &lt;&lt; n) - 1</code> は0から2<sup><var>n</var></sup> − 2 までで終わり、最後の2<sup><var>n</var></sup> − 1 が抜けます。2<sup><var>n</var></sup> − 1 は下から <var>n</var> ビットがすべて1の数で、全部の硬貨を選ぶ選び方です。
@@ -102,7 +102,7 @@
         硬貨が3枚なら <code>mask</code> は0から6までで、3枚とも使う7（<code>0b111</code>）が試されません。160円になる選び方は 50 + 10 + 100 の1通りだけなので、<code>any</code> は <code>false</code> を返します。60円は50円と10円の <code>mask = 3</code> で見つかるので、こちらは正しく <code>true</code> です。全部を使う組み合わせが要る入力でだけ結果が変わるので、少ない硬貨で払える例を試しても見つかりません。
       </p>
       <h3 class="right">Right</h3>
-      <pre class="code"><code><span class="code-line">(<span class="nu">0</span>..<span class="nu">1</span> &lt;&lt; n).<span class="fn">any</span>(|mask| {</span>
+      <pre class="code"><code><span class="code-line ins">(<span class="nu">0</span>..<span class="nu">1</span> &lt;&lt; n).<span class="fn">any</span>(|mask| {</span>
 </code></pre>
       <p>
         範囲の終わりを <code>1 &lt;&lt; n</code> にすると、<code>..</code> が終端を含まないので、<code>mask</code> はちょうど0から2<sup><var>n</var></sup> − 1 までの2<sup><var>n</var></sup> 個を回ります。<code>&lt;&lt;</code> は <code>..</code> より強く結び付くので、括弧は要りません。「最大の <code>mask</code> まで」と書きたいなら、終端を含む <code>0..=(1 &lt;&lt; n) - 1</code> でも同じ範囲になります。

@@ -106,20 +106,20 @@
       <div class="code-frame diff-added" aria-label="追加する参考実装">
         <p class="code-filename">Reference</p>
         <pre class="code"><code><span class="code-line"><span class="ty">int</span> <span class="fn">grundy</span>(<span class="ty">int</span> n) {</span>
-<span class="code-line">    <span class="kw">static</span> <span class="kw">const</span> <span class="ty">int</span> moves[] = {<span class="nu">1</span>, <span class="nu">3</span>, <span class="nu">4</span>};</span>
-<span class="code-line">    <span class="ty">int</span> g[<span class="nu">101</span>] = {<span class="nu">0</span>};</span>
-<span class="code-line">    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">1</span>; i &lt;= n; i++) {</span>
-<span class="code-line">        <span class="ty">bool</span> seen[<span class="nu">4</span>] = {<span class="nu">false</span>};</span>
-<span class="code-line">        <span class="kw">for</span> (<span class="ty">int</span> j = <span class="nu">0</span>; j &lt; <span class="nu">3</span>; j++) {</span>
-<span class="code-line">            <span class="kw">if</span> (moves[j] &lt;= i) {</span>
-<span class="code-line">                seen[g[i - moves[j]]] = <span class="nu">true</span>;</span>
-<span class="code-line">            }</span>
-<span class="code-line">        }</span>
-<span class="code-line">        <span class="kw">while</span> (seen[g[i]]) {</span>
-<span class="code-line">            g[i]++;</span>
-<span class="code-line">        }</span>
-<span class="code-line">    }</span>
-<span class="code-line">    <span class="kw">return</span> g[n];</span>
+<span class="code-line ins">    <span class="kw">static</span> <span class="kw">const</span> <span class="ty">int</span> moves[] = {<span class="nu">1</span>, <span class="nu">3</span>, <span class="nu">4</span>};</span>
+<span class="code-line ins">    <span class="ty">int</span> g[<span class="nu">101</span>] = {<span class="nu">0</span>};</span>
+<span class="code-line ins">    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">1</span>; i &lt;= n; i++) {</span>
+<span class="code-line ins">        <span class="ty">bool</span> seen[<span class="nu">4</span>] = {<span class="nu">false</span>};</span>
+<span class="code-line ins">        <span class="kw">for</span> (<span class="ty">int</span> j = <span class="nu">0</span>; j &lt; <span class="nu">3</span>; j++) {</span>
+<span class="code-line ins">            <span class="kw">if</span> (moves[j] &lt;= i) {</span>
+<span class="code-line ins">                seen[g[i - moves[j]]] = <span class="nu">true</span>;</span>
+<span class="code-line ins">            }</span>
+<span class="code-line ins">        }</span>
+<span class="code-line ins">        <span class="kw">while</span> (seen[g[i]]) {</span>
+<span class="code-line ins">            g[i]++;</span>
+<span class="code-line ins">        }</span>
+<span class="code-line ins">    }</span>
+<span class="code-line ins">    <span class="kw">return</span> g[n];</span>
 <span class="code-line">}</span>
 </code></pre>
       </div>

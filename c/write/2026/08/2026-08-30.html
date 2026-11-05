@@ -106,10 +106,10 @@
       <div class="code-frame diff-added" aria-label="追加する参考実装">
         <p class="code-filename">Reference</p>
         <pre class="code"><code><span class="code-line"><span class="ty">int</span> <span class="fn">ct_equal</span>(<span class="kw">const</span> <span class="ty">unsigned</span> <span class="ty">char</span>* a, <span class="kw">const</span> <span class="ty">unsigned</span> <span class="ty">char</span>* b, <span class="ty">size_t</span> n) {</span>
-<span class="code-line">    <span class="ty">unsigned</span> <span class="ty">char</span> diff = <span class="nu">0</span>;</span>
-<span class="code-line">    <span class="kw">for</span> (<span class="ty">size_t</span> i = <span class="nu">0</span>; i &lt; n; i++)</span>
-<span class="code-line">        diff |= a[i] ^ b[i];</span>
-<span class="code-line">    <span class="kw">return</span> diff == <span class="nu">0</span>;</span>
+<span class="code-line ins">    <span class="ty">unsigned</span> <span class="ty">char</span> diff = <span class="nu">0</span>;</span>
+<span class="code-line ins">    <span class="kw">for</span> (<span class="ty">size_t</span> i = <span class="nu">0</span>; i &lt; n; i++)</span>
+<span class="code-line ins">        diff |= a[i] ^ b[i];</span>
+<span class="code-line ins">    <span class="kw">return</span> diff == <span class="nu">0</span>;</span>
 <span class="code-line">}</span>
 </code></pre>
       </div>

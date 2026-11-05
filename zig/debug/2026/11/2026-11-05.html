@@ -100,7 +100,7 @@
     <div class="answer-body">
       <h3 class="wrong">Wrong</h3>
       <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">absorb</span>(self: *<span class="ty">Shelf</span>, other: *<span class="ty">Shelf</span>) <span class="ty">void</span> {</span>
-<span class="code-line">    self.stock += other.stock;</span>
+<span class="code-line del">    <span class="chg">self.stock +=</span> other.stock;</span>
 <span class="code-line">    other.stock = <span class="nu">0</span>;</span>
 <span class="code-line">}</span>
 </code></pre>
@@ -112,9 +112,9 @@
       </p>
       <h3 class="right">Right</h3>
       <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">absorb</span>(self: *<span class="ty">Shelf</span>, other: *<span class="ty">Shelf</span>) <span class="ty">void</span> {</span>
-<span class="code-line">    <span class="kw">const</span> moved = other.stock;</span>
+<span class="code-line ins">    <span class="chg"><span class="kw">const</span> moved =</span> other.stock;</span>
 <span class="code-line">    other.stock = <span class="nu">0</span>;</span>
-<span class="code-line">    self.stock += moved;</span>
+<span class="code-line ins">    self.stock += moved;</span>
 <span class="code-line">}</span>
 </code></pre>
       <p>

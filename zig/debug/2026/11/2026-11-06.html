@@ -99,8 +99,8 @@
     <summary>Answer</summary>
     <div class="answer-body">
       <h3 class="wrong">Wrong</h3>
-      <pre class="code"><code><span class="code-line"><span class="kw">const</span> items = [_]<span class="ty">Item</span>{ .{ .stock = <span class="nu">3</span> }, .{ .stock = <span class="nu">5</span> } };</span>
-<span class="code-line"><span class="kw">var</span> item = items[<span class="nu">1</span>];</span>
+      <pre class="code"><code><span class="code-line del"><span class="chg"><span class="kw">const</span></span> items = [_]<span class="ty">Item</span>{ .{ .stock = <span class="nu">3</span> }, .{ .stock = <span class="nu">5</span> } };</span>
+<span class="code-line del"><span class="chg"><span class="kw">var</span></span> item = items[<span class="nu">1</span>];</span>
 <span class="code-line">item.<span class="fn">sell</span>();</span>
 </code></pre>
       <p>
@@ -110,8 +110,8 @@
         <code>items</code> が <code>const</code> なのも、この欠陥の表れです。Zig は書き換えないローカル変数を <code>var</code> で宣言するとコンパイルエラーにするので、このコードでは <code>items</code> を <code>const</code> にしないと通りません。売ったはずの配列を、コンパイラは一度も書き換えられていないものとして扱っています。
       </p>
       <h3 class="right">Right</h3>
-      <pre class="code"><code><span class="code-line"><span class="kw">var</span> items = [_]<span class="ty">Item</span>{ .{ .stock = <span class="nu">3</span> }, .{ .stock = <span class="nu">5</span> } };</span>
-<span class="code-line"><span class="kw">const</span> item = &amp;items[<span class="nu">1</span>];</span>
+      <pre class="code"><code><span class="code-line ins"><span class="chg"><span class="kw">var</span></span> items = [_]<span class="ty">Item</span>{ .{ .stock = <span class="nu">3</span> }, .{ .stock = <span class="nu">5</span> } };</span>
+<span class="code-line ins"><span class="chg"><span class="kw">const</span></span> item = <span class="chg">&amp;</span>items[<span class="nu">1</span>];</span>
 <span class="code-line">item.<span class="fn">sell</span>();</span>
 </code></pre>
       <p>

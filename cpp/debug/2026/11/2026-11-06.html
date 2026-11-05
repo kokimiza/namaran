@@ -100,7 +100,7 @@
     <div class="answer-body">
       <h3 class="wrong">Wrong</h3>
       <pre class="code"><code><span class="code-line"><span class="ty">int</span> d[<span class="nu">16</span>][<span class="nu">16</span>] = {};</span>
-<span class="code-line"><span class="kw">for</span> (std::<span class="ty">size_t</span> i = <span class="nu">1</span>; i &lt;= a.<span class="fn">size</span>(); ++i) {</span>
+<span class="code-line del"><span class="kw">for</span> (std::<span class="ty">size_t</span> i = <span class="chg"><span class="nu">1</span></span>; i &lt;= a.<span class="fn">size</span>(); ++i) {</span>
 </code></pre>
       <p>
         <code>d[i][j]</code> は、<code>a</code> の先頭 <code>i</code> 文字を <code>b</code> の先頭 <code>j</code> 文字に変える最小の回数です。ループは <code>i</code> と <code>j</code> が1以上のところだけを埋め、0行目と0列目は <code>= {}</code> で入れた0のまま残ります。0列目の <code>d[i][0]</code> は <code>a</code> の先頭 <code>i</code> 文字を空文字列に変える回数で、本来は <code>i</code> 文字を消す <code>i</code> 回です。0行目の <code>d[0][j]</code> も同じく、空文字列から <code>b</code> の先頭 <code>j</code> 文字を作る <code>j</code> 回でなければなりません。
@@ -110,12 +110,12 @@
       </p>
       <h3 class="right">Right</h3>
       <pre class="code"><code><span class="code-line"><span class="ty">int</span> d[<span class="nu">16</span>][<span class="nu">16</span>] = {};</span>
-<span class="code-line"><span class="kw">for</span> (std::<span class="ty">size_t</span> i = <span class="nu">0</span>; i &lt;= a.<span class="fn">size</span>(); ++i) {</span>
-<span class="code-line">    d[i][<span class="nu">0</span>] = i;</span>
-<span class="code-line">}</span>
-<span class="code-line"><span class="kw">for</span> (std::<span class="ty">size_t</span> j = <span class="nu">0</span>; j &lt;= b.<span class="fn">size</span>(); ++j) {</span>
-<span class="code-line">    d[<span class="nu">0</span>][j] = j;</span>
-<span class="code-line">}</span>
+<span class="code-line ins"><span class="kw">for</span> (std::<span class="ty">size_t</span> i = <span class="chg"><span class="nu">0</span></span>; i &lt;= a.<span class="fn">size</span>(); ++i) {</span>
+<span class="code-line ins">    d[i][<span class="nu">0</span>] = i;</span>
+<span class="code-line ins">}</span>
+<span class="code-line ins"><span class="kw">for</span> (std::<span class="ty">size_t</span> j = <span class="nu">0</span>; j &lt;= b.<span class="fn">size</span>(); ++j) {</span>
+<span class="code-line ins">    d[<span class="nu">0</span>][j] = j;</span>
+<span class="code-line ins">}</span>
 </code></pre>
       <p>
         表を埋める前に、0列目を <code>d[i][0] = i</code>、0行目を <code>d[0][j] = j</code> にします。どちらも、片方が空文字列のときは、もう一方の文字数だけ削除か挿入をするしかないからです。<code>d[0][3]</code> が3になるので、<code>con</code> を足す3回が数えられ、<code>distance("cat", "concat")</code> は3を返します。<code>d[0][0]</code> だけは、空文字列どうしで0回のまま正しい値です。

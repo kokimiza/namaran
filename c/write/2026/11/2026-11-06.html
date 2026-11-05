@@ -106,16 +106,16 @@
       <div class="code-frame diff-added" aria-label="追加する参考実装">
         <p class="code-filename">Reference</p>
         <pre class="code"><code><span class="code-line"><span class="ty">void</span> <span class="fn">to_base</span>(<span class="ty">uint32_t</span> n, <span class="ty">uint32_t</span> base, <span class="ty">char</span>* out) {</span>
-<span class="code-line">    <span class="ty">char</span> buf[<span class="nu">33</span>];</span>
-<span class="code-line">    <span class="ty">int</span> len = <span class="nu">0</span>;</span>
-<span class="code-line">    <span class="kw">do</span> {</span>
-<span class="code-line">        buf[len++] = <span class="st">"0123456789abcdef"</span>[n % base];</span>
-<span class="code-line">        n /= base;</span>
-<span class="code-line">    } <span class="kw">while</span> (n &gt; <span class="nu">0</span>);</span>
-<span class="code-line">    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; len; i++) {</span>
-<span class="code-line">        out[i] = buf[len - <span class="nu">1</span> - i];</span>
-<span class="code-line">    }</span>
-<span class="code-line">    out[len] = <span class="st">'\0'</span>;</span>
+<span class="code-line ins">    <span class="ty">char</span> buf[<span class="nu">33</span>];</span>
+<span class="code-line ins">    <span class="ty">int</span> len = <span class="nu">0</span>;</span>
+<span class="code-line ins">    <span class="kw">do</span> {</span>
+<span class="code-line ins">        buf[len++] = <span class="st">"0123456789abcdef"</span>[n % base];</span>
+<span class="code-line ins">        n /= base;</span>
+<span class="code-line ins">    } <span class="kw">while</span> (n &gt; <span class="nu">0</span>);</span>
+<span class="code-line ins">    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; len; i++) {</span>
+<span class="code-line ins">        out[i] = buf[len - <span class="nu">1</span> - i];</span>
+<span class="code-line ins">    }</span>
+<span class="code-line ins">    out[len] = <span class="st">'\0'</span>;</span>
 <span class="code-line">}</span>
 </code></pre>
       </div>

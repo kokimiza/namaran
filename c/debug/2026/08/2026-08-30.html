@@ -95,7 +95,7 @@
     <summary>Answer</summary>
     <div class="answer-body">
       <h3 class="wrong">Wrong</h3>
-      <pre class="code"><code><span class="code-line"><span class="kw">return</span> <span class="fn">strncmp</span>((<span class="kw">const</span> <span class="ty">char</span>*)a, (<span class="kw">const</span> <span class="ty">char</span>*)b, <span class="nu">DIGEST_LEN</span>) == <span class="nu">0</span>;</span>
+      <pre class="code"><code><span class="code-line del"><span class="kw">return</span> <span class="chg"><span class="fn">strncmp</span>((<span class="kw">const</span> <span class="ty">char</span>*)</span>a, <span class="chg">(<span class="kw">const</span> <span class="ty">char</span>*)</span>b, <span class="nu">DIGEST_LEN</span>) == <span class="nu">0</span>;</span>
 </code></pre>
       <p>
         <code>strncmp</code> は文字列を比べる関数で、最大 <code>DIGEST_LEN</code> 文字まで比べますが、その前に両方が同じ位置で 0 のバイト(文字列の終端)に来ると、そこで「一致」として 0 を返します。ダイジェストはハッシュ関数が出したバイト列なので、0 のバイトはどこにでも現れます。
@@ -104,7 +104,7 @@
         <code>stored</code> と <code>input</code> は1バイト目の <code>0x5e</code> が一致し、2バイト目はどちらも <code>0x00</code> です。<code>strncmp</code> はここで両方の文字列が終わったと見なし、違いのある3バイト目と4バイト目を読まずに 0 を返すので、<code>digest_equal</code> は 1 を返して <code>accepted</code> が出ます。先頭から 0 のバイトまでが保存値と同じダイジェストなら、残りが何であっても受け付けてしまいます。
       </p>
       <h3 class="right">Right</h3>
-      <pre class="code"><code><span class="code-line"><span class="kw">return</span> <span class="fn">memcmp</span>(a, b, <span class="nu">DIGEST_LEN</span>) == <span class="nu">0</span>;</span>
+      <pre class="code"><code><span class="code-line ins"><span class="kw">return</span> <span class="chg"><span class="fn">memcmp</span></span>(a, b, <span class="nu">DIGEST_LEN</span>) == <span class="nu">0</span>;</span>
 </code></pre>
       <p>
         <code>memcmp</code> は 0 のバイトを特別扱いせず、渡した長さの分だけバイトを比べます。<code>DIGEST_LEN</code> の4バイトすべてが比較に入るので、3バイト目の <code>0x8c</code> と <code>0x13</code> の違いで 0 以外が返り、<code>rejected</code> が出ます。ダイジェストのように長さが決まったバイナリのデータは、終端の 0 を探す <code>str</code> の関数ではなく、長さを受け取る <code>mem</code> の関数で扱います。<sup class="fn-ref">1</sup>

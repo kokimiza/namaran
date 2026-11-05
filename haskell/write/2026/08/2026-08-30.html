@@ -105,8 +105,8 @@
       <div class="code-frame diff-added" aria-label="追加する参考実装">
         <p class="code-filename">Reference</p>
         <pre class="code"><code><span class="code-line"><span class="fn">fromGray</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Int</span></span>
-<span class="code-line"><span class="fn">fromGray</span> <span class="nu">0</span> = <span class="nu">0</span></span>
-<span class="code-line"><span class="fn">fromGray</span> g = g `xor` fromGray (g `shiftR` <span class="nu">1</span>)</span>
+<span class="code-line ins"><span class="fn">fromGray</span> <span class="nu">0</span> = <span class="nu">0</span></span>
+<span class="code-line ins"><span class="fn">fromGray</span> g = g `xor` fromGray (g `shiftR` <span class="nu">1</span>)</span>
 </code></pre>
       </div>
       <p>

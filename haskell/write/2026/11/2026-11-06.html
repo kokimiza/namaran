@@ -104,17 +104,17 @@
     <div class="answer-body">
       <div class="code-frame diff-added" aria-label="追加する参考実装">
         <p class="code-filename">Reference</p>
-        <pre class="code"><code><span class="code-line"><span class="kw">import</span> <span class="ty">Data.List</span> (partition)</span>
-<span class="code-line"></span>
+        <pre class="code"><code><span class="code-line ins"><span class="kw">import</span> <span class="ty">Data.List</span> (partition)</span>
+<span class="code-line ins"></span>
 <span class="code-line"><span class="fn">kth</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> <span class="ty">Maybe</span> <span class="ty">Int</span></span>
-<span class="code-line"><span class="fn">kth</span> _ [] = <span class="ty">Nothing</span></span>
-<span class="code-line"><span class="fn">kth</span> k (p : xs)</span>
-<span class="code-line">  | k &lt; n = kth k smaller</span>
-<span class="code-line">  | k == n = <span class="ty">Just</span> p</span>
-<span class="code-line">  | otherwise = kth (k - n - <span class="nu">1</span>) larger</span>
-<span class="code-line"> <span class="kw">where</span></span>
-<span class="code-line">  (smaller, larger) = partition (&lt; p) xs</span>
-<span class="code-line">  n = length smaller</span>
+<span class="code-line ins"><span class="fn">kth</span> _ [] = <span class="ty">Nothing</span></span>
+<span class="code-line ins"><span class="fn">kth</span> k (p : xs)</span>
+<span class="code-line ins">  | k &lt; n = kth k smaller</span>
+<span class="code-line ins">  | k == n = <span class="ty">Just</span> p</span>
+<span class="code-line ins">  | otherwise = kth (k - n - <span class="nu">1</span>) larger</span>
+<span class="code-line ins"> <span class="kw">where</span></span>
+<span class="code-line ins">  (smaller, larger) = partition (&lt; p) xs</span>
+<span class="code-line ins">  n = length smaller</span>
 </code></pre>
       </div>
       <p>

@@ -92,7 +92,7 @@
     <div class="answer-body">
       <h3 class="wrong">Wrong</h3>
       <pre class="code"><code><span class="code-line"><span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; <span class="nu">2</span>; i++) {</span>
-<span class="code-line">    x ^= pile[i];</span>
+<span class="code-line del">    x ^= pile[i];</span>
 <span class="code-line">}</span>
 </code></pre>
       <p>
@@ -103,7 +103,7 @@
       </p>
       <h3 class="right">Right</h3>
       <pre class="code"><code><span class="code-line"><span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; <span class="nu">2</span>; i++) {</span>
-<span class="code-line">    x ^= pile[i] % <span class="nu">4</span>;</span>
+<span class="code-line ins">    x ^= pile[i] <span class="chg">% <span class="nu">4</span></span>;</span>
 <span class="code-line">}</span>
 </code></pre>
       <p>

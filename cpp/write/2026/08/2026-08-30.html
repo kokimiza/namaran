@@ -106,10 +106,10 @@
       <div class="code-frame diff-added" aria-label="追加する参考実装">
         <p class="code-filename">Reference</p>
         <pre class="code"><code><span class="code-line"><span class="ty">bool</span> <span class="fn">same_for_any_sort</span>(std::<span class="ty">vector</span>&lt;std::<span class="ty">pair</span>&lt;<span class="ty">int</span>, <span class="ty">char</span>&gt;&gt; v) {</span>
-<span class="code-line">    std::ranges::<span class="fn">sort</span>(v);</span>
-<span class="code-line">    <span class="kw">return</span> std::ranges::<span class="fn">adjacent_find</span>(v, [](<span class="kw">const</span> <span class="kw">auto</span>&amp; a, <span class="kw">const</span> <span class="kw">auto</span>&amp; b) {</span>
-<span class="code-line">               <span class="kw">return</span> a.first == b.first &amp;&amp; a.second != b.second;</span>
-<span class="code-line">           }) == v.<span class="fn">end</span>();</span>
+<span class="code-line ins">    std::ranges::<span class="fn">sort</span>(v);</span>
+<span class="code-line ins">    <span class="kw">return</span> std::ranges::<span class="fn">adjacent_find</span>(v, [](<span class="kw">const</span> <span class="kw">auto</span>&amp; a, <span class="kw">const</span> <span class="kw">auto</span>&amp; b) {</span>
+<span class="code-line ins">               <span class="kw">return</span> a.first == b.first &amp;&amp; a.second != b.second;</span>
+<span class="code-line ins">           }) == v.<span class="fn">end</span>();</span>
 <span class="code-line">}</span>
 </code></pre>
       </div>

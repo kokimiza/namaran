@@ -88,7 +88,7 @@
     <summary>Answer</summary>
     <div class="answer-body">
       <h3 class="wrong">Wrong</h3>
-      <pre class="code"><code><span class="code-line">(k, _ : v) = break (== <span class="st">'='</span>) s</span>
+      <pre class="code"><code><span class="code-line del">(k, <span class="chg">_ : v</span>) = break (== <span class="st">'='</span>) s</span>
 </code></pre>
       <p>
         <code>where</code> や <code>let</code> でパターンを使って束縛すると、そのパターンには暗黙に <code>~</code> が付き、定義した時点では照合されません。そのため <code>parse "flag"</code> そのものは失敗せず、組 <code>(k, v)</code> を返します。<code>fst</code> が取り出すのも <code>k</code> だけで、<code>v</code> は使われません。
@@ -97,9 +97,9 @@
         ところが、遅延したパターンは、変数のどれか1つが使われた時点で全体がまとめて照合されます。<code>putStrLn</code> が <code>k</code> を求めると、<code>break (== '=') "flag"</code> の結果 <code>("flag", "")</code> が <code>(k, _ : v)</code> 全体と照合され、2つ目の成分の空文字列が <code>_ : v</code> に合わずに失敗します。<code>k</code> が使うのは1つ目の成分だけですが、<code>k</code> だけを先に取り出す途中の段階はありません。<code>"a=1"</code> では <code>("a", "=1")</code> が合うので、<code>a</code> は表示されます。
       </p>
       <h3 class="right">Right</h3>
-      <pre class="code"><code><span class="code-line"><span class="fn">parse</span> s = (k, drop <span class="nu">1</span> rest)</span>
-<span class="code-line"> <span class="kw">where</span></span>
-<span class="code-line">  (k, rest) = break (== <span class="st">'='</span>) s</span>
+      <pre class="code"><code><span class="code-line ins"><span class="fn">parse</span> s = (k, drop <span class="nu">1</span> rest)</span>
+<span class="code-line ins"> <span class="kw">where</span></span>
+<span class="code-line ins">  (k, <span class="chg">rest</span>) = break (== <span class="st">'='</span>) s</span>
 </code></pre>
       <p>
         パターンを、どんな組にも合う <code>(k, rest)</code> にし、先頭の <code>=</code> を外す処理は <code>drop 1</code> に任せます。<code>drop 1</code> は空文字列に対しても空文字列を返すので、<code>=</code> の無い行でも失敗せず、約束どおり値が空文字列になります。<code>k</code> を使ったときの照合も必ず成功するので、<code>flag</code> と <code>b</code> も表示されます。<sup class="fn-ref">1</sup>

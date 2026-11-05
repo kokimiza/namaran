@@ -106,8 +106,8 @@
       <div class="code-frame diff-added" aria-label="追加する参考実装">
         <p class="code-filename">Reference</p>
         <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">insertAt</span>(buf: []<span class="ty">u8</span>, len: <span class="ty">usize</span>, i: <span class="ty">usize</span>, x: <span class="ty">u8</span>) <span class="ty">void</span> {</span>
-<span class="code-line">    <span class="mc">@memmove</span>(buf[i + <span class="nu">1</span> .. len + <span class="nu">1</span>], buf[i..len]);</span>
-<span class="code-line">    buf[i] = x;</span>
+<span class="code-line ins">    <span class="mc">@memmove</span>(buf[i + <span class="nu">1</span> .. len + <span class="nu">1</span>], buf[i..len]);</span>
+<span class="code-line ins">    buf[i] = x;</span>
 <span class="code-line">}</span>
 </code></pre>
       </div>

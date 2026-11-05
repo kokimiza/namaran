@@ -106,20 +106,20 @@
       <div class="code-frame diff-added" aria-label="追加する参考実装">
         <p class="code-filename">Reference</p>
         <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">min_diff</span>(w: &amp;[<span class="ty">u32</span>]) -&gt; <span class="ty">u32</span> {</span>
-<span class="code-line">    <span class="kw">let</span> total: <span class="ty">u32</span> = w.<span class="fn">iter</span>().<span class="fn">sum</span>();</span>
-<span class="code-line">    (<span class="nu">0</span>..<span class="nu">1u32</span> &lt;&lt; w.<span class="fn">len</span>())</span>
-<span class="code-line">        .<span class="fn">map</span>(|mask| {</span>
-<span class="code-line">            <span class="kw">let</span> s: <span class="ty">u32</span> =</span>
-<span class="code-line">                w.<span class="fn">iter</span>().<span class="fn">enumerate</span>().<span class="fn">filter</span>(|&amp;(i, _)| mask &gt;&gt; i &amp; <span class="nu">1</span> == <span class="nu">1</span>).<span class="fn">map</span>(|(_, x)| x).<span class="fn">sum</span>();</span>
-<span class="code-line">            total.<span class="fn">abs_diff</span>(<span class="nu">2</span> * s)</span>
-<span class="code-line">        })</span>
-<span class="code-line">        .<span class="fn">min</span>()</span>
-<span class="code-line">        .<span class="fn">unwrap</span>()</span>
+<span class="code-line ins">    <span class="kw">let</span> total: <span class="ty">u32</span> = w.<span class="fn">iter</span>().<span class="fn">sum</span>();</span>
+<span class="code-line ins">    (<span class="nu">0</span>..<span class="nu">1u32</span> &lt;&lt; w.<span class="fn">len</span>())</span>
+<span class="code-line ins">        .<span class="fn">map</span>(|mask| {</span>
+<span class="code-line ins">            <span class="kw">let</span> s: <span class="ty">u32</span> =</span>
+<span class="code-line ins">                w.<span class="fn">iter</span>().<span class="fn">enumerate</span>().<span class="fn">filter</span>(|&amp;(i, _)| mask &gt;&gt; i &amp; <span class="nu">1</span> == <span class="nu">1</span>).<span class="fn">map</span>(|(_, x)| x).<span class="fn">sum</span>();</span>
+<span class="code-line ins">            total.<span class="fn">abs_diff</span>(<span class="nu">2</span> * s)</span>
+<span class="code-line ins">        })</span>
+<span class="code-line ins">        .<span class="fn">min</span>()</span>
+<span class="code-line ins">        .<span class="fn">unwrap</span>()</span>
 <span class="code-line">}</span>
-<span class="code-line"></span>
-<span class="code-line"><span class="kw">fn</span> <span class="fn">main</span>() {</span>
-<span class="code-line">    <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="fn">min_diff</span>(&amp;[<span class="nu">3</span>, <span class="nu">1</span>, <span class="nu">4</span>, <span class="nu">2</span>, <span class="nu">2</span>]));</span>
-<span class="code-line">    <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="fn">min_diff</span>(&amp;[<span class="nu">10</span>, <span class="nu">3</span>]));</span>
+<span class="code-line ins"></span>
+<span class="code-line ins"><span class="kw">fn</span> <span class="fn">main</span>() {</span>
+<span class="code-line ins">    <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="fn">min_diff</span>(&amp;[<span class="nu">3</span>, <span class="nu">1</span>, <span class="nu">4</span>, <span class="nu">2</span>, <span class="nu">2</span>]));</span>
+<span class="code-line ins">    <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="fn">min_diff</span>(&amp;[<span class="nu">10</span>, <span class="nu">3</span>]));</span>
 </code></pre>
       </div>
       <p>

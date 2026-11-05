@@ -94,8 +94,8 @@
     <summary>Answer</summary>
     <div class="answer-body">
       <h3 class="wrong">Wrong</h3>
-      <pre class="code"><code><span class="code-line">s += <span class="st">'0'</span> + (b &gt;&gt; <span class="nu">4</span>);</span>
-<span class="code-line">s += <span class="st">'0'</span> + (b &amp; <span class="nu">0xf</span>);</span>
+      <pre class="code"><code><span class="code-line del">s += <span class="chg"><span class="st">'0'</span> + (</span>b &gt;&gt; <span class="nu">4</span><span class="chg">)</span>;</span>
+<span class="code-line del">s += <span class="chg"><span class="st">'0'</span> + (</span>b &amp; <span class="nu">0xf</span><span class="chg">)</span>;</span>
 </code></pre>
       <p>
         <code>0x3c</code> の上の4ビットは3、下の4ビットは12です。<code>'0' + 3</code> は <code>'3'</code> になりますが、<code>'0' + 12</code> は <code>'c'</code> になりません。<code>'0' + n</code> で数字の文字が得られるのは、<code>'0'</code> から <code>'9'</code> の文字コードが連続して並んでいるからで、その保証は <code>'9'</code> までです。<code>'9'</code> の先に続くのは英字ではなく、ASCII では <code>:</code> <code>;</code> <code>&lt;</code> <code>=</code> <code>&gt;</code> <code>?</code> の6つの記号です。12は <code>'0'</code> から数えて <code>'&lt;'</code> に当たるので、<code>3&lt;</code> が表示されます。
@@ -104,8 +104,8 @@
         0〜9の桁だけでできたバイト、たとえば <code>0x42</code> は正しく <code>42</code> になります。10以上の桁を含むバイトだけが記号に化けるので、数字だけの値で試していると見落とします。
       </p>
       <h3 class="right">Right</h3>
-      <pre class="code"><code><span class="code-line">s += <span class="st">"0123456789abcdef"</span>[b &gt;&gt; <span class="nu">4</span>];</span>
-<span class="code-line">s += <span class="st">"0123456789abcdef"</span>[b &amp; <span class="nu">0xf</span>];</span>
+      <pre class="code"><code><span class="code-line ins">s += <span class="chg"><span class="st">"0123456789abcdef"</span>[</span>b &gt;&gt; <span class="nu">4</span><span class="chg">]</span>;</span>
+<span class="code-line ins">s += <span class="chg"><span class="st">"0123456789abcdef"</span>[</span>b &amp; <span class="nu">0xf</span><span class="chg">]</span>;</span>
 </code></pre>
       <p>
         16個の桁の文字を順に並べた文字列リテラルを、桁の値で添字アクセスします。<code>b &gt;&gt; 4</code> も <code>b &amp; 0xf</code> も0〜15なので、必ず範囲内の1文字が選ばれ、12なら13文字目の <code>'c'</code> です。数字と英字の文字コードがどう並んでいるかに頼らないので、どの文字コードでも同じ結果になります。

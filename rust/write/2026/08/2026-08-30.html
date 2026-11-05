@@ -106,8 +106,8 @@
       <div class="code-frame diff-added" aria-label="追加する参考実装">
         <p class="code-filename">Reference</p>
         <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">reversal_holds</span>(f: <span class="kw">fn</span>(&amp;[<span class="ty">i32</span>]) -&gt; <span class="ty">i32</span>, xs: &amp;[<span class="ty">i32</span>]) -&gt; <span class="ty">bool</span> {</span>
-<span class="code-line">    <span class="kw">let</span> reversed: <span class="ty">Vec</span>&lt;<span class="ty">i32</span>&gt; = xs.<span class="fn">iter</span>().<span class="fn">rev</span>().<span class="fn">copied</span>().<span class="fn">collect</span>();</span>
-<span class="code-line">    <span class="fn">f</span>(xs) == <span class="fn">f</span>(&amp;reversed)</span>
+<span class="code-line ins">    <span class="kw">let</span> reversed: <span class="ty">Vec</span>&lt;<span class="ty">i32</span>&gt; = xs.<span class="fn">iter</span>().<span class="fn">rev</span>().<span class="fn">copied</span>().<span class="fn">collect</span>();</span>
+<span class="code-line ins">    <span class="fn">f</span>(xs) == <span class="fn">f</span>(&amp;reversed)</span>
 <span class="code-line">}</span>
 </code></pre>
       </div>

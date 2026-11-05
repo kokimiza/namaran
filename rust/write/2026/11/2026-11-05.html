@@ -106,7 +106,7 @@
       <div class="code-frame diff-added" aria-label="追加する参考実装">
         <p class="code-filename">Reference</p>
         <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">countdown</span>(from: <span class="ty">u32</span>, step: <span class="ty">u32</span>) -&gt; <span class="ty">Vec</span>&lt;<span class="ty">u32</span>&gt; {</span>
-<span class="code-line">    std::iter::<span class="fn">successors</span>(<span class="fn">Some</span>(from), |&amp;n| n.<span class="fn">checked_sub</span>(step)).<span class="fn">collect</span>()</span>
+<span class="code-line ins">    std::iter::<span class="fn">successors</span>(<span class="fn">Some</span>(from), |&amp;n| n.<span class="fn">checked_sub</span>(step)).<span class="fn">collect</span>()</span>
 <span class="code-line">}</span>
 </code></pre>
       </div>

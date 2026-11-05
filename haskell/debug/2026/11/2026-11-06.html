@@ -95,10 +95,10 @@
     <summary>Answer</summary>
     <div class="answer-body">
       <h3 class="wrong">Wrong</h3>
-      <pre class="code"><code><span class="code-line"><span class="fn">select</span> _ [x] = x</span>
-<span class="code-line"><span class="fn">select</span> k xs@(p : _)</span>
+      <pre class="code"><code><span class="code-line del"><span class="fn">select</span> _ [<span class="chg">x</span>] = <span class="chg">x</span></span>
+<span class="code-line del"><span class="fn">select</span> k <span class="chg">xs@</span>(p : <span class="chg">_</span>)</span>
 <span class="code-line">  | k &lt; n = select k ls</span>
-<span class="code-line">  | otherwise = select (k - n) rs</span>
+<span class="code-line del">  | otherwise = select (k - n) rs</span>
 <span class="code-line"> <span class="kw">where</span></span>
 <span class="code-line">  (ls, rs) = partition (&lt; p) xs</span>
 <span class="code-line">  n = length ls</span>
@@ -110,11 +110,11 @@
         <code>select _ [x] = x</code> の節は要素が1つになれば止まりますが、リストが縮まない限りそこには着きません。<code>p</code> を左に入れようと <code>partition (&lt;= p) xs</code> に変えても直りません。今度は <code>p</code> がリストの最大値のときに <code>ls</code> が <code>xs</code> 全体になり、<code>select 0 [3, 1, 2]</code> のように <code>k &lt; n</code> の分岐で同じ呼び出しを繰り返します。<code>p</code> を残したまま分けると、どちらの側に入れても、片側が元のリストと同じになる入力があります。
       </p>
       <h3 class="right">Right</h3>
-      <pre class="code"><code><span class="code-line"><span class="fn">select</span> _ [] = error <span class="st">"empty"</span></span>
-<span class="code-line"><span class="fn">select</span> k (p : xs)</span>
+      <pre class="code"><code><span class="code-line ins"><span class="fn">select</span> _ [] = <span class="chg">error <span class="st">"empty"</span></span></span>
+<span class="code-line ins"><span class="fn">select</span> k (p : <span class="chg">xs</span>)</span>
 <span class="code-line">  | k &lt; n = select k ls</span>
-<span class="code-line">  | k == n = p</span>
-<span class="code-line">  | otherwise = select (k - n - <span class="nu">1</span>) rs</span>
+<span class="code-line ins">  | k == n = p</span>
+<span class="code-line ins">  | otherwise = select (k - n <span class="chg">- <span class="nu">1</span></span>) rs</span>
 <span class="code-line"> <span class="kw">where</span></span>
 <span class="code-line">  (ls, rs) = partition (&lt; p) xs</span>
 <span class="code-line">  n = length ls</span>
