@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="1024 を表す定数 kib を使って 4 GiB を計算すると 0 が出るHaskell DEBUGのドリルです。型シグネチャの無い定数は多相にならず、離れた関数での使い方から Int32 に決まって桁あふれすることを見抜き、型シグネチャで直します。">
-<title>汎用に見える定数の型</title>
+<meta name="description" content="無限に続くGray codeのリストからfilterでnビットの符号を取り出したせいで、プログラムが終わらなくなるバグを直す。先頭から何個取ればよいかは、符号の最上位ビットが元の数と同じことから決まる。">
+<title>無限のリストとfilter</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-08-30">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,12 +28,12 @@
       "dateModified": "2026-08-30",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "汎用に見える定数の型" },
-      "keywords": "monomorphism-restriction, typeclass, type-defaulting, integer-overflow",
+      "about": { "@type": "Thing", "name": "無限のリストとfilter" },
+      "keywords": "gray-code, infinite-list, laziness, infinite-loop, bit-operation",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
-      "description": "1024 を表す定数 kib を使って 4 GiB を計算すると 0 が出るHaskell DEBUGのドリルです。型シグネチャの無い定数は多相にならず、離れた関数での使い方から Int32 に決まって桁あふれすることを見抜き、型シグネチャで直します。"
+      "description": "無限に続くGray codeのリストからfilterでnビットの符号を取り出したせいで、プログラムが終わらなくなるバグを直す。先頭から何個取ればよいかは、符号の最上位ビットが元の数と同じことから決まる。"
     }
   ]
 }
@@ -62,60 +62,51 @@
 </nav>
 
 <main class="drill"
-  data-topic="汎用に見える定数の型"
-  data-tags="monomorphism-restriction typeclass type-defaulting integer-overflow"
-  data-concepts="単相性制限, 型クラス制約, 型推論, Int32, 桁あふれ, monomorphism restriction, type inference, Num"
-  data-level="whale"
+  data-topic="無限のリストとfilter"
+  data-tags="gray-code infinite-list laziness infinite-loop bit-operation"
+  data-concepts="グレイコード, 無限リスト, filter, take, 終わらないプログラム, infinite list, non-termination"
+  data-level="bison"
 >
   <h2>2026-08-30</h2>
   <div class="code-frame">
-    <p class="code-filename">Units.hs</p>
-    <pre class="code"><code><span class="kw">import</span> <span class="ty">Data.Int</span> (<span class="ty">Int32</span>)
-
-<span class="fn">kib</span> = <span class="nu">1024</span>
-
-<span class="fn">packetBytes</span> <span class="op">::</span> <span class="ty">Int32</span> <span class="op">-&gt;</span> <span class="ty">Int32</span>
-<span class="fn">packetBytes</span> n = n * kib
-
-<span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()
-<span class="fn">main</span> = <span class="kw">do</span>
-  print (packetBytes <span class="nu">3</span>)
-  print (kib * kib * kib * <span class="nu">4</span>)
+    <p class="code-filename">Codes.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">import</span> <span class="ty">Data.Bits</span> (shiftR, xor)</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">grays</span> <span class="op">::</span> [<span class="ty">Int</span>]</span>
+<span class="code-line"><span class="fn">grays</span> = [i `xor` (i `shiftR` <span class="nu">1</span>) | i <span class="op">&lt;-</span> [<span class="nu">0</span> ..]]</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">codes</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> [<span class="ty">Int</span>]</span>
+<span class="code-line"><span class="fn">codes</span> n = filter (&lt; <span class="nu">2</span> ^ n) grays</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()</span>
+<span class="code-line"><span class="fn">main</span> = print (codes <span class="nu">3</span>)</span>
 </code></pre>
   </div>
 
   <p class="question">
-    <code>kib</code> は 1 KiB のバイト数 1024 を表す定数で、<code>main</code> は 3 KiB のバイト数と、4 GiB（1024 × 1024 × 1024 × 4）のバイト数を表示するつもりです。本来は <code>3072</code> と <code>4294967296</code> の2行が出るはずが、いまは <code>3072</code> と <code>0</code> が出ます。
+    <code>grays</code> は、<code>i = 0, 1, 2, ...</code> を順に <code>i `xor` (i `shiftR` 1)</code> に変えた値の無限リストです。<code>codes n</code> は、そのうち <code>n</code> ビットに収まる値を、<code>grays</code> に現れる順にすべて並べたリストを返すつもりの関数です。<code>main</code> は本来 <code>[0,1,3,2,6,7,5,4]</code> を表示して終わるはずが、いまは何も表示されないまま、いつまでも終わりません。
   </p>
 
   <details class="answer">
     <summary>Answer</summary>
     <div class="answer-body">
       <h3 class="wrong">Wrong</h3>
-      <pre class="code"><code><span class="fn">kib</span> = <span class="nu">1024</span>
-
-<span class="fn">packetBytes</span> <span class="op">::</span> <span class="ty">Int32</span> <span class="op">-&gt;</span> <span class="ty">Int32</span>
-<span class="fn">packetBytes</span> n = n * kib
+      <pre class="code"><code><span class="code-line"><span class="fn">codes</span> n = filter (&lt; <span class="nu">2</span> ^ n) grays</span>
 </code></pre>
       <p>
-        <code>main</code> の <code>kib * kib * kib * 4</code> には型が書かれていません。<code>1024</code> のような整数リテラルは <code>Num</code> のどの型にもなれるので、<code>kib</code> も使う場所ごとに <code>Int32</code> にも <code>Integer</code> にもなる、と読みたくなります。ところが、引数を取らない <code>kib = 1024</code> のような束縛に型シグネチャが無く、型が <code>Num a</code> のような型クラスの制約を持つときは、Haskell は <code>a</code> を多相にしません。<code>kib</code> はある1つの型の定数になり、その型はモジュールの中のすべての使い方から1つに決められます。
+        <code>filter</code> は遅延評価なので、無限リストにかけても条件を満たす要素を先頭から1つずつ返せます。<code>print</code> は <code>[0,1,3,2,6,7,5,4</code> までの文字を作りますが、閉じ括弧 <code>]</code> を出すには、この先に <code>8</code> 未満の値がもう無いことを確かめる必要があります。<code>filter</code> にはそれが分からないので、<code>i = 8</code> 以降の値を1つずつ調べ続け、リストの終わりに着くことはありません。表示しかけた文字は出力のバッファにたまり、改行も来ずバッファもいっぱいにならないので、画面には何も出ません。
       </p>
       <p>
-        このモジュールで <code>kib</code> の型を決めているのは <code>packetBytes</code> です。<code>packetBytes</code> の型は <code>Int32 -&gt; Int32</code> なので、<code>n * kib</code> の <code>kib</code> は <code>Int32</code> に決まり、<code>main</code> の <code>kib</code> も同じ <code>Int32</code> の定数を指します。<code>Int32</code> の演算は 2 の 32 乗で割った余りで行われる（範囲の外は、表せる範囲へ巻き戻る）ので、1024 × 1024 × 1024 × 4 = 2 の 32 乗は 0 になります。<code>packetBytes 3</code> の <code>3072</code> は <code>Int32</code> に収まるので正しく、こちらだけを見ても欠陥に気付けません。<sup class="fn-ref">1</sup>
+        <code>filter</code> を選んだのは、<code>grays</code> の値が <code>0, 1, 3, 2, 6, 7, 5, 4</code> と大きくなったり小さくなったりするので、「最初に条件を外れた値で止める <code>takeWhile</code> では、途中で切れてしまう」と考えたからでしょう。けれども <code>i `shiftR` 1</code> は <code>i</code> の最上位ビットより上にビットを持たないので、<code>i</code> と符号の最上位ビットは同じ位置にあります。<code>i</code> が <code>n</code> ビットに収まるときに限って符号も収まるので、<code>n</code> ビットの符号は <code>grays</code> の先頭の <code>2 ^ n</code> 個にすべて並び、その後ろには1つも現れません。
       </p>
       <h3 class="right">Right</h3>
-      <pre class="code"><code><span class="fn">kib</span> <span class="op">::</span> (<span class="ty">Num</span> a) <span class="op">=&gt;</span> a
-<span class="fn">kib</span> = <span class="nu">1024</span>
-
-<span class="fn">packetBytes</span> <span class="op">::</span> <span class="ty">Int32</span> <span class="op">-&gt;</span> <span class="ty">Int32</span>
-<span class="fn">packetBytes</span> n = n * kib
+      <pre class="code"><code><span class="code-line"><span class="fn">codes</span> n = take (<span class="nu">2</span> ^ n) grays</span>
 </code></pre>
       <p>
-        型シグネチャ <code>kib :: (Num a) =&gt; a</code> を付けると、<code>kib</code> は本当に多相な定数になります。<code>Num</code> の制約は、使う場所ごとに呼び出し側の型の <code>Num</code> のインスタンスとして渡されるので、<code>packetBytes</code> の中では <code>Int32</code> の 1024、<code>main</code> の中では別の型の 1024 になります。<code>main</code> の式は型が書かれていないので既定の型の <code>Integer</code> で計算され、桁あふれせずに <code>4294967296</code> が出ます。<code>packetBytes 3</code> は前と同じ <code>3072</code> です。<sup class="fn-ref">2</sup>
+        <code>take (2 ^ n)</code> は、先頭から <code>2 ^ n</code> 個を取ったところでリストを閉じ、<code>grays</code> の残りを調べません。上で見たとおり、先頭の <code>2 ^ n</code> 個が <code>n</code> ビットに収まる符号のすべてなので、<code>codes 3</code> は <code>i = 0</code> から <code>7</code> の8個だけを計算し、<code>[0,1,3,2,6,7,5,4]</code> を表示して終わります。<sup class="fn-ref">1</sup>
       </p>
       <ol class="footnotes">
-        <li>この規則は単相性制限（monomorphism restriction）と呼ばれ、Haskell 2010 Language Report の 4.5.5 節にあります。型クラスの制約を持つ定数を多相にすると、使うたびに値が計算し直されるおそれがあるので、型シグネチャが無いときは1つの型に固定します。GHCi では既定でこの制限が外されているので、同じ定義を GHCi に打ち込むと 4294967296 が出ることがあります。</li>
-        <li>GHC に <code>-Wall</code> を付けると、<code>main</code> の式が既定の型 <code>Integer</code> に決まったことを <code>-Wtype-defaults</code> の警告で知らせます。直したコードの検証では、この警告だけを止めています。</li>
+        <li>同じ理由で、<code>takeWhile (&lt; 2 ^ n) grays</code> と書いても止まります。最初に <code>2 ^ n</code> 以上になるのは <code>i = 2 ^ n</code> の符号で、それより前の値はすべて <code>2 ^ n</code> 未満だからです。</li>
       </ol>
     </div>
   </details>

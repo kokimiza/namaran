@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="集計用の構造体を、最初の1件だけを数えた状態に戻す stats_restart を書くC WRITEのドリルです。宣言でしか書けない初期化子の形を、複合リテラルと構造体の代入で、すでにある変数に使います。">
-<title>構造体を初期化子で戻す</title>
+<meta name="description" content="秘密の値との比較に使う、どこで食い違っても同じ時間で終わるバイト列の比較関数を書く。途中で抜けず、差をXORとORでためて最後に一度だけ判定する。">
+<title>時間が一定のバイト比較</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-08-30">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,12 +28,12 @@
       "dateModified": "2026-08-30",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "構造体を初期化子で戻す" },
-      "keywords": "compound-literal, designated-initializer, struct, initialization",
+      "about": { "@type": "Thing", "name": "時間が一定のバイト比較" },
+      "keywords": "timing-attack, bit-operation, comparison, cryptography",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
-      "description": "集計用の構造体を、最初の1件だけを数えた状態に戻す stats_restart を書くC WRITEのドリルです。宣言でしか書けない初期化子の形を、複合リテラルと構造体の代入で、すでにある変数に使います。"
+      "description": "秘密の値との比較に使う、どこで食い違っても同じ時間で終わるバイト列の比較関数を書く。途中で抜けず、差をXORとORでためて最後に一度だけ判定する。"
     }
   ]
 }
@@ -62,42 +62,41 @@
 </nav>
 
 <main class="drill"
-  data-topic="構造体を初期化子で戻す"
-  data-tags="compound-literal designated-initializer struct initialization"
-  data-concepts="複合リテラル, 指示付き初期化子, 構造体の代入, 初期化と代入, compound literal, designated initializer, struct assignment"
-  data-level="hedgehog"
+  data-topic="時間が一定のバイト比較"
+  data-tags="timing-attack bit-operation comparison cryptography"
+  data-concepts="定数時間比較, タイミング攻撃, XOR, 秘密情報の比較, constant-time comparison, timing side channel"
+  data-level="peacock"
 >
   <h2>2026-08-30</h2>
   <div class="code-frame">
-    <p class="code-filename">stats_restart.c</p>
-    <pre class="code"><code><span class="kw">struct</span> <span class="ty">stats</span> {
-    <span class="ty">int</span> count;
-    <span class="ty">int</span> min;
-    <span class="ty">int</span> max;
-    <span class="ty">long</span> sum;
-};
-
-<span class="ty">void</span> <span class="fn">stats_restart</span>(<span class="kw">struct</span> <span class="ty">stats</span>* s, <span class="ty">int</span> first) {
-}
+    <p class="code-filename">ct_equal.c</p>
+    <pre class="code"><code><span class="code-line"><span class="ty">int</span> <span class="fn">ct_equal</span>(<span class="kw">const</span> <span class="ty">unsigned</span> <span class="ty">char</span>* a, <span class="kw">const</span> <span class="ty">unsigned</span> <span class="ty">char</span>* b, <span class="ty">size_t</span> n) {</span>
+<span class="code-line">}</span>
 </code></pre>
   </div>
 
   <p class="question">
-    件数・最小値・最大値・合計を持つ <code>struct stats</code> を、値 <code>first</code> の1件だけを数えた状態に戻す <code>stats_restart</code> を書いてください。呼ぶ前に <code>*s</code> に入っていた値は使いません。例では、呼んだあとの <code>*s</code> の中身を <code>{count, min, max, sum}</code> の順で書きます。
+    長さ <code>n</code> の2つのバイト列 <code>a</code> と <code>b</code> が一致すれば 1、そうでなければ 0 を返す <code>ct_equal</code> を書いてください。パスワードやトークンのような秘密の値と比べるのに使うので、かかる時間が、2つの列のどこで食い違うかやバイトの値によって変わらないようにします。<code>n</code> が 0 なら 1 を返します。例では、バイト列を文字列リテラルで書きます。
   </p>
 
   <div class="examples">
     <div class="example">
       <p class="example-label">入力例 1</p>
-      <pre class="io"><code>stats_restart(&amp;s, 5)</code></pre>
+      <pre class="io"><code>ct_equal("pass", "pass", 4)</code></pre>
       <p class="example-label">出力例 1</p>
-      <pre class="io"><code>{1, 5, 5, 5}</code></pre>
+      <pre class="io"><code>1</code></pre>
     </div>
     <div class="example">
       <p class="example-label">入力例 2</p>
-      <pre class="io"><code>stats_restart(&amp;s, -2)</code></pre>
+      <pre class="io"><code>ct_equal("pass", "pasz", 4)</code></pre>
       <p class="example-label">出力例 2</p>
-      <pre class="io"><code>{1, -2, -2, -2}</code></pre>
+      <pre class="io"><code>0</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>ct_equal("", "", 0)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>1</code></pre>
     </div>
   </div>
 
@@ -106,17 +105,26 @@
     <div class="answer-body">
       <div class="code-frame diff-added" aria-label="追加する参考実装">
         <p class="code-filename">Reference</p>
-        <pre class="code"><code><span class="ty">void</span> <span class="fn">stats_restart</span>(<span class="kw">struct</span> <span class="ty">stats</span>* s, <span class="ty">int</span> first) {
-    *s = (<span class="kw">struct</span> <span class="ty">stats</span>){.count = <span class="nu">1</span>, .min = first, .max = first, .sum = first};
-}
+        <pre class="code"><code><span class="code-line"><span class="ty">int</span> <span class="fn">ct_equal</span>(<span class="kw">const</span> <span class="ty">unsigned</span> <span class="ty">char</span>* a, <span class="kw">const</span> <span class="ty">unsigned</span> <span class="ty">char</span>* b, <span class="ty">size_t</span> n) {</span>
+<span class="code-line">    <span class="ty">unsigned</span> <span class="ty">char</span> diff = <span class="nu">0</span>;</span>
+<span class="code-line">    <span class="kw">for</span> (<span class="ty">size_t</span> i = <span class="nu">0</span>; i &lt; n; i++)</span>
+<span class="code-line">        diff |= a[i] ^ b[i];</span>
+<span class="code-line">    <span class="kw">return</span> diff == <span class="nu">0</span>;</span>
+<span class="code-line">}</span>
 </code></pre>
       </div>
       <p>
-        <code>struct stats s = {.count = 1, .min = 5, .max = 5, .sum = 5};</code> のような波括弧の初期化子は、宣言で変数を作るときにしか書けません。すでにある <code>*s</code> に <code>*s = {.count = 1, ...};</code> と書くとコンパイルエラーです。そこで <code>(struct stats){...}</code> と型名を括弧で前に置き、複合リテラルにします。複合リテラルは、その初期化子で初期化した名前の無い <code>struct stats</code> のオブジェクトを作る式です。構造体は配列と違って代入できるので、このオブジェクトを <code>*s</code> へ丸ごとコピーすれば、初期化子の形のまま全メンバを書き換えられます。
+        見慣れた比較は、食い違うバイトを見つけた時点で <code>return 0</code> します。この形では、先頭から一致したバイトが多いほど長く動くので、時間を測れば推測の先頭が何バイト当たったかが分かります。条件を満たすには、食い違いを見つけても抜けずに <code>n</code> バイトを最後まで読み、一致したかどうかは最後に一度だけ決めます。
       </p>
       <p>
-        複合リテラルの中身は宣言の初期化子と同じ規則で決まり、指定しなかったメンバは 0 になります。あとで <code>struct stats</code> にメンバを足したとき、<code>stats_restart</code> を直し忘れても、そのメンバは前の値を引きずらず 0 に戻ります。入力例 2 の <code>-2</code> も、<code>.sum = first</code> で <code>int</code> から <code>long</code> へ変換されて <code>-2</code> のまま入ります。掲載したのは参考実装で、唯一の正解ではありません。<code>s-&gt;count = 1;</code> から <code>s-&gt;sum = first;</code> までメンバごとに4行で代入しても、同じ結果になります。
+        <code>a[i] ^ b[i]</code> は、2つのバイトが同じなら 0、違えば違うビットだけが 1 の値になります。これを <code>diff |= </code> でためると、一度立ったビットはあとで 0 に戻らないので、どこか1か所でも違えば <code>diff</code> は最後まで 0 以外のままです。ループの中には値で向きが変わる分岐が無く、どのバイトでも同じ XOR と OR を1回ずつ実行します。<code>"pass"</code> と <code>"pasz"</code> では4バイト目の <code>'s' ^ 'z'</code> が 0 以外なので 0 を返し、<code>n</code> が 0 ならループに入らず <code>diff</code> は 0 のままなので 1 を返します。
       </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。ためる演算を OR から足し算の <code>+=</code> に変えると、<code>unsigned char</code> の和は 256 で 0 に戻るので、違うバイトがいくつかあっても一致と判定されることがあります。ためるのは、0 以外が一度入ったら 0 に戻らない OR にします。<sup class="fn-ref">1</sup>
+      </p>
+      <ol class="footnotes">
+        <li>C の規格はプログラムの実行時間について何も定めていないので、コンパイラが「<code>diff</code> が 0 以外になったら抜けてよい」と判断して書き換える余地は、理屈の上では残ります。暗号ライブラリが同じ処理を <code>volatile</code> やアセンブリで書き、コンパイラに手を出させないようにしているのはそのためです。</li>
+      </ol>
     </div>
   </details>
 </main>

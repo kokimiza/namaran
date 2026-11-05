@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="配列の偶数を数える関数が、ビルドの仕方によって正しい個数を返したりでたらめな値を返したりするC DEBUGのドリルです。初期化子の無い自動変数を ++ で書き換えると、不定の値から数え始めることを直します。">
-<title>初期化を忘れた数え役</title>
+<meta name="description" content="バイナリのダイジェストをstrncmpで比べたせいで、0のバイトから先が比べられず、違う値を受け付けてしまうバグを直す。バイト列の比較はmemcmpで長さを決めて行う。">
+<title>0のバイトで止まる比較</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-08-30">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,12 +28,12 @@
       "dateModified": "2026-08-30",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "初期化を忘れた数え役" },
-      "keywords": "initialization, undefined-behavior, storage-duration",
+      "about": { "@type": "Thing", "name": "0のバイトで止まる比較" },
+      "keywords": "null-terminated-string, hash-function, comparison, cryptography",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
-      "description": "配列の偶数を数える関数が、ビルドの仕方によって正しい個数を返したりでたらめな値を返したりするC DEBUGのドリルです。初期化子の無い自動変数を ++ で書き換えると、不定の値から数え始めることを直します。"
+      "description": "バイナリのダイジェストをstrncmpで比べたせいで、0のバイトから先が比べられず、違う値を受け付けてしまうバグを直す。バイト列の比較はmemcmpで長さを決めて行う。"
     }
   ]
 }
@@ -62,59 +62,55 @@
 </nav>
 
 <main class="drill"
-  data-topic="初期化を忘れた数え役"
-  data-tags="initialization undefined-behavior storage-duration"
-  data-concepts="未初期化変数, 自動変数, 不定値, 初期化と代入, uninitialized variable, indeterminate value, automatic storage"
+  data-topic="0のバイトで止まる比較"
+  data-tags="null-terminated-string hash-function comparison cryptography"
+  data-concepts="strncmp, memcmp, ダイジェストの比較, ハッシュ値, バイナリデータ, binary data, digest comparison"
   data-level="hedgehog"
 >
   <h2>2026-08-30</h2>
   <div class="code-frame">
-    <p class="code-filename">count_even.c</p>
-    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
-
-<span class="ty">int</span> <span class="fn">count_even</span>(<span class="kw">const</span> <span class="ty">int</span>* a, <span class="ty">int</span> n) {
-    <span class="ty">int</span> count;
-    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; n; i++) {
-        <span class="kw">if</span> (a[i] % <span class="nu">2</span> == <span class="nu">0</span>) {
-            count++;
-        }
-    }
-    <span class="kw">return</span> count;
-}
-
-<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
-    <span class="ty">int</span> a[] = {<span class="nu">4</span>, <span class="nu">7</span>, <span class="nu">10</span>, <span class="nu">3</span>, <span class="nu">8</span>};
-    <span class="fn">printf</span>(<span class="st">"%d\n"</span>, <span class="fn">count_even</span>(a, <span class="nu">5</span>));
-}
+    <p class="code-filename">digest.c</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;string.h&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="pp">#define</span> <span class="nu">DIGEST_LEN</span> <span class="nu">4</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">static</span> <span class="ty">int</span> <span class="fn">digest_equal</span>(<span class="kw">const</span> <span class="ty">unsigned</span> <span class="ty">char</span>* a, <span class="kw">const</span> <span class="ty">unsigned</span> <span class="ty">char</span>* b) {</span>
+<span class="code-line">    <span class="kw">return</span> <span class="fn">strncmp</span>((<span class="kw">const</span> <span class="ty">char</span>*)a, (<span class="kw">const</span> <span class="ty">char</span>*)b, <span class="nu">DIGEST_LEN</span>) == <span class="nu">0</span>;</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {</span>
+<span class="code-line">    <span class="kw">const</span> <span class="ty">unsigned</span> <span class="ty">char</span> stored[<span class="nu">DIGEST_LEN</span>] = {<span class="nu">0x5e</span>, <span class="nu">0x00</span>, <span class="nu">0x8c</span>, <span class="nu">0x21</span>};</span>
+<span class="code-line">    <span class="kw">const</span> <span class="ty">unsigned</span> <span class="ty">char</span> input[<span class="nu">DIGEST_LEN</span>] = {<span class="nu">0x5e</span>, <span class="nu">0x00</span>, <span class="nu">0x13</span>, <span class="nu">0xf7</span>};</span>
+<span class="code-line">    <span class="fn">puts</span>(<span class="fn">digest_equal</span>(stored, input) ? <span class="st">"accepted"</span> : <span class="st">"rejected"</span>);</span>
+<span class="code-line">}</span>
 </code></pre>
   </div>
 
   <p class="question">
-    配列の中の偶数の個数を返すつもりの <code>count_even</code> です。<code>main</code> は <code>{4, 7, 10, 3, 8}</code> を渡しており、本来は <code>3</code> が出ます。いまは、最適化なしでビルドすると <code>3</code> が出ることもありますが、<code>-O2</code> を付けてビルドすると実行のたびに <code>91680187</code> や <code>16080315</code> のような違う値が出ます。
+    パスワードをハッシュ関数にかけた4バイトの値(ダイジェスト)を、保存しておいた値と比べ、4バイトすべてが一致したときだけ受け付けるつもりのコードです。<code>main</code> は、保存した <code>stored</code> と、入力から計算した <code>input</code> を比べます。2つは3バイト目から違うので本来は <code>rejected</code> と表示されるはずが、いまは <code>accepted</code> と表示されます。
   </p>
 
   <details class="answer">
     <summary>Answer</summary>
     <div class="answer-body">
       <h3 class="wrong">Wrong</h3>
-      <pre class="code"><code><span class="ty">int</span> <span class="fn">count_even</span>(<span class="kw">const</span> <span class="ty">int</span>* a, <span class="ty">int</span> n) {
-    <span class="ty">int</span> count;
+      <pre class="code"><code><span class="code-line"><span class="kw">return</span> <span class="fn">strncmp</span>((<span class="kw">const</span> <span class="ty">char</span>*)a, (<span class="kw">const</span> <span class="ty">char</span>*)b, <span class="nu">DIGEST_LEN</span>) == <span class="nu">0</span>;</span>
 </code></pre>
       <p>
-        <code>int count;</code> には初期化子がありません。関数の中で <code>static</code> を付けずに宣言した変数は、関数に入るたびに新しく作られ、初期化子を書かなければ 0 から始まる保証もなく、値は決まらないままです。<code>count++</code> は <code>count = count + 1</code> と同じ再代入で、右辺で <code>count</code> の今の値を読みます。初めの値が決まっていないので、そこに偶数の個数を足しても答えは決まりません。
+        <code>strncmp</code> は文字列を比べる関数で、最大 <code>DIGEST_LEN</code> 文字まで比べますが、その前に両方が同じ位置で 0 のバイト(文字列の終端)に来ると、そこで「一致」として 0 を返します。ダイジェストはハッシュ関数が出したバイト列なので、0 のバイトはどこにでも現れます。
       </p>
       <p>
-        この決まらない値を読むと動作は未定義になり、何が出るかはコンパイラ次第です。<code>count</code> がどの値から数え始めるかは、ビルドの仕方と、そのときメモリやレジスタに残っていた中身で変わります。最適化なしで <code>3</code> が出るのは、その場所にたまたま 0 が入っていたときで、<code>-O2</code> で値が毎回変わるのと同じ欠陥です。<sup class="fn-ref">1</sup>
+        <code>stored</code> と <code>input</code> は1バイト目の <code>0x5e</code> が一致し、2バイト目はどちらも <code>0x00</code> です。<code>strncmp</code> はここで両方の文字列が終わったと見なし、違いのある3バイト目と4バイト目を読まずに 0 を返すので、<code>digest_equal</code> は 1 を返して <code>accepted</code> が出ます。先頭から 0 のバイトまでが保存値と同じダイジェストなら、残りが何であっても受け付けてしまいます。
       </p>
       <h3 class="right">Right</h3>
-      <pre class="code"><code><span class="ty">int</span> <span class="fn">count_even</span>(<span class="kw">const</span> <span class="ty">int</span>* a, <span class="ty">int</span> n) {
-    <span class="ty">int</span> count = <span class="nu">0</span>;
+      <pre class="code"><code><span class="code-line"><span class="kw">return</span> <span class="fn">memcmp</span>(a, b, <span class="nu">DIGEST_LEN</span>) == <span class="nu">0</span>;</span>
 </code></pre>
       <p>
-        宣言に <code>= 0</code> を付けると、<code>count</code> は作られた時点で 0 になり、ループの <code>count++</code> はそこから1ずつ増やします。<code>{4, 7, 10, 3, 8}</code> では 4、10、8 で増えて <code>3</code> です。<code>n</code> が 0 でループが1回も回らないときも、初期化した 0 がそのまま返ります。足し込んだり数えたりする変数は、<code>+=</code> や <code>++</code> で書き換える前に、宣言の初期化子で始まりの値を与えておきます。
+        <code>memcmp</code> は 0 のバイトを特別扱いせず、渡した長さの分だけバイトを比べます。<code>DIGEST_LEN</code> の4バイトすべてが比較に入るので、3バイト目の <code>0x8c</code> と <code>0x13</code> の違いで 0 以外が返り、<code>rejected</code> が出ます。ダイジェストのように長さが決まったバイナリのデータは、終端の 0 を探す <code>str</code> の関数ではなく、長さを受け取る <code>mem</code> の関数で扱います。<sup class="fn-ref">1</sup>
       </p>
       <ol class="footnotes">
-        <li>関数の外の変数や <code>static</code> を付けた変数は、初期化子が無くても 0 で初期化されます。初期化子を省いて 0 から始まるのは、こちらだけです。GCC 14 は、<code>-Wall -O2</code> でビルドするとこの <code>count</code> に <code>-Wmaybe-uninitialized</code> の警告を出しますが、<code>-Wall</code> だけで最適化しないビルドでは何も言いません。</li>
+        <li>同じ欠陥の有名な例に、Wii の署名検証があります。署名から取り出したハッシュ値と、データから計算したハッシュ値を <code>strncmp</code> で比べていたため、先頭が 0 のバイトになるよう細工した偽の署名が検証を通りました。この穴は Trucha bug と呼ばれ、非公式のソフトを動かすのに使われました。</li>
       </ol>
     </div>
   </details>

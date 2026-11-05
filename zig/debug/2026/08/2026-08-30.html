@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="ラベル付きブロックの中で複製した文字列の前後の空白を除き、その結果をブロックの値にするZig DEBUGのドリルです。defer がブロックを抜けるときに走って複製を解放し、std.mem.trim が返した切り出しが解放済みのメモリを指すことを直します。">
-<title>ブロックを出ると消える名前</title>
+<meta name="description" content="関数の中の配列を指すスライスを返したせいで、2回目の呼び出しが1回目の結果を上書きしてしまうバグを直す。配列は値なので、スライスではなく配列そのものを返せば写しが呼び出し側に渡る。">
+<title>消えた配列を指すスライス</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/zig/debug/2026-08-30">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,12 +28,12 @@
       "dateModified": "2026-08-30",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "ブロックを出ると消える名前" },
-      "keywords": "defer, use-after-free, slice, memory-management",
+      "about": { "@type": "Thing", "name": "消えた配列を指すスライス" },
+      "keywords": "dangling-pointer, slice, array, lifetime",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
-      "description": "ラベル付きブロックの中で複製した文字列の前後の空白を除き、その結果をブロックの値にするZig DEBUGのドリルです。defer がブロックを抜けるときに走って複製を解放し、std.mem.trim が返した切り出しが解放済みのメモリを指すことを直します。"
+      "description": "関数の中の配列を指すスライスを返したせいで、2回目の呼び出しが1回目の結果を上書きしてしまうバグを直す。配列は値なので、スライスではなく配列そのものを返せば写しが呼び出し側に渡る。"
     }
   ]
 }
@@ -62,64 +62,63 @@
 </nav>
 
 <main class="drill"
-  data-topic="ブロックを出ると消える名前"
-  data-tags="defer use-after-free slice memory-management"
-  data-concepts="defer, ラベル付きブロック, ブロックのスコープ, 解放後の使用, std.mem.trim, labeled block, use after free, dangling slice"
-  data-level="peacock"
+  data-topic="消えた配列を指すスライス"
+  data-tags="dangling-pointer slice array lifetime"
+  data-concepts="ダングリングポインタ, ローカル変数のアドレス, スライスを返す, 配列を値で返す, dangling slice, stack memory"
+  data-level="hedgehog"
 >
   <h2>2026-08-30</h2>
   <div class="code-frame">
-    <p class="code-filename">trim_name.zig</p>
-    <pre class="code"><code><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);
-
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {
-    <span class="kw">var</span> buf: [<span class="nu">64</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;
-    <span class="kw">var</span> stdout_writer = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;buf);
-    <span class="kw">const</span> stdout = &amp;stdout_writer.interface;
-    <span class="kw">const</span> name = <span class="lt">blk</span>: {
-        <span class="kw">const</span> raw = <span class="kw">try</span> init.gpa.<span class="fn">dupe</span>(<span class="ty">u8</span>, <span class="st">"  zig  "</span>);
-        <span class="kw">defer</span> init.gpa.<span class="fn">free</span>(raw);
-        <span class="kw">break</span> <span class="lt">:blk</span> std.mem.<span class="fn">trim</span>(<span class="ty">u8</span>, raw, <span class="st">" "</span>);
-    };
-    <span class="kw">try</span> stdout.<span class="fn">print</span>(<span class="st">"[{s}]\n"</span>, .{name});
-    <span class="kw">try</span> stdout.<span class="fn">flush</span>();
-}
+    <p class="code-filename">pair.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">pair</span>(x: <span class="ty">u8</span>) []<span class="kw">const</span> <span class="ty">u8</span> {</span>
+<span class="code-line">    <span class="kw">const</span> arr = [<span class="nu">2</span>]<span class="ty">u8</span>{ x, x + <span class="nu">1</span> };</span>
+<span class="code-line">    <span class="kw">return</span> &amp;arr;</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {</span>
+<span class="code-line">    <span class="kw">var</span> buf: [<span class="nu">256</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line">    <span class="kw">var</span> stdout_writer = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;buf);</span>
+<span class="code-line">    <span class="kw">const</span> stdout = &amp;stdout_writer.interface;</span>
+<span class="code-line">    <span class="kw">const</span> a = <span class="fn">pair</span>(<span class="nu">4</span>);</span>
+<span class="code-line">    <span class="kw">const</span> b = <span class="fn">pair</span>(<span class="nu">7</span>);</span>
+<span class="code-line">    <span class="kw">try</span> stdout.<span class="fn">print</span>(<span class="st">"{d} {d} {d} {d}\n"</span>, .{ a[<span class="nu">0</span>], a[<span class="nu">1</span>], b[<span class="nu">0</span>], b[<span class="nu">1</span>] });</span>
+<span class="code-line">    <span class="kw">try</span> stdout.<span class="fn">flush</span>();</span>
+<span class="code-line">}</span>
 </code></pre>
   </div>
 
   <p class="question">
-    前後に空白の付いた名前を複製して受け取り、空白を除いた名前を <code>name</code> に入れて <code>[名前]</code> の形で表示するつもりのプログラムです。<code>"  zig  "</code> から本来は <code>[zig]</code> が出るはずが、いまは <code>[UUU]</code> のように、<code>zig</code> ではない3バイトが括弧の間に出ます。
+    <code>pair(x)</code> は、<code>x</code> と <code>x + 1</code> の2つを並べた列を返すつもりの関数です。<code>main</code> は <code>pair(4)</code> と <code>pair(7)</code> の結果を続けて表示し、本来は <code>4 5 7 8</code> と表示されるはずです。いまは Debug ビルドで <code>7 8 7 8</code> が表示され、ReleaseFast でビルドすると、どちらでもない値が表示されました。
   </p>
 
   <details class="answer">
     <summary>Answer</summary>
     <div class="answer-body">
       <h3 class="wrong">Wrong</h3>
-      <pre class="code"><code><span class="kw">const</span> name = <span class="lt">blk</span>: {
-    <span class="kw">const</span> raw = <span class="kw">try</span> init.gpa.<span class="fn">dupe</span>(<span class="ty">u8</span>, <span class="st">"  zig  "</span>);
-    <span class="kw">defer</span> init.gpa.<span class="fn">free</span>(raw);
-    <span class="kw">break</span> <span class="lt">:blk</span> std.mem.<span class="fn">trim</span>(<span class="ty">u8</span>, raw, <span class="st">" "</span>);
-};
+      <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">pair</span>(x: <span class="ty">u8</span>) []<span class="kw">const</span> <span class="ty">u8</span> {</span>
+<span class="code-line">    <span class="kw">const</span> arr = [<span class="nu">2</span>]<span class="ty">u8</span>{ x, x + <span class="nu">1</span> };</span>
+<span class="code-line">    <span class="kw">return</span> &amp;arr;</span>
+<span class="code-line">}</span>
 </code></pre>
       <p>
-        <code>defer</code> に置いた文は、関数の終わりではなく、その <code>defer</code> を書いたブロックを抜けるときに実行されます。ここでのブロックは <code>blk:</code> のラベル付きブロックで、<code>break :blk</code> で値を持って抜ける瞬間に <code>init.gpa.free(raw)</code> が走ります。<code>name</code> に値が入ったときには、<code>raw</code> の7バイトはもう解放されています。
+        <code>arr</code> は <code>pair</code> のローカル変数で、その2バイトは <code>pair</code> を呼んでいる間だけ使える場所に置かれます。<code>&amp;arr</code> は配列へのポインタ <code>*const [2]u8</code> で、戻り値の型 <code>[]const u8</code> へ変換されると、その場所を指す長さ2のスライスになります。スライスが運ぶのは場所と長さだけで、要素の写しは持ちません。<code>pair</code> から戻った時点で <code>arr</code> の寿命は終わり、<code>a</code> はもう使われなくなった場所を指しています。
       </p>
       <p>
-        <code>std.mem.trim</code> は新しい文字列を作らず、渡されたスライスのうち前後の空白を除いた範囲を、同じメモリを指すスライスとして返します。<code>name</code> は <code>raw</code> の3バイト目から5バイト目を指したままなので、<code>print</code> は解放済みのメモリを読みます。解放した領域はアロケータが書き換えたり別の確保に回したりしてよい場所で、読んだ結果は決まりません。手元の Debug ビルドでは <code>UUU</code> が出ましたが、長さだけは <code>name</code> が覚えているので、括弧の間は3バイトになります。
+        続く <code>pair(7)</code> は同じ場所を自分の <code>arr</code> に使い、そこへ <code>7</code> と <code>8</code> を書き込みます。<code>a</code> と <code>b</code> は同じ場所を指しているので、Debug ビルドでは両方から <code>7 8</code> が読めます。寿命の終わった場所を読むのは illegal behavior で、安全検査でも見つからないので、ビルドの設定によって読める値が変わります。
       </p>
       <h3 class="right">Right</h3>
-      <pre class="code"><code><span class="kw">const</span> name = <span class="lt">blk</span>: {
-    <span class="kw">const</span> raw = <span class="kw">try</span> init.gpa.<span class="fn">dupe</span>(<span class="ty">u8</span>, <span class="st">"  zig  "</span>);
-    <span class="kw">defer</span> init.gpa.<span class="fn">free</span>(raw);
-    <span class="kw">break</span> <span class="lt">:blk</span> <span class="kw">try</span> init.gpa.<span class="fn">dupe</span>(<span class="ty">u8</span>, std.mem.<span class="fn">trim</span>(<span class="ty">u8</span>, raw, <span class="st">" "</span>));
-};
-<span class="kw">defer</span> init.gpa.<span class="fn">free</span>(name);
+      <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">pair</span>(x: <span class="ty">u8</span>) [<span class="nu">2</span>]<span class="ty">u8</span> {</span>
+<span class="code-line">    <span class="kw">const</span> arr = [<span class="nu">2</span>]<span class="ty">u8</span>{ x, x + <span class="nu">1</span> };</span>
+<span class="code-line">    <span class="kw">return</span> arr;</span>
+<span class="code-line">}</span>
 </code></pre>
       <p>
-        <code>trim</code> の結果を <code>init.gpa.dupe</code> で新しく確保したメモリへコピーしてから、ブロックの値にします。ブロックを抜けるときに <code>raw</code> が解放されても、<code>name</code> は <code>raw</code> とは別のメモリを指しているので、<code>zig</code> の3文字が残ります。今度は <code>name</code> の側を解放しなければならないので、ブロックの外、<code>name</code> を宣言した直後に <code>defer init.gpa.free(name);</code> を置きます。この <code>defer</code> は <code>main</code> の本体というブロックに属するので、<code>print</code> と <code>flush</code> が終わって <code>main</code> を抜けるときに実行されます。<sup class="fn-ref">1</sup>
+        戻り値の型を配列の <code>[2]u8</code> にして、<code>arr</code> そのものを返します。Zig の配列は要素を中に持つ値なので、<code>return arr;</code> で2つの要素が呼び出し側の <code>a</code> に写され、<code>pair</code> の中の <code>arr</code> が消えても <code>a</code> の中身は残ります。<code>pair(7)</code> の結果は別の値 <code>b</code> に写されるので、<code>a</code> は <code>4 5</code> のままで、<code>4 5 7 8</code> が表示されます。<code>main</code> は <code>a[0]</code> のように添字で読んでいるだけなので、呼び出し側を直す必要はありません。<sup class="fn-ref">1</sup>
       </p>
       <ol class="footnotes">
-        <li>ラベル付きブロックでなくても同じです。<code>if</code> や <code>for</code> の本体の <code>{ }</code> も1つのブロックで、その中の <code>defer</code> は本体を抜けるたびに実行されます。<code>for</code> の本体なら、周回ごとに走ります。</li>
+        <li>長さが呼び出すたびに変わる列を返したいときは、配列を値で返せません。呼び出し側が用意したバッファのスライスを引数で受け取って書き込むか、アロケータを受け取って確保した領域を返し、解放を呼び出し側に任せます。</li>
       </ol>
     </div>
   </details>

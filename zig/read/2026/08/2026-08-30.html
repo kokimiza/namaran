@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="二重の for の内側から、ラベルを付けた外側のループへ continue するZig READのドリルです。continue :outer が内側のループを打ち切るだけでなく、外側の本体に残った文も飛ばすことを読み取ります。">
-<title>外のループへcontinue</title>
+<meta name="description" content="Zigの配列を関数に渡し、書き換えた配列を返してもらったあとで元の配列を変える。配列は値なので、代入や引数で中身ごと写され、互いの変更は届かない。">
+<title>配列は丸ごと写される</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/zig/read/2026-08-30">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,12 +28,12 @@
       "dateModified": "2026-08-30",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "外のループへcontinue" },
-      "keywords": "continue-break, loop, control-flow",
+      "about": { "@type": "Thing", "name": "配列は丸ごと写される" },
+      "keywords": "array, pass-by-value, function-parameter",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
-      "description": "二重の for の内側から、ラベルを付けた外側のループへ continue するZig READのドリルです。continue :outer が内側のループを打ち切るだけでなく、外側の本体に残った文も飛ばすことを読み取ります。"
+      "description": "Zigの配列を関数に渡し、書き換えた配列を返してもらったあとで元の配列を変える。配列は値なので、代入や引数で中身ごと写され、互いの変更は届かない。"
     }
   ]
 }
@@ -62,30 +62,32 @@
 </nav>
 
 <main class="drill"
-  data-topic="外のループへcontinue"
-  data-tags="continue-break loop control-flow"
-  data-concepts="ラベル付きcontinue, ラベル付きループ, 二重ループ, labeled continue, nested loop, continue :outer"
+  data-topic="配列は丸ごと写される"
+  data-tags="array pass-by-value function-parameter"
+  data-concepts="配列の値渡し, 配列のコピー, 関数の引数, array value semantics, pass by value, array copy"
   data-level="hedgehog"
 >
   <h2>2026-08-30</h2>
   <div class="code-frame">
-    <p class="code-filename">skip_rest.zig</p>
-    <pre class="code"><code><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);
-
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {
-    <span class="kw">var</span> buf: [<span class="nu">64</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;
-    <span class="kw">var</span> stdout_writer = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;buf);
-    <span class="kw">const</span> stdout = &amp;stdout_writer.interface;
-    <span class="lt">outer</span>: <span class="kw">for</span> (<span class="nu">1</span>..<span class="nu">4</span>) |i| {
-        <span class="kw">for</span> (<span class="nu">1</span>..<span class="nu">4</span>) |j| {
-            <span class="kw">if</span> (j &gt; i) <span class="kw">continue</span> <span class="lt">:outer</span>;
-            <span class="kw">try</span> stdout.<span class="fn">print</span>(<span class="st">"{d}"</span>, .{j});
-        }
-        <span class="kw">try</span> stdout.<span class="fn">print</span>(<span class="st">"|"</span>, .{});
-    }
-    <span class="kw">try</span> stdout.<span class="fn">print</span>(<span class="st">"\n"</span>, .{});
-    <span class="kw">try</span> stdout.<span class="fn">flush</span>();
-}
+    <p class="code-filename">copy.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">bump</span>(arr: [<span class="nu">3</span>]<span class="ty">u8</span>) [<span class="nu">3</span>]<span class="ty">u8</span> {</span>
+<span class="code-line">    <span class="kw">var</span> out = arr;</span>
+<span class="code-line">    out[<span class="nu">0</span>] += <span class="nu">10</span>;</span>
+<span class="code-line">    <span class="kw">return</span> out;</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {</span>
+<span class="code-line">    <span class="kw">var</span> buf: [<span class="nu">256</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line">    <span class="kw">var</span> stdout_writer = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;buf);</span>
+<span class="code-line">    <span class="kw">const</span> stdout = &amp;stdout_writer.interface;</span>
+<span class="code-line">    <span class="kw">var</span> a = [<span class="nu">3</span>]<span class="ty">u8</span>{ <span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">3</span> };</span>
+<span class="code-line">    <span class="kw">const</span> b = <span class="fn">bump</span>(a);</span>
+<span class="code-line">    a[<span class="nu">1</span>] = <span class="nu">0</span>;</span>
+<span class="code-line">    <span class="kw">try</span> stdout.<span class="fn">print</span>(<span class="st">"{any} {any}\n"</span>, .{ a, b });</span>
+<span class="code-line">    <span class="kw">try</span> stdout.<span class="fn">flush</span>();</span>
+<span class="code-line">}</span>
 </code></pre>
   </div>
 
@@ -98,17 +100,17 @@
     <div class="answer-body">
       <div class="code-frame answer-output" aria-label="実行結果">
         <p class="code-filename">Output</p>
-        <pre class="output"><samp>112123|</samp></pre>
+        <pre class="output"><samp>{ 1, 0, 3 } { 11, 2, 3 }</samp></pre>
       </div>
       <p>
-        外側の <code>for</code> には <code>outer:</code> というラベルが付いています。<code>continue :outer</code> は、内側のループの次の周ではなく、ラベルの付いた外側のループの次の周へ進みます。内側のループはその場で打ち切られ、外側の本体のうち内側のループより後ろにある <code>try stdout.print("|", .{});</code> も実行されません。<code>|</code> が出るのは、内側のループが <code>continue :outer</code> を通らずに最後まで回り切った周だけです。
+        Zig の配列 <code>[3]u8</code> は、3つの要素そのものを中に持つ値です。<code>bump(a)</code> は引数 <code>arr</code> として <code>a</code> と同じ中身の配列を受け取り、<code>var out = arr;</code> の代入でも3つの要素がそのまま写されます。<code>out[0] += 10</code> が書き換えるのは <code>out</code> の要素だけで、<code>arr</code> にも呼び出し側の <code>a</code> にも届きません。<code>return out;</code> で返った配列が <code>b</code> になり、<code>b</code> は <code>{ 11, 2, 3 }</code> です。
       </p>
       <p>
-        <code>1..4</code> は 1 から 3 までなので、<code>i</code> と <code>j</code> はどちらも 1、2、3 を取ります。<code>i</code> が 1 の周は、<code>j</code> が 1 で <code>1</code> を出し、<code>j</code> が 2 で <code>j &gt; i</code> になって外側の次の周へ進みます。<code>i</code> が 2 の周も同じで、<code>12</code> を出したあと <code>j</code> が 3 で抜けます。<code>i</code> が 3 の周だけは <code>j &gt; i</code> が一度も成り立たないので、<code>123</code> を出して内側のループが終わり、<code>|</code> を出します。最後の改行と合わせて、出力は <code>112123|</code> です。
+        <code>bump</code> から戻ったあとの <code>a[1] = 0</code> も、<code>a</code> の要素を変えるだけです。<code>b</code> は <code>a</code> とは別の場所にある配列なので、<code>b[1]</code> は <code>2</code> のままで、<code>a</code> は <code>{ 1, 0, 3 }</code> になります。配列を引数に渡すと要素への参照が渡ると考えると、<code>a</code> の先頭も <code>11</code> に、<code>b</code> の2番目も <code>0</code> になると読んでしまいます。<code>{any}</code> は配列を <code>{ 1, 0, 3 }</code> の形で書き出します。<sup class="fn-ref">1</sup>
       </p>
-      <p>
-        <code>continue :outer</code> を、内側のループを抜けるだけの <code>break</code> と同じに読むと、どの周でも <code>|</code> が出て <code>1|12|123|</code> と答えることになります。内側の <code>for</code> から抜けたあとに外側の本体の続きを実行するのは、ラベルの無い <code>break</code> のほうです。ラベル付きの <code>continue</code> は、外側の本体の残りごと飛ばして、外側の次の周を始めます。
-      </p>
+      <ol class="footnotes">
+        <li>Zig の引数は関数の中で書き換えられないので、<code>bump</code> は <code>arr</code> を直接は変えられず、<code>var out</code> に写してから書き換えています。引数の配列を実際に写すか、写さずに参照で渡すかはコンパイラが選んでよいことになっていますが、引数を書き換えられない以上、どちらを選んでも結果は同じです。</li>
+      </ol>
     </div>
   </details>
 </main>

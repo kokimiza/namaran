@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="上限つきで残高を移す transfer が、残高が上限より少ないときだけ送り元を 0 にして送り先に何も届けないC++ DEBUGのドリルです。std::min が返す参照と const 参照の引数が、確かめた額と使う額をずらします。">
-<title>送った額が途中で変わる</title>
+<meta name="description" content="点数の降順、同点は名前順に並べるつもりの2回のソートが、名前順だけの列を作るバグを直す。最後に並べたキーが主になり、安定である必要があるのも後のソートだけ。">
+<title>2回のソートの順番</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-08-30">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,12 +28,12 @@
       "dateModified": "2026-08-30",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "送った額が途中で変わる" },
-      "keywords": "toctou, reference, aliasing, pass-by-value",
+      "about": { "@type": "Thing", "name": "2回のソートの順番" },
+      "keywords": "stability, sorting, radix-sort",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
-      "description": "上限つきで残高を移す transfer が、残高が上限より少ないときだけ送り元を 0 にして送り先に何も届けないC++ DEBUGのドリルです。std::min が返す参照と const 参照の引数が、確かめた額と使う額をずらします。"
+      "description": "点数の降順、同点は名前順に並べるつもりの2回のソートが、名前順だけの列を作るバグを直す。最後に並べたキーが主になり、安定である必要があるのも後のソートだけ。"
     }
   ]
 }
@@ -62,68 +62,64 @@
 </nav>
 
 <main class="drill"
-  data-topic="送った額が途中で変わる"
-  data-tags="toctou reference aliasing pass-by-value"
-  data-concepts="std::min, const参照, エイリアス, 値渡し, 確認と使用の間, const reference, aliasing, check then use"
-  data-level="whale"
+  data-topic="2回のソートの順番"
+  data-tags="stability sorting radix-sort"
+  data-concepts="安定ソート, 複数キーのソート, stable_sort, 第2キー, multi-key sort, secondary key, stable sort"
+  data-level="bison"
 >
   <h2>2026-08-30</h2>
   <div class="code-frame">
-    <p class="code-filename">transfer.cpp</p>
-    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;algorithm&gt;</span>
-<span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
-
-<span class="ty">void</span> <span class="fn">transfer</span>(<span class="ty">int</span>&amp; from, <span class="ty">int</span>&amp; to, <span class="kw">const</span> <span class="ty">int</span>&amp; amount) {
-    <span class="kw">if</span> (amount &lt;= from) {
-        from -= amount;
-        to += amount;
-    }
-}
-
-<span class="ty">int</span> <span class="fn">main</span>() {
-    <span class="ty">int</span> alice = <span class="nu">30</span>;
-    <span class="ty">int</span> bob = <span class="nu">0</span>;
-    <span class="kw">const</span> <span class="ty">int</span> cap = <span class="nu">50</span>;
-    <span class="fn">transfer</span>(alice, bob, std::<span class="fn">min</span>(alice, cap));
-    std::cout &lt;&lt; alice &lt;&lt; <span class="st">' '</span> &lt;&lt; bob &lt;&lt; <span class="st">'\n'</span>;
-}
+    <p class="code-filename">leaderboard.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;algorithm&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;print&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;string&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;vector&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">struct</span> <span class="ty">Player</span> {</span>
+<span class="code-line">    std::<span class="ty">string</span> name;</span>
+<span class="code-line">    <span class="ty">int</span> score;</span>
+<span class="code-line">};</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    std::<span class="ty">vector</span>&lt;<span class="ty">Player</span>&gt; v{{<span class="st">"kim"</span>, <span class="nu">70</span>}, {<span class="st">"amy"</span>, <span class="nu">90</span>}, {<span class="st">"zoe"</span>, <span class="nu">90</span>}, {<span class="st">"bob"</span>, <span class="nu">70</span>}};</span>
+<span class="code-line">    std::ranges::<span class="fn">stable_sort</span>(v, std::greater{}, &amp;<span class="ty">Player</span>::score);</span>
+<span class="code-line">    std::ranges::<span class="fn">sort</span>(v, {}, &amp;<span class="ty">Player</span>::name);</span>
+<span class="code-line">    <span class="kw">for</span> (<span class="kw">const</span> <span class="kw">auto</span>&amp; p : v)</span>
+<span class="code-line">        std::<span class="fn">print</span>(<span class="st">"{} "</span>, p.name);</span>
+<span class="code-line">    std::<span class="fn">println</span>();</span>
+<span class="code-line">}</span>
 </code></pre>
   </div>
 
   <p class="question">
-    <code>from</code> から <code>to</code> へ <code>amount</code> を移す <code>transfer</code> で、<code>main</code> は <code>alice</code> の残高から最大 <code>cap</code> までを <code>bob</code> へ移します。<code>alice</code> が 30、<code>cap</code> が 50 なので、本来は 30 が移って <code>0 30</code> が出るはずが、いまは <code>0 0</code> が出て、30 がどこにも残りません。<code>alice</code> が <code>cap</code> 以上のとき（たとえば 80 なら <code>30 50</code>）は正しく動きます。直すのは <code>transfer</code> の中だけにしてください。
+    参加者を点数の高い順に並べ、同点の参加者は名前の辞書順に並べて、名前を空白区切りで表示するつもりのコードです。<code>main</code> の4人なら本来は <code>amy zoe bob kim</code> と表示されるはずが、いまは <code>amy bob kim zoe</code> と、名前の順に並んだだけの列が表示されます。
   </p>
 
   <details class="answer">
     <summary>Answer</summary>
     <div class="answer-body">
       <h3 class="wrong">Wrong</h3>
-      <pre class="code"><code><span class="ty">void</span> <span class="fn">transfer</span>(<span class="ty">int</span>&amp; from, <span class="ty">int</span>&amp; to, <span class="kw">const</span> <span class="ty">int</span>&amp; amount) {
-    <span class="kw">if</span> (amount &lt;= from) {
-        from -= amount;
-        to += amount;
-    }
-}
+      <pre class="code"><code><span class="code-line">std::ranges::<span class="fn">stable_sort</span>(v, std::greater{}, &amp;<span class="ty">Player</span>::score);</span>
+<span class="code-line">std::ranges::<span class="fn">sort</span>(v, {}, &amp;<span class="ty">Player</span>::name);</span>
 </code></pre>
       <p>
-        <code>transfer</code> だけを見ると、<code>amount</code> を確かめてから <code>from</code> を減らし、同じ <code>amount</code> を <code>to</code> に足すので、減った額と増えた額は等しく見えます。この読み方は、<code>amount</code> が <code>from</code> とは別の値であることを前提にしています。ところが <code>const int&amp;</code> は値を受け取るのではなく、呼び出し側のどこかの変数を指す別名で、<code>const</code> は「この名前を通しては書き換えない」という意味しか持ちません。別名の先がほかの名前を通して書き換われば、<code>amount</code> を読んだ結果も変わります。
+        1行目で点数の降順 <code>amy zoe kim bob</code> に並びますが、2行目の <code>sort</code> は名前だけを比べて列全体を並べ直します。4人の名前はすべて違うので、名前の順で前後が決まらない組は1つも無く、1行目が作った順序はどこにも残りません。結果は名前の順の <code>amy bob kim zoe</code> です。
       </p>
       <p>
-        <code>main</code> が渡した <code>std::min(alice, cap)</code> も、そうした別名の1つです。<code>std::min</code> は値のコピーを返さず、2つの引数のうち小さいほうへの <code>const</code> 参照を返します。30 と 50 では <code>alice</code> への参照が返るので、<code>amount</code> は <code>alice</code> の別名で、<code>from</code> と同じ変数を指します。<code>amount &lt;= from</code> の確認は 30 で通りますが、<code>from -= amount</code> で <code>alice</code> が 0 になった時点で <code>amount</code> を読んでも 0 です。続く <code>to += amount</code> は 0 を足すので、<code>0 0</code> になります。<code>alice</code> が 80 のときは <code>cap</code> への参照が返り、<code>cap</code> は書き換わらないので、正しく動きます。
+        <code>sort</code> は安定ではないので、つい <code>stable_sort</code> に変えたくなりますが、それでは直りません。安定なソートが元の順序を残すのは、比べるキーが等しい要素どうしだけで、この列では名前が等しい組が無いからです。並べ替えを重ねたとき主のキーになるのは、最後に並べたほうのキーです。
       </p>
       <h3 class="right">Right</h3>
-      <pre class="code"><code><span class="ty">void</span> <span class="fn">transfer</span>(<span class="ty">int</span>&amp; from, <span class="ty">int</span>&amp; to, <span class="ty">int</span> amount) {
-    <span class="kw">if</span> (amount &lt;= from) {
-        from -= amount;
-        to += amount;
-    }
-}
+      <pre class="code"><code><span class="code-line">std::ranges::<span class="fn">sort</span>(v, {}, &amp;<span class="ty">Player</span>::name);</span>
+<span class="code-line">std::ranges::<span class="fn">stable_sort</span>(v, std::greater{}, &amp;<span class="ty">Player</span>::score);</span>
 </code></pre>
       <p>
-        <code>amount</code> を値で受け取ると、呼び出した時点の 30 が <code>transfer</code> の中のコピーに入ります。このコピーは <code>alice</code> とは別の変数なので、<code>from -= amount</code> で <code>alice</code> が 0 になっても <code>amount</code> は 30 のままで、確かめた額、引いた額、足した額の3つが同じになります。<code>amount</code> に <code>from</code> や <code>to</code> そのものを渡されても、同じ理由で正しく動きます。<code>int</code> のように小さい型は、コピーの手間を省くために参照で受け取る理由がありません。<sup class="fn-ref">1</sup>
+        先に同点を決める名前で並べ、最後に主のキーである点数で並べます。点数の <code>stable_sort</code> は、同点の <code>amy</code> と <code>zoe</code>、<code>bob</code> と <code>kim</code> の前後を、直前に名前で並べた順のまま残すので、<code>amy zoe bob kim</code> になります。
+      </p>
+      <p>
+        安定である必要があるのは、この後のソートだけです。先のソートが自由に決められるのは名前が同じ要素どうしの順序だけで、そこをどう並べても、表示する点数と名前の並びは変わりません。そのため、先の名前のソートは <code>sort</code> のままでかまいません。<sup class="fn-ref">1</sup>
       </p>
       <ol class="footnotes">
-        <li>同じ心配は標準ライブラリの側にもあります。<code>v.push_back(v[0])</code> の引数は <code>v</code> 自身の要素への参照で、<code>push_back</code> が領域を取り直すと古い要素は消えます。標準はこの呼び出しも正しく動くことを求めているので、標準ライブラリの実装は古い要素を消す前に新しい要素を作ります。</li>
+        <li>重要度の低いキーから順に安定なソートを重ねるやり方は、数を下の桁から1桁ずつ並べ替える基数ソート(radix sort)と同じ考え方です。1回で済ませるなら、<code>std::ranges::sort(v, [](const Player&amp; a, const Player&amp; b) { return std::tie(b.score, a.name) &lt; std::tie(a.score, b.name); })</code> のように、2つのキーをまとめて比べる比較関数を渡します。</li>
       </ol>
     </div>
   </details>

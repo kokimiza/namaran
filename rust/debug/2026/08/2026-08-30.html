@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="4つのスレッドが10万回ずつ数える HITS が、40万に届かず実行のたびに違う値になるRust DEBUGのドリルです。static mut から atomic 型に移したあとも、load と store を分けると間に別のスレッドの更新が入って消えることを直します。">
-<title>読んで足して書く数え役</title>
+<meta name="description" content="列を2回つなげた入力で平均の関数を確かめる検査が、正しい関数をいつも不合格にするバグを直す。和は2倍になるが、平均は変わらない。">
+<title>平均は2倍にならない</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-08-30">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,12 +28,12 @@
       "dateModified": "2026-08-30",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "読んで足して書く数え役" },
-      "keywords": "atomic, race-condition, static-storage, thread",
+      "about": { "@type": "Thing", "name": "平均は2倍にならない" },
+      "keywords": "metamorphic-testing, testing, floating-point",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
-      "description": "4つのスレッドが10万回ずつ数える HITS が、40万に届かず実行のたびに違う値になるRust DEBUGのドリルです。static mut から atomic 型に移したあとも、load と store を分けると間に別のスレッドの更新が入って消えることを直します。"
+      "description": "列を2回つなげた入力で平均の関数を確かめる検査が、正しい関数をいつも不合格にするバグを直す。和は2倍になるが、平均は変わらない。"
     }
   ]
 }
@@ -62,59 +62,55 @@
 </nav>
 
 <main class="drill"
-  data-topic="読んで足して書く数え役"
-  data-tags="atomic race-condition static-storage thread"
-  data-concepts="AtomicU32, fetch_add, load と store, 更新の取りこぼし, 読み出し・変更・書き込み, lost update, read-modify-write"
-  data-level="hedgehog"
+  data-topic="平均は2倍にならない"
+  data-tags="metamorphic-testing testing floating-point"
+  data-concepts="メタモルフィックテスト, 平均, 検査の誤り, 偽陽性, metamorphic relation, mean, false alarm"
+  data-level="peacock"
 >
   <h2>2026-08-30</h2>
   <div class="code-frame">
-    <p class="code-filename">hits.rs</p>
-    <pre class="code"><code><span class="kw">use</span> std::sync::atomic::{<span class="ty">AtomicU32</span>, <span class="ty">Ordering</span>};
-<span class="kw">use</span> std::thread;
-
-<span class="kw">static</span> <span class="nu">HITS</span>: <span class="ty">AtomicU32</span> = <span class="ty">AtomicU32</span>::<span class="fn">new</span>(<span class="nu">0</span>);
-
-<span class="kw">fn</span> <span class="fn">hit</span>() {
-    <span class="kw">let</span> n = <span class="nu">HITS</span>.<span class="fn">load</span>(<span class="ty">Ordering</span>::<span class="ty">Relaxed</span>);
-    <span class="nu">HITS</span>.<span class="fn">store</span>(n + <span class="nu">1</span>, <span class="ty">Ordering</span>::<span class="ty">Relaxed</span>);
-}
-
-<span class="kw">fn</span> <span class="fn">main</span>() {
-    <span class="kw">let</span> workers: <span class="ty">Vec</span>&lt;_&gt; =
-        (<span class="nu">0</span>..<span class="nu">4</span>).<span class="fn">map</span>(|_| thread::<span class="fn">spawn</span>(|| (<span class="nu">0</span>..<span class="nu">100_000</span>).<span class="fn">for_each</span>(|_| <span class="fn">hit</span>()))).<span class="fn">collect</span>();
-    workers.<span class="fn">into_iter</span>().<span class="fn">for_each</span>(|w| w.<span class="fn">join</span>().<span class="fn">unwrap</span>());
-    <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="nu">HITS</span>.<span class="fn">load</span>(<span class="ty">Ordering</span>::<span class="ty">Relaxed</span>));
-}
+    <p class="code-filename">mean_check.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">mean</span>(xs: &amp;[<span class="ty">f64</span>]) -&gt; <span class="ty">f64</span> {</span>
+<span class="code-line">    xs.<span class="fn">iter</span>().<span class="fn">sum</span>::&lt;<span class="ty">f64</span>&gt;() / xs.<span class="fn">len</span>() <span class="kw">as</span> <span class="ty">f64</span></span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">repeat_ok</span>(xs: &amp;[<span class="ty">f64</span>]) -&gt; <span class="ty">bool</span> {</span>
+<span class="code-line">    <span class="kw">let</span> twice = [xs, xs].<span class="fn">concat</span>();</span>
+<span class="code-line">    <span class="fn">mean</span>(&amp;twice) == <span class="nu">2.0</span> * <span class="fn">mean</span>(xs)</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="fn">repeat_ok</span>(&amp;[<span class="nu">1.0</span>, <span class="nu">2.0</span>, <span class="nu">4.0</span>]));</span>
+<span class="code-line">}</span>
 </code></pre>
   </div>
 
   <p class="question">
-    <code>hit</code> を呼ぶたびに、プログラム全体で共有する <code>HITS</code> を1つ増やすつもりのコードです。<code>main</code> は4つのスレッドでそれぞれ10万回 <code>hit</code> を呼ぶので、本来は <code>400000</code> が出ます。いまは <code>151913</code>、<code>107933</code>、<code>148191</code> のように、40万より小さい値が実行のたびに違って出ます。
+    <code>repeat_ok</code> は、<code>xs</code> と、<code>xs</code> を2回つなげた列とで <code>mean</code> の結果を比べ、正しい <code>mean</code> なら必ず成り立つ関係が成り立つかを確かめるつもりの関数です。<code>mean</code> は列の要素の平均を正しく返しています。<code>repeat_ok(&amp;[1.0, 2.0, 4.0])</code> は本来 <code>true</code> を返すはずが、いまは <code>false</code> が表示され、正しい <code>mean</code> が検査に落ちます。
   </p>
 
   <details class="answer">
     <summary>Answer</summary>
     <div class="answer-body">
       <h3 class="wrong">Wrong</h3>
-      <pre class="code"><code><span class="kw">fn</span> <span class="fn">hit</span>() {
-    <span class="kw">let</span> n = <span class="nu">HITS</span>.<span class="fn">load</span>(<span class="ty">Ordering</span>::<span class="ty">Relaxed</span>);
-    <span class="nu">HITS</span>.<span class="fn">store</span>(n + <span class="nu">1</span>, <span class="ty">Ordering</span>::<span class="ty">Relaxed</span>);
-}
+      <pre class="code"><code><span class="code-line"><span class="kw">let</span> twice = [xs, xs].<span class="fn">concat</span>();</span>
+<span class="code-line"><span class="fn">mean</span>(&amp;twice) == <span class="nu">2.0</span> * <span class="fn">mean</span>(xs)</span>
 </code></pre>
       <p>
-        <code>HITS.load</code> と <code>HITS.store</code> は、それぞれ1回ずつなら途中で割り込まれない操作です。しかし <code>hit</code> はこの2つを別々に呼んでおり、読んでから書くまでの間には別のスレッドが入れます。<code>HITS</code> が 7 のときに2つのスレッドがほぼ同時に <code>hit</code> に入ると、両方が <code>n</code> に 7 を読み、両方が 8 を書きます。2回呼んだのに1しか増えず、片方の更新が消えます。4つのスレッドが同時に回っている間はこれが何度も起き、どれだけ消えるかはスレッドの進み方で変わるので、結果は40万より小さく、毎回違う値になります。
+        <code>[xs, xs].concat()</code> は <code>[1.0, 2.0, 4.0, 1.0, 2.0, 4.0]</code> を作ります。列を2回つなげると和は <code>7.0</code> から <code>14.0</code> の2倍になりますが、要素の個数も <code>3</code> から <code>6</code> の2倍になるので、平均は <code>7.0 / 3.0</code> のまま変わりません。検査は和に成り立つ「2倍になる」という関係を平均に当てはめていて、左辺は <code>7.0 / 3.0</code>、右辺は <code>14.0 / 3.0</code> です。平均が 0 でない列なら、左辺は右辺のおよそ半分にしかならず、<code>xs</code> が何であっても検査は通りません。
+      </p>
+      <p>
+        この検査は、正しい <code>mean</code> を誤りとして報告します。正しい結果の値を書かずに確かめる検査では、確かめる関係そのものが正しくなければ、検査は何も保証しません。
       </p>
       <h3 class="right">Right</h3>
-      <pre class="code"><code><span class="kw">fn</span> <span class="fn">hit</span>() {
-    <span class="nu">HITS</span>.<span class="fn">fetch_add</span>(<span class="nu">1</span>, <span class="ty">Ordering</span>::<span class="ty">Relaxed</span>);
-}
+      <pre class="code"><code><span class="code-line"><span class="kw">let</span> twice = [xs, xs].<span class="fn">concat</span>();</span>
+<span class="code-line"><span class="fn">mean</span>(&amp;twice) == <span class="fn">mean</span>(xs)</span>
 </code></pre>
       <p>
-        <code>fetch_add(1, ...)</code> は、今の値を読み、1を足し、書き戻すまでを1つの不可分な操作として行います。2つのスレッドが同時に呼んでも、一方が書き戻すまでもう一方は古い値を読めないので、7 から始まれば必ず 9 になります。40万回の呼び出しがそれぞれ1ずつ増やし、<code>400000</code> が出ます。<code>Ordering::Relaxed</code> のままでよいのは、ここで欲しいのが <code>HITS</code> 1つの数の正しさだけで、ほかの変数との読み書きの順序は問わないからです。<sup class="fn-ref">1</sup>
+        比べる関係を「2回つなげても平均は変わらない」に直すと、両辺はどちらも <code>7.0 / 3.0</code> になり、<code>true</code> が出ます。この入力の要素と和はどれも誤差なく表せる整数なので、左辺の <code>14.0 / 6.0</code> と右辺の <code>7.0 / 3.0</code> は同じ真の値を丸めた結果になり、浮動小数点数でも <code>==</code> で一致します。<sup class="fn-ref">1</sup>
       </p>
       <ol class="footnotes">
-        <li><code>static mut HITS: u32</code> に <code>HITS += 1</code> と書いていたコードを atomic 型へ移すとき、この load と store の2行に書き換えてしまうことがあります。元の <code>HITS += 1</code> も同じ消え方をするうえ、複数のスレッドから同時に書くのは未定義動作でした。atomic 型にすると未定義動作ではなくなりますが、増やす処理を1つの操作にしなければ数は合いません。</li>
+        <li>正しい出力が分からなくても、入力を変えたときに出力がどう変わるはずかという関係で関数を確かめるこの方法を、メタモルフィックテスト(metamorphic testing)と呼びます。<code>0.1</code> のように誤差を含む要素では、後半の要素を前半の和に足していく途中で丸めが起き、正しい関係でも <code>==</code> がわずかな差で崩れることがあります。そうした入力も扱う検査では、差の絶対値が小さいかどうかで比べます。</li>
       </ol>
     </div>
   </details>

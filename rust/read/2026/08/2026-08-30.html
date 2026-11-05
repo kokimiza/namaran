@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="static mut の Vec に unsafe の中で push し、len を読むRust READのドリルです。Rust 2024 では、メソッド呼び出しが暗黙に作る参照も含めて、static mut への参照を作るとコンパイルエラーになることを読み取ります。">
-<title>static mutにpush</title>
+<meta name="description" content="区間の中点を求める関数を、両端をずらすと中点も同じだけずれるという関係で確かめる。整数の割り算が0に向かって切り捨てるので、負の数をまたぐと関係が崩れる。">
+<title>ずらした中点の検査</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-08-30">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,12 +28,12 @@
       "dateModified": "2026-08-30",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "static mutにpush" },
-      "keywords": "static-storage, unsafe, edition, reference",
+      "about": { "@type": "Thing", "name": "ずらした中点の検査" },
+      "keywords": "metamorphic-testing, division, rounding, integer-arithmetic",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
-      "description": "static mut の Vec に unsafe の中で push し、len を読むRust READのドリルです。Rust 2024 では、メソッド呼び出しが暗黙に作る参照も含めて、static mut への参照を作るとコンパイルエラーになることを読み取ります。"
+      "description": "区間の中点を求める関数を、両端をずらすと中点も同じだけずれるという関係で確かめる。整数の割り算が0に向かって切り捨てるので、負の数をまたぐと関係が崩れる。"
     }
   ]
 }
@@ -62,23 +62,26 @@
 </nav>
 
 <main class="drill"
-  data-topic="static mutにpush"
-  data-tags="static-storage unsafe edition reference"
-  data-concepts="static mut, static_mut_refs, Rust 2024, 自動参照, メソッド呼び出し, mutable static, autoref"
-  data-level="hedgehog"
+  data-topic="ずらした中点の検査"
+  data-tags="metamorphic-testing division rounding integer-arithmetic"
+  data-concepts="メタモルフィックテスト, 整数除算, 0方向への切り捨て, 中点, metamorphic relation, truncating division, midpoint"
+  data-level="peacock"
 >
   <h2>2026-08-30</h2>
   <div class="code-frame">
-    <p class="code-filename">event_log.rs</p>
-    <pre class="code"><code><span class="kw">static</span> <span class="kw">mut</span> <span class="nu">LOG</span>: <span class="ty">Vec</span>&lt;&amp;<span class="ty">str</span>&gt; = <span class="ty">Vec</span>::<span class="fn">new</span>();
-
-<span class="kw">fn</span> <span class="fn">main</span>() {
-    <span class="kw">unsafe</span> {
-        <span class="nu">LOG</span>.<span class="fn">push</span>(<span class="st">"start"</span>);
-    }
-    <span class="kw">let</span> n = <span class="kw">unsafe</span> { <span class="nu">LOG</span>.<span class="fn">len</span>() };
-    <span class="mc">println!</span>(<span class="st">"{n}"</span>);
-}
+    <p class="code-filename">midpoint.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">mid</span>(lo: <span class="ty">i32</span>, hi: <span class="ty">i32</span>) -&gt; <span class="ty">i32</span> {</span>
+<span class="code-line">    (lo + hi) / <span class="nu">2</span></span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="kw">let</span> base = <span class="fn">mid</span>(<span class="nu">1</span>, <span class="nu">2</span>);</span>
+<span class="code-line">    <span class="kw">for</span> k <span class="kw">in</span> [<span class="nu">1</span>, -<span class="nu">1</span>, -<span class="nu">2</span>, -<span class="nu">3</span>] {</span>
+<span class="code-line">        <span class="kw">let</span> shifted = <span class="fn">mid</span>(<span class="nu">1</span> + k, <span class="nu">2</span> + k);</span>
+<span class="code-line">        <span class="mc">print!</span>(<span class="st">"{} "</span>, shifted == base + k);</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="mc">println!</span>();</span>
+<span class="code-line">}</span>
 </code></pre>
   </div>
 
@@ -91,16 +94,19 @@
     <div class="answer-body">
       <div class="code-frame answer-output" aria-label="実行結果">
         <p class="code-filename">Output</p>
-        <pre class="output"><samp>コンパイルエラー</samp></pre>
+        <pre class="output"><samp>true true false false </samp></pre>
       </div>
       <p>
-        Rust 2024 エディションでは、<code>static mut</code> への参照を作ると、<code>unsafe</code> の中でもコンパイルエラーになります。<code>&amp;LOG</code> や <code>&amp;mut LOG</code> と書いていなくても同じです。<code>LOG.push("start")</code> の <code>Vec::push</code> は <code>&amp;mut self</code> を受け取るメソッドなので、呼び出しの際にコンパイラが <code>&amp;mut LOG</code> を作って渡します。<code>LOG.len()</code> も <code>&amp;self</code> を受け取るので、<code>&amp;LOG</code> が作られます。どちらの行も、可変な参照と共有の参照をそれぞれ <code>static mut</code> に作ったとして拒否されます。<sup class="fn-ref">1</sup>
+        <code>main</code> は、<code>mid</code> の正しい値を知らないまま、「区間の両端を <code>k</code> だけずらせば、中点も <code>k</code> だけずれるはず」という関係が成り立つかを4つの <code>k</code> で確かめています。基準の <code>base</code> は <code>mid(1, 2)</code> で、<code>3 / 2</code> の商の <code>1</code> です。
       </p>
       <p>
-        同じコードは、いまのコンパイラでも 2021 エディションを指定すれば警告だけでコンパイルでき、<code>1</code> を出力します。<code>static mut</code> はどのスレッドからも、どの関数からも名前だけで触れるので、ある場所で作った <code>&amp;mut LOG</code> が生きている間に、別の場所が <code>LOG</code> を読み書きしないことをコンパイラは確かめられません。<code>&amp;mut</code> はほかに誰も触れないことを前提にした参照なので、そうした重なりは未定義動作になります。2024 では参照を作ること自体が禁じられたので、<code>static mut</code> を使い続けるなら、<code>&amp;raw mut LOG</code> で参照ではなく生ポインタを作って扱います。
+        Rust の整数の <code>/</code> は、商の小数部分を 0 に向かって切り捨てます。正の数なら切り下げと同じですが、負の数では切り上げになります。<code>k = 1</code> は <code>mid(2, 3)</code> が <code>5 / 2</code> で <code>2</code>、<code>k = -1</code> は <code>mid(0, 1)</code> が <code>1 / 2</code> で <code>0</code> なので、どちらも <code>base + k</code> と一致して <code>true</code> です。<code>k = -2</code> では <code>mid(-1, 0)</code> が <code>-1 / 2</code> で、<code>-0.5</code> を 0 に向かって切り捨てた <code>0</code> になり、期待する <code>-1</code> と食い違います。<code>k = -3</code> の <code>mid(-2, -1)</code> も <code>-3 / 2</code> が <code>-1</code> になって、期待する <code>-2</code> と食い違います。
+      </p>
+      <p>
+        割り算を切り下げだと思って読むと、<code>-1 / 2</code> を <code>-1</code>、<code>-3 / 2</code> を <code>-2</code> と計算し、4つとも <code>true</code> と答えてしまいます。和が負の奇数になると、<code>mid</code> の結果は切り下げより1大きくなり、ずらした関係が崩れます。この検査は、正しい中点の値を1つも書かずに、<code>mid</code> が負の範囲で切り下げとは違う値を返すことを見つけています。<sup class="fn-ref">1</sup>
       </p>
       <ol class="footnotes">
-        <li>このエラーは <code>static_mut_refs</code> という名前のリントで、2024 エディションでは既定で deny（エラー扱い）です。<code>u32</code> の <code>static mut</code> に <code>COUNT += 1</code> と書くような、参照を作らない読み書きは、2024 でも <code>unsafe</code> の中なら書けます。</li>
+        <li>このように、正しい出力が分からない計算を、入力を変えたときに出力がどう変わるはずかという関係で確かめる方法を、メタモルフィックテスト(metamorphic testing)と呼びます。切り下げの割り算が要るなら、<code>i32::div_euclid</code> を使うと <code>(-1).div_euclid(2)</code> は <code>-1</code> になります。</li>
       </ol>
     </div>
   </details>

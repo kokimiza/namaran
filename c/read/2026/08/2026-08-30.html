@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="関数の中の static 変数の初期化子と、毎回実行される代入文の違いを読むC READのドリルです。3回目の呼び出しが返す値を、初期化と代入がそれぞれいつ実行されるかから求めます。">
-<title>staticの初期化は一度</title>
+<meta name="description" content="食い違った文字で抜ける文字列比較が、何回比べてから答えを返すかを数える。比較の回数が、推測の先頭から何文字当たったかで決まることを追う。">
+<title>途中で抜ける比較の回数</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-08-30">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,12 +28,12 @@
       "dateModified": "2026-08-30",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "staticの初期化は一度" },
-      "keywords": "initialization, static-storage, storage-duration",
+      "about": { "@type": "Thing", "name": "途中で抜ける比較の回数" },
+      "keywords": "timing-attack, string, loop, static-storage",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
-      "description": "関数の中の static 変数の初期化子と、毎回実行される代入文の違いを読むC READのドリルです。3回目の呼び出しが返す値を、初期化と代入がそれぞれいつ実行されるかから求めます。"
+      "description": "食い違った文字で抜ける文字列比較が、何回比べてから答えを返すかを数える。比較の回数が、推測の先頭から何文字当たったかで決まることを追う。"
     }
   ]
 }
@@ -62,29 +62,32 @@
 </nav>
 
 <main class="drill"
-  data-topic="staticの初期化は一度"
-  data-tags="initialization static-storage storage-duration"
-  data-concepts="static局所変数, 初期化と代入, 静的記憶域期間, 自動変数, static local variable, initialization vs assignment"
+  data-topic="途中で抜ける比較の回数"
+  data-tags="timing-attack string loop static-storage"
+  data-concepts="タイミング攻撃, 文字列比較, 早期リターン, 比較回数, timing side channel, early exit, string comparison"
   data-level="hedgehog"
 >
   <h2>2026-08-30</h2>
   <div class="code-frame">
-    <p class="code-filename">tick.c</p>
-    <pre class="code"><code><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
-
-<span class="ty">int</span> <span class="fn">tick</span>(<span class="ty">void</span>) {
-    <span class="kw">static</span> <span class="ty">int</span> count = <span class="nu">0</span>;
-    <span class="ty">int</span> calls = <span class="nu">0</span>;
-    count = count + <span class="nu">1</span>;
-    calls = calls + <span class="nu">1</span>;
-    <span class="kw">return</span> count * <span class="nu">10</span> + calls;
-}
-
-<span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {
-    <span class="fn">tick</span>();
-    <span class="fn">tick</span>();
-    <span class="fn">printf</span>(<span class="st">"%d\n"</span>, <span class="fn">tick</span>());
-}
+    <p class="code-filename">leak.c</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">static</span> <span class="ty">int</span> steps = <span class="nu">0</span>;</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">static</span> <span class="ty">int</span> <span class="fn">check</span>(<span class="kw">const</span> <span class="ty">char</span>* secret, <span class="kw">const</span> <span class="ty">char</span>* guess) {</span>
+<span class="code-line">    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; secret[i] != <span class="st">'\0'</span>; i++) {</span>
+<span class="code-line">        steps++;</span>
+<span class="code-line">        <span class="kw">if</span> (secret[i] != guess[i])</span>
+<span class="code-line">            <span class="kw">return</span> <span class="nu">0</span>;</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="kw">return</span> <span class="nu">1</span>;</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {</span>
+<span class="code-line">    <span class="ty">int</span> a = <span class="fn">check</span>(<span class="st">"pass"</span>, <span class="st">"pazz"</span>);</span>
+<span class="code-line">    <span class="ty">int</span> b = <span class="fn">check</span>(<span class="st">"pass"</span>, <span class="st">"pass"</span>);</span>
+<span class="code-line">    <span class="fn">printf</span>(<span class="st">"%d %d %d\n"</span>, a, b, steps);</span>
+<span class="code-line">}</span>
 </code></pre>
   </div>
 
@@ -97,16 +100,16 @@
     <div class="answer-body">
       <div class="code-frame answer-output" aria-label="実行結果">
         <p class="code-filename">Output</p>
-        <pre class="output"><samp>31</samp></pre>
+        <pre class="output"><samp>0 1 7</samp></pre>
       </div>
       <p>
-        <code>static int count = 0;</code> の <code>= 0</code> は初期化子です。<code>static</code> を付けた局所変数はプログラムの開始から終了まで同じ1つの場所にあり、初期化はプログラムが始まる前に1回だけ行われます。関数に入るたびにこの行が実行されて 0 に戻るわけではありません。一方、<code>static</code> の無い <code>int calls = 0;</code> は、<code>tick</code> に入るたびに新しく作られ、そのたびに 0 で初期化されます。
+        <code>check</code> は <code>secret</code> と <code>guess</code> を先頭から1文字ずつ比べ、食い違う文字を見つけた時点で <code>return 0</code> で抜けます。<code>steps</code> はループの本体に入るたびに1増え、比べた文字の数を数えます。
       </p>
       <p>
-        <code>count = count + 1;</code> は代入文なので、呼び出しのたびに実行されます。<code>count</code> は1回目の呼び出しで 1、2回目で 2、3回目で 3 になります。<code>calls</code> は毎回 0 から始まるので、どの呼び出しでも 1 です。3回目の戻り値は <code>3 * 10 + 1</code> で <code>31</code> です。
+        1回目の <code>"pazz"</code> は <code>p</code> と <code>a</code> が一致し、3文字目で <code>z</code> と <code>s</code> が食い違うので、3回比べたところで 0 を返します。<code>steps</code> はファイルの先頭で一度だけ 0 に初期化される変数で、<code>check</code> の中では 0 に戻しません。2回目の <code>"pass"</code> は4文字すべてが一致し、<code>secret</code> の終端でループを出て 1 を返すので、<code>steps</code> は 3 に 4 を足した 7 になります。呼び出しのたびに 0 から数え直すと考えると最後の値は <code>4</code> になりますが、それは2回目の呼び出しだけで比べた回数です。
       </p>
       <p>
-        <code>static int count = 0;</code> を、関数に入るたびに実行される代入文と同じように読むと、<code>count</code> も毎回 0 に戻り、答えは <code>11</code> になります。宣言の <code>=</code> と代入文の <code>=</code> は見た目が同じでも、前者は変数ができるときに一度だけ値を与え、後者は実行されるたびに値を書き換えます。
+        比べる回数は、推測の先頭から当たった文字数に1を足した数で、全部当たったときは文字数そのものです。実行にかかる時間がこの回数に比例するなら、時間を測るだけで、推測の先頭が何文字当たったかが外から分かります。<code>"pzzz"</code>、<code>"pazz"</code>、<code>"pasz"</code> と1文字ずつ当てていけば、全通りを試さなくても秘密の文字列にたどり着けます。
       </p>
     </div>
   </details>

@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="2次元のスライスから target を含む最初の行の番号を返す findRow を書くZig WRITEのドリルです。外側の for にラベルを付け、内側から break :outer で番号を持って抜け、見つからなかったときの null を for の else に置きます。">
-<title>見つけた行を値で返す</title>
+<meta name="description" content="バッファの途中に1バイト挿入し、後ろの要素を1つずつずらす関数をZigで書く。同じ配列を指す2つのスライスが重なるので、@memcpyではなく@memmoveで写す。">
+<title>重なるスライスへの挿入</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/zig/write/2026-08-30">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,12 +28,12 @@
       "dateModified": "2026-08-30",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "見つけた行を値で返す" },
-      "keywords": "continue-break, loop, optional, slice",
+      "about": { "@type": "Thing", "name": "重なるスライスへの挿入" },
+      "keywords": "slice, aliasing, builtin-function, half-open-interval",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
-      "description": "2次元のスライスから target を含む最初の行の番号を返す findRow を書くZig WRITEのドリルです。外側の for にラベルを付け、内側から break :outer で番号を持って抜け、見つからなかったときの null を for の else に置きます。"
+      "description": "バッファの途中に1バイト挿入し、後ろの要素を1つずつずらす関数をZigで書く。同じ配列を指す2つのスライスが重なるので、@memcpyではなく@memmoveで写す。"
     }
   ]
 }
@@ -62,41 +62,41 @@
 </nav>
 
 <main class="drill"
-  data-topic="見つけた行を値で返す"
-  data-tags="continue-break loop optional slice"
-  data-concepts="ラベル付きbreak, for の else, ループを式として使う, オプショナル型, labeled break, loop expression, for else"
-  data-level="hedgehog"
+  data-topic="重なるスライスへの挿入"
+  data-tags="slice aliasing builtin-function half-open-interval"
+  data-concepts="スライスの別名, 重なるコピー, @memmove, @memcpy, 挿入, overlapping copy, aliasing slices"
+  data-level="peacock"
 >
   <h2>2026-08-30</h2>
   <div class="code-frame">
-    <p class="code-filename">find_row.zig</p>
-    <pre class="code"><code><span class="kw">fn</span> <span class="fn">findRow</span>(grid: []<span class="kw">const</span> []<span class="kw">const</span> <span class="ty">i32</span>, target: <span class="ty">i32</span>) ?<span class="ty">usize</span> {
-}
+    <p class="code-filename">insert.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">insertAt</span>(buf: []<span class="ty">u8</span>, len: <span class="ty">usize</span>, i: <span class="ty">usize</span>, x: <span class="ty">u8</span>) <span class="ty">void</span> {</span>
+<span class="code-line">}</span>
 </code></pre>
   </div>
 
   <p class="question">
-    行ごとに長さの違う整数の表 <code>grid</code> から、<code>target</code> を1つでも含む最初の行の番号（0 から数える）を返す <code>findRow</code> を書いてください。どの行にも無いとき、<code>grid</code> が空のときは <code>null</code> を返します。
+    <code>buf</code> の先頭 <code>len</code> バイトに値が入っていて、その後ろに少なくとも1バイトの空きがあります。位置 <code>i</code> に <code>x</code> を挿入し、もとの <code>buf[i]</code> から <code>buf[len - 1]</code> までを1つずつ後ろへずらす <code>insertAt</code> を書いてください。<code>i</code> は 0 以上 <code>len</code> 以下で、<code>i</code> が <code>len</code> なら末尾に足すだけです。<code>len</code> が 0 のときも同じ規則で <code>buf[0]</code> に入れます。例では、<code>buf</code> の中身を文字列で書き、空きのバイトを <code>_</code> で表します。出力例は呼び出したあとの <code>buf</code> の中身です。
   </p>
 
   <div class="examples">
     <div class="example">
       <p class="example-label">入力例 1</p>
-      <pre class="io"><code>findRow(&amp;.{ &amp;.{ 4, 1 }, &amp;.{ 8, 3 }, &amp;.{ 3, 9 } }, 3)</code></pre>
+      <pre class="io"><code>insertAt("abcd_", 4, 1, 'X')</code></pre>
       <p class="example-label">出力例 1</p>
-      <pre class="io"><code>1</code></pre>
+      <pre class="io"><code>aXbcd</code></pre>
     </div>
     <div class="example">
       <p class="example-label">入力例 2</p>
-      <pre class="io"><code>findRow(&amp;.{ &amp;.{ 4, 1 }, &amp;.{ 8, 3 }, &amp;.{ 3, 9 } }, 5)</code></pre>
+      <pre class="io"><code>insertAt("abcd_", 4, 4, 'X')</code></pre>
       <p class="example-label">出力例 2</p>
-      <pre class="io"><code>null</code></pre>
+      <pre class="io"><code>abcdX</code></pre>
     </div>
     <div class="example">
       <p class="example-label">入力例 3</p>
-      <pre class="io"><code>findRow(&amp;.{}, 1)</code></pre>
+      <pre class="io"><code>insertAt("_", 0, 0, 'X')</code></pre>
       <p class="example-label">出力例 3</p>
-      <pre class="io"><code>null</code></pre>
+      <pre class="io"><code>X</code></pre>
     </div>
   </div>
 
@@ -105,23 +105,17 @@
     <div class="answer-body">
       <div class="code-frame diff-added" aria-label="追加する参考実装">
         <p class="code-filename">Reference</p>
-        <pre class="code"><code><span class="kw">fn</span> <span class="fn">findRow</span>(grid: []<span class="kw">const</span> []<span class="kw">const</span> <span class="ty">i32</span>, target: <span class="ty">i32</span>) ?<span class="ty">usize</span> {
-    <span class="kw">return</span> <span class="lt">outer</span>: <span class="kw">for</span> (grid, <span class="nu">0</span>..) |row, i| {
-        <span class="kw">for</span> (row) |v| {
-            <span class="kw">if</span> (v == target) <span class="kw">break</span> <span class="lt">:outer</span> i;
-        }
-    } <span class="kw">else</span> <span class="nu">null</span>;
-}
+        <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">insertAt</span>(buf: []<span class="ty">u8</span>, len: <span class="ty">usize</span>, i: <span class="ty">usize</span>, x: <span class="ty">u8</span>) <span class="ty">void</span> {</span>
+<span class="code-line">    <span class="mc">@memmove</span>(buf[i + <span class="nu">1</span> .. len + <span class="nu">1</span>], buf[i..len]);</span>
+<span class="code-line">    buf[i] = x;</span>
+<span class="code-line">}</span>
 </code></pre>
       </div>
       <p>
-        Zig の <code>for</code> は値を持つ式として書けます。<code>break</code> に値を付けて抜ければ、その値が <code>for</code> 全体の値になり、一度も <code>break</code> せずに回り切ったときは <code>else</code> の後ろの値になります。ただしラベルの無い <code>break</code> は一番内側のループを抜けるだけなので、内側の <code>for (row)</code> の中で <code>break i</code> と書いても、外側の <code>for</code> の値にはなりません。外側に <code>outer:</code> とラベルを付け、<code>break :outer i</code> と書くと、内側と外側の2つのループを一度に抜け、<code>i</code> が外側の <code>for</code> の値になります。戻り値の型 <code>?usize</code> には、<code>usize</code> の <code>i</code> も <code>null</code> もそのまま入ります。
+        ずらす元は <code>buf[i..len]</code>、ずらす先は1つ後ろの <code>buf[i + 1 .. len + 1]</code> で、どちらも長さ <code>len - i</code> のスライスです。2つは同じ <code>buf</code> の中を指していて、要素が2つ以上あれば範囲が重なります。<code>@memcpy</code> は写す元と先が重ならないことを前提にした組み込み関数で、重なる範囲を渡すのは illegal behavior です。Debug ビルドでは安全検査がこれを見つけて止めます。重なってもよい <code>@memmove</code> なら、どの要素も上書きされる前に読まれるように写してくれます。写し終えたら、空いた <code>buf[i]</code> に <code>x</code> を入れます。
       </p>
       <p>
-        入力例 1 では、0 行目の <code>{ 4, 1 }</code> に 3 は無く、内側のループが回り切って外側の次の周へ進みます。1 行目の <code>{ 8, 3 }</code> で <code>v == target</code> になり、<code>break :outer 1</code> で抜けるので、2 行目の 3 は調べません。入力例 2 と 3 はどちらも <code>break</code> に一度も届かずに外側のループが終わるので、<code>else null</code> の <code>null</code> が返ります。<code>grid</code> が空なら、外側のループは1周もせずに <code>else</code> へ進みます。
-      </p>
-      <p>
-        掲載したのは参考実装で、唯一の正解ではありません。内側で見つけた時点で <code>return i;</code> と書き、ループの後ろに <code>return null;</code> を置いてもかまいません。各行を <code>std.mem.findScalar(i32, row, target) != null</code> で調べれば、内側のループ自体が要らなくなります。
+        自分でループを書くなら、後ろから写します。<code>j</code> を <code>i</code> から上へ進めて <code>buf[j + 1] = buf[j]</code> とすると、<code>"abcd_"</code> に <code>i = 1</code> で挿入したとき、<code>buf[2]</code> に入れた <code>b</code> を次の回でまた <code>buf[3]</code> に写すので、同じ文字が後ろへ広がり、最後に <code>X</code> を入れても <code>aXbbb</code> になってしまいます。<code>i</code> が <code>len</code> のときは2つのスライスの長さが 0 なので何も写さず、<code>buf[len]</code> に <code>x</code> が入るだけです。<code>len</code> が 0 の入力例 3 も同じです。掲載したのは参考実装で、唯一の正解ではありません。<code>var j = len; while (j &gt; i) : (j -= 1) buf[j] = buf[j - 1];</code> のように後ろから1つずつ写してもかまいません。
       </p>
     </div>
   </details>

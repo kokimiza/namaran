@@ -55,7 +55,6 @@
   <url><loc>https://namaran.jocarium.productions/tag/combinatorics</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/command-line-argument</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/comparison</loc></url>
-  <url><loc>https://namaran.jocarium.productions/tag/compound-literal</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/compression</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/comptime</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/computational-geometry</loc></url>
@@ -75,6 +74,7 @@
   <url><loc>https://namaran.jocarium.productions/tag/covariant-return-type</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/crdt</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/cross-product</loc></url>
+  <url><loc>https://namaran.jocarium.productions/tag/cryptography</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/csv</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/currying</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/cycle-detection</loc></url>
@@ -88,13 +88,11 @@
   <url><loc>https://namaran.jocarium.productions/tag/deduplication</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/deep-copy</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/default</loc></url>
-  <url><loc>https://namaran.jocarium.productions/tag/defer</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/depth-first-search</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/deque</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/deref-coercion</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/deriving</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/design-by-contract</loc></url>
-  <url><loc>https://namaran.jocarium.productions/tag/designated-initializer</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/destructor</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/display-width</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/division</loc></url>
@@ -107,7 +105,6 @@
   <url><loc>https://namaran.jocarium.productions/tag/dynamic-programming</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/dynamically-sized-type</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/edit-distance</loc></url>
-  <url><loc>https://namaran.jocarium.productions/tag/edition</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/encapsulation</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/end-of-file</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/endianness</loc></url>
@@ -160,7 +157,6 @@
   <url><loc>https://namaran.jocarium.productions/tag/inheritance</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/init-statement</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/initialization-order</loc></url>
-  <url><loc>https://namaran.jocarium.productions/tag/initialization</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/inline-else</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/insertion-sort</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/integer-arithmetic</loc></url>
@@ -209,7 +205,6 @@
   <url><loc>https://namaran.jocarium.productions/tag/modular-arithmetic</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/monad</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/monoid</loc></url>
-  <url><loc>https://namaran.jocarium.productions/tag/monomorphism-restriction</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/monotonic-clock</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/monotonic-stack</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/most-vexing-parse</loc></url>
@@ -241,7 +236,6 @@
   <url><loc>https://namaran.jocarium.productions/tag/padding</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/pagination</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/panic</loc></url>
-  <url><loc>https://namaran.jocarium.productions/tag/parametric-polymorphism</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/parsing</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/partial-application</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/partial-function</loc></url>
@@ -265,6 +259,7 @@
   <url><loc>https://namaran.jocarium.productions/tag/question-mark-operator</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/queue</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/race-condition</loc></url>
+  <url><loc>https://namaran.jocarium.productions/tag/radix-sort</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/raii</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/random-number-generator</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/range-adaptor</loc></url>
@@ -292,7 +287,6 @@
   <url><loc>https://namaran.jocarium.productions/tag/segment-tree</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/selection-algorithm</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/semaphore</loc></url>
-  <url><loc>https://namaran.jocarium.productions/tag/send-sync</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/sentinel</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/set</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/shadowing</loc></url>
@@ -342,6 +336,7 @@
   <url><loc>https://namaran.jocarium.productions/tag/thread</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/thunk</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/timeout</loc></url>
+  <url><loc>https://namaran.jocarium.productions/tag/timing-attack</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/toctou</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/topological-sort</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/trait-bound</loc></url>
@@ -355,7 +350,6 @@
   <url><loc>https://namaran.jocarium.productions/tag/tying-the-knot</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/type-conversion</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/type-deduction</loc></url>
-  <url><loc>https://namaran.jocarium.productions/tag/type-defaulting</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/type-erasure</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/type-punning</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/typeclass-law</loc></url>
@@ -367,7 +361,6 @@
   <url><loc>https://namaran.jocarium.productions/tag/union-find</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/union</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/unix-time</loc></url>
-  <url><loc>https://namaran.jocarium.productions/tag/unsafe</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/use-after-free</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/utf-8</loc></url>
   <url><loc>https://namaran.jocarium.productions/tag/variable-length-array</loc></url>

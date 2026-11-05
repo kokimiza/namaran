@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="プログラム全体で共有する名前の表に名前を登録して番号を返す intern を、static mut を使わずに書くRust WRITEのドリルです。static に置ける型の条件、Mutex による書き換え、表に入れる文字列の寿命を組み合わせます。">
-<title>共有する名前の表</title>
+<meta name="description" content="正しい答えを知らなくても関数を確かめられるよう、入力を逆順にしても結果が変わらないかを調べる関数を書く。逆順の入力をイテレータで作り、2つの結果を比べる。">
+<title>逆順でも同じ結果か</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-08-30">
 <link rel="stylesheet" href="/style.css">
 <script type="application/ld+json">
@@ -28,12 +28,12 @@
       "dateModified": "2026-08-30",
       "inLanguage": "ja",
       "learningResourceType": "Practice problem",
-      "about": { "@type": "Thing", "name": "共有する名前の表" },
-      "keywords": "static-storage, mutex, send-sync, lifetime, interior-mutability",
+      "about": { "@type": "Thing", "name": "逆順でも同じ結果か" },
+      "keywords": "metamorphic-testing, iterator, function-pointer, slice",
       "author": { "@type": "Organization", "name": "Namaran" },
       "publisher": { "@type": "Organization", "name": "Namaran" },
       "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
-      "description": "プログラム全体で共有する名前の表に名前を登録して番号を返す intern を、static mut を使わずに書くRust WRITEのドリルです。static に置ける型の条件、Mutex による書き換え、表に入れる文字列の寿命を組み合わせます。"
+      "description": "正しい答えを知らなくても関数を確かめられるよう、入力を逆順にしても結果が変わらないかを調べる関数を書く。逆順の入力をイテレータで作り、2つの結果を比べる。"
     }
   ]
 }
@@ -62,41 +62,41 @@
 </nav>
 
 <main class="drill"
-  data-topic="共有する名前の表"
-  data-tags="static-storage mutex send-sync lifetime interior-mutability"
-  data-concepts="static, Mutex, Sync, 内部可変性, 文字列の寿命, String と &amp;str, global state, string interning"
-  data-level="bison"
+  data-topic="逆順でも同じ結果か"
+  data-tags="metamorphic-testing iterator function-pointer slice"
+  data-concepts="メタモルフィックテスト, 逆順, 関数ポインタ, イテレータ, metamorphic relation, reverse, fn pointer"
+  data-level="hedgehog"
 >
   <h2>2026-08-30</h2>
   <div class="code-frame">
-    <p class="code-filename">intern.rs</p>
-    <pre class="code"><code><span class="kw">fn</span> <span class="fn">intern</span>(name: &amp;<span class="ty">str</span>) -&gt; <span class="ty">usize</span> {
-}
+    <p class="code-filename">reversal.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">reversal_holds</span>(f: <span class="kw">fn</span>(&amp;[<span class="ty">i32</span>]) -&gt; <span class="ty">i32</span>, xs: &amp;[<span class="ty">i32</span>]) -&gt; <span class="ty">bool</span> {</span>
+<span class="code-line">}</span>
 </code></pre>
   </div>
 
   <p class="question">
-    プログラム全体で共有する名前の表に <code>name</code> を登録し、その番号を返す <code>intern</code> を書いてください。初めて見る名前には、登録した順に 0 から番号を振ります。登録済みの名前には、前と同じ番号を返します。<code>intern</code> は複数のスレッドから同時に呼ばれてもよく、呼び出し側が渡した文字列は呼び出しのあとで捨てられることがあります。<code>static mut</code> と外部のクレートは使いません。例の入力は同じプログラムの中で上から順に呼ぶもので、出力はそれぞれの戻り値です。
+    関数 <code>f</code> に <code>xs</code> を渡した結果と、<code>xs</code> の要素を逆の順に並べた列を渡した結果が等しければ <code>true</code>、違えば <code>false</code> を返す <code>reversal_holds</code> を書いてください。<code>f</code> の正しい結果は分からないものとし、2つの結果どうしを比べるだけにします。<code>xs</code> が空なら、空の列どうしで比べます。
   </p>
 
   <div class="examples">
     <div class="example">
       <p class="example-label">入力例 1</p>
-      <pre class="io"><code>intern("x")</code></pre>
+      <pre class="io"><code>reversal_holds(|xs| xs.iter().sum(), &amp;[1, 2, 3])</code></pre>
       <p class="example-label">出力例 1</p>
-      <pre class="io"><code>0</code></pre>
+      <pre class="io"><code>true</code></pre>
     </div>
     <div class="example">
       <p class="example-label">入力例 2</p>
-      <pre class="io"><code>intern("y")</code></pre>
+      <pre class="io"><code>reversal_holds(|xs| xs[0], &amp;[1, 2, 3])</code></pre>
       <p class="example-label">出力例 2</p>
-      <pre class="io"><code>1</code></pre>
+      <pre class="io"><code>false</code></pre>
     </div>
     <div class="example">
       <p class="example-label">入力例 3</p>
-      <pre class="io"><code>intern("x")</code></pre>
+      <pre class="io"><code>reversal_holds(|xs| xs.len() as i32, &amp;[])</code></pre>
       <p class="example-label">出力例 3</p>
-      <pre class="io"><code>0</code></pre>
+      <pre class="io"><code>true</code></pre>
     </div>
   </div>
 
@@ -105,28 +105,17 @@
     <div class="answer-body">
       <div class="code-frame diff-added" aria-label="追加する参考実装">
         <p class="code-filename">Reference</p>
-        <pre class="code"><code><span class="kw">use</span> std::sync::<span class="ty">Mutex</span>;
-
-<span class="kw">static</span> <span class="nu">NAMES</span>: <span class="ty">Mutex</span>&lt;<span class="ty">Vec</span>&lt;<span class="ty">String</span>&gt;&gt; = <span class="ty">Mutex</span>::<span class="fn">new</span>(<span class="ty">Vec</span>::<span class="fn">new</span>());
-
-<span class="kw">fn</span> <span class="fn">intern</span>(name: &amp;<span class="ty">str</span>) -&gt; <span class="ty">usize</span> {
-    <span class="kw">let</span> <span class="kw">mut</span> names = <span class="nu">NAMES</span>.<span class="fn">lock</span>().<span class="fn">unwrap</span>();
-    <span class="kw">if</span> <span class="kw">let</span> <span class="fn">Some</span>(i) = names.<span class="fn">iter</span>().<span class="fn">position</span>(|n| n == name) {
-        <span class="kw">return</span> i;
-    }
-    names.<span class="fn">push</span>(name.<span class="fn">to_string</span>());
-    names.<span class="fn">len</span>() - <span class="nu">1</span>
-}
+        <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">reversal_holds</span>(f: <span class="kw">fn</span>(&amp;[<span class="ty">i32</span>]) -&gt; <span class="ty">i32</span>, xs: &amp;[<span class="ty">i32</span>]) -&gt; <span class="ty">bool</span> {</span>
+<span class="code-line">    <span class="kw">let</span> reversed: <span class="ty">Vec</span>&lt;<span class="ty">i32</span>&gt; = xs.<span class="fn">iter</span>().<span class="fn">rev</span>().<span class="fn">copied</span>().<span class="fn">collect</span>();</span>
+<span class="code-line">    <span class="fn">f</span>(xs) == <span class="fn">f</span>(&amp;reversed)</span>
+<span class="code-line">}</span>
 </code></pre>
       </div>
       <p>
-        表はプログラム全体で1つなので <code>static</code> に置きますが、<code>static</code> の値はそのままでは書き換えられません。中身を書き換えるには、共有の参照 <code>&amp;</code> からでも書き換えを許す型で包みます。ここで3つの条件が重なります。1つ目に、<code>static</code> はどのスレッドからも同時に触れるので、型が <code>Sync</code> でなければ置けません。<code>RefCell&lt;Vec&lt;_&gt;&gt;</code> は書き換えを許しますが <code>Sync</code> ではないのでコンパイルエラーになり、<code>Sync</code> でもある <code>Mutex</code> を選びます。2つ目に、<code>static</code> の初期値はコンパイル時に計算できる式でなければならず、<code>Mutex::new</code> と <code>Vec::new</code> はどちらもそうなっている（<code>const fn</code> である）ので、そのまま書けます。3つ目に、表に入れる要素の型です。<code>static</code> の中身はプログラムの終わりまで残るので、<code>Vec&lt;&amp;str&gt;</code> に <code>name</code> を入れようとすると、呼び出し側がすぐ捨てるかもしれない文字列を借りたまま残すことになり、借用の検査で拒否されます。<code>name.to_string()</code> で持ち主の決まった <code>String</code> にコピーしてから入れます。
+        <code>xs</code> は借りたスライスなので、その場で並べ替えることはできません。<code>xs.iter().rev()</code> で後ろから要素の参照をたどり、<code>copied()</code> で <code>i32</code> の値にしてから <code>collect</code> で新しい <code>Vec&lt;i32&gt;</code> に集めます。<code>&amp;reversed</code> は <code>&amp;Vec&lt;i32&gt;</code> ですが、<code>f</code> の引数の <code>&amp;[i32]</code> へ自動で変換されるので、そのまま渡せます。あとは元の列と逆順の列で <code>f</code> を呼び、2つの戻り値を <code>==</code> で比べるだけです。
       </p>
       <p>
-        <code>NAMES.lock()</code> が返すガード <code>names</code> を持っている間は、ほかのスレッドは表に触れません。探す処理と足す処理を同じガードの下で行うので、2つのスレッドが同時に同じ新しい名前を渡しても、両方が「無い」と判断して2回登録することはありません。探すときだけロックし、いったん離してから足すと、この保証は崩れます。入力例では <code>"x"</code> が 0、<code>"y"</code> が 1 で登録され、2回目の <code>"x"</code> は <code>position</code> が見つけた 0 を返します。番号は <code>names.len() - 1</code> で、追加したばかりの要素の位置です。
-      </p>
-      <p>
-        掲載したのは参考実装で、唯一の正解ではありません。名前が多いなら、<code>Mutex&lt;Option&lt;HashMap&lt;String, usize&gt;&gt;&gt;</code> を <code>None</code> で初期化して最初の呼び出しで作るか、<code>std::sync::LazyLock</code> で包んだ <code>Mutex&lt;HashMap&lt;String, usize&gt;&gt;</code> を使うと、探す手間が名前の数に比例しなくなります。<code>HashMap::new</code> は <code>const fn</code> ではないので、<code>static</code> の初期値に直接は書けません。
+        入力例 1 の和は、どちらの順でも <code>6</code> なので <code>true</code> です。入力例 2 の先頭要素は、元の列では <code>1</code>、逆順では <code>3</code> になるので <code>false</code> を返し、<code>f</code> が要素の順に左右されることを見つけます。空の列は逆にしても空のままなので、<code>f</code> が空の列を扱える限り結果は等しくなります。引数の型 <code>fn(&amp;[i32]) -&gt; i32</code> は関数ポインタで、例のように何も捕まえないクロージャも渡せます。掲載したのは参考実装で、唯一の正解ではありません。<code>let mut ys = xs.to_vec(); ys.reverse();</code> と写してから逆にしてもかまいません。
       </p>
     </div>
   </details>
