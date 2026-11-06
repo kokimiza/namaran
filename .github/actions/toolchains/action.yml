@@ -1,6 +1,6 @@
 name: Namaran toolchains
 description: >-
-  Installs the compilers, linters and formatters script/verify.sh uses: GCC 14
+  Installs the compilers, linters and formatters script/verify.py uses: GCC 14
   (C23 and C++26), stable Rust with clippy and rustfmt, the runner's
   preinstalled GHC, HLint, pinned clang-format and Fourmolu, and pinned Zig
   (compiler and zig fmt in one).
@@ -51,8 +51,8 @@ runs:
       uses: haskell-actions/hlint-setup@main
 
     # The formatters are pinned to exact versions, because a new release
-    # formats differently and script/verify.sh compares byte for byte. The
-    # versions must match script/format.sh, which refuses any other. Only
+    # formats differently and script/verify.py compares byte for byte. The
+    # versions must match script/format.py, which refuses any other. Only
     # the two binaries go on PATH, not the venv's python3.
     - name: Install clang-format and Fourmolu (pinned)
       shell: bash
@@ -62,7 +62,7 @@ runs:
         FOURMOLU_SHA256: aadf6931653df7b96f52014cf8eb4285a3e8778cd0b531499fc3ee013e1e00c7
       run: |
         set -euo pipefail
-        dir="$RUNNER_TEMP/namara-formatters"
+        dir="$RUNNER_TEMP/namaran-formatters"
         mkdir -p "$dir/bin"
         python3 -m venv "$dir/venv"
         "$dir/venv/bin/pip" install --quiet --disable-pip-version-check "clang-format==$CLANG_FORMAT_VERSION"
@@ -76,7 +76,7 @@ runs:
         "$dir/bin/clang-format" --version && "$dir/bin/fourmolu" --version
 
     # Zig is pinned to one release, which is both the compiler and zig fmt,
-    # so the version must match script/format.sh (it refuses any other) and
+    # so the version must match script/format.py (it refuses any other) and
     # CLAUDE.md's version table. ziglang.org asks CI to download from the
     # community mirrors instead of from it
     # (https://ziglang.org/download/community-mirrors/), so they are tried
@@ -94,13 +94,13 @@ runs:
         ZIG_SHA256: 1cbe9df9f27e6b78d14ccbca43b6703a404ef79ef1c463de901d7f088d4e2026
       run: |
         set -euo pipefail
-        dir="$RUNNER_TEMP/namara-zig"
+        dir="$RUNNER_TEMP/namaran-zig"
         name="zig-x86_64-linux-$ZIG_VERSION"
         mkdir -p "$dir"
         mirrors="$(curl -fsSL --max-time 20 https://ziglang.org/download/community-mirrors.txt | shuf)" || mirrors=""
         got=""
         for base in $mirrors "https://ziglang.org/download/$ZIG_VERSION"; do
-          if curl -fsSL --max-time 300 -o "$dir/zig.tar.xz" "$base/$name.tar.xz?source=github-kokimiza-namara" &&
+          if curl -fsSL --max-time 300 -o "$dir/zig.tar.xz" "$base/$name.tar.xz?source=github-kokimiza-namaran" &&
             echo "$ZIG_SHA256  $dir/zig.tar.xz" | sha256sum -c --quiet - 2> /dev/null; then
             got="$base"
             break

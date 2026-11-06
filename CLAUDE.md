@@ -4,13 +4,13 @@ Namaranは1日1問のコーディングドリル静的サイト。作業前に�
 
 - [doc/requirements.md](doc/requirements.md) — 要件定義(Namaranが何をする/しないか)
 - [doc/basic-design.md](doc/basic-design.md) — 基本設計(ディレクトリ構成・HTML規約・運用フロー)
-- [.claude/skills/namara-daily/SKILL.md](.claude/skills/namara-daily/SKILL.md) — 日々のドリル作成手順
+- [.claude/skills/namaran-daily/SKILL.md](.claude/skills/namaran-daily/SKILL.md) — 日々のドリル作成手順
 
-新しい問題を1つ作るときは `namara-daily` Skillを使う。日本語の推敲は `humanizer-ja-tech` Skill(`/humanizer-ja-tech`)に集めてあり、書き方の規則はほかのファイルに重複させない。`script/content.sh` の使い方やHTML規約はSkill側とbasic-design.md側の指示に従い、ここには重複させない。
+新しい問題を1つ作るときは `namaran-daily` Skillを使う。日本語の推敲は `humanizer-ja-tech` Skill(`/humanizer-ja-tech`)に集めてあり、書き方の規則はほかのファイルに重複させない。`script/content.py` の使い方やHTML規約はSkill側とbasic-design.md側の指示に従い、ここには重複させない。
 
 ## 対象言語のバージョン固定
 
-各言語の問題は、以下のバージョン/エディションを前提に書く(`script/content.sh` の `lang_nav_label()` および `index.html` の言語見出しと一致させること)。問題の挙動を確認する際は、まずここのリファレンスを当たる。
+各言語の問題は、以下のバージョン/エディションを前提に書く(`script/content.py` の `lang_nav_label()` および `index.html` の言語見出しと一致させること)。問題の挙動を確認する際は、まずここのリファレンスを当たる。
 
 | 言語 | 対象バージョン | 言語仕様リファレンス |
 |---|---|---|
@@ -24,6 +24,6 @@ Haskellだけは後継の公式言語標準が存在しない(2010年の報告�
 
 Zigには言語標準の文書が無く、1.0より前はリリースのたびに言語と標準ライブラリが変わる。対象は特定のコンパイラのリリース(0.17.0)で、その言語リファレンスと標準ライブラリが仕様になる。Zigは2026-10-21分から加わった。それ以前の日付のページ(4言語のナビしか持たない)は直さない。
 
-新しい言語標準が確定した場合(例: C++26の正式発行、次期Cの発行)、この表と `script/content.sh` の `lang_nav_label()`・`index.html` の言語見出し・`script/verify.sh` のコンパイラオプション(`-std=` / `--edition` / `-X`)・`script/format.sh` が rustfmt に渡す `--edition` を同時に更新すること。片方だけ更新するとサイト表示とこのドキュメントがずれ、検証も古い標準で行われてしまう。
+新しい言語標準が確定した場合(例: C++26の正式発行、次期Cの発行)、この表と `script/content.py` の `lang_nav_label()`・`index.html` の言語見出し・`script/verify.py` のコンパイラオプション(`-std=` / `--edition` / `-X`)・`script/format.py` が rustfmt に渡す `--edition` を同時に更新すること。片方だけ更新するとサイト表示とこのドキュメントがずれ、検証も古い標準で行われてしまう。
 
-Zigの版を上げる場合は、この表・`lang_nav_label()`・`index.html` の言語見出し(英日の2か所)・15枚の `archive.html` の言語ナビ・`.github/actions/toolchains/action.yml` の `ZIG_VERSION` と `ZIG_SHA256`(<https://ziglang.org/download/index.json> の `x86_64-linux` の `shasum`)・`script/format.sh` の `ZIG_VERSION` を同時に変え、`.claude/skills/namara-daily/SKILL.md` の「Zig」の節に書いた書き方(`main` と標準出力、zig-docs を手元で入れるコマンドの `--version` など)を新しい版で確かめ直す。`zig fmt` はコンパイラに同梱されているので、整形と検証は同じ版で動く。zig-mcp は `zig version` から版を読むので、ワークフローの変更は要らない。
+Zigの版を上げる場合は、この表・`lang_nav_label()`・`index.html` の言語見出し(英日の2か所)・15枚の `archive.html` の言語ナビ・`.github/actions/toolchains/action.yml` の `ZIG_VERSION` と `ZIG_SHA256`(<https://ziglang.org/download/index.json> の `x86_64-linux` の `shasum`)・`script/format.py` の `ZIG_VERSION` を同時に変え、`.claude/skills/namaran-daily/SKILL.md` の「Zig」の節に書いた書き方(`main` と標準出力、zig-docs を手元で入れるコマンドの `--version` など)を新しい版で確かめ直す。`zig fmt` はコンパイラに同梱されているので、整形と検証は同じ版で動く。zig-mcp は `zig version` から版を読むので、ワークフローの変更は要らない。

@@ -1,6 +1,6 @@
 ---
-name: namara-daily
-description: Namaranの問題を作成・検証する。言語・種別・トピック・難易度・日付の指定があればそれに沿い、無ければ今日の15組をodai.txtの抽選お題とlevel.shの抽選難易度で作る。script/content.shで雛形を生成し、code/question/answerを書き、script/verify.shで検証する。「今日のNamaran書いて」「RustのWRITEで所有権の問題作って」のような依頼や、定期実行ワークフローから使う。
+name: namaran-daily
+description: Namaranの問題を作成・検証する。言語・種別・トピック・難易度・日付の指定があればそれに沿い、無ければ今日の15組をodai.txtの抽選お題とlevel.pyの抽選難易度で作る。script/content.pyで雛形を生成し、code/question/answerを書き、script/verify.pyで検証する。「今日のNamaran書いて」「RustのWRITEで所有権の問題作って」のような依頼や、定期実行ワークフローから使う。
 ---
 
 # Namaran — 日々のドリル作成
@@ -33,8 +33,8 @@ description: Namaranの問題を作成・検証する。言語・種別・トピ
 |---|---|---|
 | **言語** | c / cpp / rust / haskell / zig | 5言語すべて |
 | **種別** | read / write / debug | 3種別すべて |
-| **トピック** | 何を扱うか（自由記述。「所有権」「再帰の美しさ」等） | `./script/odai.sh` の抽選結果（下記） |
-| **難易度** | hedgehog / peacock / bison / whale（ハリネズミ / 孔雀 / バイソン / クジラ） | `./script/level.sh <lang>/<type> ...` の抽選結果（下記「難易度」） |
+| **トピック** | 何を扱うか（自由記述。「所有権」「再帰の美しさ」等） | `./script/odai.py` の抽選結果（下記） |
+| **難易度** | hedgehog / peacock / bison / whale（ハリネズミ / 孔雀 / バイソン / クジラ） | `./script/level.py <lang>/<type> ...` の抽選結果（下記「難易度」） |
 | **日付** | YYYY-MM-DD | `TZ=Asia/Tokyo date +%Y-%m-%d` で得られる今日の日付 |
 
 つまり「今日のNamaran書いて」だけなら、今日の15組を言語ごとの抽選お題と組ごとの抽選難易度で作る。
@@ -49,9 +49,9 @@ description: Namaranの問題を作成・検証する。言語・種別・トピ
 
 このSkillと同じディレクトリの `odai.txt` は、「`ラベル: テーマ`」を1行1つ並べたお題の候補集。
 ラベルは言語名（`C23` `C++26` `Rust2024` `Haskell2010` `Zig` など）か、C・C++・Rust・Haskellの4言語で扱う `Any`。
-Zigは `Any` を引かず、`Zig` の行だけから抽選される（理由は `script/odai.sh` の冒頭）。
+Zigは `Any` を引かず、`Zig` の行だけから抽選される（理由は `script/odai.py` の冒頭）。
 トピックの指定がないとき（「odai.txtから選んで」と頼まれたときも）は、自分で「ランダムに」選ばず
-`./script/odai.sh` を実行し、出力された言語ごとの抽選結果（`LANG<TAB>テーマ`）を使う。同じ日の5言語でお題は重ならない。
+`./script/odai.py` を実行し、出力された言語ごとの抽選結果（`LANG<TAB>テーマ`）を使う。同じ日の5言語でお題は重ならない。
 
 1つのテーマで同じ言語のREAD/WRITE/DEBUGを作る場合は、**3問の答えの核を重ねない。** 答えの核とは、
 その問題を解く決め手になる知識や気付きのことで、解説の最初の理由の段落に書くものである。
@@ -72,7 +72,7 @@ DEBUGでその規則を忘れた誤りを直させる」と、3問とも同じ1�
 
 ### 非対話実行（GitHub Actions）
 
-`.github/workflows/namara-daily.yml` から呼ばれた場合（引数に「非対話実行」とある場合）は、
+`.github/workflows/namaran-daily.yml` から呼ばれた場合（引数に「非対話実行」とある場合）は、
 ユーザーに質問できない（そもそも問題の中身では質問しない。上記）。加えて次のように動く：
 
 * AskUserQuestionは使わない
@@ -106,7 +106,7 @@ DEBUGでその規則を忘れた誤りを直させる」と、3問とも同じ1�
 当てはめるだけでは解けず、基本事項を結び付ける発想が要る」問題が手本になる。東大入試が教科書の範囲を超える概念を
 問題文の中で定義し、高校生に読めるように作ってあるのは、どの段階でも同じように真似る。
 
-**難易度は自分で選ばない。** 指定がなければ `./script/level.sh <lang>/<type> ...` を実行し、
+**難易度は自分で選ばない。** 指定がなければ `./script/level.py <lang>/<type> ...` を実行し、
 出力された組ごとの抽選結果（`LANG/TYPE<TAB>LEVEL`）で書く。非対話実行では引数に抽選済みの値がある。
 確率は1段ごとに黄金比で割った値で、組ごとに独立に抽選される。
 
@@ -166,12 +166,12 @@ DEBUGでその規則を忘れた誤りを直させる」と、3問とも同じ1�
 **答えに作用しない要素は数えない。** コードに置いた規則でも、答えを変えない目くらまし（2026-10-27の Haskell READ の
 `repeat` と遅延評価がそうで、`take` が文字数で切ることだけで答えが出る）は、段階を上げる材料にならない。
 
-## 1. 雛形生成（script/content.shを使う）
+## 1. 雛形生成（script/content.pyを使う）
 
 Bashで実行する。上書きはしない・冪等なので、同じ日付で再実行しても安全。
 
 ```bash
-./script/content.sh new <DATE> <lang>/<type>
+./script/content.py new <DATE> <lang>/<type>
 ```
 
 * 出力が `created: ...` なら新規雛形ができている。`skip (already exists): ...` の場合は
@@ -199,7 +199,7 @@ Bashで実行する。上書きはしない・冪等なので、同じ日付で�
   1行の `for` 文や `int *p` が残っているが、真似ない
 * ページの骨組み（問題文・入出力例・`<details>` の形）は直近ページではなく**雛形に従う**。雛形は種別ごとに
   `script/template-read.html` / `template-write.html` / `template-debug.html` があり、
-  `content.sh` が種別に合うものを使う。2026-09-28以前のWRITE（例を問題文に埋め込む）・DEBUG（解説が段落だけ）は
+  `content.py` が種別に合うものを使う。2026-09-28以前のWRITE（例を問題文に埋め込む）・DEBUG（解説が段落だけ）は
   古い形なので真似ない
 
 ## 3. 中身を書く（唯一の創造的な作業）
@@ -280,7 +280,7 @@ Namaranもこの作り方をなぞる。難しさは基本事項の組み合わ�
 **学術用語は使わないのが既定である。** 東大入試が定義するのは問題を読むのに要る概念であって、用語を覚えさせるためではない。
 前提知識の言葉で書けるなら、そう書く（「異なる n 個から k 個を選ぶ組合せの数」で足りるところに「二項係数（binomial coefficient）」を
 添えない）。学術用語を使ったほうが問題文や解説がすっきりする場合に限り使ってよいが、**使ったら必ず脚注を付ける。**
-脚注は解説の中にしか置けない（`script/verify.sh` が問題文の脚注を落とす）ので、問題文で使った用語は解説でも必ず触れ、
+脚注は解説の中にしか置けない（`script/verify.py` が問題文の脚注を落とす）ので、問題文で使った用語は解説でも必ず触れ、
 その初出に脚注番号を付ける。脚注の書き方は `/humanizer-ja-tech`（同Skill §8「読者の前提知識と、それを超える知識」）にある。
 
 **問題の質の基準**（doc/requirements.md §7・§9・§11・§24を必ず踏まえる）:
@@ -311,7 +311,7 @@ Namaranもこの作り方をなぞる。難しさは基本事項の組み合わ�
 コードは `ponytail.md` の規律で書く。要点：
 
 * **READ・DEBUGの `<pre class="code">` は合計18行以内**（空行・コメント・`#include`・`import` も数える。
-  解答の `<details>` 内は数えない）。`script/verify.sh` が数えて、超えたら落とす
+  解答の `<details>` 内は数えない）。`script/verify.py` が数えて、超えたら落とす
 * 超えたら**作問ミス**。空行を消す・1行に詰める・答えに要る行を検証用ソースへ隠す、で収めない。
   `ponytail.md` の手順で、問う規則を1つに絞った別の切り口から作り直す
 * WRITEは元からシグネチャだけなので対象外。ただし参考実装も同じ規律で短く書く
@@ -329,10 +329,12 @@ WRITE/DEBUGは**コードを説明の置き場にしない**——書き始め�
 
 * 骨組みは雛形（`script/template-{type}.html`）がすでに持っている。TODOを埋めるだけにし、
   要素を足したり組み替えたりしない
-* `<main class="drill">` は残す。`script/highlight.sh` がコードを行ごとのspanで包み、CSSが
-  左の別色の欄に行番号を出す。行番号や差分の記号をコード本文には書かない。
-  WRITEの参考実装は `code-frame diff-added` の枠を残す（緑と＋）。DEBUGはWrong/Rightの
-  見出しと直後の `pre.code` を残す（それぞれ赤と−、緑と＋）
+* `<main class="drill">` は残す。`script/highlight.py` がコードを行ごとのspanで包み、CSSが
+  左の欄に行番号を出す。行番号や差分の記号をコード本文には書かない。
+  解答のコードはgitの差分のように塗られる。DEBUGはWrongとRightを、WRITEは参考実装
+  （`code-frame diff-added` の枠）と問題のコードを `script/highlight.py` が突き合わせ、
+  変わった行だけに−（赤）と＋（緑）を、変わった語に濃い色を付ける。同じ行は塗らない。
+  そのためにWrong/Rightの見出しと直後の `pre.code`、`diff-added` の枠は残す
 * **例を `<pre class="code">` に入れない。** 検証（§4）は `<pre class="code">` の全行が検証用
   ソースに含まれることを要求するので、そこに例を置くと検証が通らない
 * 例は1行に収まる短いものを選ぶ。収まらないなら、収まる入力を選び直す
@@ -454,7 +456,7 @@ WRITEと同じく、バグの在処や直し方をコメントで示さない。
 （検証は、行どうしの相対的なインデントが整形済みの検証用ソースと同じかを照合する）。
 Wrong/Right の `<pre class="code">` は `<details>` の中なので18行の制限には数えないが、
 検証（§4）の「掲載コードの各行が検証用ソースに含まれる」には掛かり、ハイライトも必要。
-`script/verify.sh` はDEBUGの解答が Wrong＋コード → Right＋コード の順になっているかも確かめる。
+`script/verify.py` はDEBUGの解答が Wrong＋コード → Right＋コード の順になっているかも確かめる。
 2026-09-28以前のDEBUG（コンパイルエラーの問題、段落だけの解説）は古い形のまま残す——公開後のページは直さない。
 
 ### Zig（0.17）の書き方と資料
@@ -496,7 +498,7 @@ CLAUDE.md の表の版（0.17.0）のコンパイラと言語リファレンス�
 * **okファイルも完全なプログラム。** ほかの言語と同じく `pub fn main` が要る。Zigのコンパイラは `main` から
   たどれる関数しか型検査しないので、WRITEの参考実装は `main`（かテスト）から必ず呼ぶ。呼ばれない関数の誤りは
   検証を素通りする
-* **テストでも確かめられる。** okファイルに最上位の `test` ブロックがあれば、`script/verify.sh` はビルドに加えて
+* **テストでも確かめられる。** okファイルに最上位の `test` ブロックがあれば、`script/verify.py` はビルドに加えて
   `zig test` も通す。`std.testing.allocator` は解放し忘れをテストの失敗にするので、確保と解放を扱う問題
   （WRITEの参考実装、DEBUGの直した版）はこれで裏付ける。`init.gpa` のリークは標準エラーに出るだけで、
   終了コードは変わらない
@@ -507,7 +509,7 @@ CLAUDE.md の表の版（0.17.0）のコンパイラと言語リファレンス�
 ### お題のメタデータ
 
 ドリルの画面には日付とファイル名とコードしか出さない。**何を扱う問題かは `<main>` の属性として持たせる。**
-`script/topics.sh` がこれを読んで、アーカイブの見出しとタグページ（`/tag/{tag}`）を組む
+`script/topics.py` がこれを読んで、アーカイブの見出しとタグページ（`/tag/{tag}`）を組む
 （doc/basic-design.md §7.1・§7.3・§7.4）。画面に「これはオブジェクトスライシングの問題です」と
 書いてしまうと、それ自体が答えの半分になるので、属性で持つ。
 
@@ -529,7 +531,7 @@ CLAUDE.md の表の版（0.17.0）のコンパイラと言語リファレンス�
   15字はブラウザのタブとGoogleの検索結果が切り詰めずに出す長さで、ここを定型句に使うと
   読む側にも検索する側にも何も伝わらない
 * **`data-tags`** — `script/tags.tsv` にあるスラッグを空白区切りで2〜6個（上限8）。
-  **まず `./script/topics.sh --tags` で既存の語彙（スラッグと日本語名）を見て、あるものを使う。**
+  **まず `./script/topics.py --tags` で既存の語彙（スラッグと日本語名）を見て、あるものを使う。**
   どうしても無いときだけ、`script/tags.tsv` の末尾に `slug<TAB>日本語の名前`（15字以内）を
   1行足す。スラッグは小文字ASCIIのkebab-caseで、規格・公式ドキュメントの用語をそのまま、
   単数形の名詞句（規則の全文は doc/basic-design.md §7.4）
@@ -545,7 +547,7 @@ CLAUDE.md の表の版（0.17.0）のコンパイラと言語リファレンス�
 `meta description`（HTML属性）では `<` `&` をエスケープするが、JSON-LD（`<script>` の中身）では
 エスケープせず生の `<` `&` を書く（`Vec<String>` のように。既存ページもそうなっている）。
 
-同じ主張が複数の場所に出るので、`script/verify.sh` が一致を機械的に確かめる。ずれていれば落ちる。
+同じ主張が複数の場所に出るので、`script/verify.py` が一致を機械的に確かめる。ずれていれば落ちる。
 
 **`topics.html` や `tag/` は自分で触らない。** 公開時に別ジョブがスクリプトで組み直す
 （非対話実行で変更してよいのは、日付ページ・`archive.html`・`script/tags.tsv` だけ。
@@ -566,7 +568,7 @@ CLAUDE.md の表の版（0.17.0）のコンパイラと言語リファレンス�
 コードを書き終えたら、そのページに対して実行する：
 
 ```bash
-./script/highlight.sh <lang>/<type>/<YYYY>/<MM>/<DATE>.html
+./script/highlight.py <lang>/<type>/<YYYY>/<MM>/<DATE>.html
 ```
 
 * 既存の `<span>` を剥がしてから付け直すので、何度実行してもよい。**コードを直したら毎回再実行する**
@@ -608,7 +610,7 @@ CLAUDE.md の表の版（0.17.0）のコンパイラと言語リファレンス�
   足してよい。ただし抑制は、ページで意図的に見せたい書き方が警告に掛かる場合だけにし、
   理由をコメントで残す。警告が出るのが本当に悪いコードなら、問題の方を直す
 
-使われるツールと、ビルドの厳しさ（`script/verify.sh` の冒頭に詳細）：
+使われるツールと、ビルドの厳しさ（`script/verify.py` の冒頭に詳細）：
 
 * C: `gcc-14 -std=c23 -Wall -Wextra -Wpedantic -Werror -fanalyzer`、実行時はASan/UBSan付き
 * C++: `g++-14 -std=c++26 -Wall -Wextra -Wpedantic -Werror`、実行時はASan/UBSan付き
@@ -617,7 +619,7 @@ CLAUDE.md の表の版（0.17.0）のコンパイラと言語リファレンス�
 * Zig: `zig build-exe`（0.17.0、Debug。実行時の安全検査つき）と、最上位の `test` があれば `zig test`
   （§3「Zig（0.17）の書き方と資料」）
 * 整形: `clang-format` 23.1.2・`rustfmt`（stable、`style_edition = "2024"`）・`fourmolu` 0.21.0.0・`zig fmt`（zig 0.17.0 に同梱、設定なし）。
-  版は `script/format.sh` が確かめ、違えば止まる（版が違うと整形結果が変わるため）
+  版は `script/format.py` が確かめ、違えば止まる（版が違うと整形結果が変わるため）
 
 ### 整形する
 
@@ -625,14 +627,14 @@ CLAUDE.md の表の版（0.17.0）のコンパイラと言語リファレンス�
 （例はRustのREAD。拡張子は言語に合わせて `.c` `.cpp` `.rs` `.hs` `.zig`）：
 
 ```bash
-./script/format.sh {VERIFY_DIR}/rust/read/*.rs
+./script/format.py {VERIFY_DIR}/rust/read/*.rs
 ```
 
 * 規則はリポジトリ直下の `.clang-format`（C/C++）・`rustfmt.toml`（Rust）・`fourmolu.yaml`（Haskell）にある。
   設定ファイルは変更しない。`zig fmt`（Zig）は設定を持たず、Zigの版が整形結果を決める
 * ページの `<pre class="code">` には、整形**後**の行をそのまま写す。整形でコードの行が増えて
   READ・DEBUGが18行を超えたら、それも作問ミスとして切り口から作り直す（`ponytail.md` §2）
-* `script/verify.sh` は各ファイルが `script/format.sh` の出力どおりかを確かめ、違えば差分を出して落ちる。
+* `script/verify.py` は各ファイルが `script/format.py` の出力どおりかを確かめ、違えば差分を出して落ちる。
   直すときは検証用ソースを直して再整形し、ページに写し直す（ページだけを手で揃えない）
 * 構文エラーそのものを問うREADの ng ファイルは、整形ツールが読めないので確認を免除される。
   読める ng ファイル（型エラーなど）は整形が必要
@@ -650,11 +652,11 @@ CLAUDE.md の表の版（0.17.0）のコンパイラと言語リファレンス�
 ### 検証を実行する
 
 ```bash
-./script/verify.sh <DATE> <VERIFY_DIR> <lang>/<type> ...
+./script/verify.py <DATE> <VERIFY_DIR> <lang>/<type> ...
 ```
 
 ページ側（JSON-LDが壊れていない、TODOなし、lang-nav/type-navが同じ日付を指す、archive.htmlに行がある、
-`<code>` 内がエスケープ済み、掲載コードが検証用ソースに同じ相対インデントで含まれる、READ/DEBUGのコードが18行以内、WRITEの入出力例が `examples` の枠にある、DEBUGの解答が Wrong → Right の形、日本語に推敲で消すはずの型が残っていない、脚注の番号と本文が対応している、ハイライトが `script/highlight.sh` の出力どおり）と、検証用ソース側（上の表と、整形済みであること）を
+`<code>` 内がエスケープ済み、掲載コードが検証用ソースに同じ相対インデントで含まれる、READ/DEBUGのコードが18行以内、WRITEの入出力例が `examples` の枠にある、DEBUGの解答が Wrong → Right の形、日本語に推敲で消すはずの型が残っていない、脚注の番号と本文が対応している、ハイライトが `script/highlight.py` の出力どおり）と、検証用ソース側（上の表と、整形済みであること）を
 まとめて確認する。`FAIL` が1つでも出たら§3に戻って直し、全件通るまで繰り返す。
 
 ## 5. 報告して止める
@@ -667,7 +669,7 @@ git操作を一切しない（§0参照）。
 * 新規作成したファイルと、`archive.html` に追加された行
 * `/humanizer-ja-tech` の報告（同Skill §8「報告」。推敲で直した主な点、使った学術用語とその脚注、問題文で説明した概念）
 * 同じ言語の3問それぞれの答えの核（1文ずつ）と、§3「書いたあとに段階を確かめる」の結果
-* 検証結果（`script/verify.sh` の結果）
+* 検証結果（`script/verify.py` の結果）
 * commitするかどうかはユーザーの判断を仰ぐ
 
 複数combo分まとめて処理した場合は、comboごとに上記を繰り返し、最後に全体のまとめを1つ添える。

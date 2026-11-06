@@ -1,11 +1,11 @@
 # Keeps the generated files in step with what is published: sitemap.xml, the
 # topic line on every archive entry, and the indexes — topics.html with one
 # page per tag under tag/, and levels.html with one page per difficulty under
-# level/ (script/topics.sh).
+# level/ (script/topics.py).
 #
 # The daily workflow regenerates them in its own publish job, so this one is
 # for the other cases: a drill pushed by hand, and a page whose date was in
-# the future when it was published (script/sitemap.sh leaves those out until
+# the future when it was published (script/sitemap.py leaves those out until
 # the day arrives, because the middleware 404s them).
 #
 # Everything here is deterministic and reads only this repository: no Claude,
@@ -28,7 +28,7 @@ on:
 permissions: {}
 
 concurrency:
-  group: namara-sitemap
+  group: namaran-sitemap
   cancel-in-progress: false
 
 jobs:
@@ -42,6 +42,13 @@ jobs:
         with:
           ref: main
 
+      # Everything under script/ is Python (standard library only), run by
+      # the version .python-version pins.
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version-file: .python-version
+
       - name: Regenerate the topic index and sitemap.xml, and push if they changed
         run: |
           set -euo pipefail
@@ -51,8 +58,8 @@ jobs:
           for attempt in 1 2 3; do
             git fetch --quiet origin main
             git reset --quiet --hard origin/main
-            ./script/topics.sh
-            ./script/sitemap.sh
+            ./script/topics.py
+            ./script/sitemap.py
             # Staged, not `git diff`: topics.html may not be tracked yet on
             # an older main, and an untracked file is invisible to git diff.
             git add -A -- sitemap.xml topics.html tag levels.html level script/tags.tsv "*/*/archive.html"

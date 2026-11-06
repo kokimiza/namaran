@@ -1,102 +1,74 @@
-#!/usr/bin/env bash
-# Namaran topic index generator.
-#
-# An authoring aid like script/sitemap.sh: it runs locally or in GitHub
-# Actions, never on Cloudflare Pages, and writes plain static files. It
-# builds the *index layer* — the one place where a drill's subject is
-# written out as words readers and search engines can actually read:
-#
-#   {lang}/{type}/archive.html   each <li> gets the drill's topic next to
-#                                its date
-#   topics.html                  every tag, named in Japanese
-#   tag/{slug}.html              one page per tag, listing every drill that
-#                                touches that concept
-#   levels.html                  the four difficulty animals, with counts
-#   level/{level}.html           one page per difficulty, listing every drill
-#                                drawn at that level (the animal's .svg sits
-#                                beside it; that one is drawn by hand)
-#
-# A drill page itself stays quiet: it shows a date, a filename and code, and
-# carries its subject as metadata only (doc/basic-design.md §7.1). Naming
-# the concept on the page being solved would hand over half the answer; on
-# an archive or a topic index, where the point is to find a drill again,
-# naming it is exactly what is wanted (§7.3).
-#
-# Usage:
-#   script/topics.sh           rewrite the archive lists, topics.html, tag/,
-#                              levels.html and level/*.html
-#   script/topics.sh --check   exit 1 if any of them is not up to date
-#   script/topics.sh --tags    print the tag vocabulary, most used first
-#
-# Where each field comes from, per drill page:
-#
-#   topic     <main data-topic="…"> — a Japanese heading of at most 15
-#             characters. The same string is the page's whole <title>.
-#   tags      <main data-tags="…">, space separated. A tag is an ASCII
-#             kebab-case slug, and it is only ever a URL: what a reader sees
-#             is its Japanese name from script/tags.tsv (§7.4). A tag with
-#             no line there stops the run — an index full of slugs nobody
-#             can read is the thing this layer exists to avoid.
-#   concepts  <main data-concepts="…">, comma separated. The natural-language
-#             wording of the same subject, printed on the tag pages so that a
-#             reader searching "値渡し" or "pass by value" lands somewhere.
-#   level     <main data-level="…">: hedgehog, peacock, bison or whale, the
-#             difficulty script/level.sh drew for the drill. Every archive and
-#             tag line carries the same animal the drill page shows next to
-#             its date (style.css draws both from /level/{level}.svg), with
-#             its Japanese name as the accessible label.
-#
-# script/tags.tsv is the tag vocabulary: "slug<TAB>日本語の名前", one per
-# line. This script rewrites it sorted and deduplicated, so a new tag can be
-# appended anywhere by hand.
-#
-# Which dates exist is *not* decided here: archive.html stays the source of
-# truth for what is published (§7.1a), the same file the middleware reads.
-# This script only rewrites the text of lines that are already there, so it
-# can never publish or unpublish a drill.
-#
-# Everything it copies out of a page is treated as untrusted text: it is
-# HTML-escaped on the way out, and must be short and single-line, or the run
-# fails loudly rather than writing something odd into a page. A topic may
-# well contain < or > (operator<<, Vec<String>, i <= n) — that is text, and
-# it is escaped like any other. The output is deterministic, so re-running it
-# with nothing new published is a no-op diff.
+#!/usr/bin/env python3
+"""Namaran topic index generator.
 
-set -euo pipefail
+An authoring aid like script/sitemap.py: it runs locally or in GitHub
+Actions, never on Cloudflare Pages, and writes plain static files. It
+builds the *index layer* — the one place where a drill's subject is
+written out as words readers and search engines can actually read:
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+  {lang}/{type}/archive.html   each <li> gets the drill's topic next to
+                               its date
+  topics.html                  every tag, named in Japanese
+  tag/{slug}.html              one page per tag, listing every drill that
+                               touches that concept
+  levels.html                  the four difficulty animals, with counts
+  level/{level}.html           one page per difficulty, listing every drill
+                               drawn at that level (the animal's .svg sits
+                               beside it; that one is drawn by hand)
 
-usage() {
-  sed -n '2,63p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
-}
+A drill page itself stays quiet: it shows a date, a filename and code, and
+carries its subject as metadata only (doc/basic-design.md §7.1). Naming
+the concept on the page being solved would hand over half the answer; on
+an archive or a topic index, where the point is to find a drill again,
+naming it is exactly what is wanted (§7.3).
 
-case "${1:-}" in
-  -h|--help|help) usage; exit 0 ;;
-  ""|--check|--tags) ;;
-  *) echo "error: unknown option: $1" >&2; usage >&2; exit 2 ;;
-esac
+Usage:
+  script/topics.py           rewrite the archive lists, topics.html, tag/,
+                             levels.html and level/*.html
+  script/topics.py --check   exit 1 if any of them is not up to date
+  script/topics.py --tags    print the tag vocabulary, most used first
 
-exec python3 - "$ROOT_DIR" "${1:-}" <<'PY'
+Where each field comes from, per drill page:
+
+  topic     <main data-topic="…"> — a Japanese heading of at most 15
+            characters. The same string is the page's whole <title>.
+  tags      <main data-tags="…">, space separated. A tag is an ASCII
+            kebab-case slug, and it is only ever a URL: what a reader sees
+            is its Japanese name from script/tags.tsv (§7.4). A tag with
+            no line there stops the run — an index full of slugs nobody
+            can read is the thing this layer exists to avoid.
+  concepts  <main data-concepts="…">, comma separated. The natural-language
+            wording of the same subject, printed on the tag pages so that a
+            reader searching "値渡し" or "pass by value" lands somewhere.
+  level     <main data-level="…">: hedgehog, peacock, bison or whale, the
+            difficulty script/level.py drew for the drill. Every archive and
+            tag line carries the same animal the drill page shows next to
+            its date (style.css draws both from /level/{level}.svg), with
+            its Japanese name as the accessible label.
+
+script/tags.tsv is the tag vocabulary: "slug<TAB>日本語の名前", one per
+line. This script rewrites it sorted and deduplicated, so a new tag can be
+appended anywhere by hand.
+
+Which dates exist is *not* decided here: archive.html stays the source of
+truth for what is published (§7.1a), the same file the middleware reads.
+This script only rewrites the text of lines that are already there, so it
+can never publish or unpublish a drill.
+
+Everything it copies out of a page is treated as untrusted text: it is
+HTML-escaped on the way out, and must be short and single-line, or the run
+fails loudly rather than writing something odd into a page. A topic may
+well contain < or > (operator<<, Vec<String>, i <= n) — that is text, and
+it is escaped like any other. The output is deterministic, so re-running it
+with nothing new published is a no-op diff.
+"""
+
 import html
-import pathlib
 import re
 import sys
 
-root = pathlib.Path(sys.argv[1])
-mode = sys.argv[2]
+from namaran import LANGS, LEVELS, ROOT, SITE, TYPES, page_file
 
-SITE = "https://namaran.jocarium.productions"
-LANGS = {"c": "C", "cpp": "C++", "rust": "Rust", "haskell": "Haskell", "zig": "Zig"}
-TYPES = {"read": "READ", "write": "WRITE", "debug": "DEBUG"}
-# Difficulty, easiest first: the animal and the level it stands for
-# (doc/requirements.md §7).
-LEVELS = {
-    "hedgehog": ("ハリネズミ", "基礎"),
-    "peacock": ("孔雀", "標準"),
-    "bison": ("バイソン", "高度"),
-    "whale": ("クジラ", "特級"),
-}
 # What each level asks of the reader (doc/requirements.md §7.1). How often
 # the daily draw lands on each level is not published anywhere on the site.
 LEVEL_NOTES = {
@@ -110,7 +82,7 @@ TAG_RE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\Z")
 MAX_TOPIC = 15
 MAX_LABEL = 15
 MAX_CONCEPT = 60
-TAGS_FILE = root / "script" / "tags.tsv"
+TAGS_FILE = ROOT / "script" / "tags.tsv"
 
 
 def die(msg):
@@ -147,16 +119,10 @@ def read_labels():
     return labels
 
 
-def page_file(lang, typ, date):
-    """The dated page, relative to the root: filed by year and month, while
-    its URL stays /{lang}/{typ}/{date} (functions/_middleware.js)."""
-    return f"{lang}/{typ}/{date[:4]}/{date[5:7]}/{date}.html"
-
-
-def read_drill(lang, typ, date):
+def read_drill(lang, typ, date, labels):
     """topic, tags and concepts for one published page."""
     where = page_file(lang, typ, date)
-    page = root / where
+    page = ROOT / where
     s = page.read_text(encoding="utf-8")
 
     m = re.search(r"<main\b[^>]*>", s)
@@ -189,12 +155,12 @@ def read_drill(lang, typ, date):
 
 def published_dates(lang, typ):
     """Dates listed in archive.html, in the order they are listed."""
-    archive = root / lang / typ / "archive.html"
+    archive = ROOT / lang / typ / "archive.html"
     if not archive.is_file():
         return []
     dates = re.findall(rf'href="/{lang}/{typ}/(\d{{4}}-\d{{2}}-\d{{2}})"',
                        archive.read_text(encoding="utf-8"))
-    return [d for d in dates if (root / page_file(lang, typ, d)).is_file()]
+    return [d for d in dates if (ROOT / page_file(lang, typ, d)).is_file()]
 
 
 def e(text):
@@ -210,36 +176,9 @@ def level_mark(level):
             f' aria-label="{label}" title="{label}"></span>')
 
 
-labels = read_labels()
-drills = []
-for lang in LANGS:
-    for typ in TYPES:
-        for date in published_dates(lang, typ):
-            drills.append(read_drill(lang, typ, date))
-
-by_tag = {}
-for d in drills:
-    for tag in d["tags"]:
-        by_tag.setdefault(tag, []).append(d)
-
-# Most used first: on a page of two hundred Japanese names there is no
-# alphabet to fall back on, so the order has to mean something.
-tag_order = sorted(by_tag, key=lambda t: (-len(by_tag[t]), t))
-
-if mode == "--tags":
-    for tag in tag_order:
-        print(f"{len(by_tag[tag]):4}  {tag:<28} {labels[tag]}")
-    unused = sorted(set(labels) - set(by_tag))
-    for tag in unused:
-        print(f"{0:4}  {tag:<28} {labels[tag]}  (not used yet)")
-    if not labels:
-        print("(no tags yet)")
-    sys.exit(0)
-
-
-def render_archive(lang, typ):
+def render_archive(lang, typ, drills):
     """archive.html with its <ul class="past-list"> rewritten."""
-    archive = root / lang / typ / "archive.html"
+    archive = ROOT / lang / typ / "archive.html"
     if not archive.is_file():
         die(f"{lang}/{typ}/archive.html does not exist; every combo needs one, even before its first drill")
     s = archive.read_text(encoding="utf-8")
@@ -318,7 +257,7 @@ def drill_line(d):
             f' <span class="past-topic">{e(d["topic"])}</span>{concepts}</li>')
 
 
-def render_tag_page(tag, entries):
+def render_tag_page(tag, entries, labels):
     """/tag/{slug} — every drill that touches one concept.
 
     One page per tag, not one page with every tag on it: twelve drills a day
@@ -347,7 +286,7 @@ def render_tag_page(tag, entries):
   </ul>
 
   <p><a href="/topics">ほかのお題を見る</a></p>"""
-    return root / "tag" / f"{tag}.html", shell(
+    return ROOT / "tag" / f"{tag}.html", shell(
         title=e(name),
         description=e(description),
         canonical=f"{SITE}/tag/{tag}",
@@ -357,12 +296,7 @@ def render_tag_page(tag, entries):
     )
 
 
-by_level = {level: [] for level in LEVELS}
-for d in drills:
-    by_level[d["level"]].append(d)
-
-
-def level_listing():
+def level_listing(by_level):
     """The four animals on /levels, easiest first, each linking to its own page."""
     items = "\n".join(
         f'    <li><a href="/level/{level}"><span class="level" data-level="{level}" aria-hidden="true"></span>'
@@ -372,7 +306,7 @@ def level_listing():
     return f'  <ul class="past-list tag-list level-list">\n{items}\n  </ul>'
 
 
-def render_levels_index():
+def render_levels_index(by_level):
     """/levels — the difficulty counterpart of /topics."""
     body = f"""  <h2>難易度から探す</h2>
 
@@ -380,8 +314,8 @@ def render_levels_index():
     過去に出したドリルを、難易度から辿るための索引です。難易度は星ではなく4匹の動物で表していて、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。数字はその難易度の問題数です。
   </p>
 
-{level_listing()}"""
-    return root / "levels.html", shell(
+{level_listing(by_level)}"""
+    return ROOT / "levels.html", shell(
         title="難易度から探す",
         description="Namaranの過去のドリルを難易度から探す索引。ハリネズミ(基礎)・孔雀(標準)・バイソン(高度)・クジラ(特級)の4段階で、C・C++・Rust・Haskell・Zigのドリルをまとめています。",
         canonical=f"{SITE}/levels",
@@ -390,7 +324,7 @@ def render_levels_index():
     )
 
 
-def render_level_page(level):
+def render_level_page(level, by_level):
     """/level/{level} — every drill drawn at one difficulty, newest first.
 
     A level collects drills from every language, type and day, so it grows
@@ -454,7 +388,7 @@ def render_level_page(level):
 {listing}
 
   <p><a href="/levels">ほかの難易度を見る</a></p>"""
-    return root / "level" / f"{level}.html", shell(
+    return ROOT / "level" / f"{level}.html", shell(
         title=f"{animal}（{grade}）",
         description=f"Namaranの難易度「{animal}（{grade}）」のコーディングドリル{len(entries)}問。{note}。",
         canonical=f"{SITE}/level/{level}",
@@ -464,7 +398,7 @@ def render_level_page(level):
     )
 
 
-def render_topics_index():
+def render_topics_index(tag_order, by_tag, labels):
     if tag_order:
         items = "\n".join(
             f'    <li><a href="/tag/{tag}">{e(labels[tag])}</a>'
@@ -482,7 +416,7 @@ def render_topics_index():
   </p>
 
 {listing}"""
-    return root / "topics.html", shell(
+    return ROOT / "topics.html", shell(
         title="お題から探す",
         description="Namaranの過去のドリルを、扱っているお題から探す索引。C・C++・Rust・Haskell・Zigの読む・書く・直すドリルを、お題ごとにまとめています。",
         canonical=f"{SITE}/topics",
@@ -491,43 +425,81 @@ def render_topics_index():
     )
 
 
-outputs = [render_archive(lang, typ) for lang in LANGS for typ in TYPES]
-outputs.append(render_topics_index())
-outputs.extend(render_tag_page(tag, entries) for tag, entries in sorted(by_tag.items()))
-outputs.append(render_levels_index())
-# Always all four, even a level nothing has been drawn at yet: the set of
-# levels is fixed, so level/ never has a page to remove.
-outputs.extend(render_level_page(level) for level in LEVELS)
-# The vocabulary file is normalized here, so a new tag can be appended to the
-# end of it by hand and still land in the right place.
-outputs.append((TAGS_FILE, "".join(f"{s}\t{labels[s]}\n" for s in sorted(labels))))
+def main(args):
+    mode = args[0] if args else ""
+    if mode in ("-h", "--help", "help"):
+        print(__doc__.strip())
+        return
+    if mode not in ("", "--check", "--tags"):
+        print(f"error: unknown option: {mode}", file=sys.stderr)
+        print(__doc__.strip(), file=sys.stderr)
+        sys.exit(2)
 
-# A tag page whose tag no longer appears anywhere is removed: everything
-# under tag/ is written by this script and by nothing else.
-tag_dir = root / "tag"
-tag_dir.mkdir(exist_ok=True)
-wanted = {p for p, _ in outputs}
-stale_files = sorted(p for p in tag_dir.glob("*.html") if p not in wanted)
+    labels = read_labels()
+    drills = [read_drill(lang, typ, date, labels)
+              for lang in LANGS for typ in TYPES for date in published_dates(lang, typ)]
 
-stale = [p for p, text in outputs
-         if not p.is_file() or p.read_text(encoding="utf-8") != text]
+    by_tag = {}
+    for d in drills:
+        for tag in d["tags"]:
+            by_tag.setdefault(tag, []).append(d)
+    by_level = {level: [] for level in LEVELS}
+    for d in drills:
+        by_level[d["level"]].append(d)
 
-if mode == "--check":
-    if stale or stale_files:
-        print("out of date (run script/topics.sh):")
-        for p in stale:
-            print(f"  - {p.relative_to(root)}")
-        for p in stale_files:
-            print(f"  - {p.relative_to(root)} (no longer has a tag)")
-        sys.exit(1)
-    print(f"topic index is up to date ({len(drills)} drills, {len(by_tag)} tags)")
-    sys.exit(0)
+    # Most used first: on a page of two hundred Japanese names there is no
+    # alphabet to fall back on, so the order has to mean something.
+    tag_order = sorted(by_tag, key=lambda t: (-len(by_tag[t]), t))
 
-for p, text in outputs:
-    p.parent.mkdir(exist_ok=True)
-    p.write_text(text, encoding="utf-8")
-for p in stale_files:
-    p.unlink()
-print(f"{len(outputs)} file(s) written ({len(stale)} changed, {len(stale_files)} removed): "
-      f"{len(drills)} drills, {len(by_tag)} tags")
-PY
+    if mode == "--tags":
+        for tag in tag_order:
+            print(f"{len(by_tag[tag]):4}  {tag:<28} {labels[tag]}")
+        for tag in sorted(set(labels) - set(by_tag)):
+            print(f"{0:4}  {tag:<28} {labels[tag]}  (not used yet)")
+        if not labels:
+            print("(no tags yet)")
+        return
+
+    outputs = [render_archive(lang, typ, drills) for lang in LANGS for typ in TYPES]
+    outputs.append(render_topics_index(tag_order, by_tag, labels))
+    outputs.extend(render_tag_page(tag, entries, labels) for tag, entries in sorted(by_tag.items()))
+    outputs.append(render_levels_index(by_level))
+    # Always all four, even a level nothing has been drawn at yet: the set of
+    # levels is fixed, so level/ never has a page to remove.
+    outputs.extend(render_level_page(level, by_level) for level in LEVELS)
+    # The vocabulary file is normalized here, so a new tag can be appended to
+    # the end of it by hand and still land in the right place.
+    outputs.append((TAGS_FILE, "".join(f"{s}\t{labels[s]}\n" for s in sorted(labels))))
+
+    # A tag page whose tag no longer appears anywhere is removed: everything
+    # under tag/ is written by this script and by nothing else.
+    tag_dir = ROOT / "tag"
+    tag_dir.mkdir(exist_ok=True)
+    wanted = {p for p, _ in outputs}
+    stale_files = sorted(p for p in tag_dir.glob("*.html") if p not in wanted)
+
+    stale = [p for p, text in outputs
+             if not p.is_file() or p.read_text(encoding="utf-8") != text]
+
+    if mode == "--check":
+        if stale or stale_files:
+            print("out of date (run script/topics.py):")
+            for p in stale:
+                print(f"  - {p.relative_to(ROOT)}")
+            for p in stale_files:
+                print(f"  - {p.relative_to(ROOT)} (no longer has a tag)")
+            sys.exit(1)
+        print(f"topic index is up to date ({len(drills)} drills, {len(by_tag)} tags)")
+        return
+
+    for p, text in outputs:
+        p.parent.mkdir(exist_ok=True)
+        p.write_text(text, encoding="utf-8")
+    for p in stale_files:
+        p.unlink()
+    print(f"{len(outputs)} file(s) written ({len(stale)} changed, {len(stale_files)} removed): "
+          f"{len(drills)} drills, {len(by_tag)} tags")
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])

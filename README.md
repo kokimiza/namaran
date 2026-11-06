@@ -49,10 +49,10 @@ AIコーディングツールで仕事の生産性は上がった一方、自分
 
 ```text
 GitHub Actions(毎日 00:10 JST)
-  write   お題(script/odai.sh)と難易度(script/level.sh)を抽選し、Claude Code が namara-daily Skill で15問を書く
+  write   お題(script/odai.py)と難易度(script/level.py)を抽選し、Claude Code が namaran-daily Skill で15問を書く
           (Zigは zig-mcp で同じ版の資料を引きながら書く)
-  verify  Claudeが触っていない別のランナーで、パッチを検査(script/check-patch.sh)し、
-          コンパイル・実行・静的解析で答えを裏付ける(script/verify.sh)
+  verify  Claudeが触っていない別のランナーで、パッチを検査(script/check_patch.py)し、
+          コンパイル・実行・静的解析で答えを裏付ける(script/verify.py)
   publish 検査を通ったパッチだけを main に当て、索引と sitemap.xml を作り直して push
         →  Cloudflare Pages が自動デプロイ
 ```
@@ -84,19 +84,20 @@ level/*.svg                                  難易度の動物(手描きのSVG)
 topics.html, tag/                            生成物。お題から過去問を辿る索引
 levels.html, level/*.html                    生成物。難易度から過去問を辿る索引
 functions/_middleware.js                     日付URLからファイルへの読み替え・日付なしURLの解決・未来日の404
-script/content.sh                            問題ページの雛形生成とアーカイブへの追記
-script/verify.sh                             問題ページと検証用ソースの検証
-script/format.sh                             検証用ソースの整形
+script/namaran.py                             各スクリプトが共有する一覧(言語・種別・難易度)とページの置き場所
+script/content.py                            問題ページの雛形生成とアーカイブへの追記
+script/verify.py                             問題ページと検証用ソースの検証
+script/format.py                             検証用ソースの整形
 .clang-format, rustfmt.toml, fourmolu.yaml   ドリルのコードの整形規則(C/C++、Rust、Haskell)
-script/highlight.sh                          コードのシンタックスハイライト
-script/odai.sh                               お題の抽選
-script/level.sh                              難易度の抽選
-script/check-patch.sh                        公開前のパッチ検査
-script/topics.sh                             アーカイブの見出しと topics.html / tag/ / levels.html / level/ の生成
+script/highlight.py                          コードのシンタックスハイライト
+script/odai.py                               お題の抽選
+script/level.py                              難易度の抽選
+script/check_patch.py                        公開前のパッチ検査
+script/topics.py                             アーカイブの見出しと topics.html / tag/ / levels.html / level/ の生成
 script/tags.tsv                              タグ語彙(URL用のslugと、画面に出る日本語名)
-script/sitemap.sh                            sitemap.xml の生成
+script/sitemap.py                            sitemap.xml の生成
 sitemap.xml, robots.txt                      生成物と、その場所を示す1行
-.claude/skills/namara-daily/                 問題作成の手順(SKILL.md)とお題の候補集(odai.txt)
+.claude/skills/namaran-daily/                 問題作成の手順(SKILL.md)とお題の候補集(odai.txt)
 .claude/skills/humanizer-ja-tech/            日本語の推敲の手順(SKILL.md)。問題作成の途中で /humanizer-ja-tech として呼ぶ
 .github/workflows/                           定期実行ワークフローと生成物の追随
 .github/zig-mcp/                             Zigの資料を引くMCPサーバー(zig-mcp)の依存をロックファイルで固定したもの
@@ -106,23 +107,23 @@ doc/                                         要件定義・基本設計
 ## 手元で問題を作る
 
 ```text
-/namara-daily                                  今日の15問を抽選お題で作る
-/namara-daily 2026-09-20 rust/debug 所有権の移動  言語・種別・テーマを指定する
+/namaran-daily                                  今日の15問を抽選お題で作る
+/namaran-daily 2026-09-20 rust/debug 所有権の移動  言語・種別・テーマを指定する
 ```
 
 Skillを使わずに手で書く場合は、次の順です。
 
 ```bash
-./script/content.sh new 2026-09-20 rust/debug   # 雛形を作り、archive.html に1行追加
+./script/content.py new 2026-09-20 rust/debug   # 雛形を作り、archive.html に1行追加
 # rust/debug/2026/09/2026-09-20.html の TODO を埋め、検証用ソースを用意する
-./script/format.sh /path/to/verify-dir/rust/debug/*.rs   # 整形してから、整形後の行をページに写す
-./script/highlight.sh rust/debug/2026/09/2026-09-20.html   # コードを直したら再実行
-./script/verify.sh 2026-09-20 /path/to/verify-dir rust/debug
+./script/format.py /path/to/verify-dir/rust/debug/*.rs   # 整形してから、整形後の行をページに写す
+./script/highlight.py rust/debug/2026/09/2026-09-20.html   # コードを直したら再実行
+./script/verify.py 2026-09-20 /path/to/verify-dir rust/debug
 ```
 
-検証用ソースの置き方(`NAME.ok.rs` / `NAME.ng.rs` / `NAME.bug.rs` / `NAME.stdout`)は [script/verify.sh](script/verify.sh) の冒頭にあります。検証には上の表のツールが必要です。
+検証用ソースの置き方(`NAME.ok.rs` / `NAME.ng.rs` / `NAME.bug.rs` / `NAME.stdout`)は [script/verify.py](script/verify.py) の冒頭にあります。検証には上の表のツールが必要です。
 
-`sitemap.xml` と索引(`topics.html`・`tag/`・`levels.html`・`level/`・各 `archive.html` の見出し)は公開と同じ手順の中で作られます。手元で作り直すときは `./script/topics.sh` と `./script/sitemap.sh`、最新かどうかだけ見るときは `--check` を付けます。いま使われているタグの一覧(slugと日本語名)は `./script/topics.sh --tags` で出ます。
+`sitemap.xml` と索引(`topics.html`・`tag/`・`levels.html`・`level/`・各 `archive.html` の見出し)は公開と同じ手順の中で作られます。手元で作り直すときは `./script/topics.py` と `./script/sitemap.py`、最新かどうかだけ見るときは `--check` を付けます。いま使われているタグの一覧(slugと日本語名)は `./script/topics.py --tags` で出ます。
 
 ## 定期実行のセットアップ
 
@@ -136,5 +137,5 @@ Skillを使わずに手で書く場合は、次の順です。
 
 - [doc/requirements.md](doc/requirements.md) — 要件定義。Namaranが何をして、何をしないか。良い問題・面白い問題の基準
 - [doc/basic-design.md](doc/basic-design.md) — 基本設計。URL設計、HTML規約、運用フロー、自動公開の設計判断
-- [.claude/skills/namara-daily/SKILL.md](.claude/skills/namara-daily/SKILL.md) — 問題作成の手順
+- [.claude/skills/namaran-daily/SKILL.md](.claude/skills/namaran-daily/SKILL.md) — 問題作成の手順
 - [CLAUDE.md](CLAUDE.md) — 対象言語のバージョンと言語仕様リファレンス

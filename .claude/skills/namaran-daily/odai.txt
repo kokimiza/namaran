@@ -1,11 +1,11 @@
-# Namaranのお題候補。1行に「ラベル: テーマ」。script/odai.sh が言語ごとに1つ抽選する。
+# Namaranのお題候補。1行に「ラベル: テーマ」。script/odai.py が言語ごとに1つ抽選する。
 # ラベルは C23 / C++26 / Rust2024 / Haskell2010 / Zig か、C・C++・Rust・Haskellの4言語すべての候補になる Any。
-# Zig は Any を引かず、Zig の行だけから抽選する(理由は script/odai.sh の冒頭)。
+# Zig は Any を引かず、Zig の行だけから抽選する(理由は script/odai.py の冒頭)。
 # #で始まる行と空行は無視される。
 #
 # 足すときの基準:
 # - READ・DEBUGを18行以内で書ける切り口があること(ponytail.md)。長いアルゴリズムは要の数行を切り出して問う
-# - script/verify.sh のツールチェーン(gcc-14 / g++-14 / 安定版rustc / GHC / Zig 0.17.0、標準ライブラリのみ)で確かめられること
+# - script/verify.py のツールチェーン(gcc-14 / g++-14 / 安定版rustc / GHC / Zig 0.17.0、標準ライブラリのみ)で確かめられること
 # - Anyの行と同じことを特定の言語の言葉で言い直しただけの行は足さない(Anyがその言語の候補も兼ねる)
 # - 1つの事実ではなく、規則を2つ以上含むテーマの粒度で書く。同じ言語のREAD/WRITE/DEBUGはこの1行から作られ、
 #   答えの核を3問で重ねてはいけない(SKILL.md §0「お題リスト」)。「whileの継続式がcontinue時にも実行される」の

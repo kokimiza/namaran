@@ -2,22 +2,22 @@
 # a human in the loop. See doc/basic-design.md §9.2 for why it is shaped
 # like this.
 #
-#   write    Draws each language's topic (script/odai.sh) and each drill's
-#            difficulty (script/level.sh) before Claude starts, then Claude
-#            Code writes the pages with the namara-daily skill, with zig-mcp
+#   write    Draws each language's topic (script/odai.py) and each drill's
+#            difficulty (script/level.py) before Claude starts, then Claude
+#            Code writes the pages with the namaran-daily skill, with zig-mcp
 #            serving the pinned Zig's documentation for the Zig drills.
 #            Claude can run any command here, so nothing this job produces
 #            is trusted: it only hands on a patch and the verification
 #            sources.
 #   verify   A fresh runner that Claude never touched. Checks the patch with
-#            script/check-patch.sh (from main, not from the patch) — which
+#            script/check_patch.py (from main, not from the patch) — which
 #            also holds every page to the difficulty drawn for it — applies
-#            it, and runs script/verify.sh. Read-only, no secrets.
+#            it, and runs script/verify.py. Read-only, no secrets.
 #   publish  Checks the patch again, applies it on the latest main, re-adds
 #            the archive.html lines, regenerates the topic index and
 #            sitemap.xml, commits and pushes. The only job with a write
 #            token; runs no Claude and no drill code. The generated index
-#            files never come from the patch: script/topics.sh rebuilds them
+#            files never come from the patch: script/topics.py rebuilds them
 #            here, from main's own copy of the script, out of the metadata
 #            the new pages carry (doc/basic-design.md §9.5).
 #
@@ -47,7 +47,7 @@ on:
 permissions: {}
 
 concurrency:
-  group: namara-daily
+  group: namaran-daily
   cancel-in-progress: false
 
 env:
@@ -74,6 +74,13 @@ jobs:
         with:
           persist-credentials: false
 
+      # Everything under script/ is Python (standard library only), run by
+      # the version .python-version pins.
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version-file: .python-version
+
       # Runs before Claude, so these outputs can't be influenced by it.
       - name: Decide date, combos, topics and levels
         id: plan
@@ -96,7 +103,7 @@ jobs:
             replace=1
             git rm -q --ignore-unmatch -- "*/*/${date:0:4}/${date:5:2}/$date.html"
             git diff --cached --quiet ||
-              git -c user.name=namara -c user.email=namara@localhost commit -q -m "drop $date"
+              git -c user.name=namaran -c user.email=namaran@localhost commit -q -m "drop $date"
           fi
 
           combos=""
@@ -107,17 +114,17 @@ jobs:
           done
           combos="${combos% }"
 
-          topics="$(./script/odai.sh)"
+          topics="$(./script/odai.py)"
           topic_of() { printf '%s\n' "$topics" | awk -F'\t' -v l="$1" '$1 == l { print $2 }'; }
 
           # One independent draw per combo, blind to every earlier day
-          # (script/level.sh). `levels` is the "c/read=whale ..." form that
-          # check-patch.sh holds each page to.
+          # (script/level.py). `levels` is the "c/read=whale ..." form that
+          # check_patch.py holds each page to.
           level_lines=""
           # shellcheck disable=SC2086 # combos is a space-separated list
-          [ -z "$combos" ] || level_lines="$(./script/level.sh $combos)"
+          [ -z "$combos" ] || level_lines="$(./script/level.py $combos)"
           levels="$(printf '%s\n' "$level_lines" | awk -F'\t' 'NF == 2 { printf "%s%s=%s", sep, $1, $2; sep = " " }')"
-          verify_dir="$RUNNER_TEMP/namara-verify"
+          verify_dir="$RUNNER_TEMP/namaran-verify"
           mkdir -p "$verify_dir"
 
           {
@@ -126,21 +133,21 @@ jobs:
             echo "combos=$combos"
             echo "levels=$levels"
             echo "verify_dir=$verify_dir"
-            echo "topics<<NAMARA_EOF"
+            echo "topics<<NAMARAN_EOF"
             printf '%s\n' "$topics"
-            echo "NAMARA_EOF"
-            echo "prompt<<NAMARA_EOF"
+            echo "NAMARAN_EOF"
+            echo "prompt<<NAMARAN_EOF"
             cat <<PROMPT
-          /namara-daily 日付 $date で、次の組を作成する: $combos
+          /namaran-daily 日付 $date で、次の組を作成する: $combos
 
-          お題は script/odai.sh が言語ごとに抽選済み。同じ言語の READ/WRITE/DEBUG は、このお題から答えの核(解く決め手になる知識や気付き)がそれぞれ違う3問を作る。種別を変えるだけでは別の切り口にならない。お題が1つの事実を名指ししていても、その事実を核にするのは1問だけにする(SKILL.md §0「お題リスト」):
+          お題は script/odai.py が言語ごとに抽選済み。同じ言語の READ/WRITE/DEBUG は、このお題から答えの核(解く決め手になる知識や気付き)がそれぞれ違う3問を作る。種別を変えるだけでは別の切り口にならない。お題が1つの事実を名指ししていても、その事実を核にするのは1問だけにする(SKILL.md §0「お題リスト」):
           - C: $(topic_of c)
           - C++: $(topic_of cpp)
           - Rust: $(topic_of rust)
           - Haskell: $(topic_of haskell)
           - Zig: $(topic_of zig)
 
-          難易度は script/level.sh が組ごとに抽選済み(SKILL.md「難易度」)。各ページはこの難易度で書き、<main> の data-level にこの値を入れる。偏っていても、過去の傾向に合わせて変えない。段階は作問者が見たい力で分ける(hedgehog=基礎:再現する力、peacock=標準:応用する力、bison=高度:統合する力、whale=特級:発見する力)。知識はどの段階でも教科書レベルに留め、難しさは知識の珍しさで出さない。書き終えたら SKILL.md §3「書いたあとに段階を確かめる」で確かめる:
+          難易度は script/level.py が組ごとに抽選済み(SKILL.md「難易度」)。各ページはこの難易度で書き、<main> の data-level にこの値を入れる。偏っていても、過去の傾向に合わせて変えない。段階は作問者が見たい力で分ける(hedgehog=基礎:再現する力、peacock=標準:応用する力、bison=高度:統合する力、whale=特級:発見する力)。知識はどの段階でも教科書レベルに留め、難しさは知識の珍しさで出さない。書き終えたら SKILL.md §3「書いたあとに段階を確かめる」で確かめる:
           $(printf '%s\n' "$level_lines" | awk -F'\t' 'NF == 2 { printf "- %s: %s\n", $1, $2 }')
 
           Zig の組は CLAUDE.md の表の版の Zig で書く。Zig は 1.0 より前で、リリースのたびに標準ライブラリの API が変わる。記憶にある書き方は古い版のものであることが多い:
@@ -148,15 +155,15 @@ jobs:
           - zig-docs のツールが使えないときは、zig env が示す std_dir の下のソースと、zig 本体と同じディレクトリにある doc/langref.html を読む。
           - 標準出力への書き方など、この版で確かめた書き方は SKILL.md の「Zig」の節にある。zig/ の過去ページがまだ無い組は、同じ種別のほかの言語の直近ページを書式の参考にする(SKILL.md §2)。
 
-          コードは .claude/skills/namara-daily/ponytail.md の規律で短く書く。書き始める前にこのファイルを最後まで読む。READ・DEBUG のコードは18行以内で、超えたら作問ミスとして切り口から作り直す(行を詰めて収めない)。
+          コードは .claude/skills/namaran-daily/ponytail.md の規律で短く書く。書き始める前にこのファイルを最後まで読む。READ・DEBUG のコードは18行以内で、超えたら作問ミスとして切り口から作り直す(行を詰めて収めない)。
 
           これは GitHub Actions 上の非対話実行である(SKILL.md「非対話実行」を参照)。
           - 検証用ソースは $verify_dir/{lang}/{type}/ に置き、次のコマンドが全件通るまで直す:
-            ./script/verify.sh $date $verify_dir $combos
+            ./script/verify.py $date $verify_dir $combos
           - git 操作はしない。コミットと push は後続のジョブが行う。
           - 上の組の日付ページと archive.html、それに script/tags.tsv(新しいタグの日本語名を足すときだけ)以外のファイルは変更しない。
           PROMPT
-            echo "NAMARA_EOF"
+            echo "NAMARAN_EOF"
           } >> "$GITHUB_OUTPUT"
 
           {
@@ -242,7 +249,7 @@ jobs:
           PY
           )"
 
-      - name: Write drills with Claude Code (namara-daily skill)
+      - name: Write drills with Claude Code (namaran-daily skill)
         id: claude
         if: steps.plan.outputs.combos != ''
         uses: anthropics/claude-code-action@d535f5172dec02b204866b393d6b20b9b2aaf98d # v1.0.266
@@ -267,7 +274,7 @@ jobs:
           # are killed with it. A run on 2026-09-17 handed all 12 drills to
           # background agents, ended its turn "waiting for them", and left
           # nothing but templates behind.
-          # Skill(humanizer-ja-tech) lets the namara-daily skill call the
+          # Skill(humanizer-ja-tech) lets the namaran-daily skill call the
           # Japanese revision skill once per page; the slash command at the
           # top of the prompt needs no rule, but a skill Claude invokes itself
           # goes through the Skill tool.
@@ -324,7 +331,7 @@ jobs:
           git status --porcelain --untracked-files=all | head -50
           echo
           echo "verification sources:"
-          find "$RUNNER_TEMP/namara-verify" -type f 2> /dev/null | sed "s|^$RUNNER_TEMP/namara-verify/||" | sort | head -80
+          find "$RUNNER_TEMP/namaran-verify" -type f 2> /dev/null | sed "s|^$RUNNER_TEMP/namaran-verify/||" | sort | head -80
           echo "::$stop::"
 
       # Packages the result for the next job. Nothing here is a check — this
@@ -340,7 +347,7 @@ jobs:
         run: |
           set -euo pipefail
           # script/tags.tsv may have gained a line for a tag used today
-          # (doc/basic-design.md §7.4); check-patch.sh bounds what it may say.
+          # (doc/basic-design.md §7.4); check_patch.py bounds what it may say.
           allowed=(script/tags.tsv) missing=()
           for pair in $COMBOS; do
             # Pages are filed by year and month (doc/basic-design.md §4).
@@ -355,12 +362,12 @@ jobs:
             fi
           done
           # Fail here with the real reason instead of handing on a patch that
-          # check-patch.sh can only reject as "pages missing".
+          # check_patch.py can only reject as "pages missing".
           if [ "${#missing[@]}" -gt 0 ]; then
             echo "::error::Claude Code did not write: ${missing[*]}"
             exit 1
           fi
-          drop="$RUNNER_TEMP/namara-drop"
+          drop="$RUNNER_TEMP/namaran-drop"
           mkdir -p "$drop"
           # Against HEAD, not the index: Claude may have staged its pages, and
           # a plain `git diff` leaves staged changes out entirely.
@@ -388,12 +395,19 @@ jobs:
         with:
           persist-credentials: false
 
+      # Everything under script/ is Python (standard library only), run by
+      # the version .python-version pins.
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version-file: .python-version
+
       - name: Unpack the patch and verification sources
         env:
           DROP: ${{ needs.write.outputs.drop }}
         run: |
-          mkdir -p "$RUNNER_TEMP/namara-drop"
-          printf '%s' "$DROP" | base64 -d | tar -xz -C "$RUNNER_TEMP/namara-drop"
+          mkdir -p "$RUNNER_TEMP/namaran-drop"
+          printf '%s' "$DROP" | base64 -d | tar -xz -C "$RUNNER_TEMP/namaran-drop"
 
       - name: Check the patch
         env:
@@ -401,7 +415,7 @@ jobs:
           LEVELS: ${{ needs.write.outputs.levels }}
         run: |
           # shellcheck disable=SC2086 # LEVELS is a space-separated list
-          ./script/check-patch.sh "$DATE" "$RUNNER_TEMP/namara-drop/drills.patch" $LEVELS
+          ./script/check_patch.py "$DATE" "$RUNNER_TEMP/namaran-drop/drills.patch" $LEVELS
 
       - name: Apply the patch
         env:
@@ -410,7 +424,7 @@ jobs:
         run: |
           set -euo pipefail
           [ -z "$REPLACE" ] || git rm -q --ignore-unmatch -- "*/*/${DATE:0:4}/${DATE:5:2}/$DATE.html"
-          git apply --index "$RUNNER_TEMP/namara-drop/drills.patch"
+          git apply --index "$RUNNER_TEMP/namaran-drop/drills.patch"
 
       - name: Install toolchains
         uses: ./.github/actions/toolchains
@@ -423,7 +437,7 @@ jobs:
           COMBOS: ${{ needs.write.outputs.combos }}
         run: |
           # shellcheck disable=SC2086 # COMBOS is a space-separated list
-          ./script/verify.sh "$DATE" "$RUNNER_TEMP/namara-drop/verify" $COMBOS
+          ./script/verify.py "$DATE" "$RUNNER_TEMP/namaran-drop/verify" $COMBOS
 
   publish:
     needs: [write, verify]
@@ -436,25 +450,32 @@ jobs:
         with:
           ref: main
 
+      # Everything under script/ is Python (standard library only), run by
+      # the version .python-version pins.
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version-file: .python-version
+
       # Only the patch is taken out of the drop; the verification sources
       # are of no use here.
       - name: Unpack the patch
         env:
           DROP: ${{ needs.write.outputs.drop }}
         run: |
-          mkdir -p "$RUNNER_TEMP/namara-drop"
-          printf '%s' "$DROP" | base64 -d | tar -xz -C "$RUNNER_TEMP/namara-drop" ./drills.patch
+          mkdir -p "$RUNNER_TEMP/namaran-drop"
+          printf '%s' "$DROP" | base64 -d | tar -xz -C "$RUNNER_TEMP/namaran-drop" ./drills.patch
 
       # main may have moved on while the drills were being written (e.g. a
       # drill published by hand). The dated pages are new files and apply
       # cleanly on any main; archive.html lines are not taken from the patch
-      # but re-inserted by script/content.sh into the current archive.html,
+      # but re-inserted by script/content.py into the current archive.html,
       # which keeps the list newest-first instead of producing a merge
       # conflict. If a dated page already exists on main, applying fails and
       # nothing is published: published pages are never overwritten — except
       # on a run with a date given by hand, which removes that date's pages
       # first and publishes the rewritten ones in their place.
-      # check-patch.sh and content.sh run from this checkout of main each
+      # check_patch.py and content.py run from this checkout of main each
       # time, never from the patch.
       - name: Commit and push
         env:
@@ -465,7 +486,7 @@ jobs:
           REPLACE: ${{ needs.write.outputs.replace }}
         run: |
           set -euo pipefail
-          patch_file="$RUNNER_TEMP/namara-drop/drills.patch"
+          patch_file="$RUNNER_TEMP/namaran-drop/drills.patch"
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -475,20 +496,20 @@ jobs:
             git reset --quiet --hard origin/main
             [ -z "$REPLACE" ] || git rm -q --ignore-unmatch -- "*/*/${DATE:0:4}/${DATE:5:2}/$DATE.html"
             # shellcheck disable=SC2086 # LEVELS is a space-separated list
-            ./script/check-patch.sh "$DATE" "$patch_file" $LEVELS
+            ./script/check_patch.py "$DATE" "$patch_file" $LEVELS
             git apply --index --exclude='*/archive.html' "$patch_file"
             # shellcheck disable=SC2086
-            ./script/content.sh new "$DATE" $COMBOS
-            ./script/topics.sh
-            ./script/sitemap.sh
+            ./script/content.py new "$DATE" $COMBOS
+            ./script/topics.py
+            ./script/sitemap.py
             # -A so a tag page that lost its last drill is staged as a
             # deletion, not left behind.
             git add -A -- */*/archive.html topics.html tag levels.html level script/tags.tsv sitemap.xml
             git commit --quiet -F - <<MSG
           ${DATE//-/}
 
-          Written by the namara-daily workflow (Claude Code, namara-daily skill)
-          and checked by script/check-patch.sh and script/verify.sh. Topics:
+          Written by the namaran-daily workflow (Claude Code, namaran-daily skill)
+          and checked by script/check_patch.py and script/verify.py. Topics:
           $(printf '%s\n' "$TOPICS" | sed 's/^/  /')
           Levels:
           $(printf '%s\n' $LEVELS | sed 's/^/  /')

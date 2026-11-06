@@ -584,8 +584,31 @@ pre.code ::selection {
 
 /* New drill templates only. Line numbers and diff marks are CSS content,
    so copying a listing still yields just the source. Published HTML keeps
-   the original layout. The highlighter supplies one span per source line. */
-.drill pre.code {
+   the original layout. The highlighter supplies one span per source line,
+   and on answer listings it marks, the way git shows a diff, the lines that
+   changed (code-line del / ins) and within them the words (chg). Lines both
+   sides share stay plain.
+
+   The gutter is just the numbers, quiet and right-aligned, then a column
+   for the diff sign. It has no box of its own: a box ends where the lines
+   end and leaves the window's padding above and below it bare. */
+.drill {
+  --line-no-w: 2.5rem;
+  --sign-w: 1.75rem;
+  --code-pad: 1.5rem;
+  --line-no: #66758a;
+  --del-line: #342228;
+  --del-gutter: #4a2a2e;
+  --del-word: #6e2e33;
+  --del-ink: #f0a29a;
+  --ins-line: #1a3029;
+  --ins-gutter: #1f4130;
+  --ins-word: #28593a;
+  --ins-ink: #9bd6a8;
+}
+
+.drill pre.code,
+.drill .code-frame pre.code {
   padding-left: 0;
   padding-right: 0;
 }
@@ -601,53 +624,70 @@ pre.code ::selection {
   display: block;
   position: relative;
   min-height: 1.7em;
-  padding: 0 1.5rem 0 4rem;
+  padding: 0 var(--code-pad) 0 calc(var(--line-no-w) + var(--sign-w));
   counter-increment: code-line;
 }
 
 .drill .code-line::before {
   content: counter(code-line);
+  content: counter(code-line) / "";
   position: absolute;
-  inset: 0 auto 0 0;
-  width: 3rem;
-  padding-right: 0.75rem;
-  border-right: 1px solid var(--slab-rule);
-  background: var(--slab-bar);
-  color: #8ba6c8;
+  left: 0;
+  width: var(--line-no-w);
+  color: var(--line-no);
   text-align: right;
   font-variant-numeric: tabular-nums;
   user-select: none;
 }
 
-.drill .diff-added,
-.drill .right + pre.code {
-  --diff-bg: #1a3027;
-  --diff-ink: #9bd6a8;
-  --diff-mark: "+";
+.drill .code-line.del {
+  --diff-line: var(--del-line);
+  --diff-gutter: var(--del-gutter);
+  --diff-ink: var(--del-ink);
+  --diff-sign: "−";
 }
 
-.drill .wrong + pre.code {
-  --diff-bg: #352329;
-  --diff-ink: #f0a29a;
-  --diff-mark: "−";
+.drill .code-line.ins {
+  --diff-line: var(--ins-line);
+  --diff-gutter: var(--ins-gutter);
+  --diff-ink: var(--ins-ink);
+  --diff-sign: "+";
 }
 
-.drill .diff-added .code-line,
-.drill .wrong + pre.code .code-line,
-.drill .right + pre.code .code-line {
-  padding-left: 5rem;
-  background: var(--diff-bg);
+/* The gutter of a changed line is a shade deeper than its code, so a run
+   of changed lines reads as one block down the left edge. */
+.drill .code-line.del,
+.drill .code-line.ins {
+  background: linear-gradient(to right,
+    var(--diff-gutter) calc(var(--line-no-w) + var(--sign-w) - 0.5rem),
+    var(--diff-line) 0);
 }
 
-.drill .diff-added .code-line::after,
-.drill .wrong + pre.code .code-line::after,
-.drill .right + pre.code .code-line::after {
-  content: var(--diff-mark);
+.drill .code-line.del::before,
+.drill .code-line.ins::before {
+  color: var(--diff-ink);
+  opacity: 0.7;
+}
+
+.drill .code-line.del::after,
+.drill .code-line.ins::after {
+  content: var(--diff-sign);
+  content: var(--diff-sign) / "";
   position: absolute;
-  left: 3.5rem;
+  left: calc(var(--line-no-w) + 0.375rem);
   color: var(--diff-ink);
   user-select: none;
 }
+
+.drill .del .chg,
+.drill .ins .chg {
+  border-radius: 3px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.drill .del .chg { background: var(--del-word); }
+.drill .ins .chg { background: var(--ins-word); }
 
 .drill .answer-body .code-frame pre.code {
   margin-top: 0;
@@ -1328,6 +1368,12 @@ footer a:hover {
   pre.code,
   .code-frame pre.code {
     padding-inline: 1rem;
+  }
+
+  .drill {
+    --line-no-w: 2rem;
+    --sign-w: 1.5rem;
+    --code-pad: 1rem;
   }
 
   .masthead {
