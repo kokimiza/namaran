@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="偶数と奇数の判定を、互いに呼び合う2つの関数ではなく、次に呼ぶ関数を返すトランポリンで書くC WRITEのドリルです。相互再帰を、スタックを伸ばさない反復に直します。">
+<title>呼び合う代わりに返す</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-11-07">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-07" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-11-07",
+      "url": "https://namaran.jocarium.productions/c/write/2026-11-07",
+      "datePublished": "2026-11-07",
+      "dateModified": "2026-11-07",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "呼び合う代わりに返す" },
+      "keywords": "trampoline, function-pointer, recursion, call-stack, struct",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "偶数と奇数の判定を、互いに呼び合う2つの関数ではなく、次に呼ぶ関数を返すトランポリンで書くC WRITEのドリルです。相互再帰を、スタックを伸ばさない反復に直します。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-07" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-11-07">C++26</a>
+  <a href="/rust/write/2026-11-07">Rust 2024</a>
+  <a href="/haskell/write/2026-11-07">Haskell 2010</a>
+  <a href="/zig/write/2026-11-07">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-07">READ</a>
+  <a href="/c/write/2026-11-07" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-11-07">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="呼び合う代わりに返す"
+  data-tags="trampoline function-pointer recursion call-stack struct"
+  data-concepts="トランポリン, 相互再帰, 関数ポインタを返す, 再帰の反復化, スタックオーバーフロー, trampoline, mutual recursion, function pointer, stack overflow"
+  data-level="hedgehog"
+>
+  <h2>2026-11-07</h2>
+  <div class="code-frame">
+    <p class="code-filename">parity.c</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">typedef</span> <span class="kw">struct</span> <span class="ty">Bounce</span> <span class="ty">Bounce</span>;</span>
+<span class="code-line"><span class="kw">struct</span> <span class="ty">Bounce</span> {</span>
+<span class="code-line">    <span class="fn">Bounce</span> (*next)(<span class="ty">unsigned</span> <span class="ty">long</span>* n, <span class="ty">bool</span>* result);</span>
+<span class="code-line">};</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">Bounce</span> <span class="fn">odd_step</span>(<span class="ty">unsigned</span> <span class="ty">long</span>* n, <span class="ty">bool</span>* result);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">Bounce</span> <span class="fn">even_step</span>(<span class="ty">unsigned</span> <span class="ty">long</span>* n, <span class="ty">bool</span>* result) {</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">Bounce</span> <span class="fn">odd_step</span>(<span class="ty">unsigned</span> <span class="ty">long</span>* n, <span class="ty">bool</span>* result) {</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">bool</span> <span class="fn">is_even</span>(<span class="ty">unsigned</span> <span class="ty">long</span> n) {</span>
+<span class="code-line">    <span class="ty">bool</span> result = <span class="nu">false</span>;</span>
+<span class="code-line">    <span class="kw">for</span> (<span class="ty">Bounce</span> b = {even_step}; b.next;)</span>
+<span class="code-line">        b = b.<span class="fn">next</span>(&amp;n, &amp;result);</span>
+<span class="code-line">    <span class="kw">return</span> result;</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>is_even(n)</code> は、<code>n</code> が偶数かどうかを「0は偶数、1以上の <code>n</code> は <code>n - 1</code> が奇数なら偶数」「0は奇数ではない、1以上の <code>n</code> は <code>n - 1</code> が偶数なら奇数」という2つの規則で判定します。<code>n</code> は10億にもなるので、2つの規則を互いに呼び合う関数のまま書くと、呼び出しが深くなりすぎてスタックが足りなくなります。そこで、相手の関数を呼ぶ代わりに次に呼ぶ関数を <code>Bounce</code> に入れて返し、呼ぶのは <code>is_even</code> のループに任せます。いまの <code>*n</code> が偶数かを調べる <code>even_step</code> と、奇数かを調べる <code>odd_step</code> を書いてください。答えが決まった関数は、その答えを <code>*result</code> に入れ、<code>next</code> が <code>NULL</code> の <code>Bounce</code> を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>is_even(10)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>true</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>is_even(7)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>false</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>is_even(0)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>true</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="kw">typedef</span> <span class="kw">struct</span> <span class="ty">Bounce</span> <span class="ty">Bounce</span>;</span>
+<span class="code-line"><span class="kw">struct</span> <span class="ty">Bounce</span> {</span>
+<span class="code-line">    <span class="fn">Bounce</span> (*next)(<span class="ty">unsigned</span> <span class="ty">long</span>* n, <span class="ty">bool</span>* result);</span>
+<span class="code-line">};</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">Bounce</span> <span class="fn">odd_step</span>(<span class="ty">unsigned</span> <span class="ty">long</span>* n, <span class="ty">bool</span>* result);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">Bounce</span> <span class="fn">even_step</span>(<span class="ty">unsigned</span> <span class="ty">long</span>* n, <span class="ty">bool</span>* result) {</span>
+<span class="code-line ins">    <span class="kw">if</span> (*n == <span class="nu">0</span>) {</span>
+<span class="code-line ins">        *result = <span class="nu">true</span>;</span>
+<span class="code-line ins">        <span class="kw">return</span> (<span class="ty">Bounce</span>){<span class="nu">NULL</span>};</span>
+<span class="code-line ins">    }</span>
+<span class="code-line ins">    --*n;</span>
+<span class="code-line ins">    <span class="kw">return</span> (<span class="ty">Bounce</span>){odd_step};</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">Bounce</span> <span class="fn">odd_step</span>(<span class="ty">unsigned</span> <span class="ty">long</span>* n, <span class="ty">bool</span>* result) {</span>
+<span class="code-line ins">    <span class="kw">if</span> (*n == <span class="nu">0</span>) {</span>
+<span class="code-line ins">        *result = <span class="nu">false</span>;</span>
+<span class="code-line ins">        <span class="kw">return</span> (<span class="ty">Bounce</span>){<span class="nu">NULL</span>};</span>
+<span class="code-line ins">    }</span>
+<span class="code-line ins">    --*n;</span>
+<span class="code-line ins">    <span class="kw">return</span> (<span class="ty">Bounce</span>){even_step};</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">bool</span> <span class="fn">is_even</span>(<span class="ty">unsigned</span> <span class="ty">long</span> n) {</span>
+<span class="code-line">    <span class="ty">bool</span> result = <span class="nu">false</span>;</span>
+<span class="code-line">    <span class="kw">for</span> (<span class="ty">Bounce</span> b = {even_step}; b.next;)</span>
+<span class="code-line">        b = b.<span class="fn">next</span>(&amp;n, &amp;result);</span>
+<span class="code-line">    <span class="kw">return</span> result;</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        どちらの関数も、規則の2つの場合をそのまま書きます。<code>*n</code> が0なら答えが決まるので、<code>even_step</code> は <code>true</code> を、<code>odd_step</code> は <code>false</code> を <code>*result</code> に入れ、<code>next</code> が <code>NULL</code> の <code>Bounce</code> を返して終わりを知らせます。1以上なら <code>*n</code> を1減らし、相互再帰で呼ぶはずだった相手の関数を <code>Bounce</code> に入れて返します。呼ばずに返すので、関数はすぐに <code>is_even</code> へ戻り、スタックは1段より深くなりません。これは参考実装で、唯一の正解ではありません。<code>Bounce</code> に <code>n</code> を持たせて値で受け渡す書き方もあります。
+      </p>
+      <p>
+        C では、関数の戻り値の型に、その関数自身へのポインタの型を直接書けません。<code>Bounce (*)(…)</code> を返す関数の型を書こうとすると、型の中に同じ型が無限に現れるからです。構造体に包めば、<code>struct Bounce</code> という名前を先に宣言してから、その中で自分を返す関数ポインタを持てます。入力例1は <code>even_step</code> と <code>odd_step</code> が交互に10回 <code>n</code> を減らし、11回目に呼ばれた <code>even_step</code> が0を見て <code>true</code> を入れます。入力例2は7回減らしたあとの8回目が <code>odd_step</code> なので <code>false</code> です。入力例3は最初の <code>even_step</code> がそのまま <code>true</code> を入れます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

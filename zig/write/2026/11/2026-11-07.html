@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="正方形・長方形・点のどれかを表すタグ付きunionを受け取り、switch で場合分けして面積を返す関数を書くZig WRITEのドリルです。腕ごとにペイロードを取り出すキャプチャと、ペイロードの無いフィールドを扱います。">
+<title>図形ごとの面積</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/write/2026-11-07">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / WRITE", "item": "https://namaran.jocarium.productions/zig/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-07" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / WRITE — 2026-11-07",
+      "url": "https://namaran.jocarium.productions/zig/write/2026-11-07",
+      "datePublished": "2026-11-07",
+      "dateModified": "2026-11-07",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "図形ごとの面積" },
+      "keywords": "union, switch, pattern-matching, exhaustiveness, struct",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "正方形・長方形・点のどれかを表すタグ付きunionを受け取り、switch で場合分けして面積を返す関数を書くZig WRITEのドリルです。腕ごとにペイロードを取り出すキャプチャと、ペイロードの無いフィールドを扱います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-07">C23</a>
+  <a href="/cpp/write/2026-11-07">C++26</a>
+  <a href="/rust/write/2026-11-07">Rust 2024</a>
+  <a href="/haskell/write/2026-11-07">Haskell 2010</a>
+  <a href="/zig/write/2026-11-07" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-07">READ</a>
+  <a href="/zig/write/2026-11-07" class="active" aria-current="page">WRITE</a>
+  <a href="/zig/debug/2026-11-07">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="図形ごとの面積"
+  data-tags="union switch pattern-matching exhaustiveness struct"
+  data-concepts="タグ付きunion, union(enum), switchのキャプチャ, ペイロード, 網羅的なswitch, tagged union, payload capture, exhaustive switch"
+  data-level="hedgehog"
+>
+  <h2>2026-11-07</h2>
+  <div class="code-frame">
+    <p class="code-filename">area.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">const</span> <span class="ty">Shape</span> = <span class="kw">union</span>(<span class="kw">enum</span>) {</span>
+<span class="code-line">    square: <span class="ty">u32</span>,</span>
+<span class="code-line">    rect: <span class="kw">struct</span> { w: <span class="ty">u32</span>, h: <span class="ty">u32</span> },</span>
+<span class="code-line">    point,</span>
+<span class="code-line">};</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">area</span>(s: <span class="ty">Shape</span>) <span class="ty">u32</span> {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    図形 <code>s</code> の面積を返す <code>area</code> を書いてください。<code>square</code> は1辺の長さを持つ正方形、<code>rect</code> は幅 <code>w</code> と高さ <code>h</code> を持つ長方形、<code>point</code> は大きさの無い点で、点の面積は0です。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>area(.{ .square = 3 })</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>9</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>area(.{ .rect = .{ .w = 2, .h = 5 } })</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>10</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>area(.point)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="kw">const</span> <span class="ty">Shape</span> = <span class="kw">union</span>(<span class="kw">enum</span>) {</span>
+<span class="code-line">    square: <span class="ty">u32</span>,</span>
+<span class="code-line">    rect: <span class="kw">struct</span> { w: <span class="ty">u32</span>, h: <span class="ty">u32</span> },</span>
+<span class="code-line">    point,</span>
+<span class="code-line">};</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">area</span>(s: <span class="ty">Shape</span>) <span class="ty">u32</span> {</span>
+<span class="code-line ins">    <span class="kw">return</span> <span class="kw">switch</span> (s) {</span>
+<span class="code-line ins">        .square =&gt; |side| side * side,</span>
+<span class="code-line ins">        .rect =&gt; |r| r.w * r.h,</span>
+<span class="code-line ins">        .point =&gt; <span class="nu">0</span>,</span>
+<span class="code-line ins">    };</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        <code>union(enum)</code> で宣言したunionは、どのフィールドが有効かを表すタグを持ちます（langref の言葉では tagged union）。<code>switch (s)</code> はそのタグで腕を選び、<code>|side|</code> や <code>|r|</code> と書くと、有効なフィールドの値（ペイロード）を取り出して腕の中で使えます。<code>square</code> では1辺の2乗を、<code>rect</code> では取り出した構造体の <code>w</code> と <code>h</code> の積を返します。<code>point</code> は型を書いていないので <code>void</code> のフィールドで、取り出すものが無いのでキャプチャを書かずに0を返します。<code>switch</code> は式なので、腕の値をそのまま <code>return</code> できます。これは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        タグ付きunionの <code>switch</code> は、すべてのタグを扱わないとコンパイルエラーになります。あとで <code>Shape</code> に円を足せば、<code>area</code> の <code>switch</code> が扱っていないことをコンパイラが指摘します。<code>else</code> の腕で残りをまとめるとこの指摘が出なくなるので、ここでは3つのタグをすべて書きます。入力例1は 3 × 3 で <code>9</code>、入力例2は 2 × 5 で <code>10</code>、入力例3は <code>point</code> の腕の <code>0</code> です。入力例3の <code>.point</code> は、ペイロードの無いフィールドなので、<code>.{ .point = {} }</code> と書かずに名前だけで <code>Shape</code> の値になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/write">Today</a></li>
+    <li><a href="/zig/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

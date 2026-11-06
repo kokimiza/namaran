@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「乱数生成器」を扱ったNamaranのコーディングドリル13問。リザーバサンプリング、件数不明の入力、一様な抽出、reservoir sampling、Algorithm R、streaming sample。">
+<meta name="description" content="「乱数生成器」を扱ったNamaranのコーディングドリル17問。プロパティベーステスト、Copyトレイト、selfの値渡し、&amp;mut self、クロージャのキャプチャ、乱数生成器。">
 <title>乱数生成器</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/random-number-generator">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,14 @@
   <h2>乱数生成器</h2>
 
   <p class="lede">
-    「乱数生成器」を扱った13問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「乱数生成器」を扱った17問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/debug/2026-11-07">Rust / DEBUG · 2026-11-07</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">進まない乱数生成器</span> <span class="past-concepts">プロパティベーステスト, Copyトレイト, selfの値渡し, &amp;mut self, クロージャのキャプチャ, 乱数生成器, property-based testing, Copy trait, method receiver, random number generator</span></li>
+    <li><a href="/cpp/write/2026-11-07">C++ / WRITE · 2026-11-07</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">nターン目の乱数を再現</span> <span class="past-concepts">乱数の再現, シード, 乱数エンジンを読み飛ばす, discard, std::minstd_rand0, reproducible random numbers, seed, skip ahead</span></li>
+    <li><a href="/cpp/read/2026-11-07">C++ / READ · 2026-11-07</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">コピーした乱数エンジン</span> <span class="past-concepts">乱数エンジンのコピー, 内部状態, 擬似乱数の再現, std::mt19937, random engine copy, engine state, reproducible random numbers</span></li>
+    <li><a href="/cpp/debug/2026-11-07">C++ / DEBUG · 2026-11-07</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">引数で引いた乱数の順番</span> <span class="past-concepts">関数引数の評価順序, 未規定の動作, 乱数の再現, シード, std::make_pair, evaluation order, unspecified behavior, reproducible random numbers</span></li>
     <li><a href="/cpp/write/2026-10-13">C++ / WRITE · 2026-10-13</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">k個を残しながら読む</span> <span class="past-concepts">リザーバサンプリング, 件数不明の入力, 一様な抽出, reservoir sampling, Algorithm R, streaming sample</span></li>
     <li><a href="/cpp/debug/2026-10-13">C++ / DEBUG · 2026-10-13</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">最後の値が必ず残る</span> <span class="past-concepts">リザーバサンプリング, 偏った抽出, 一様な抽出, reservoir sampling, Algorithm R, sampling bias</span></li>
     <li><a href="/rust/write/2026-10-12">Rust / WRITE · 2026-10-12</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">乱数を受け取る円周率推定</span> <span class="past-concepts">モンテカルロ法, 円周率の推定, FnMut クロージャ, 乱数を引数で渡す, Monte Carlo pi, FnMut closure, injected random source</span></li>

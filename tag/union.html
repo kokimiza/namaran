@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「共用体」を扱ったNamaranのコーディングドリル7問。inline else、タグ付き共用体、腕ごとの型、std.math.maxInt、@TypeOf、tagged union。">
+<meta name="description" content="「共用体」を扱ったNamaranのコーディングドリル9問。タグ付きunion、union(enum)、switchのキャプチャ、ペイロード、網羅的なswitch、tagged union。">
 <title>共用体</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/union">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,12 @@
   <h2>共用体</h2>
 
   <p class="lede">
-    「共用体」を扱った7問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「共用体」を扱った9問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/write/2026-11-07">Zig / WRITE · 2026-11-07</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">図形ごとの面積</span> <span class="past-concepts">タグ付きunion, union(enum), switchのキャプチャ, ペイロード, 網羅的なswitch, tagged union, payload capture, exhaustive switch</span></li>
+    <li><a href="/zig/debug/2026-11-07">Zig / DEBUG · 2026-11-07</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">有効でない側への代入</span> <span class="past-concepts">タグ付きunion, union(enum), 有効なフィールド, フィールドへの代入, 安全検査, illegal behavior, tagged union, active field, inactive union field</span></li>
     <li><a href="/zig/read/2026-10-24">Zig / READ · 2026-10-24</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">腕ごとに違う型の上限</span> <span class="past-concepts">inline else, タグ付き共用体, 腕ごとの型, std.math.maxInt, @TypeOf, tagged union, comptime switch prong</span></li>
     <li><a href="/zig/debug/2026-10-24">Zig / DEBUG · 2026-10-24</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">文字列も@sizeOfで測る</span> <span class="past-concepts">inline else, @sizeOf, スライスの大きさ, 個別の腕を足す, slice length, tagged union, switch prong</span></li>
     <li><a href="/zig/write/2026-10-22">Zig / WRITE · 2026-10-22</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">収まるときだけ書き込む</span> <span class="past-concepts">inline else, ポインタのキャプチャ, std.math.cast, 範囲を確かめる整数の変換, tagged union, pointer capture, checked integer cast</span></li>

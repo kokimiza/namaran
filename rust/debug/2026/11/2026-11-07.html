@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="自作の乱数生成器で100個の入力を作り、反例を探すプロパティベーステストのRust DEBUGのドリルです。Copy を導出した構造体のメソッドが self を値で受け取るため、生成器が進まず同じ入力しか試さない欠陥を扱います。">
+<title>進まない乱数生成器</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-11-07">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-07" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-11-07",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-11-07",
+      "datePublished": "2026-11-07",
+      "dateModified": "2026-11-07",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "進まない乱数生成器" },
+      "keywords": "property-based-testing, copy-trait, random-number-generator, closure, struct",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "自作の乱数生成器で100個の入力を作り、反例を探すプロパティベーステストのRust DEBUGのドリルです。Copy を導出した構造体のメソッドが self を値で受け取るため、生成器が進まず同じ入力しか試さない欠陥を扱います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-07">C23</a>
+  <a href="/cpp/debug/2026-11-07">C++26</a>
+  <a href="/rust/debug/2026-11-07" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-07">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-07">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-07">READ</a>
+  <a href="/rust/write/2026-11-07">WRITE</a>
+  <a href="/rust/debug/2026-11-07" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="進まない乱数生成器"
+  data-tags="property-based-testing copy-trait random-number-generator closure struct"
+  data-concepts="プロパティベーステスト, Copyトレイト, selfの値渡し, &amp;mut self, クロージャのキャプチャ, 乱数生成器, property-based testing, Copy trait, method receiver, random number generator"
+  data-level="bison"
+>
+  <h2>2026-11-07</h2>
+  <div class="code-frame">
+    <p class="code-filename">stuck_rng.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#[derive(Clone, Copy)]</span></span>
+<span class="code-line"><span class="kw">struct</span> <span class="fn">Rng</span>(<span class="ty">u64</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">impl</span> <span class="ty">Rng</span> {</span>
+<span class="code-line">    <span class="kw">fn</span> <span class="fn">draw</span>(<span class="kw">mut</span> <span class="kw">self</span>) -&gt; <span class="ty">u32</span> {</span>
+<span class="code-line">        <span class="kw">self</span>.<span class="nu">0</span> = <span class="kw">self</span>.<span class="nu">0</span>.<span class="fn">wrapping_mul</span>(<span class="nu">6364136223846793005</span>).<span class="fn">wrapping_add</span>(<span class="nu">1</span>);</span>
+<span class="code-line">        (<span class="kw">self</span>.<span class="nu">0</span> &gt;&gt; <span class="nu">32</span>) <span class="kw">as</span> <span class="ty">u32</span></span>
+<span class="code-line">    }</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="kw">let</span> rng = <span class="fn">Rng</span>(<span class="nu">9</span>);</span>
+<span class="code-line">    <span class="kw">let</span> found = (<span class="nu">0</span>..<span class="nu">100</span>).<span class="fn">map</span>(|_| rng.<span class="fn">draw</span>()).<span class="fn">find</span>(|&amp;n| n.<span class="fn">wrapping_mul</span>(<span class="nu">3</span>) / <span class="nu">3</span> != n);</span>
+<span class="code-line">    <span class="mc">println!</span>(<span class="st">"{found:?}"</span>);</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    掛け算の桁あふれを折り返すと「3倍してから3で割ると元に戻る」が崩れる <code>n</code> を、乱数で作った100個の <code>u32</code> から探すつもりのプロパティベーステストです。乱数は、内部の64ビットの状態を呼ぶたびに更新し、その上位32ビットを返すつもりの <code>Rng</code> で作ります。いまは反例が見つからず <code>None</code> が表示されます。本来の出力は <code>Some(2708277318)</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line"><span class="pp">#[derive(Clone, Copy)]</span></span>
+<span class="code-line"><span class="kw">struct</span> <span class="fn">Rng</span>(<span class="ty">u64</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">impl</span> <span class="ty">Rng</span> {</span>
+<span class="code-line del">    <span class="kw">fn</span> <span class="fn">draw</span>(<span class="kw">mut</span> <span class="kw">self</span>) -&gt; <span class="ty">u32</span> {</span>
+<span class="code-line">        <span class="kw">self</span>.<span class="nu">0</span> = <span class="kw">self</span>.<span class="nu">0</span>.<span class="fn">wrapping_mul</span>(<span class="nu">6364136223846793005</span>).<span class="fn">wrapping_add</span>(<span class="nu">1</span>);</span>
+<span class="code-line">        (<span class="kw">self</span>.<span class="nu">0</span> &gt;&gt; <span class="nu">32</span>) <span class="kw">as</span> <span class="ty">u32</span></span>
+<span class="code-line">    }</span>
+<span class="code-line">}</span>
+</code></pre>
+      <p>
+        <code>draw</code> は <code>self</code> を値で受け取ります。<code>Rng</code> は <code>Copy</code> を導出しているので、<code>rng.draw()</code> は <code>rng</code> をムーブせず、そのコピーを <code>self</code> に渡します。<code>mut self</code> が書き換えるのはこのコピーの状態で、<code>draw</code> から戻るとコピーごと消えます。<code>main</code> の <code>rng</code> は <code>Rng(9)</code> のままなので、クロージャが100回呼ぶ <code>rng.draw()</code> は毎回同じ値450991511を返し、テストは同じ入力を100回試しているだけです。この値は3倍しても <code>u32</code> に収まり、性質が成り立つので、<code>find</code> は <code>None</code> を返します。
+      </p>
+      <p>
+        <code>Copy</code> が無ければ、<code>rng.draw()</code> は <code>rng</code> をムーブし、<code>map</code> に渡したクロージャの中から2回目を呼べないのでコンパイルエラーになります。<code>mut self</code> だけ、または <code>Copy</code> だけなら気付けた誤りが、2つ揃ったことでコンパイルを通り、黙って同じ値を返し続けます。<code>rng</code> を <code>let</code> で宣言したまま書き換えているように見えるのに、コンパイラが <code>mut</code> を求めないのも、<code>rng</code> 自身は一度も書き換えられていないからです。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line"><span class="pp">#[derive(Clone, Copy)]</span></span>
+<span class="code-line"><span class="kw">struct</span> <span class="fn">Rng</span>(<span class="ty">u64</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">impl</span> <span class="ty">Rng</span> {</span>
+<span class="code-line ins">    <span class="kw">fn</span> <span class="fn">draw</span>(<span class="chg">&amp;</span><span class="kw">mut</span> <span class="kw">self</span>) -&gt; <span class="ty">u32</span> {</span>
+<span class="code-line">        <span class="kw">self</span>.<span class="nu">0</span> = <span class="kw">self</span>.<span class="nu">0</span>.<span class="fn">wrapping_mul</span>(<span class="nu">6364136223846793005</span>).<span class="fn">wrapping_add</span>(<span class="nu">1</span>);</span>
+<span class="code-line">        (<span class="kw">self</span>.<span class="nu">0</span> &gt;&gt; <span class="nu">32</span>) <span class="kw">as</span> <span class="ty">u32</span></span>
+<span class="code-line">    }</span>
+<span class="code-line">}</span>
+</code></pre>
+      <p>
+        <code>&amp;mut self</code> で受け取れば、<code>draw</code> は呼び出し元の <code>rng</code> そのものの状態を更新します。<code>main</code> では <code>let mut rng = Rng(9);</code> と宣言し直し、クロージャは <code>rng</code> を可変で借用します。呼ぶたびに状態が進むので100個の入力は別々の値になり、4個目の2708277318が <code>1431655765</code> を超えるため、3倍が桁あふれして <code>Some(2708277318)</code> が見つかります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

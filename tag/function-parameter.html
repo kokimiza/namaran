@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「関数の引数」を扱ったNamaranのコーディングドリル14問。構造体の値渡し、浅いコピー、ポインタメンバ、長さの更新漏れ、struct pass by value、shallow copy。">
+<meta name="description" content="「関数の引数」を扱ったNamaranのコーディングドリル15問。関数引数の評価順序、未規定の動作、乱数の再現、シード、std::make_pair、evaluation order。">
 <title>関数の引数</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/function-parameter">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>関数の引数</h2>
 
   <p class="lede">
-    「関数の引数」を扱った14問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「関数の引数」を扱った15問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/cpp/debug/2026-11-07">C++ / DEBUG · 2026-11-07</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">引数で引いた乱数の順番</span> <span class="past-concepts">関数引数の評価順序, 未規定の動作, 乱数の再現, シード, std::make_pair, evaluation order, unspecified behavior, reproducible random numbers</span></li>
     <li><a href="/c/debug/2026-10-30">C / DEBUG · 2026-10-30</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">書き足したはずの長さ</span> <span class="past-concepts">構造体の値渡し, 浅いコピー, ポインタメンバ, 長さの更新漏れ, struct pass by value, shallow copy</span></li>
     <li><a href="/haskell/debug/2026-10-21">Haskell / DEBUG · 2026-10-21</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">持ち越しとの連結順</span> <span class="past-concepts">メッセージの区切り, 長さプレフィックス, mapAccumL の引数の順, 受信バッファの持ち越し, length-prefixed framing, accumulator order, stream reassembly</span></li>
     <li><a href="/c/debug/2026-10-21">C / DEBUG · 2026-10-21</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">表のテストが回らない</span> <span class="past-concepts">テーブル駆動テスト, 配列引数のポインタ化, 関数の中のsizeof, 閏年, table-driven test, array parameter decay, sizeof pointer</span></li>

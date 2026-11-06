@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="値を一部だけ明示した enum(u8) にバイト列を @fromBackingInt で読み替え、switch で命令として実行するZig READのドリルです。値を書かなかったフィールドの値と、switch の腕に書いた break がどこを抜けるかを扱います。">
+<title>命令バイトとbreak</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/read/2026-11-07">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / READ", "item": "https://namaran.jocarium.productions/zig/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-07" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / READ — 2026-11-07",
+      "url": "https://namaran.jocarium.productions/zig/read/2026-11-07",
+      "datePublished": "2026-11-07",
+      "dateModified": "2026-11-07",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "命令バイトとbreak" },
+      "keywords": "enum, switch, continue-break, loop",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "値を一部だけ明示した enum(u8) にバイト列を @fromBackingInt で読み替え、switch で命令として実行するZig READのドリルです。値を書かなかったフィールドの値と、switch の腕に書いた break がどこを抜けるかを扱います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-07">C23</a>
+  <a href="/cpp/read/2026-11-07">C++26</a>
+  <a href="/rust/read/2026-11-07">Rust 2024</a>
+  <a href="/haskell/read/2026-11-07">Haskell 2010</a>
+  <a href="/zig/read/2026-11-07" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-07" class="active" aria-current="page">READ</a>
+  <a href="/zig/write/2026-11-07">WRITE</a>
+  <a href="/zig/debug/2026-11-07">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="命令バイトとbreak"
+  data-tags="enum switch continue-break loop"
+  data-concepts="enumの値, 値を省略したフィールド, @fromBackingInt, switchの中のbreak, ループを抜ける, enum tag value, break in switch prong, bytecode interpreter"
+  data-level="bison"
+>
+  <h2>2026-11-07</h2>
+  <div class="code-frame">
+    <p class="code-filename">opcodes.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">const</span> <span class="ty">Op</span> = <span class="kw">enum</span>(<span class="ty">u8</span>) { inc = <span class="nu">2</span>, dbl, halt = <span class="nu">0</span> };</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {</span>
+<span class="code-line">    <span class="kw">var</span> out: [<span class="nu">64</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line">    <span class="kw">var</span> w = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;out);</span>
+<span class="code-line">    <span class="kw">var</span> acc: <span class="ty">u32</span> = <span class="nu">1</span>;</span>
+<span class="code-line">    <span class="kw">for</span> ([_]<span class="ty">u8</span>{ <span class="nu">3</span>, <span class="nu">2</span>, <span class="nu">0</span>, <span class="nu">3</span>, <span class="nu">2</span> }) |byte| {</span>
+<span class="code-line">        <span class="kw">switch</span> (<span class="mc">@as</span>(<span class="ty">Op</span>, <span class="mc">@fromBackingInt</span>(byte))) {</span>
+<span class="code-line">            .inc =&gt; acc += <span class="nu">1</span>,</span>
+<span class="code-line">            .dbl =&gt; acc *= <span class="nu">2</span>,</span>
+<span class="code-line">            .halt =&gt; <span class="kw">break</span>,</span>
+<span class="code-line">        }</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="kw">try</span> w.interface.<span class="fn">print</span>(<span class="st">"{d}\n"</span>, .{acc});</span>
+<span class="code-line">    <span class="kw">try</span> w.interface.<span class="fn">flush</span>();</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>3</samp></pre>
+      </div>
+      <p>
+        値を書かなかった enum のフィールドは、直前のフィールドの値に1を足した値になります。<code>inc</code> は2なので、その次の <code>dbl</code> は3です。<code>halt</code> は0と書いてあります。<code>@fromBackingInt</code> は整数を、その値を持つフィールドに読み替える組み込み関数なので、バイト列 <code>3, 2, 0, 3, 2</code> は <code>dbl</code>、<code>inc</code>、<code>halt</code>、<code>dbl</code>、<code>inc</code> の順の命令になります。
+      </p>
+      <p>
+        Zig の <code>switch</code> は、腕を実行し終えると次の腕へ進まずに抜けるので、C のように腕の終わりを <code>break</code> で区切る必要がありません。<code>break</code> の対象になるのはループとラベルを付けたブロックで、ラベルの無い <code>switch</code> はなりません。そのため <code>.halt =&gt; break</code> は <code>for</code> 文を抜けます。<code>acc</code> は1から始まり、<code>dbl</code> で2、<code>inc</code> で3になったところで <code>halt</code> がループを終わらせ、残りの2バイトは読まれずに <code>3</code> が表示されます。
+      </p>
+      <p>
+        C の習慣で <code>break</code> が <code>switch</code> だけを抜けると読むと、<code>halt</code> のあとも続けて <code>dbl</code> で6、<code>inc</code> で7になり、<code>7</code> を答えます。値を書かなかった <code>dbl</code> を、宣言の位置から1番目の1と読むと、3に当たるフィールドが無いので、最初のバイトで <code>@fromBackingInt</code> が実行時の安全検査（langref の言葉では safety-checked illegal behavior）に引っかかって止まる、と答えることになります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/read">Today</a></li>
+    <li><a href="/zig/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「再帰」を扱ったNamaranのコーディングドリル87問。Quickselect、k番目に小さい要素、Maybe、partition、範囲外の添字、quickselect。">
+<meta name="description" content="「再帰」を扱ったNamaranのコーディングドリル90問。安全な添字アクセス、(!!)、Maybe、パターンマッチ、再帰、境界チェック。">
 <title>再帰</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/recursion">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>再帰</h2>
 
   <p class="lede">
-    「再帰」を扱った87問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「再帰」を扱った90問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/haskell/write/2026-11-07">Haskell / WRITE · 2026-11-07</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">範囲外ならNothing</span> <span class="past-concepts">安全な添字アクセス, (!!), Maybe, パターンマッチ, 再帰, 境界チェック, safe indexing, list index, bounds check</span></li>
+    <li><a href="/c/write/2026-11-07">C / WRITE · 2026-11-07</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">呼び合う代わりに返す</span> <span class="past-concepts">トランポリン, 相互再帰, 関数ポインタを返す, 再帰の反復化, スタックオーバーフロー, trampoline, mutual recursion, function pointer, stack overflow</span></li>
+    <li><a href="/c/read/2026-11-07">C / READ · 2026-11-07</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">跳ね返りの後には何もない</span> <span class="past-concepts">トランポリン, 再帰の反復化, 関数ポインタ, 末尾呼び出し, 桁の表示, trampoline, recursion to iteration, function pointer, tail call</span></li>
     <li><a href="/haskell/write/2026-11-06">Haskell / WRITE · 2026-11-06</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">範囲外はNothingに</span> <span class="past-concepts">Quickselect, k番目に小さい要素, Maybe, partition, 範囲外の添字, quickselect, k-th smallest, out of range index</span></li>
     <li><a href="/haskell/read/2026-11-06">Haskell / READ · 2026-11-06</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">ピボットと同じ値の行方</span> <span class="past-concepts">Quickselect, k番目に小さい要素, ピボット, 重複要素, リスト内包表記, quickselect, k-th smallest, duplicate elements, pivot</span></li>
     <li><a href="/haskell/debug/2026-11-06">Haskell / DEBUG · 2026-11-06</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">縮まない分割</span> <span class="past-concepts">Quickselect, k番目に小さい要素, ピボット, 無限ループ, 再帰の停止, partition, quickselect, k-th smallest, non-termination</span></li>

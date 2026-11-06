@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="累積和を listArray で配列にして区間の和を求めるHaskell DEBUGのドリルです。添字の範囲より短いリストを渡すと、(!) の範囲検査は通るのに末尾の要素が未定義のまま残る欠陥を扱います。">
+<title>範囲内なのに未定義</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-11-07">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-07" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-11-07",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-11-07",
+      "datePublished": "2026-11-07",
+      "dateModified": "2026-11-07",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "範囲内なのに未定義" },
+      "keywords": "array, prefix-sum, boundary, laziness, off-by-one",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "累積和を listArray で配列にして区間の和を求めるHaskell DEBUGのドリルです。添字の範囲より短いリストを渡すと、(!) の範囲検査は通るのに末尾の要素が未定義のまま残る欠陥を扱います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-07">C23</a>
+  <a href="/cpp/debug/2026-11-07">C++26</a>
+  <a href="/rust/debug/2026-11-07">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-07" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-07">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-07">READ</a>
+  <a href="/haskell/write/2026-11-07">WRITE</a>
+  <a href="/haskell/debug/2026-11-07" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="範囲内なのに未定義"
+  data-tags="array prefix-sum boundary laziness off-by-one"
+  data-concepts="Data.Array, listArray, 累積和, scanl, scanl1, 未定義の配列要素, 境界チェック, prefix sum, undefined array element, bounds check"
+  data-level="peacock"
+>
+  <h2>2026-11-07</h2>
+  <div class="code-frame">
+    <p class="code-filename">RangeSum.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">import</span> <span class="ty">Data.Array</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">rangeSum</span> <span class="op">::</span> <span class="ty">Array</span> <span class="ty">Int</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Int</span></span>
+<span class="code-line"><span class="fn">rangeSum</span> pre l r = pre ! r - pre ! l</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()</span>
+<span class="code-line"><span class="fn">main</span> = <span class="kw">do</span></span>
+<span class="code-line">  <span class="kw">let</span> xs = [<span class="nu">3</span>, <span class="nu">1</span>, <span class="nu">4</span>, <span class="nu">1</span>, <span class="nu">5</span>]</span>
+<span class="code-line">      pre = listArray (<span class="nu">0</span>, length xs) (scanl1 (+) xs)</span>
+<span class="code-line">  print (rangeSum pre <span class="nu">1</span> <span class="nu">4</span>)</span>
+<span class="code-line">  print (rangeSum pre <span class="nu">0</span> <span class="nu">5</span>)</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>pre ! k</code> にリスト <code>xs</code> の先頭 <code>k</code> 個の和を入れた配列 <code>pre</code> を作り、<code>rangeSum pre l r</code> で <code>l</code> 番目から <code>r - 1</code> 番目まで（0始まり）の要素の和を求めるつもりのプログラムです。<code>main</code> のとおり <code>[3, 1, 4, 1, 5]</code> の1番目から3番目までと、全体の和を表示すると、本来は <code>6</code> と <code>14</code> が出ます。いまは1行目に <code>10</code> が表示され、2行目を表示する前に、配列の要素が未定義だというエラーで止まります。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line"><span class="kw">let</span> xs = [<span class="nu">3</span>, <span class="nu">1</span>, <span class="nu">4</span>, <span class="nu">1</span>, <span class="nu">5</span>]</span>
+<span class="code-line del">    pre = listArray (<span class="nu">0</span>, length xs) (<span class="chg">scanl1</span> (+) xs)</span>
+</code></pre>
+      <p>
+        添字の範囲 <code>(0, length xs)</code> は0から5までの6個ですが、<code>scanl1 (+) xs</code> は <code>[3, 4, 8, 9, 14]</code> の5個しか作りません。<code>listArray</code> はリストの長さが範囲と合うかを調べず、前から順に詰めるので、<code>pre ! 0</code> が3、<code>pre ! 4</code> が14になり、<code>pre ! 5</code> には値がありません。1つ目の <code>rangeSum pre 1 4</code> は <code>pre ! 4 - pre ! 1</code> の 14 - 4 で <code>10</code> になります。<code>pre ! k</code> が先頭 <code>k + 1</code> 個の和になっていて、区間が1つ右へずれているからです。
+      </p>
+      <p>
+        2つ目の <code>rangeSum pre 0 5</code> の <code>pre ! 5</code> は、添字5が範囲の中なので <code>(!)</code> の範囲検査を通ります。それでも要素が無いので、値を求めた時点で、未定義の配列要素だというエラーになります。配列の要素は使われるまで評価されないので、<code>listArray</code> の時点では何も起きず、1行目は表示されます。<code>(!)</code> が確かめるのは添字が範囲に入っているかだけで、その位置に値が入っているかではありません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line"><span class="kw">let</span> xs = [<span class="nu">3</span>, <span class="nu">1</span>, <span class="nu">4</span>, <span class="nu">1</span>, <span class="nu">5</span>]</span>
+<span class="code-line ins">    pre = listArray (<span class="nu">0</span>, length xs) (<span class="chg">scanl</span> (+) <span class="chg"><span class="nu">0</span></span> xs)</span>
+</code></pre>
+      <p>
+        <code>scanl (+) 0 xs</code> は先頭に0を置いて <code>[0, 3, 4, 8, 9, 14]</code> の6個を作るので、範囲 <code>(0, length xs)</code> とちょうど合い、<code>pre ! k</code> が先頭 <code>k</code> 個の和になります。1つ目は <code>pre ! 4 - pre ! 1</code> の 9 - 3 で <code>6</code>、2つ目は 14 - 0 で <code>14</code> です。<code>pre ! 0</code> が0なので、先頭から始まる区間も同じ式で求まります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="シードだけを記録したシミュレーションの、指定したターンで引いた2つの乱数を std::minstd_rand0 で再現する関数を書くC++ WRITEのドリルです。1ターンで引く回数とdiscardの数を扱います。">
+<title>nターン目の乱数を再現</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-11-07">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-07" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-11-07",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-11-07",
+      "datePublished": "2026-11-07",
+      "dateModified": "2026-11-07",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "nターン目の乱数を再現" },
+      "keywords": "random-number-generator, reproducibility, tuple",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "シードだけを記録したシミュレーションの、指定したターンで引いた2つの乱数を std::minstd_rand0 で再現する関数を書くC++ WRITEのドリルです。1ターンで引く回数とdiscardの数を扱います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-07">C23</a>
+  <a href="/cpp/write/2026-11-07" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-11-07">Rust 2024</a>
+  <a href="/haskell/write/2026-11-07">Haskell 2010</a>
+  <a href="/zig/write/2026-11-07">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-07">READ</a>
+  <a href="/cpp/write/2026-11-07" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-11-07">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="nターン目の乱数を再現"
+  data-tags="random-number-generator reproducibility tuple"
+  data-concepts="乱数の再現, シード, 乱数エンジンを読み飛ばす, discard, std::minstd_rand0, reproducible random numbers, seed, skip ahead"
+  data-level="peacock"
+>
+  <h2>2026-11-07</h2>
+  <div class="code-frame">
+    <p class="code-filename">replay_turn.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;cstdint&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;random&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;utility&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line">std::<span class="ty">pair</span>&lt;std::<span class="ty">uint_fast32_t</span>, std::<span class="ty">uint_fast32_t</span>&gt; <span class="fn">replay_turn</span>(std::<span class="ty">uint_fast32_t</span> seed,</span>
+<span class="code-line">                                                              <span class="ty">unsigned</span> <span class="ty">long</span> <span class="ty">long</span> turn) {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    あるシミュレーションは、シード <code>seed</code> で作った <code>std::minstd_rand0</code> を1つだけ使い、毎ターン、その呼び出し演算子で値を2つ引いて、先の値を <code>x</code>、後の値を <code>y</code> にします。記録に残っているのはシードだけです。0から数えて <code>turn</code> 番目のターンで引いた <code>x</code> と <code>y</code> を、この順の <code>std::pair</code> で返す <code>replay_turn</code> を書いてください。<code>turn</code> が0なら、エンジンが最初に出す2つの値です。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>replay_turn(1, 0)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>{16807, 282475249}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>replay_turn(1, 1)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>{1622650073, 984943658}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>replay_turn(42, 0)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>{705894, 1126542223}</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;cstdint&gt;</span></span>
+<span class="code-line ins"><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;random&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;utility&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line">std::<span class="ty">pair</span>&lt;std::<span class="ty">uint_fast32_t</span>, std::<span class="ty">uint_fast32_t</span>&gt; <span class="fn">replay_turn</span>(std::<span class="ty">uint_fast32_t</span> seed,</span>
+<span class="code-line">                                                              <span class="ty">unsigned</span> <span class="ty">long</span> <span class="ty">long</span> turn) {</span>
+<span class="code-line ins">    std::minstd_rand0 <span class="fn">g</span>(seed);</span>
+<span class="code-line ins">    g.<span class="fn">discard</span>(<span class="nu">2</span> * turn);</span>
+<span class="code-line ins">    <span class="kw">auto</span> x = <span class="fn">g</span>();</span>
+<span class="code-line ins">    <span class="kw">auto</span> y = <span class="fn">g</span>();</span>
+<span class="code-line ins">    <span class="kw">return</span> {x, y};</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        乱数エンジンが出す列は、シードと、それまでに引いた回数だけで決まります。同じシードで新しいエンジンを作り、元のシミュレーションが <code>turn</code> 番目のターンより前に引いた分だけ進めれば、そのターンを始める直前の状態に戻れます。1ターンで2回引くので、読み飛ばすのは <code>turn</code> 回ではなく <code>2 * turn</code> 回で、<code>discard</code> がその分だけエンジンを進めます。そこから2回引いた値が、そのターンの <code>x</code> と <code>y</code> です。これは参考実装で、唯一の正解ではありません。<code>discard</code> の代わりに、<code>2 * turn</code> 回 <code>g()</code> を呼んで捨てるループでも同じ結果になります。
+      </p>
+      <p>
+        <code>std::minstd_rand0</code> は、前の値に16807を掛けて2147483647で割った余りを次の値にするエンジンで、この計算は規格が決めています。シードが1なら最初の値は16807、次は16807の2乗の282475249です。入力例1はこの2つで、入力例2は2つ読み飛ばしたあとの3つ目と4つ目です。<code>discard(turn)</code> と書くと、入力例2ではターン0の <code>y</code> から引き始めてしまい、<code>{282475249, 1622650073}</code> を返します。規格が計算方法まで決めているのはエンジンだけで、<code>std::uniform_int_distribution</code> などの分布がエンジンの値をどう変換するかは標準ライブラリの実装に任されています。別の環境でも同じ値を再現したいなら、エンジンの出力をそのまま使うか、変換を自分で書きます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

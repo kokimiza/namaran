@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="プロパティベーステストが反例を小さくしていく縮小の手順を、ビット演算の2つの候補で書いたRust READのドリルです。何十回も回るループを追わずに、止まったときの値の形から最終的な反例を求めます。">
+<title>縮めきった反例</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-11-07">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / READ", "item": "https://namaran.jocarium.productions/rust/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-07" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / READ — 2026-11-07",
+      "url": "https://namaran.jocarium.productions/rust/read/2026-11-07",
+      "datePublished": "2026-11-07",
+      "dateModified": "2026-11-07",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "縮めきった反例" },
+      "keywords": "property-based-testing, invariant, bit-operation, loop",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "プロパティベーステストが反例を小さくしていく縮小の手順を、ビット演算の2つの候補で書いたRust READのドリルです。何十回も回るループを追わずに、止まったときの値の形から最終的な反例を求めます。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-07">C23</a>
+  <a href="/cpp/read/2026-11-07">C++26</a>
+  <a href="/rust/read/2026-11-07" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/read/2026-11-07">Haskell 2010</a>
+  <a href="/zig/read/2026-11-07">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-07" class="active" aria-current="page">READ</a>
+  <a href="/rust/write/2026-11-07">WRITE</a>
+  <a href="/rust/debug/2026-11-07">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="縮めきった反例"
+  data-tags="property-based-testing invariant bit-operation loop"
+  data-concepts="プロパティベーステスト, 反例の縮小, shrinking, ループ不変条件, 最下位の1を消す, count_ones, property-based testing, counterexample, loop invariant"
+  data-level="whale"
+>
+  <h2>2026-11-07</h2>
+  <div class="code-frame">
+    <p class="code-filename">shrink.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">holds</span>(x: <span class="ty">u32</span>) -&gt; <span class="ty">bool</span> {</span>
+<span class="code-line">    x.<span class="fn">count_ones</span>() &lt; <span class="nu">3</span></span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="kw">let</span> <span class="kw">mut</span> x: <span class="ty">u32</span> = <span class="nu">0xDEAD_BEEF</span>;</span>
+<span class="code-line">    <span class="kw">loop</span> {</span>
+<span class="code-line">        <span class="kw">let</span> smaller = [x &amp; (x - <span class="nu">1</span>), x &gt;&gt; <span class="nu">1</span>];</span>
+<span class="code-line">        <span class="kw">match</span> smaller.<span class="fn">into_iter</span>().<span class="fn">find</span>(|&amp;c| !<span class="fn">holds</span>(c)) {</span>
+<span class="code-line">            <span class="fn">Some</span>(c) =&gt; x = c,</span>
+<span class="code-line">            <span class="ty">None</span> =&gt; <span class="kw">break</span>,</span>
+<span class="code-line">        }</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="mc">println!</span>(<span class="st">"{x}"</span>);</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>13</samp></pre>
+      </div>
+      <p>
+        <code>holds</code> は「立っているビットが3個未満」という性質で、<code>0xDEAD_BEEF</code> はその反例です。ループは、反例をより小さな候補に置き換えられる限り置き換えます。プロパティベーステストが見つけた反例を読みやすい大きさまで縮める手順で、候補に置き換えるのは、候補にもビットが3個以上立っていて反例のままのときだけです。<code>0xDEAD_BEEF</code> には24個のビットが立っているので、1回ずつ追うと何十回も回ります。追う代わりに、ループが止まるときの <code>x</code> の形と、それまでに変わらないものを考えます。
+      </p>
+      <p>
+        1つ目の候補 <code>x &amp; (x - 1)</code> は、<code>x</code> の一番下の1だけを0にした値です。<code>x - 1</code> は一番下の1とそれより下の0をすべて反転させるので、<code>&amp;</code> を取るとその1だけが消えます。立っているビットが1個減るので、この候補が反例なのは <code>x</code> に4個以上立っているときです。2つ目の候補 <code>x &gt;&gt; 1</code> は全体を1ビット右へずらし、最下位ビットが1ならそれを落とします。<code>find</code> は配列の先頭から調べるので、4個以上立っている間は必ず1つ目が選ばれ、上の3個を残して下のビットが1つずつ消えます。ちょうど3個になると1つ目は反例でなくなり、2つ目は最下位ビットが0の間だけ反例のまま使えます。止まるのは、立っているビットが3個で、最下位ビットが1のときです。
+      </p>
+      <p>
+        どちらの候補も、上の3個のビットの並び方を変えません。<code>0xDEAD_BEEF</code> の先頭の16進数 <code>D</code> は2進数で <code>1101</code> なので、上の3個はビット31、30、28で、その並びを最下位までずらした <code>1101</code> が最後の <code>x</code> です。10進数で <code>13</code> になります。
+      </p>
+      <p>
+        「反例を縮めるのだから、立っているビットが3個の最小の数 <code>7</code> に着く」と考えると間違えます。縮小は、その時点の反例から一歩で行ける候補しか見ないので、着くのはそれ以上縮められない反例で、最小の反例とは限りません。<code>x &gt;&gt; 1</code> の候補を見落とすと、上の3個が元の位置に残った <code>0xD000_0000</code>、10進数の <code>3489660928</code> を答えます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/read">Today</a></li>
+    <li><a href="/rust/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

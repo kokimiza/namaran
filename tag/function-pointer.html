@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「関数ポインタ」を扱ったNamaranのコーディングドリル14問。関数ポインタの配列、ディスパッチ表、1次関数の合成、unsignedの桁あふれ、function pointer table、affine function composition。">
+<meta name="description" content="「関数ポインタ」を扱ったNamaranのコーディングドリル16問。トランポリン、相互再帰、関数ポインタを返す、再帰の反復化、スタックオーバーフロー、trampoline。">
 <title>関数ポインタ</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/function-pointer">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,12 @@
   <h2>関数ポインタ</h2>
 
   <p class="lede">
-    「関数ポインタ」を扱った14問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「関数ポインタ」を扱った16問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/c/write/2026-11-07">C / WRITE · 2026-11-07</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">呼び合う代わりに返す</span> <span class="past-concepts">トランポリン, 相互再帰, 関数ポインタを返す, 再帰の反復化, スタックオーバーフロー, trampoline, mutual recursion, function pointer, stack overflow</span></li>
+    <li><a href="/c/read/2026-11-07">C / READ · 2026-11-07</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">跳ね返りの後には何もない</span> <span class="past-concepts">トランポリン, 再帰の反復化, 関数ポインタ, 末尾呼び出し, 桁の表示, trampoline, recursion to iteration, function pointer, tail call</span></li>
     <li><a href="/c/write/2026-11-04">C / WRITE · 2026-11-04</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">中を見ずに表を合成する</span> <span class="past-concepts">関数ポインタの配列, ディスパッチ表, 1次関数の合成, unsignedの桁あふれ, function pointer table, affine function composition, unsigned wraparound</span></li>
     <li><a href="/c/read/2026-11-04">C / READ · 2026-11-04</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">同じ関数が2つの枠に</span> <span class="past-concepts">関数ポインタの配列, ディスパッチ表, staticローカル変数, 記憶域期間, クロージャが無い, function pointer table, static local variable</span></li>
     <li><a href="/c/debug/2026-11-04">C / DEBUG · 2026-11-04</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">バイト数で調べた番号</span> <span class="past-concepts">関数ポインタの配列, ディスパッチ表, sizeofは要素数ではない, 範囲外アクセス, function pointer table, sizeof array, array length, out of bounds</span></li>

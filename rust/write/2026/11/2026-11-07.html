@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="u8 を受け取る性質を、256通りの入力すべてで確かめて最初の反例を返す関数を書くRust WRITEのドリルです。範囲の上端255を含めることと、Option で反例の有無を返すことを扱います。">
+<title>u8を全部調べる</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-11-07">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-07" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-11-07",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-11-07",
+      "datePublished": "2026-11-07",
+      "dateModified": "2026-11-07",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "u8を全部調べる" },
+      "keywords": "property-based-testing, half-open-interval, iterator, optional, closure",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "u8 を受け取る性質を、256通りの入力すべてで確かめて最初の反例を返す関数を書くRust WRITEのドリルです。範囲の上端255を含めることと、Option で反例の有無を返すことを扱います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-07">C23</a>
+  <a href="/cpp/write/2026-11-07">C++26</a>
+  <a href="/rust/write/2026-11-07" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-11-07">Haskell 2010</a>
+  <a href="/zig/write/2026-11-07">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-07">READ</a>
+  <a href="/rust/write/2026-11-07" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-11-07">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="u8を全部調べる"
+  data-tags="property-based-testing half-open-interval iterator optional closure"
+  data-concepts="プロパティベーステスト, 全数検査, 反例, 閉区間の範囲, ..=, Iterator::find, property-based testing, exhaustive testing, counterexample, inclusive range"
+  data-level="hedgehog"
+>
+  <h2>2026-11-07</h2>
+  <div class="code-frame">
+    <p class="code-filename">exhaustive.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">counterexample</span>(prop: <span class="kw">impl</span> <span class="fn">Fn</span>(<span class="ty">u8</span>) -&gt; <span class="ty">bool</span>) -&gt; <span class="ty">Option</span>&lt;<span class="ty">u8</span>&gt; {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>u8</code> の値について成り立つはずの性質 <code>prop</code> を受け取り、<code>u8</code> のすべての値で調べる <code>counterexample</code> を書いてください。<code>prop</code> が <code>false</code> を返す値があれば、そのうち最も小さい値を <code>Some</code> で返します。すべての値で <code>true</code> なら <code>None</code> を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>counterexample(|x| x &lt; 200)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>Some(200)</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>counterexample(|x| x.wrapping_add(1) &gt; x)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>Some(255)</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>counterexample(|x| x.wrapping_mul(2) / 2 == x % 128)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>None</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">counterexample</span>(prop: <span class="kw">impl</span> <span class="fn">Fn</span>(<span class="ty">u8</span>) -&gt; <span class="ty">bool</span>) -&gt; <span class="ty">Option</span>&lt;<span class="ty">u8</span>&gt; {</span>
+<span class="code-line ins">    (<span class="nu">0</span>..=<span class="ty">u8</span>::<span class="nu">MAX</span>).<span class="fn">find</span>(|&amp;x| !<span class="fn">prop</span>(x))</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        <code>u8</code> は256通りしかないので、乱数で入力を作らなくても全部を試せます。<code>0..=u8::MAX</code> は0から255までを小さい順に並べる範囲で、<code>find</code> は先頭から調べて、条件を満たす最初の要素を <code>Some</code> で、最後まで見つからなければ <code>None</code> を返します。条件を「<code>prop</code> が成り立たない」にすれば、最も小さい反例か <code>None</code> がそのまま戻り値になります。これは参考実装で、唯一の正解ではありません。<code>for</code> 文で回して、反例を見つけたところで <code>return Some(x)</code> する書き方もあります。
+      </p>
+      <p>
+        範囲を <code>0..u8::MAX</code> と書くと上端の255を含まず、254までしか調べません。入力例2の性質は「1を足すと大きくなる」で、255だけが <code>wrapping_add(1)</code> で0に戻って反例になるので、この書き方では <code>None</code> を返してしまいます。<code>0..256</code> と書こうとしても、256は <code>u8</code> に収まらないので書けません。入力例1は200が最初に <code>x &lt; 200</code> を満たさない値です。入力例3は、2倍して桁あふれした分を捨ててから2で割ると最上位ビットが消えるので、どの値でも128で割った余りに等しく、反例はありません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

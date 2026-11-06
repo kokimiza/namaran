@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「構造体」を扱ったNamaranのコーディングドリル39問。型を返す関数、ジェネリックな構造体、@This、構造体のメソッド、名前空間としての構造体、オプショナル型。">
+<meta name="description" content="「構造体」を扱ったNamaranのコーディングドリル43問。タグ付きunion、union(enum)、switchのキャプチャ、ペイロード、網羅的なswitch、tagged union。">
 <title>構造体</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/struct">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,14 @@
   <h2>構造体</h2>
 
   <p class="lede">
-    「構造体」を扱った39問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「構造体」を扱った43問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/write/2026-11-07">Zig / WRITE · 2026-11-07</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">図形ごとの面積</span> <span class="past-concepts">タグ付きunion, union(enum), switchのキャプチャ, ペイロード, 網羅的なswitch, tagged union, payload capture, exhaustive switch</span></li>
+    <li><a href="/rust/debug/2026-11-07">Rust / DEBUG · 2026-11-07</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">進まない乱数生成器</span> <span class="past-concepts">プロパティベーステスト, Copyトレイト, selfの値渡し, &amp;mut self, クロージャのキャプチャ, 乱数生成器, property-based testing, Copy trait, method receiver, random number generator</span></li>
+    <li><a href="/c/write/2026-11-07">C / WRITE · 2026-11-07</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">呼び合う代わりに返す</span> <span class="past-concepts">トランポリン, 相互再帰, 関数ポインタを返す, 再帰の反復化, スタックオーバーフロー, trampoline, mutual recursion, function pointer, stack overflow</span></li>
+    <li><a href="/c/debug/2026-11-07">C / DEBUG · 2026-11-07</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">次の段に積み忘れた和</span> <span class="past-concepts">トランポリン, 複合リテラル, 省略したメンバのゼロ初期化, 構造体の値渡し, 状態の受け渡し, trampoline, compound literal, zero initialization, pass by value</span></li>
     <li><a href="/zig/write/2026-11-06">Zig / WRITE · 2026-11-06</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">型を返す関数でスタック</span> <span class="past-concepts">型を返す関数, ジェネリックな構造体, @This, 構造体のメソッド, 名前空間としての構造体, オプショナル型, type function, generic struct, struct method, fixed-capacity stack</span></li>
     <li><a href="/zig/read/2026-11-06">Zig / READ · 2026-11-06</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">同じ引数で作った型</span> <span class="past-concepts">型を返す関数, comptime関数呼び出しのメモ化, 名前空間としての構造体, コンテナレベルの変数, type function, comptime memoization, container-level variable, generic type identity</span></li>
     <li><a href="/zig/debug/2026-11-06">Zig / DEBUG · 2026-11-06</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">コピーに売った在庫</span> <span class="past-concepts">構造体のメソッド, 構造体のコピー, selfをポインタで受ける, 要素へのポインタ, struct method, struct copy, pointer receiver, value semantics</span></li>

@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="文字列か整数を持つタグ付きunionの値を、関数で整数に置き換えるZig DEBUGのドリルです。有効でないフィールドに代入すると実行時の安全検査で止まる欠陥と、union全体を代入し直す直し方を扱います。">
+<title>有効でない側への代入</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/debug/2026-11-07">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / DEBUG", "item": "https://namaran.jocarium.productions/zig/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-07" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / DEBUG — 2026-11-07",
+      "url": "https://namaran.jocarium.productions/zig/debug/2026-11-07",
+      "datePublished": "2026-11-07",
+      "dateModified": "2026-11-07",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "有効でない側への代入" },
+      "keywords": "union, pointer, panic, mutability",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "文字列か整数を持つタグ付きunionの値を、関数で整数に置き換えるZig DEBUGのドリルです。有効でないフィールドに代入すると実行時の安全検査で止まる欠陥と、union全体を代入し直す直し方を扱います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-07">C23</a>
+  <a href="/cpp/debug/2026-11-07">C++26</a>
+  <a href="/rust/debug/2026-11-07">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-07">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-07" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-07">READ</a>
+  <a href="/zig/write/2026-11-07">WRITE</a>
+  <a href="/zig/debug/2026-11-07" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="有効でない側への代入"
+  data-tags="union pointer panic mutability"
+  data-concepts="タグ付きunion, union(enum), 有効なフィールド, フィールドへの代入, 安全検査, illegal behavior, tagged union, active field, inactive union field"
+  data-level="hedgehog"
+>
+  <h2>2026-11-07</h2>
+  <div class="code-frame">
+    <p class="code-filename">set_int.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">const</span> <span class="ty">Value</span> = <span class="kw">union</span>(<span class="kw">enum</span>) { int: <span class="ty">i64</span>, text: []<span class="kw">const</span> <span class="ty">u8</span> };</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">setInt</span>(v: *<span class="ty">Value</span>, n: <span class="ty">i64</span>) <span class="ty">void</span> {</span>
+<span class="code-line">    v.int = n;</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {</span>
+<span class="code-line">    <span class="kw">var</span> out: [<span class="nu">64</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line">    <span class="kw">var</span> w = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;out);</span>
+<span class="code-line">    <span class="kw">var</span> v: <span class="ty">Value</span> = .{ .text = <span class="st">"none"</span> };</span>
+<span class="code-line">    <span class="fn">setInt</span>(&amp;v, <span class="nu">42</span>);</span>
+<span class="code-line">    <span class="kw">try</span> w.interface.<span class="fn">print</span>(<span class="st">"{d}\n"</span>, .{v.int});</span>
+<span class="code-line">    <span class="kw">try</span> w.interface.<span class="fn">flush</span>();</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    文字列か整数のどちらかを持つ <code>Value</code> を、<code>setInt</code> で整数42に置き換えてから表示するつもりのプログラムです。<code>v</code> は文字列 <code>"none"</code> を持った状態から始めます。本来は <code>42</code> と表示されます。いまは Debug ビルドで実行すると、<code>setInt</code> の中でパニックして止まり、何も表示されません。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">setInt</span>(v: *<span class="ty">Value</span>, n: <span class="ty">i64</span>) <span class="ty">void</span> {</span>
+<span class="code-line del">    v.int = n;</span>
+<span class="code-line">}</span>
+</code></pre>
+      <p>
+        タグ付きunionでは、有効なフィールドは一度に1つだけで、どれが有効かはタグが覚えています。<code>v</code> は <code>.text</code> を有効にして作ったので、タグは <code>text</code> です。<code>v.int = n</code> はフィールド <code>int</code> への代入で、タグを書き換えません。有効でないフィールドへのアクセスは、読み出しでも代入でも illegal behavior で、Debug ビルドでは安全検査が <code>access of union field 'int' while field 'text' is active</code> というパニックで止めます。安全検査を外した ReleaseFast ビルドでは止まらず、何が起きるかは決まっていません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">setInt</span>(v: *<span class="ty">Value</span>, n: <span class="ty">i64</span>) <span class="ty">void</span> {</span>
+<span class="code-line ins">    v<span class="chg">.* = .{</span> .int = n <span class="chg">}</span>;</span>
+<span class="code-line">}</span>
+</code></pre>
+      <p>
+        有効なフィールドを切り替えるには、union全体に新しい値を代入します。<code>v.* = .{ .int = n }</code> はタグを <code>int</code> にし、ペイロードに <code>n</code> を入れた値で <code>v</code> の指す先を丸ごと置き換えるので、<code>main</code> の <code>v.int</code> は有効なフィールドの読み出しになり、<code>42</code> が表示されます。<code>v.int = n</code> の形は、すでに <code>int</code> が有効なときに値だけを変える場合にだけ使えます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/debug">Today</a></li>
+    <li><a href="/zig/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
