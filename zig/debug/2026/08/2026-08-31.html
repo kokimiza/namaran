@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="同じバッファに1行ずつ読み込み、std.mem.splitScalar で取り出した名前を配列にためると、前の行の名前が化けるZig DEBUGのドリルです。分割で返るスライスが元のバッファを指していることを扱います。">
+<title>使い回した行バッファ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/debug/2026-08-31">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / DEBUG", "item": "https://namaran.jocarium.productions/zig/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-31" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / DEBUG — 2026-08-31",
+      "url": "https://namaran.jocarium.productions/zig/debug/2026-08-31",
+      "datePublished": "2026-08-31",
+      "dateModified": "2026-08-31",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "使い回した行バッファ" },
+      "keywords": "slice, aliasing, string, dangling-pointer",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "同じバッファに1行ずつ読み込み、std.mem.splitScalar で取り出した名前を配列にためると、前の行の名前が化けるZig DEBUGのドリルです。分割で返るスライスが元のバッファを指していることを扱います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-08-31">C23</a>
+  <a href="/cpp/debug/2026-08-31">C++26</a>
+  <a href="/rust/debug/2026-08-31">Rust 2024</a>
+  <a href="/haskell/debug/2026-08-31">Haskell 2010</a>
+  <a href="/zig/debug/2026-08-31" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-08-31">READ</a>
+  <a href="/zig/write/2026-08-31">WRITE</a>
+  <a href="/zig/debug/2026-08-31" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="使い回した行バッファ"
+  data-tags="slice aliasing string dangling-pointer"
+  data-concepts="splitScalar, スライス, バッファの使い回し, 別名, 共有されたメモリ, slice aliasing, buffer reuse, borrowed slice"
+  data-level="bison"
+>
+  <h2>2026-08-31</h2>
+  <div class="code-frame">
+    <p class="code-filename">names.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {</span>
+<span class="code-line">    <span class="kw">var</span> out: [<span class="nu">64</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line">    <span class="kw">var</span> w = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;out);</span>
+<span class="code-line">    <span class="kw">const</span> lines = [_][]<span class="kw">const</span> <span class="ty">u8</span>{ <span class="st">"alice,3"</span>, <span class="st">"bo,5"</span> };</span>
+<span class="code-line">    <span class="kw">var</span> buf: [<span class="nu">16</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line">    <span class="kw">var</span> names: [<span class="nu">2</span>][]<span class="kw">const</span> <span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line">    <span class="kw">for</span> (lines, <span class="nu">0</span>..) |line, i| {</span>
+<span class="code-line">        <span class="mc">@memcpy</span>(buf[<span class="nu">0</span>..line.len], line);</span>
+<span class="code-line">        <span class="kw">var</span> it = std.mem.<span class="fn">splitScalar</span>(<span class="ty">u8</span>, buf[<span class="nu">0</span>..line.len], <span class="st">','</span>);</span>
+<span class="code-line">        names[i] = it.<span class="fn">first</span>();</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="kw">try</span> w.interface.<span class="fn">print</span>(<span class="st">"{s} {s}\n"</span>, .{ names[<span class="nu">0</span>], names[<span class="nu">1</span>] });</span>
+<span class="code-line">    <span class="kw">try</span> w.interface.<span class="fn">flush</span>();</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>名前,点数</code> の形の行を1行ずつ作業用の <code>buf</code> に読み込み(ここでは <code>@memcpy</code> で読み込みの代わりにしています)、各行の名前を <code>names</code> にためてから並べて表示するつもりのプログラムです。行が <code>alice,3</code> と <code>bo,5</code> のとき、いまは <code>bo,5e bo</code> が表示されます。本来は <code>alice bo</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del"><span class="kw">var</span> <span class="chg">buf</span>: [<span class="nu">16</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line"><span class="kw">var</span> names: [<span class="nu">2</span>][]<span class="kw">const</span> <span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line"><span class="kw">for</span> (lines, <span class="nu">0</span>..) |line, i| {</span>
+<span class="code-line del">    <span class="mc">@memcpy</span>(<span class="chg">buf</span>[<span class="nu">0</span>..line.len], line);</span>
+<span class="code-line del">    <span class="kw">var</span> it = std.mem.<span class="fn">splitScalar</span>(<span class="ty">u8</span>, <span class="chg">buf</span>[<span class="nu">0</span>..line.len], <span class="st">','</span>);</span>
+</code></pre>
+      <p>
+        <code>splitScalar</code> は文字列をコピーせず、渡されたスライスの中の範囲を指すスライスを返します。1行目で <code>it.first()</code> が返すのは「<code>buf</code> の先頭から5バイト」で、<code>names[0]</code> に入るのも、文字の <code>alice</code> ではなく、この位置と長さの組です。2行目を読み込むと、<code>buf</code> の先頭4バイトが <code>bo,5</code> で上書きされ、5バイト目には1行目の <code>alice,3</code> の <code>e</code> が残ります。<code>names[0]</code> は同じ5バイトを指したままなので、表示すると <code>bo,5e</code> になります。
+      </p>
+      <p>
+        <code>names[1]</code> は2行目の先頭2バイトを指す正しい値に見えますが、これも <code>buf</code> を指していて、3行目があれば同じように書き換わります。<code>alice</code> だけが消えて <code>bo</code> になるのではなく、文字は2行目のもの、長さは1行目のものという組み合わせになるのは、スライスが位置と長さだけを持ち、中身は <code>buf</code> から読むからです。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins"><span class="kw">var</span> <span class="chg">bufs: [<span class="nu">2</span>]</span>[<span class="nu">16</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line"><span class="kw">var</span> names: [<span class="nu">2</span>][]<span class="kw">const</span> <span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line"><span class="kw">for</span> (lines, <span class="nu">0</span>..) |line, i| {</span>
+<span class="code-line ins">    <span class="mc">@memcpy</span>(<span class="chg">bufs[i]</span>[<span class="nu">0</span>..line.len], line);</span>
+<span class="code-line ins">    <span class="kw">var</span> it = std.mem.<span class="fn">splitScalar</span>(<span class="ty">u8</span>, <span class="chg">bufs[i]</span>[<span class="nu">0</span>..line.len], <span class="st">','</span>);</span>
+</code></pre>
+      <p>
+        行ごとに別の領域 <code>bufs[i]</code> に読み込めば、<code>names[i]</code> が指す <code>bufs[i]</code> を後の行が上書きすることはなく、<code>alice</code> と <code>bo</code> がそのまま残ります。行数が前もって分からないときは、<code>names</code> に入れる前に、アロケータで確保した領域へ名前をコピーします。<code>split</code> や <code>tokenize</code> で取り出したスライスは、元のバッファが書き換わらない間だけ有効だと考えて扱います。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/debug">Today</a></li>
+    <li><a href="/zig/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

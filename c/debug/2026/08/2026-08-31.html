@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="1月31日に始めた月額契約の請求日を2月から順に出すと、3月以降も29日のままになるC DEBUGのドリルです。月末に合わせて削った日を次の月へ持ち越すと、元の日が失われます。">
+<title>月末で削れた請求日</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-08-31">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-31" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-08-31",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-08-31",
+      "datePublished": "2026-08-31",
+      "dateModified": "2026-08-31",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "月末で削れた請求日" },
+      "keywords": "date-time, loop, boundary, leap-year",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "1月31日に始めた月額契約の請求日を2月から順に出すと、3月以降も29日のままになるC DEBUGのドリルです。月末に合わせて削った日を次の月へ持ち越すと、元の日が失われます。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-08-31" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-08-31">C++26</a>
+  <a href="/rust/debug/2026-08-31">Rust 2024</a>
+  <a href="/haskell/debug/2026-08-31">Haskell 2010</a>
+  <a href="/zig/debug/2026-08-31">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-08-31">READ</a>
+  <a href="/c/write/2026-08-31">WRITE</a>
+  <a href="/c/debug/2026-08-31" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="月末で削れた請求日"
+  data-tags="date-time loop boundary leap-year"
+  data-concepts="月額請求日, 月末への丸め, 日付の持ち越し, 起点の日, billing date, end of month clamp, monthly schedule"
+  data-level="bison"
+>
+  <h2>2026-08-31</h2>
+  <div class="code-frame">
+    <p class="code-filename">billing.c</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">static</span> <span class="kw">const</span> <span class="ty">int</span> days_2028[] = {<span class="nu">31</span>, <span class="nu">29</span>, <span class="nu">31</span>, <span class="nu">30</span>, <span class="nu">31</span>, <span class="nu">30</span>, <span class="nu">31</span>, <span class="nu">31</span>, <span class="nu">30</span>, <span class="nu">31</span>, <span class="nu">30</span>, <span class="nu">31</span>};</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {</span>
+<span class="code-line">    <span class="ty">int</span> day = <span class="nu">31</span>;</span>
+<span class="code-line">    <span class="kw">for</span> (<span class="ty">int</span> m = <span class="nu">2</span>; m &lt;= <span class="nu">5</span>; m++) {</span>
+<span class="code-line">        <span class="kw">if</span> (day &gt; days_2028[m - <span class="nu">1</span>]) {</span>
+<span class="code-line">            day = days_2028[m - <span class="nu">1</span>];</span>
+<span class="code-line">        }</span>
+<span class="code-line">        <span class="fn">printf</span>(<span class="st">"2028-%02d-%02d\n"</span>, m, day);</span>
+<span class="code-line">    }</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    2028年1月31日に始めた月額契約の、2月から5月までの請求日を出すつもりのプログラムです。請求日は毎月、契約した日と同じ日で、その月にその日が無ければ月末にします。いまは <code>2028-02-29</code> <code>2028-03-29</code> <code>2028-04-29</code> <code>2028-05-29</code> が1行ずつ出ます。本来は <code>2028-02-29</code> <code>2028-03-31</code> <code>2028-04-30</code> <code>2028-05-31</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del"><span class="ty">int</span> <span class="chg">day</span> = <span class="nu">31</span>;</span>
+<span class="code-line"><span class="kw">for</span> (<span class="ty">int</span> m = <span class="nu">2</span>; m &lt;= <span class="nu">5</span>; m++) {</span>
+<span class="code-line">    <span class="kw">if</span> (day &gt; days_2028[m - <span class="nu">1</span>]) {</span>
+<span class="code-line">        day = days_2028[m - <span class="nu">1</span>];</span>
+<span class="code-line">    }</span>
+</code></pre>
+      <p>
+        <code>day</code> は契約した日と、いま出している月の請求日の2役を兼ねています。2月は31日が無いので、<code>day</code> は2月の日数の29に削られます。この29が契約した日として3月に持ち越され、3月の31日とも4月の30日とも比べて小さいので、もう削られも戻されもしません。3月以降の請求日が29日に張り付くのはこのためです。
+      </p>
+      <p>
+        29という数から閏年の扱いを疑いたくなりますが、<code>days_2028</code> は2028年の正しい日数で、2月を29日にしたのも正しい結果です。月末に合わせて削る処理も、1か月分だけ見れば正しく動いています。壊れているのは、削った結果を次の月の入力にしたことで、削る前の31は1回目の代入で消えています。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins"><span class="chg"><span class="kw">const</span></span> <span class="ty">int</span> <span class="chg">start</span> = <span class="nu">31</span>;</span>
+<span class="code-line"><span class="kw">for</span> (<span class="ty">int</span> m = <span class="nu">2</span>; m &lt;= <span class="nu">5</span>; m++) {</span>
+<span class="code-line ins">    <span class="ty">int</span> day = start;</span>
+<span class="code-line">    <span class="kw">if</span> (day &gt; days_2028[m - <span class="nu">1</span>]) {</span>
+<span class="code-line">        day = days_2028[m - <span class="nu">1</span>];</span>
+<span class="code-line">    }</span>
+</code></pre>
+      <p>
+        契約した日を書き換えない <code>start</code> に分け、毎月その日から請求日を作り直します。2月に29へ削っても、その29はその月の <code>day</code> にしか残らず、3月はまた31から始まるので、3月31日、4月30日、5月31日と月ごとの末日に戻ります。月末に合わせて削る処理は、削られた分の情報を捨てるので、前の結果に1か月ずつ足していく形では、一度削られた日を取り戻せません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

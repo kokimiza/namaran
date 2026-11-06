@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="環状に並べた vector の左隣を (i - 1) % ring.size() で引くと、先頭の左隣が末尾ではなく先頭になるC++ DEBUGのドリルです。int と size_t を混ぜた式で -1 が符号なしの大きな数に変わることを扱います。">
+<title>環の左隣が先頭になる</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-08-31">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-31" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-08-31",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-08-31",
+      "datePublished": "2026-08-31",
+      "dateModified": "2026-08-31",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "環の左隣が先頭になる" },
+      "keywords": "signed-unsigned, implicit-conversion, ring-buffer, division",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "環状に並べた vector の左隣を (i - 1) % ring.size() で引くと、先頭の左隣が末尾ではなく先頭になるC++ DEBUGのドリルです。int と size_t を混ぜた式で -1 が符号なしの大きな数に変わることを扱います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-08-31">C23</a>
+  <a href="/cpp/debug/2026-08-31" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-08-31">Rust 2024</a>
+  <a href="/haskell/debug/2026-08-31">Haskell 2010</a>
+  <a href="/zig/debug/2026-08-31">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-08-31">READ</a>
+  <a href="/cpp/write/2026-08-31">WRITE</a>
+  <a href="/cpp/debug/2026-08-31" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="環の左隣が先頭になる"
+  data-tags="signed-unsigned implicit-conversion ring-buffer division"
+  data-concepts="符号なしへの変換, size_t, 環状バッファの添字, 剰余と負の数, signed unsigned conversion, usual arithmetic conversions, ring buffer index"
+  data-level="peacock"
+>
+  <h2>2026-08-31</h2>
+  <div class="code-frame">
+    <p class="code-filename">ring.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;print&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;vector&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">left_of</span>(<span class="kw">const</span> std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt;&amp; ring, <span class="ty">int</span> i) {</span>
+<span class="code-line">    <span class="kw">return</span> ring[(i - <span class="nu">1</span>) % ring.<span class="fn">size</span>()];</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="kw">const</span> std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt; ring{<span class="nu">10</span>, <span class="nu">20</span>, <span class="nu">30</span>, <span class="nu">40</span>, <span class="nu">50</span>};</span>
+<span class="code-line">    std::<span class="fn">println</span>(<span class="st">"{} {}"</span>, <span class="fn">left_of</span>(ring, <span class="nu">0</span>), <span class="fn">left_of</span>(ring, <span class="nu">2</span>));</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>left_of</code> は、輪になって並んだ <code>ring</code> の <code>i</code> 番目の左隣の値を返すつもりの関数で、先頭の左隣は末尾です。<code>left_of(ring, 0)</code> と <code>left_of(ring, 2)</code> を表示すると、64ビット環境ではいま <code>10 20</code> が出ます。本来は <code>50 20</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del"><span class="kw">return</span> ring[(i - <span class="nu">1</span>) % ring.<span class="fn">size</span>()];</span>
+</code></pre>
+      <p>
+        <code>i</code> が0のとき、<code>i - 1</code> は <code>int</code> の -1 です。C++ の <code>%</code> は割られる数の符号を持つので、<code>int</code> どうしの計算なら <code>-1 % 5</code> は -1 になり、0は出てこないはずです。ところが <code>ring.size()</code> は符号なしの <code>std::size_t</code> で、<code>int</code> と <code>std::size_t</code> の演算では、計算の前に <code>int</code> の側が <code>std::size_t</code> に変換されます。-1 は符号なしの最大値 2<sup>64</sup> - 1 = 18446744073709551615 になり、これは末尾が5なので5で割り切れます。余りは0で、先頭の左隣として先頭の10が返ります。<code>i</code> が1以上なら <code>i - 1</code> は負にならないので、<code>left_of(ring, 2)</code> は正しく20です。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins"><span class="kw">return</span> ring[(i <span class="chg">+ ring.<span class="fn">size</span>()</span> - <span class="nu">1</span>) % ring.<span class="fn">size</span>()];</span>
+</code></pre>
+      <p>
+        先に <code>ring.size()</code> を足してから1を引けば、<code>i</code> が0でも <code>0 + 5 - 1</code> は4で、途中で負になる値がありません。符号なしのまま計算しても値は変わらず、<code>4 % 5</code> で末尾の50を指します。<code>i</code> が1以上のときは5を足した分が <code>% ring.size()</code> で消えるので、これまでと同じ添字になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

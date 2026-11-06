@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="二項演算 op で x を K 個つないだ値を、K を半分にしながら求める power を書くHaskell WRITEのドリルです。つないでも値を変えない値が与えられないので、K が1のときを再帰の底にします。">
+<title>x を K 個つなぐ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-08-31">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-31" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-08-31",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-08-31",
+      "datePublished": "2026-08-31",
+      "dateModified": "2026-08-31",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "x を K 個つなぐ" },
+      "keywords": "doubling, exponentiation-by-squaring, higher-order, recursion",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "二項演算 op で x を K 個つないだ値を、K を半分にしながら求める power を書くHaskell WRITEのドリルです。つないでも値を変えない値が与えられないので、K が1のときを再帰の底にします。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-08-31">C23</a>
+  <a href="/cpp/write/2026-08-31">C++26</a>
+  <a href="/rust/write/2026-08-31">Rust 2024</a>
+  <a href="/haskell/write/2026-08-31" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/write/2026-08-31">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-08-31">READ</a>
+  <a href="/haskell/write/2026-08-31" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-08-31">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="x を K 個つなぐ"
+  data-tags="doubling exponentiation-by-squaring higher-order recursion"
+  data-concepts="繰り返し二乗, ダブリング, 二項演算の繰り返し, 単位元のない結合, exponentiation by squaring, repeated combination, semigroup power"
+  data-level="peacock"
+>
+  <h2>2026-08-31</h2>
+  <div class="code-frame">
+    <p class="code-filename">Power.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="fn">power</span> <span class="op">::</span> (a <span class="op">-&gt;</span> a <span class="op">-&gt;</span> a) <span class="op">-&gt;</span> a <span class="op">-&gt;</span> <span class="ty">Int</span> <span class="op">-&gt;</span> a</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    結合法則を満たす二項演算 <code>op</code> と値 <code>x</code>、1以上の整数 <code>k</code> を受け取り、<code>x</code> を <code>k</code> 個並べて <code>op</code> でつないだ値 <code>x `op` x `op` ... `op` x</code> を返す <code>power</code> を書いてください。結合法則とは、<code>(a `op` b) `op` c</code> と <code>a `op` (b `op` c)</code> がいつも等しいことで、つなぐ順番の区切り方を変えても結果は同じです。<code>k</code> が1なら <code>x</code> をそのまま返します。<code>k</code> が10<sup>6</sup> 程度でも、<code>op</code> を呼ぶ回数が数十回で済むようにしてください。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>power (++) "ab" 3</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>"ababab"</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>power (*) 2 10</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>1024</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>power max 7 1</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>7</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="fn">power</span> <span class="op">::</span> (a <span class="op">-&gt;</span> a <span class="op">-&gt;</span> a) <span class="op">-&gt;</span> a <span class="op">-&gt;</span> <span class="ty">Int</span> <span class="op">-&gt;</span> a</span>
+<span class="code-line ins"><span class="fn">power</span> op x k</span>
+<span class="code-line ins">  | k == <span class="nu">1</span> = x</span>
+<span class="code-line ins">  | even k = power op (op x x) (k `div` <span class="nu">2</span>)</span>
+<span class="code-line ins">  | otherwise = op x (power op (op x x) (k `div` <span class="nu">2</span>))</span>
+</code></pre>
+      </div>
+      <p>
+        <code>x</code> を <code>k</code> 個つないだものは、<code>k</code> が偶数なら、<code>op x x</code> を <code>k / 2</code> 個つないだものと同じです。結合法則があるので、2個ずつ区切ってから全体をつないでも値は変わりません。<code>k</code> が奇数なら、先頭の <code>x</code> を1つ外した残り <code>k - 1</code> 個が偶数なので、同じように <code>op x x</code> を <code>k `div` 2</code> 個つないだものに先頭の <code>x</code> をつなぎます。どちらの場合も <code>k</code> が半分になるので、10<sup>6</sup> でも20段ほどで1に着きます。これは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        見慣れた形は「<code>k</code> が0なら1を返す」から始めますが、ここでは0個つないだときに返す値、たとえば掛け算の1や連結の空文字列にあたるものが <code>op</code> と一緒に渡されていません。そのため0ではなく1を再帰の底にし、<code>k `div` 2</code> が0になる呼び出しを作らないようにします。<code>k</code> が2以上なら <code>k `div` 2</code> は1以上で、底の <code>k == 1</code> に必ず届きます。入力例1は <code>k</code> が3で奇数なので、<code>"ab" ++ power (++) "abab" 1</code> になり、<code>"ababab"</code> です。入力例3の <code>k</code> が1のときは、<code>op</code> を一度も呼ばずに <code>x</code> が返ります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

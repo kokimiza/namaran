@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="日付に n か月を足す add_months を、起点が月末なら結果も月末にする決まりで書くC WRITEのドリルです。行き先の月に同じ日が無いときの扱いと、閏年の2月28日が月末かどうかを区別します。">
+<title>月末から始まる月加算</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-08-31">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-31" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-08-31",
+      "url": "https://namaran.jocarium.productions/c/write/2026-08-31",
+      "datePublished": "2026-08-31",
+      "dateModified": "2026-08-31",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "月末から始まる月加算" },
+      "keywords": "date-time, leap-year, struct, boundary",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "日付に n か月を足す add_months を、起点が月末なら結果も月末にする決まりで書くC WRITEのドリルです。行き先の月に同じ日が無いときの扱いと、閏年の2月28日が月末かどうかを区別します。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-08-31" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-08-31">C++26</a>
+  <a href="/rust/write/2026-08-31">Rust 2024</a>
+  <a href="/haskell/write/2026-08-31">Haskell 2010</a>
+  <a href="/zig/write/2026-08-31">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-08-31">READ</a>
+  <a href="/c/write/2026-08-31" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-08-31">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="月末から始まる月加算"
+  data-tags="date-time leap-year struct boundary"
+  data-concepts="月の加算, 月末, 月末ルール, 閏年, 日付計算, add months, end-of-month rule, last day of month"
+  data-level="peacock"
+>
+  <h2>2026-08-31</h2>
+  <div class="code-frame">
+    <p class="code-filename">add_months.c</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">struct</span> <span class="ty">date</span> {</span>
+<span class="code-line">    <span class="ty">int</span> y, m, d;</span>
+<span class="code-line">};</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">struct</span> <span class="ty">date</span> <span class="fn">add_months</span>(<span class="kw">struct</span> <span class="ty">date</span> t, <span class="ty">int</span> n) {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    年 <code>y</code>、月 <code>m</code>(1〜12)、日 <code>d</code> の正しい日付 <code>t</code> に、0以上の整数 <code>n</code> か月を足した日付を返す <code>add_months</code> を書いてください。行き先の月は <code>m</code> から <code>n</code> か月進めた月で、12月を越えたら年が進みます。日は次の決まりで選びます。<code>t</code> がその月の末日なら、行き先の月の末日にします。そうでなければ <code>d</code> のままにし、行き先の月に <code>d</code> 日が無ければその月の末日にします。<code>n</code> が0なら <code>t</code> をそのまま返します。閏年は、4で割り切れる年のうち、100で割り切れて400で割り切れない年を除いたものです。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>add_months((struct date){2025, 1, 31}, 1)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>{2025, 2, 28}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>add_months((struct date){2025, 2, 28}, 1)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>{2025, 3, 31}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>add_months((struct date){2024, 2, 28}, 1)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>{2024, 3, 28}</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="kw">struct</span> <span class="ty">date</span> {</span>
+<span class="code-line">    <span class="ty">int</span> y, m, d;</span>
+<span class="code-line">};</span>
+<span class="code-line"></span>
+<span class="code-line ins"><span class="kw">static</span> <span class="ty">int</span> <span class="fn">days_in</span>(<span class="ty">int</span> y, <span class="ty">int</span> m) {</span>
+<span class="code-line ins">    <span class="kw">static</span> <span class="kw">const</span> <span class="ty">int</span> days[] = {<span class="nu">31</span>, <span class="nu">28</span>, <span class="nu">31</span>, <span class="nu">30</span>, <span class="nu">31</span>, <span class="nu">30</span>, <span class="nu">31</span>, <span class="nu">31</span>, <span class="nu">30</span>, <span class="nu">31</span>, <span class="nu">30</span>, <span class="nu">31</span>};</span>
+<span class="code-line ins">    <span class="ty">bool</span> leap = y % <span class="nu">4</span> == <span class="nu">0</span> &amp;&amp; (y % <span class="nu">100</span> != <span class="nu">0</span> || y % <span class="nu">400</span> == <span class="nu">0</span>);</span>
+<span class="code-line ins">    <span class="kw">return</span> m == <span class="nu">2</span> &amp;&amp; leap ? <span class="nu">29</span> : days[m - <span class="nu">1</span>];</span>
+<span class="code-line ins">}</span>
+<span class="code-line ins"></span>
+<span class="code-line"><span class="kw">struct</span> <span class="ty">date</span> <span class="fn">add_months</span>(<span class="kw">struct</span> <span class="ty">date</span> t, <span class="ty">int</span> n) {</span>
+<span class="code-line ins">    <span class="ty">int</span> k = t.m - <span class="nu">1</span> + n;</span>
+<span class="code-line ins">    <span class="kw">struct</span> <span class="ty">date</span> r = {t.y + k / <span class="nu">12</span>, k % <span class="nu">12</span> + <span class="nu">1</span>, t.d};</span>
+<span class="code-line ins">    <span class="ty">int</span> last = <span class="fn">days_in</span>(r.y, r.m);</span>
+<span class="code-line ins">    <span class="kw">if</span> (t.d == <span class="fn">days_in</span>(t.y, t.m) || r.d &gt; last) {</span>
+<span class="code-line ins">        r.d = last;</span>
+<span class="code-line ins">    }</span>
+<span class="code-line ins">    <span class="kw">return</span> r;</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        日を選ぶには月の日数が2回要ります。起点が月末かどうかを決める <code>t</code> の月の日数と、頭打ちにする行き先の月の日数です。そこで月の日数を返す <code>days_in</code> を先に用意し、2月だけは閏年の規則で29日にします。行き先の年と月は、月を0始まりに直した <code>k = t.m - 1 + n</code> を12で割った商と余りで求めます。1始まりのまま <code>(t.m + n) % 12</code> とすると、12月が0月になってしまいます。<code>n</code> は0以上なので、<code>k</code> も負にならず、C の <code>/</code> と <code>%</code> をそのまま使えます。これは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        入力例1の1月31日は月末なので、行き先の2025年2月の末日の28日になります。入力例2の2025年2月28日も月末で、3月の末日の31日へ進みます。入力例3は同じ2月28日でも、2024年は閏年なので2月の末日は29日で、28日は月末ではありません。日は28日のまま残り、3月には28日があるので <code>{2024, 3, 28}</code> です。<code>t.d == 28 &amp;&amp; t.m == 2</code> のように日付の形で月末を判定すると、この例を間違えます。<code>n</code> が0のときは行き先が <code>t</code> と同じ月になり、月末なら同じ末日に、そうでなければ同じ日になるので、<code>t</code> がそのまま返ります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

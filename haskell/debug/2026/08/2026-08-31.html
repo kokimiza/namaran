@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="iterate (\g -&gt; g . g) で関数を自分自身と合成して2の40乗回先を求めると終わらないHaskell DEBUGのドリルです。関数合成は計算を前倒ししないことと、配列に書き出して値を共有することを扱います。">
+<title>合成しただけのダブリング</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-08-31">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-31" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-08-31",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-08-31",
+      "datePublished": "2026-08-31",
+      "dateModified": "2026-08-31",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "合成しただけのダブリング" },
+      "keywords": "doubling, laziness, memoization, higher-order, infinite-loop",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "iterate (\\g -> g . g) で関数を自分自身と合成して2の40乗回先を求めると終わらないHaskell DEBUGのドリルです。関数合成は計算を前倒ししないことと、配列に書き出して値を共有することを扱います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-08-31">C23</a>
+  <a href="/cpp/debug/2026-08-31">C++26</a>
+  <a href="/rust/debug/2026-08-31">Rust 2024</a>
+  <a href="/haskell/debug/2026-08-31" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/debug/2026-08-31">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-08-31">READ</a>
+  <a href="/haskell/write/2026-08-31">WRITE</a>
+  <a href="/haskell/debug/2026-08-31" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="合成しただけのダブリング"
+  data-tags="doubling laziness memoization higher-order infinite-loop"
+  data-concepts="関数合成, ダブリング, 遅延評価, メモ化, Data.Array, function composition, doubling, memoization, sharing"
+  data-level="bison"
+>
+  <h2>2026-08-31</h2>
+  <div class="code-frame">
+    <p class="code-filename">Jump.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="fn">step</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Int</span></span>
+<span class="code-line"><span class="fn">step</span> x = (x * x + <span class="nu">1</span>) `mod` <span class="nu">1000</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()</span>
+<span class="code-line"><span class="fn">main</span> = print ((iterate (\g <span class="op">-&gt;</span> g . g) step !! <span class="nu">40</span>) <span class="nu">2</span>)</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    0〜999 の値を <code>step</code> で次の値へ進める処理を、2から始めて2<sup>40</sup> 回繰り返した結果を、回数を倍々にしていく方法で速く求めるつもりのプログラムです。いまは何も表示されないまま終わりません。本来は <code>330</code> がすぐに表示されます。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del"><span class="fn">main</span> = print ((iterate (\g <span class="op">-&gt;</span> g . g) step !! <span class="nu">40</span>) <span class="nu">2</span>)</span>
+</code></pre>
+      <p>
+        <code>iterate (\g -&gt; g . g) step</code> の <code>j</code> 番目は、<code>step</code> を2<sup>j</sup> 回合成した関数で、意味の上では正しく2<sup>40</sup> 回先を表しています。しかし <code>g . g</code> は「<code>g</code> を呼んでから、もう一度 <code>g</code> を呼ぶ」という関数を作るだけで、<code>g</code> の結果を前もって計算してはおきません。40段目の関数を2に適用すると、39段目の関数が2回呼ばれ、それぞれが38段目を2回呼び、と枝分かれして、最後に <code>step</code> そのものが2<sup>40</sup> 回、約1.1兆回呼ばれます。回数を倍にする表を作ったつもりでも、手間は1回ずつ進めるのと変わりません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins"><span class="kw">import</span> <span class="ty">Data.Array</span></span>
+<span class="code-line ins"></span>
+<span class="code-line ins"><span class="fn">memo</span> <span class="op">::</span> (<span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Int</span>) <span class="op">-&gt;</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Int</span></span>
+<span class="code-line ins"><span class="fn">memo</span> g = (table !)</span>
+<span class="code-line ins"> <span class="kw">where</span></span>
+<span class="code-line ins">  table = listArray (<span class="nu">0</span>, <span class="nu">999</span>) (map g [<span class="nu">0</span> .. <span class="nu">999</span>])</span>
+<span class="code-line ins"></span>
+<span class="code-line ins"><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()</span>
+<span class="code-line ins"><span class="fn">main</span> = print ((iterate (\g <span class="op">-&gt;</span> <span class="chg">memo (</span>g . g<span class="chg">)</span>) step !! <span class="nu">40</span>) <span class="nu">2</span>)</span>
+</code></pre>
+      <p>
+        値は0〜999の1000通りしかないので、各段の関数を、すべての値に対する結果を並べた配列に書き出します。<code>memo g</code> が返すのは配列 <code>table</code> を引く関数で、<code>table</code> の各要素は <code>g</code> を呼ぶ計算として遅延されたまま置かれ、最初に引かれたときに一度だけ計算されて、その後は結果が共有されます。次の段の <code>g . g</code> が呼ぶ <code>g</code> は前の段の配列を引く関数なので、1回の呼び出しは配列を2回引くだけです。各段で計算する要素は高々1000個、40段で4万回ほどで済みます。配列に使う <code>Data.Array</code> は、Haskell 2010 の報告書に含まれる標準のライブラリです。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

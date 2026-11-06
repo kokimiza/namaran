@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="struct tm の月と日に範囲外の値を入れて mktime で正規化し、2月30日と3月0日がどの日付になるかを読むC READのドリルです。月の繰り上がり、0日の意味、閏年が同時に効きます。">
+<title>0日は前の月の末日</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-08-31">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-31" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-08-31",
+      "url": "https://namaran.jocarium.productions/c/read/2026-08-31",
+      "datePublished": "2026-08-31",
+      "dateModified": "2026-08-31",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "0日は前の月の末日" },
+      "keywords": "date-time, leap-year, struct, boundary",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "struct tm の月と日に範囲外の値を入れて mktime で正規化し、2月30日と3月0日がどの日付になるかを読むC READのドリルです。月の繰り上がり、0日の意味、閏年が同時に効きます。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-08-31" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-08-31">C++26</a>
+  <a href="/rust/read/2026-08-31">Rust 2024</a>
+  <a href="/haskell/read/2026-08-31">Haskell 2010</a>
+  <a href="/zig/read/2026-08-31">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-08-31" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-08-31">WRITE</a>
+  <a href="/c/debug/2026-08-31">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="0日は前の月の末日"
+  data-tags="date-time leap-year struct boundary"
+  data-concepts="mktime, 日付の正規化, 月末, 0日, 閏年, struct tm, date normalization, last day of month"
+  data-level="bison"
+>
+  <h2>2026-08-31</h2>
+  <div class="code-frame">
+    <p class="code-filename">month_end.c</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;time.h&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {</span>
+<span class="code-line">    <span class="kw">struct</span> <span class="ty">tm</span> a = {.tm_year = <span class="nu">123</span>, .tm_mon = <span class="nu">10</span>, .tm_mday = <span class="nu">30</span>, .tm_hour = <span class="nu">12</span>, .tm_isdst = -<span class="nu">1</span>};</span>
+<span class="code-line">    <span class="kw">struct</span> <span class="ty">tm</span> b = a;</span>
+<span class="code-line">    a.tm_mon += <span class="nu">3</span>;</span>
+<span class="code-line">    b.tm_mon += <span class="nu">4</span>;</span>
+<span class="code-line">    b.tm_mday = <span class="nu">0</span>;</span>
+<span class="code-line">    <span class="fn">mktime</span>(&amp;a);</span>
+<span class="code-line">    <span class="fn">mktime</span>(&amp;b);</span>
+<span class="code-line">    <span class="fn">printf</span>(<span class="st">"%d-%02d-%02d\n"</span>, a.tm_year + <span class="nu">1900</span>, a.tm_mon + <span class="nu">1</span>, a.tm_mday);</span>
+<span class="code-line">    <span class="fn">printf</span>(<span class="st">"%d-%02d-%02d\n"</span>, b.tm_year + <span class="nu">1900</span>, b.tm_mon + <span class="nu">1</span>, b.tm_mday);</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>2024-03-01
+2024-02-29</samp></pre>
+      </div>
+      <p>
+        <code>struct tm</code> の <code>tm_year</code> は1900年からの年数、<code>tm_mon</code> は1月を0とする月です。<code>a</code> と <code>b</code> はどちらも2023年11月30日から始まります。<code>mktime</code> は範囲外の値を受け付け、あふれた分を上の桁へ繰り上げたり下げたりして、正しい日付に直してから構造体に書き戻します。
+      </p>
+      <p>
+        <code>a</code> は <code>tm_mon</code> が10から13になります。13か月は1年と1か月なので、2024年の2月です。日は30のままですが、2024年は4で割り切れて100では割り切れないので閏年で、2月は29日までしかありません。2月30日は2月29日の翌日として3月1日になります。<code>b</code> は <code>tm_mon</code> が14で2024年3月、日が0です。0日は1日の前の日なので、3月1日の前日の2月29日を指します。翌々月の0日を作ると、翌月の末日がその月の長さを調べずに得られます。
+      </p>
+      <p>
+        どれか1つの規則を落とすと、それぞれ別の答えになります。<code>mktime</code> があふれた日を月末で止めると考えると <code>a</code> は <code>2024-02-29</code> です。閏年を忘れると、2月30日は3月2日、3月0日は2月28日になります。0日を1日と同じに扱うと <code>b</code> は <code>2024-03-01</code> で、月の13と14を年に繰り上げなければ年は2023のままです。<code>tm_hour</code> を12にして <code>tm_isdst</code> を -1 にしてあるのは、夏時間の切り替えで時刻が前後しても日付が動かないようにするためです。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

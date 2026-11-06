@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="次の状態を並べたリストを map (t !!) t で自分自身とつなぎ直し、iterate が作る表の !! 2 が何歩先を表すかを読むHaskell READのドリルです。表をたどり直すたびに歩数が倍になることを扱います。">
+<title>自分でたどる行き先表</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-08-31">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-31" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-08-31",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-08-31",
+      "datePublished": "2026-08-31",
+      "dateModified": "2026-08-31",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "自分でたどる行き先表" },
+      "keywords": "doubling, list, higher-order",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "次の状態を並べたリストを map (t !!) t で自分自身とつなぎ直し、iterate が作る表の !! 2 が何歩先を表すかを読むHaskell READのドリルです。表をたどり直すたびに歩数が倍になることを扱います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-08-31">C23</a>
+  <a href="/cpp/read/2026-08-31">C++26</a>
+  <a href="/rust/read/2026-08-31">Rust 2024</a>
+  <a href="/haskell/read/2026-08-31" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/read/2026-08-31">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-08-31" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-08-31">WRITE</a>
+  <a href="/haskell/debug/2026-08-31">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="自分でたどる行き先表"
+  data-tags="doubling list higher-order"
+  data-concepts="ダブリング, 行き先の表, 表の合成, iterate, 2のべき乗回先, doubling, successor table, functional graph"
+  data-level="hedgehog"
+>
+  <h2>2026-08-31</h2>
+  <div class="code-frame">
+    <p class="code-filename">Doubling.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()</span>
+<span class="code-line"><span class="fn">main</span> = <span class="kw">do</span></span>
+<span class="code-line">  <span class="kw">let</span> next = [<span class="nu">3</span>, <span class="nu">0</span>, <span class="nu">4</span>, <span class="nu">1</span>, <span class="nu">2</span>] <span class="op">::</span> [<span class="ty">Int</span>]</span>
+<span class="code-line">      tables = iterate (\t <span class="op">-&gt;</span> map (t !!) t) next</span>
+<span class="code-line">  print (tables !! <span class="nu">2</span>)</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>[3,0,2,1,4]</samp></pre>
+      </div>
+      <p>
+        <code>next</code> は、状態 <code>i</code> の次の状態を <code>next !! i</code> に置いた表です。<code>map (t !!) t</code> は <code>t</code> の各要素 <code>j</code> を <code>t !! j</code> に置き換えるので、<code>i</code> 番目は <code>t !! (t !! i)</code> で、<code>t</code> を2回たどった先になります。<code>iterate</code> は <code>[next, f next, f (f next), ...]</code> を作るので、<code>tables !! 1</code> は <code>next</code> を2回、<code>tables !! 2</code> はその2回分の表をさらに2回たどった、4歩先の表です。
+      </p>
+      <p>
+        実際に追うと、<code>tables !! 1</code> は <code>[next !! 3, next !! 0, next !! 4, next !! 1, next !! 2]</code> で <code>[1,3,2,0,4]</code> です。これを <code>u</code> とすると、<code>tables !! 2</code> は <code>[u !! 1, u !! 3, u !! 2, u !! 0, u !! 4]</code> で <code>[3,0,2,1,4]</code> になります。<code>!! 2</code> を2回つないだ表と読むと、<code>tables !! 1</code> の <code>[1,3,2,0,4]</code> と答えてしまいます。段を1つ進めるたびに、足されるのは1歩ではなく、それまでの歩数と同じだけで、歩数は1、2、4と倍になっていきます。<code>next</code> は、0→3→1→0 と回る3状態の輪と、2→4→2 と回る2状態の輪でできています。4歩進むと、3状態の輪では1歩進んだのと同じ位置に、2状態の輪では元の位置に来るので、出力の検算にもなります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

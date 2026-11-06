@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="一次元に並べた格子で上下左右のマスを添字の ±1 と ±w で数えると、行の端で隣の行のマスを数えてしまうRust DEBUGのドリルです。wrapping_sub と get の範囲検査が、どの端を守りどの端を素通りさせるかを扱います。">
+<title>左隣は前の行の右端</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-08-31">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-31" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-08-31",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-08-31",
+      "datePublished": "2026-08-31",
+      "dateModified": "2026-08-31",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "左隣は前の行の右端" },
+      "keywords": "multidimensional-array, boundary, slice, off-by-one",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "一次元に並べた格子で上下左右のマスを添字の ±1 と ±w で数えると、行の端で隣の行のマスを数えてしまうRust DEBUGのドリルです。wrapping_sub と get の範囲検査が、どの端を守りどの端を素通りさせるかを扱います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-08-31">C23</a>
+  <a href="/cpp/debug/2026-08-31">C++26</a>
+  <a href="/rust/debug/2026-08-31" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-08-31">Haskell 2010</a>
+  <a href="/zig/debug/2026-08-31">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-08-31">READ</a>
+  <a href="/rust/write/2026-08-31">WRITE</a>
+  <a href="/rust/debug/2026-08-31" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="左隣は前の行の右端"
+  data-tags="multidimensional-array boundary slice off-by-one"
+  data-concepts="一次元の格子, 隣接マス, 行の折り返し, wrapping_sub, get, flat grid neighbors, row wrap, bounds check"
+  data-level="bison"
+>
+  <h2>2026-08-31</h2>
+  <div class="code-frame">
+    <p class="code-filename">mines.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">around</span>(grid: &amp;[<span class="ty">u8</span>], w: <span class="ty">usize</span>, i: <span class="ty">usize</span>) -&gt; <span class="ty">usize</span> {</span>
+<span class="code-line">    [i.<span class="fn">wrapping_sub</span>(<span class="nu">1</span>), i + <span class="nu">1</span>, i.<span class="fn">wrapping_sub</span>(w), i + w]</span>
+<span class="code-line">        .<span class="fn">into_iter</span>()</span>
+<span class="code-line">        .<span class="fn">filter</span>(|&amp;j| grid.<span class="fn">get</span>(j) == <span class="fn">Some</span>(&amp;<span class="st">b'#'</span>))</span>
+<span class="code-line">        .<span class="fn">count</span>()</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="kw">let</span> grid = <span class="st">b"..#\</span></span>
+<span class="code-line"><span class="st">                 #..\</span></span>
+<span class="code-line"><span class="st">                 ..."</span>;</span>
+<span class="code-line">    <span class="kw">let</span> counts: <span class="ty">Vec</span>&lt;<span class="ty">usize</span>&gt; = (<span class="nu">0</span>..grid.<span class="fn">len</span>()).<span class="fn">map</span>(|i| <span class="fn">around</span>(grid, <span class="nu">3</span>, i)).<span class="fn">collect</span>();</span>
+<span class="code-line">    <span class="mc">println!</span>(<span class="st">"{counts:?}"</span>);</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>around</code> は、幅 <code>w</code> の格子を1行ずつつないだバイト列 <code>grid</code> について、<code>i</code> 番目のマスの上下左右にある <code>#</code> の数を返すつもりの関数です。格子の外は数えません。3×3の格子の全マスについて数えると、いまは <code>[1, 1, 1, 1, 1, 1, 1, 0, 0]</code> が出ます。本来は <code>[1, 1, 0, 0, 1, 1, 1, 0, 0]</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line">[i.<span class="fn">wrapping_sub</span>(<span class="nu">1</span>), i + <span class="nu">1</span>, i.<span class="fn">wrapping_sub</span>(w), i + w]</span>
+<span class="code-line">    .<span class="fn">into_iter</span>()</span>
+<span class="code-line">    .<span class="fn">filter</span>(|&amp;j| grid.<span class="fn">get</span>(j) == <span class="fn">Some</span>(&amp;<span class="st">b'#'</span>))</span>
+</code></pre>
+      <p>
+        間違っているのは添字2と3で、格子では1行目の右端と2行目の左端です。1行目の右端の添字2に1を足した3は、一次元の並びでは隣ですが、格子では2行目の左端にあたります。そこにある <code>#</code> を、<code>i + 1</code> は右隣として数えてしまいます。添字3から1を引いた2も同じで、1行目の右端の <code>#</code> が左隣として数えられます。
+      </p>
+      <p>
+        このコードは、格子の外を2つの仕組みで除いているように見えます。上の端では <code>i.wrapping_sub(w)</code> が <code>usize</code> の最大値付近まで回り込み、下の端では <code>i + w</code> が <code>grid.len()</code> 以上になって、どちらも <code>grid.get(j)</code> が <code>None</code> を返します。添字0の左隣も、<code>wrapping_sub(1)</code> が最大値になって除かれます。しかし <code>get</code> が見ているのはバイト列全体の長さだけで、行の境目は知りません。左右の端で隣の行へはみ出した添字は、列の外なのにバイト列の中に収まっていて、どちらの仕組みにも掛かりません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line">[i.<span class="fn">wrapping_sub</span>(<span class="nu">1</span>), i + <span class="nu">1</span>, i.<span class="fn">wrapping_sub</span>(w), i + w]</span>
+<span class="code-line">    .<span class="fn">into_iter</span>()</span>
+<span class="code-line ins">    .<span class="fn">filter</span>(|&amp;j| j / w == i / w || j % w == i % w)</span>
+<span class="code-line">    .<span class="fn">filter</span>(|&amp;j| grid.<span class="fn">get</span>(j) == <span class="fn">Some</span>(&amp;<span class="st">b'#'</span>))</span>
+</code></pre>
+      <p>
+        添字 <code>j</code> の行は <code>j / w</code>、列は <code>j % w</code> です。左右の隣は同じ行に、上下の隣は同じ列にあるはずなので、行か列のどちらかが <code>i</code> と一致するものだけを残します。添字2の右の3は <code>j / w</code> が1、<code>j % w</code> が0で、<code>i</code> が2のときの0と2のどちらとも一致しないので除かれます。上下の候補は <code>w</code> の倍数だけずれているので列が一致し、これまでどおり <code>get</code> が格子の外を除きます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="key=value の形の行から、最初の = より後ろの部分を返し、= が無ければ null を返す valueOf を書くZig WRITEのドリルです。std.mem.findScalar の戻り値 ?usize と、スライスの切り出しを扱います。">
+<title>最初の等号の右側</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/write/2026-08-31">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / WRITE", "item": "https://namaran.jocarium.productions/zig/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-31" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / WRITE — 2026-08-31",
+      "url": "https://namaran.jocarium.productions/zig/write/2026-08-31",
+      "datePublished": "2026-08-31",
+      "dateModified": "2026-08-31",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "最初の等号の右側" },
+      "keywords": "string, optional, slice, string-search",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "key=value の形の行から、最初の = より後ろの部分を返し、= が無ければ null を返す valueOf を書くZig WRITEのドリルです。std.mem.findScalar の戻り値 ?usize と、スライスの切り出しを扱います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-08-31">C23</a>
+  <a href="/cpp/write/2026-08-31">C++26</a>
+  <a href="/rust/write/2026-08-31">Rust 2024</a>
+  <a href="/haskell/write/2026-08-31">Haskell 2010</a>
+  <a href="/zig/write/2026-08-31" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-08-31">READ</a>
+  <a href="/zig/write/2026-08-31" class="active" aria-current="page">WRITE</a>
+  <a href="/zig/debug/2026-08-31">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="最初の等号の右側"
+  data-tags="string optional slice string-search"
+  data-concepts="findScalar, indexOfScalar, 文字の探索, キーと値, オプショナル, string search, key value, optional slice"
+  data-level="hedgehog"
+>
+  <h2>2026-08-31</h2>
+  <div class="code-frame">
+    <p class="code-filename">value_of.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">valueOf</span>(line: []<span class="kw">const</span> <span class="ty">u8</span>) ?[]<span class="kw">const</span> <span class="ty">u8</span> {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>key=value</code> の形の設定行 <code>line</code> から、最初の <code>=</code> より後ろの部分を返す <code>valueOf</code> を書いてください。値の中にさらに <code>=</code> があってもそのまま含めます。<code>=</code> が行末にあれば空のスライスを返し、<code>=</code> が1つも無ければ <code>null</code> を返します。メモリは確保しません。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>valueOf("port=8080")</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>"8080"</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>valueOf("a=b=c")</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>"b=c"</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>valueOf("debug")</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>null</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">valueOf</span>(line: []<span class="kw">const</span> <span class="ty">u8</span>) ?[]<span class="kw">const</span> <span class="ty">u8</span> {</span>
+<span class="code-line ins">    <span class="kw">const</span> i = std.mem.<span class="fn">findScalar</span>(<span class="ty">u8</span>, line, <span class="st">'='</span>) <span class="kw">orelse</span> <span class="kw">return</span> <span class="nu">null</span>;</span>
+<span class="code-line ins">    <span class="kw">return</span> line[i + <span class="nu">1</span> ..];</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        <code>std.mem.findScalar</code> は、スライスを先頭から探して、指定した値が最初に現れる位置を <code>?usize</code> で返し、見つからなければ <code>null</code> を返します。Zig 0.17 では、以前の名前の <code>indexOfScalar</code> もこの関数の別名として残っていますが、非推奨になっています。<code>orelse return null</code> で、見つからなかったときはそのまま <code>null</code> を返し、見つかったときは <code>i</code> が <code>usize</code> の位置になります。値は <code>=</code> の次の位置から行末までなので、<code>line[i + 1 ..]</code> で切り出します。これは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        入力例2では最初の <code>=</code> が位置1にあるので、位置2からの <code>"b=c"</code> が返ります。<code>std.mem.splitScalar</code> で分けて2つ目の欄を取ると <code>"b"</code> になり、値の中の <code>=</code> で切れてしまいます。<code>=</code> が行末にあるときは <code>i + 1</code> が <code>line.len</code> に等しく、<code>line[line.len..]</code> は範囲外ではなく長さ0のスライスなので、空の値が返ります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/write">Today</a></li>
+    <li><a href="/zig/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
