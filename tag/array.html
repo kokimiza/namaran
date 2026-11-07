@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「配列」を扱ったNamaranのコーディングドリル68問。Data.Array、境界チェック、inRange、bounds、2次元配列、数え上げ。">
+<meta name="description" content="「配列」を扱ったNamaranのコーディングドリル71問。配列の連結、繰り返し、++演算子、comptime引数、comptime var、inline for。">
 <title>配列</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/array">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>配列</h2>
 
   <p class="lede">
-    「配列」を扱った68問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「配列」を扱った71問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/write/2026-11-08">Zig / WRITE · 2026-11-08</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">文字列をn回つなぐ</span> <span class="past-concepts">配列の連結, 繰り返し, ++演算子, comptime引数, comptime var, inline for, array concatenation, repeat string, compile-time loop</span></li>
+    <li><a href="/zig/read/2026-11-08">Zig / READ · 2026-11-08</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">配列を++でつなぐ</span> <span class="past-concepts">配列の連結, ++演算子, コンパイル時に分かる値, 配列の長さ, array concatenation, comptime-known, array length</span></li>
+    <li><a href="/zig/debug/2026-11-08">Zig / DEBUG · 2026-11-08</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">対角線だけ塗るマス目</span> <span class="past-concepts">@splat, 配列の初期化, スライスのコピー, 同じバッファを共有, 二次元配列, エイリアシング, array of slices, shared buffer, aliasing</span></li>
     <li><a href="/haskell/read/2026-11-07">Haskell / READ · 2026-11-07</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">盤に残った跳び先</span> <span class="past-concepts">Data.Array, 境界チェック, inRange, bounds, 2次元配列, 数え上げ, 和の順序の入れ替え, array bounds check, Ix, counting</span></li>
     <li><a href="/haskell/debug/2026-11-07">Haskell / DEBUG · 2026-11-07</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">範囲内なのに未定義</span> <span class="past-concepts">Data.Array, listArray, 累積和, scanl, scanl1, 未定義の配列要素, 境界チェック, prefix sum, undefined array element, bounds check</span></li>
     <li><a href="/c/read/2026-11-06">C / READ · 2026-11-06</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">桁をそろえた0</span> <span class="past-concepts">8進数リテラル, 先頭の0, 整数リテラルの接頭辞, 基数, octal literal, leading zero, integer constant prefix</span></li>

@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="範囲の先頭と終端のポインタを受け取り、最大要素を指すポインタを返すC READのドリルです。同じ値が並んだときにどれを指すかと、空の範囲で返るポインタを扱います。">
+<title>空範囲の最大要素の位置</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-11-08">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-08" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-11-08",
+      "url": "https://namaran.jocarium.productions/c/read/2026-11-08",
+      "datePublished": "2026-11-08",
+      "dateModified": "2026-11-08",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "空範囲の最大要素の位置" },
+      "keywords": "pointer, half-open-interval, boundary, comparison",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "範囲の先頭と終端のポインタを受け取り、最大要素を指すポインタを返すC READのドリルです。同じ値が並んだときにどれを指すかと、空の範囲で返るポインタを扱います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-08" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-11-08">C++26</a>
+  <a href="/rust/read/2026-11-08">Rust 2024</a>
+  <a href="/haskell/read/2026-11-08">Haskell 2010</a>
+  <a href="/zig/read/2026-11-08">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-08" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-11-08">WRITE</a>
+  <a href="/c/debug/2026-11-08">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="空範囲の最大要素の位置"
+  data-tags="pointer half-open-interval boundary comparison"
+  data-concepts="最大要素, 空の範囲, 末尾の次を指すポインタ, ポインタの引き算, 同点の扱い, max element, empty range, one past the end"
+  data-level="bison"
+>
+  <h2>2026-11-08</h2>
+  <div class="code-frame">
+    <p class="code-filename">max_elem.c</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span>* <span class="fn">max_elem</span>(<span class="ty">int</span>* first, <span class="ty">int</span>* last) {</span>
+<span class="code-line">    <span class="ty">int</span>* best = first;</span>
+<span class="code-line">    <span class="kw">for</span> (<span class="ty">int</span>* p = first; p != last; p++)</span>
+<span class="code-line">        <span class="kw">if</span> (*p &gt;= *best)</span>
+<span class="code-line">            best = p;</span>
+<span class="code-line">    <span class="kw">return</span> best;</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {</span>
+<span class="code-line">    <span class="ty">int</span> a[] = {<span class="nu">4</span>, <span class="nu">7</span>, <span class="nu">7</span>, <span class="nu">2</span>};</span>
+<span class="code-line">    <span class="kw">for</span> (<span class="ty">int</span> k = <span class="nu">0</span>; k &lt;= <span class="nu">4</span>; k += <span class="nu">2</span>)</span>
+<span class="code-line">        <span class="fn">printf</span>(<span class="st">"%td "</span>, <span class="fn">max_elem</span>(a + k, a + <span class="nu">4</span>) - a);</span>
+<span class="code-line">    <span class="fn">printf</span>(<span class="st">"\n"</span>);</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>2 2 4 </samp></pre>
+      </div>
+      <p>
+        <code>max_elem</code> は、<code>first</code> から <code>last</code> の手前までの要素のうち最大のものを指すポインタを返します。<code>best</code> は <code>first</code> から始まり、<code>*p &gt;= *best</code> のときに <code>p</code> へ移ります。比較が <code>&gt;=</code> なので、同じ値が後ろに出てくると <code>best</code> はそちらへ移ります。<code>k</code> が0のときの範囲は <code>4, 7, 7, 2</code> で、<code>best</code> は <code>a[1]</code> の7に移ったあと、<code>a[2]</code> の7でもう一度移ります。返るのは <code>a + 2</code> で、<code>a</code> を引くと2です。<code>k</code> が2のときの範囲は <code>7, 2</code> で、やはり <code>a + 2</code> が返り、2です。
+      </p>
+      <p>
+        <code>k</code> が4のときは <code>max_elem(a + 4, a + 4)</code> で、要素が1つも無い範囲です。<code>for</code> の条件 <code>p != last</code> は最初から偽なので、ループは1回も回らず、<code>*p</code> も <code>*best</code> も読まれません。返るのは初期値の <code>first</code>、つまり <code>a + 4</code> で、<code>a</code> を引くと4です。<code>a + 4</code> は配列の最後の要素の1つ先を指すポインタです。C ではこのポインタを作ることも、同じ配列を指すポインタとの差を取ることも許されていて、参照外しさえしなければ未定義動作になりません。空の範囲に最大要素はありませんが、この関数は要素の代わりに終端の位置を返します。
+      </p>
+      <p>
+        比較を <code>&gt;</code> と読むと、同じ7のうち先に出てくる <code>a[1]</code> が残ると考え、最初の値を1にして <code>1 2 4</code> と答えます。空の範囲で <code>a[4]</code> を読みに行くと考えると、落ちるか不定の値が出ると答えますが、空の範囲では比較が1回も行われないので、ポインタは参照外しされずに返るだけです。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

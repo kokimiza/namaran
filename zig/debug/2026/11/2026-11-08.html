@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="@splat で作った3×3のマス目の対角線に印を付けるZig DEBUGのドリルです。@splat が要素を写すときに、スライスの要素では何が写されるかと、const のスライスを通した書き込みを扱います。">
+<title>対角線だけ塗るマス目</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/debug/2026-11-08">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / DEBUG", "item": "https://namaran.jocarium.productions/zig/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-08" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / DEBUG — 2026-11-08",
+      "url": "https://namaran.jocarium.productions/zig/debug/2026-11-08",
+      "datePublished": "2026-11-08",
+      "dateModified": "2026-11-08",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "対角線だけ塗るマス目" },
+      "keywords": "array, slice, aliasing, pointer",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "@splat で作った3×3のマス目の対角線に印を付けるZig DEBUGのドリルです。@splat が要素を写すときに、スライスの要素では何が写されるかと、const のスライスを通した書き込みを扱います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-08">C23</a>
+  <a href="/cpp/debug/2026-11-08">C++26</a>
+  <a href="/rust/debug/2026-11-08">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-08">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-08" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-08">READ</a>
+  <a href="/zig/write/2026-11-08">WRITE</a>
+  <a href="/zig/debug/2026-11-08" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="対角線だけ塗るマス目"
+  data-tags="array slice aliasing pointer"
+  data-concepts="@splat, 配列の初期化, スライスのコピー, 同じバッファを共有, 二次元配列, エイリアシング, array of slices, shared buffer, aliasing"
+  data-level="bison"
+>
+  <h2>2026-11-08</h2>
+  <div class="code-frame">
+    <p class="code-filename">diagonal.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {</span>
+<span class="code-line">    <span class="kw">var</span> out: [<span class="nu">64</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line">    <span class="kw">var</span> w = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;out);</span>
+<span class="code-line">    <span class="kw">var</span> row: [<span class="nu">3</span>]<span class="ty">u8</span> = <span class="mc">@splat</span>(<span class="st">'.'</span>);</span>
+<span class="code-line">    <span class="kw">const</span> grid: [<span class="nu">3</span>][]<span class="ty">u8</span> = <span class="mc">@splat</span>(&amp;row);</span>
+<span class="code-line">    <span class="kw">for</span> (<span class="nu">0</span>..<span class="nu">3</span>) |i| grid[i][i] = <span class="st">'#'</span>;</span>
+<span class="code-line">    <span class="kw">for</span> (grid) |r| <span class="kw">try</span> w.interface.<span class="fn">print</span>(<span class="st">"{s}\n"</span>, .{r});</span>
+<span class="code-line">    <span class="kw">try</span> w.interface.<span class="fn">flush</span>();</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    3×3 のマス目を <code>.</code> で埋め、左上から右下への対角線のマスだけを <code>#</code> にして、1行ずつ表示するつもりのプログラムです。本来は <code>#..</code>、<code>.#.</code>、<code>..#</code> の3行が表示されるはずが、いまは <code>###</code> が3行表示されます。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del"><span class="kw">var</span> <span class="chg">row</span>: [<span class="nu">3</span>]<span class="ty">u8</span> = <span class="mc">@splat</span>(<span class="st">'.'</span>);</span>
+<span class="code-line del"><span class="kw">const</span> grid: [<span class="nu">3</span>][]<span class="ty">u8</span> = <span class="mc">@splat</span>(&amp;row);</span>
+</code></pre>
+      <p>
+        <code>@splat(x)</code> は、すべての要素が <code>x</code> の写しである配列を作ります。ここで写される <code>x</code> は <code>&amp;row</code> から変換したスライス <code>[]u8</code> で、スライスの値は先頭を指すポインタと長さの組です。写されるのはこの組だけで、<code>row</code> の3バイトは写されないので、<code>grid</code> の3つの行はどれも同じ <code>row</code> を指します。<code>grid[i][i] = '#'</code> は <code>i</code> が0、1、2のときにそれぞれ <code>row[0]</code>、<code>row[1]</code>、<code>row[2]</code> を書き換えるので、<code>row</code> は <code>###</code> になり、3つの行はどれもその <code>row</code> を表示します。
+      </p>
+      <p>
+        <code>grid</code> が <code>const</code> なのに書き込みがコンパイルを通ることも、この共有を示しています。<code>const</code> が固定するのは <code>grid</code> が持つ3つのスライス(ポインタと長さ)で、スライスが指す先の <code>u8</code> は書き換えられます。書き込んでいるのは <code>grid</code> ではなく <code>row</code> なのです。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins"><span class="kw">var</span> <span class="chg">grid: [<span class="nu">3</span>]</span>[<span class="nu">3</span>]<span class="ty">u8</span> = <span class="mc">@splat</span>(<span class="chg"><span class="mc">@splat</span>(</span><span class="st">'.'</span>)<span class="chg">)</span>;</span>
+</code></pre>
+      <p>
+        要素の型を配列 <code>[3]u8</code> にすると、<code>@splat</code> が写すのは3バイトの中身そのものになり、3つの行はそれぞれ別の記憶域を持ちます<sup class="fn-ref">1</sup>。内側の <code>@splat('.')</code> が <code>.</code> を3つ並べた行を作り、外側の <code>@splat</code> がその行を3つ写します。<code>grid[i][i] = '#'</code> は <code>i</code> 行目だけを書き換えるので、<code>#..</code>、<code>.#.</code>、<code>..#</code> が表示されます。今度は <code>grid</code> 自身の中身を書き換えるので、<code>const</code> では書き込みがコンパイルエラーになり、<code>var</code> にする必要があります。
+      </p>
+      <ol class="footnotes">
+        <li>Python の <code>[['.'] * 3] * 3</code> も、同じ1つのリストへの参照を3つ並べるので、1か所を書き換えると3行すべてが変わります。Zig の配列は値として写されるので、要素を配列にすればこの共有は起きません。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/debug">Today</a></li>
+    <li><a href="/zig/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

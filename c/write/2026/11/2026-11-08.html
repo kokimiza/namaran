@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="配列の中の奇数の最大値を、見つかったかどうかと一緒に返す関数を書くC WRITEのドリルです。条件に合う要素が無い場合の返し方、最大値の初期値、負の数の剰余を扱います。">
+<title>奇数の最大値と見つからない時</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-11-08">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-08" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-11-08",
+      "url": "https://namaran.jocarium.productions/c/write/2026-11-08",
+      "datePublished": "2026-11-08",
+      "dateModified": "2026-11-08",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "奇数の最大値と見つからない時" },
+      "keywords": "boundary, division, sentinel, loop",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "配列の中の奇数の最大値を、見つかったかどうかと一緒に返す関数を書くC WRITEのドリルです。条件に合う要素が無い場合の返し方、最大値の初期値、負の数の剰余を扱います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-08" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-11-08">C++26</a>
+  <a href="/rust/write/2026-11-08">Rust 2024</a>
+  <a href="/haskell/write/2026-11-08">Haskell 2010</a>
+  <a href="/zig/write/2026-11-08">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-08">READ</a>
+  <a href="/c/write/2026-11-08" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-11-08">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="奇数の最大値と見つからない時"
+  data-tags="boundary division sentinel loop"
+  data-concepts="奇数の最大値, 空の集合, 見つからないとき, 出力引数, 負の数の剰余, 初期値, max of odd numbers, empty result, out parameter, negative remainder"
+  data-level="bison"
+>
+  <h2>2026-11-08</h2>
+  <div class="code-frame">
+    <p class="code-filename">max_odd.c</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stddef.h&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">bool</span> <span class="fn">max_odd</span>(<span class="kw">const</span> <span class="ty">int</span>* a, <span class="ty">size_t</span> n, <span class="ty">int</span>* out) {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    配列 <code>a</code> の先頭 <code>n</code> 個に含まれる奇数のうち最大のものを <code>*out</code> に書き、<code>true</code> を返す <code>max_odd</code> を書いてください。奇数が1つも無いとき(<code>n</code> が0のときも含む)は <code>*out</code> を変えずに <code>false</code> を返します。要素には負の数も入ります。
+  </p>
+
+    <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>max_odd((int[]){4, -3, -7, 2}, 4, &amp;m)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>true(m は -3)</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>max_odd((int[]){2, 8}, 2, &amp;m)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>false</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>max_odd(NULL, 0, &amp;m)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>false</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stddef.h&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">bool</span> <span class="fn">max_odd</span>(<span class="kw">const</span> <span class="ty">int</span>* a, <span class="ty">size_t</span> n, <span class="ty">int</span>* out) {</span>
+<span class="code-line ins">    <span class="ty">bool</span> found = <span class="nu">false</span>;</span>
+<span class="code-line ins">    <span class="kw">for</span> (<span class="ty">size_t</span> i = <span class="nu">0</span>; i &lt; n; i++) {</span>
+<span class="code-line ins">        <span class="kw">if</span> (a[i] % <span class="nu">2</span> != <span class="nu">0</span> &amp;&amp; (!found || a[i] &gt; *out)) {</span>
+<span class="code-line ins">            *out = a[i];</span>
+<span class="code-line ins">            found = <span class="nu">true</span>;</span>
+<span class="code-line ins">        }</span>
+<span class="code-line ins">    }</span>
+<span class="code-line ins">    <span class="kw">return</span> found;</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        最大値を探すループでよく使う初期値は、この問題ではどれも誤った答えを残します。<code>a[0]</code> は奇数とは限らず、入力例1で <code>best = a[0]</code> から始めると、偶数の4がそのまま答えとして残ります。0から始めると、奇数がすべて負の入力例1では0が残ります。そこで初期値を置く代わりに、奇数をもう見つけたかどうかを <code>found</code> で持ちます。まだ見つけていなければ最初の奇数をそのまま <code>*out</code> に入れ、見つけたあとは大きいときだけ書き換えます。<code>found</code> は返り値も兼ねるので、奇数が無ければ <code>*out</code> には一度も書かずに <code>false</code> が返ります。これは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        奇数の判定は <code>a[i] % 2 != 0</code> で書きます。C の整数の除算は0の方向へ切り捨てるので、余りは割られる数と同じ符号になり、<code>-3 % 2</code> は1ではなく -1 です。<code>a[i] % 2 == 1</code> と書くと負の奇数がすべて外れ、入力例1は奇数が無いとみなされて <code>false</code> になります。正しい判定で入力例1を追うと、奇数は -3 と -7 で、先に出てくる -3 が <code>*out</code> に入り、-7 は -3 より小さいので書き換えず、<code>true</code> と -3 が返ります。入力例2は奇数が無く、入力例3はループが1回も回らないので、どちらも <code>false</code> です。<code>n</code> が0なら <code>a[i]</code> は1度も読まれないので、<code>a</code> が <code>NULL</code> でもかまいません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

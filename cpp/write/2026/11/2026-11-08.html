@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="ファイルを読まずに自分自身のソースコードをそのまま出力するプログラム(Quine)を、std::print と生文字列リテラルで書くC++ WRITEのドリルです。">
+<title>自分を出力するmain</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-11-08">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-08" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-11-08",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-11-08",
+      "datePublished": "2026-11-08",
+      "dateModified": "2026-11-08",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "自分を出力するmain" },
+      "keywords": "quine, format-string, raw-string-literal, constexpr",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "ファイルを読まずに自分自身のソースコードをそのまま出力するプログラム(Quine)を、std::print と生文字列リテラルで書くC++ WRITEのドリルです。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-08">C23</a>
+  <a href="/cpp/write/2026-11-08" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-11-08">Rust 2024</a>
+  <a href="/haskell/write/2026-11-08">Haskell 2010</a>
+  <a href="/zig/write/2026-11-08">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-08">READ</a>
+  <a href="/cpp/write/2026-11-08" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-11-08">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="自分を出力するmain"
+  data-tags="quine format-string raw-string-literal constexpr"
+  data-concepts="Quine, クワイン, 自己出力プログラム, std::print, 書式文字列, 生文字列リテラル, self-reproducing program, std::format"
+  data-level="whale"
+>
+  <h2>2026-11-08</h2>
+  <div class="code-frame">
+    <p class="code-filename">quine.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;print&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>() {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    実行すると、このプログラム自身のソースコードと1文字も違わない文字列を標準出力に出すように、<code>main</code> を書いてください。最後の改行も含めて一致させます。ソースファイルを開いて読んではいけません。
+  </p>
+
+    <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>./quine &gt; out.cpp &amp;&amp; cmp out.cpp quine.cpp &amp;&amp; echo same</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>same</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>g++ -std=c++26 out.cpp -o q2 &amp;&amp; ./q2 | cmp - quine.cpp &amp;&amp; echo same</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>same</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;print&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>() {</span>
+<span class="code-line ins">    <span class="kw">constexpr</span> <span class="kw">auto</span> s = <span class="st">R"(#include &lt;print&gt;</span></span>
+<span class="code-line ins"></span>
+<span class="code-line ins"><span class="st">int main() {{</span></span>
+<span class="code-line ins"><span class="st">    constexpr auto s = R{0}({1}){0};</span></span>
+<span class="code-line ins"><span class="st">    std::print(s, '{0}', s);</span></span>
+<span class="code-line ins"><span class="st">}}</span></span>
+<span class="code-line ins"><span class="st">)"</span>;</span>
+<span class="code-line ins">    std::<span class="fn">print</span>(s, <span class="st">'"'</span>, s);</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        ソースを出力するには、ソースを文字列として持つしかありません。ところがその文字列リテラルもソースの一部なので、文字列の中に文字列リテラル自身を書くことになり、その中にまたリテラルを書く、と終わりません。参考実装は、文字列 <code>s</code> を2つの役に使ってこの繰り返しを断ち切ります。<code>s</code> にはプログラム全体を書きますが、<code>s</code> 自身の中身が入る場所だけは <code>{1}</code> という穴にしておきます。<code>std::print(s, '"', s)</code> は <code>s</code> を書式文字列として出力しながら、その穴に <code>s</code> そのものを差し込みます。外側の文章は書式文字列としての <code>s</code> から、リテラルの中身は値としての <code>s</code> から出てくるので、中身を2回書く必要がありません。これは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        2つの役では、同じ文字の出方が違います。書式文字列として読まれると <code>{{</code> は <code>{</code> になるので、<code>int main() {{</code> は <code>int main() {</code> と出力されます。値として差し込まれた <code>s</code> は書いたとおりに出るので、リテラルの中では <code>{{</code> のまま出力され、ソースのリテラルと一致します。二重引用符は <code>s</code> の中に1つも書かず、<code>{0}</code> の穴に引数の <code>'"'</code> を差し込んで出します。<code>s</code> が <code>"</code> を含まないので、生文字列の終わりの印 <code>)"</code> がリテラルの途中に現れることもありません。<code>s</code> を <code>constexpr</code> にしているのは、<code>std::print</code> が書式文字列をコンパイル時に検査し、定数式しか受け取らないためです。最後の行の <code>}}</code> のあとの改行も <code>s</code> に入っているので、出力の末尾はソースの最後の改行と一致し、入力例1の <code>cmp</code> は差を見つけません。出力はソースと同じなので、入力例2のようにそれをコンパイルして実行しても、また同じソースが出てきます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

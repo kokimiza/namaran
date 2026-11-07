@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="std::vformat でC++のゲッター関数のコードを組み立てるC++ DEBUGのドリルです。書式文字列の中の波括弧の扱いと、実行時に渡した書式文字列の誤りがどこで見つかるかを扱います。">
+<title>波括弧を出すコード生成</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-11-08">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-08" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-11-08",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-11-08",
+      "datePublished": "2026-11-08",
+      "dateModified": "2026-11-08",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "波括弧を出すコード生成" },
+      "keywords": "format-string, exception, constexpr, string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "std::vformat でC++のゲッター関数のコードを組み立てるC++ DEBUGのドリルです。書式文字列の中の波括弧の扱いと、実行時に渡した書式文字列の誤りがどこで見つかるかを扱います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-08">C23</a>
+  <a href="/cpp/debug/2026-11-08" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-11-08">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-08">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-08">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-08">READ</a>
+  <a href="/cpp/write/2026-11-08">WRITE</a>
+  <a href="/cpp/debug/2026-11-08" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="波括弧を出すコード生成"
+  data-tags="format-string exception constexpr string"
+  data-concepts="std::vformat, std::format, 書式文字列, 波括弧のエスケープ, std::format_error, コンパイル時の書式検査, コード生成, format string, brace escaping"
+  data-level="bison"
+>
+  <h2>2026-11-08</h2>
+  <div class="code-frame">
+    <p class="code-filename">getter.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;format&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;string&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line">std::<span class="ty">string</span> <span class="fn">getter</span>(<span class="kw">const</span> std::<span class="ty">string</span>&amp; type, <span class="kw">const</span> std::<span class="ty">string</span>&amp; name) {</span>
+<span class="code-line">    std::<span class="ty">string</span> tmpl = <span class="st">"{} get_{}() const { return {}_; }\n"</span>;</span>
+<span class="code-line">    <span class="kw">return</span> std::<span class="fn">vformat</span>(tmpl, std::<span class="fn">make_format_args</span>(type, name, name));</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    std::cout &lt;&lt; <span class="fn">getter</span>(<span class="st">"int"</span>, <span class="st">"size"</span>);</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    型名とメンバ名から、C++ のゲッター関数を1行のコードとして組み立てるつもりの <code>getter</code> です。<code>getter("int", "size")</code> は <code>int get_size() const { return size_; }</code> を返すはずですが、いまは何も表示されず、<code>terminate called after throwing an instance of 'std::format_error'</code> と出て異常終了します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del">std::<span class="ty">string</span> tmpl = <span class="st">"{} get_{}() const { return {}_; }\n"</span>;</span>
+<span class="code-line"><span class="kw">return</span> std::<span class="fn">vformat</span>(tmpl, std::<span class="fn">make_format_args</span>(type, name, name));</span>
+</code></pre>
+      <p>
+        書式文字列の中の <code>{</code> と <code>}</code> は、すべて置換フィールドの区切りとして読まれます。<code>const { return</code> の <code>{</code> も例外ではなく、直後の空白は引数の番号として読めないので、書式文字列は不正です。この誤りがいつ見つかるかは、書式文字列をいつ検査するかで決まります。<code>std::format</code> は書式文字列をコンパイル時に検査するので、定数式でない <code>std::string</code> の <code>tmpl</code> はそもそも渡せません。そのためここでは、書式文字列を実行時に受け取る <code>std::vformat</code> が使われています。<code>std::vformat</code> は書式文字列を実行時に解析し、不正なら例外 <code>std::format_error</code> を投げます。<code>getter</code> にも <code>main</code> にも <code>catch</code> が無いので、例外は <code>std::terminate</code> に届き、何も出力されないままプログラムが止まります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins">std::<span class="ty">string</span> tmpl = <span class="st">"{} get_{}() const {</span><span class="chg"><span class="st">{</span></span><span class="st"> return {}_; }</span><span class="chg"><span class="st">}</span></span><span class="st">\n"</span>;</span>
+<span class="code-line"><span class="kw">return</span> std::<span class="fn">vformat</span>(tmpl, std::<span class="fn">make_format_args</span>(type, name, name));</span>
+</code></pre>
+      <p>
+        書式文字列で波括弧そのものを出すには、<code>{{</code> と <code>}}</code> のように2つ重ねます。重ねた波括弧は置換フィールドにならずに1つの波括弧として出力されるので、置換フィールドは <code>{}</code> の3つだけになり、<code>type</code>、<code>name</code>、<code>name</code> が順に入って <code>int get_size() const { return size_; }</code> ができます。コードを生成する書式文字列ではコードの波括弧がいくつも混ざるので、実行時に渡す場合は、すべてを重ねたかをコンパイラが確かめてくれない点に気を付けます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

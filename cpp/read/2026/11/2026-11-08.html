@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="通常の文字列リテラルと生文字列リテラル R&quot;(...)&quot; に、同じように見える引用符とバックスラッシュを書いて出力するC++ READのドリルです。どちらでエスケープシーケンスが解釈されるかを扱います。">
+<title>エスケープと生文字列</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-11-08">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-08" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-11-08",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-11-08",
+      "datePublished": "2026-11-08",
+      "dateModified": "2026-11-08",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "エスケープと生文字列" },
+      "keywords": "string-escaping, raw-string-literal, string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "通常の文字列リテラルと生文字列リテラル R\"(...)\" に、同じように見える引用符とバックスラッシュを書いて出力するC++ READのドリルです。どちらでエスケープシーケンスが解釈されるかを扱います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-08">C23</a>
+  <a href="/cpp/read/2026-11-08" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-11-08">Rust 2024</a>
+  <a href="/haskell/read/2026-11-08">Haskell 2010</a>
+  <a href="/zig/read/2026-11-08">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-08" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-11-08">WRITE</a>
+  <a href="/cpp/debug/2026-11-08">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="エスケープと生文字列"
+  data-tags="string-escaping raw-string-literal string"
+  data-concepts="エスケープシーケンス, 生文字列リテラル, バックスラッシュ, 二重引用符, raw string literal, escape sequence, R&quot;()&quot;"
+  data-level="hedgehog"
+>
+  <h2>2026-11-08</h2>
+  <div class="code-frame">
+    <p class="code-filename">escape.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    std::cout &lt;&lt; <span class="st">"say \"hi\\n\""</span> &lt;&lt; <span class="st">'\n'</span>;</span>
+<span class="code-line">    std::cout &lt;&lt; <span class="st">R"(say \"hi\n\")"</span> &lt;&lt; <span class="st">'\n'</span>;</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>say "hi\n"
+say \"hi\n\"</samp></pre>
+      </div>
+      <p>
+        1行目の通常の文字列リテラルでは、バックスラッシュとその次の文字の組がエスケープシーケンスとして1文字に置き換わります。<code>\"</code> は二重引用符1文字に、<code>\\</code> はバックスラッシュ1文字になります。<code>hi\\n</code> の部分は <code>\\</code> と <code>n</code> に分かれるので、改行ではなくバックスラッシュと <code>n</code> の2文字が残り、<code>say "hi\n"</code> と表示されます。
+      </p>
+      <p>
+        2行目の <code>R"(</code> と <code>)"</code> で囲んだ生文字列リテラルでは、エスケープシーケンスが解釈されません。括弧の間に書いた文字がそのまま文字列になるので、<code>\"</code> も <code>\n</code> もバックスラッシュを含む2文字のまま出力され、<code>say \"hi\n\"</code> になります。生文字列の中では二重引用符もそのまま書けるので、コードを文字列として持ちたいときに、エスケープを書き足さずに済みます。
+      </p>
+      <p>
+        1行目の <code>\\n</code> を改行と読むと、<code>say "hi</code> と <code>"</code> の2行に分かれると答えます。2行目にもエスケープが効くと読むと、<code>\n</code> が改行になり、やはり <code>say "hi</code> と <code>"</code> の2行になると答えます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

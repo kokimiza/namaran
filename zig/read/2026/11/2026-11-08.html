@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="コンパイル時に値が分かる配列どうしを ++ でつなぎ、できた配列の長さと要素を表示するZig READのドリルです。++ が作る配列の型と中身を扱います。">
+<title>配列を++でつなぐ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/read/2026-11-08">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / READ", "item": "https://namaran.jocarium.productions/zig/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-08" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / READ — 2026-11-08",
+      "url": "https://namaran.jocarium.productions/zig/read/2026-11-08",
+      "datePublished": "2026-11-08",
+      "dateModified": "2026-11-08",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "配列を++でつなぐ" },
+      "keywords": "array, comptime",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "コンパイル時に値が分かる配列どうしを ++ でつなぎ、できた配列の長さと要素を表示するZig READのドリルです。++ が作る配列の型と中身を扱います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-08">C23</a>
+  <a href="/cpp/read/2026-11-08">C++26</a>
+  <a href="/rust/read/2026-11-08">Rust 2024</a>
+  <a href="/haskell/read/2026-11-08">Haskell 2010</a>
+  <a href="/zig/read/2026-11-08" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-08" class="active" aria-current="page">READ</a>
+  <a href="/zig/write/2026-11-08">WRITE</a>
+  <a href="/zig/debug/2026-11-08">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="配列を++でつなぐ"
+  data-tags="array comptime"
+  data-concepts="配列の連結, ++演算子, コンパイル時に分かる値, 配列の長さ, array concatenation, comptime-known, array length"
+  data-level="hedgehog"
+>
+  <h2>2026-11-08</h2>
+  <div class="code-frame">
+    <p class="code-filename">concat.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {</span>
+<span class="code-line">    <span class="kw">var</span> out: [<span class="nu">64</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line">    <span class="kw">var</span> w = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;out);</span>
+<span class="code-line">    <span class="kw">const</span> head = [_]<span class="ty">u8</span>{ <span class="nu">1</span>, <span class="nu">2</span> };</span>
+<span class="code-line">    <span class="kw">const</span> all = head ++ [_]<span class="ty">u8</span>{<span class="nu">7</span>} ++ head;</span>
+<span class="code-line">    <span class="kw">try</span> w.interface.<span class="fn">print</span>(<span class="st">"{d} {d}\n"</span>, .{ all.len, all[<span class="nu">3</span>] });</span>
+<span class="code-line">    <span class="kw">try</span> w.interface.<span class="fn">flush</span>();</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>5 1</samp></pre>
+      </div>
+      <p>
+        <code>++</code> は、コンパイル時に値が分かる2つの配列をつないで、新しい配列を作る演算子です。結果の長さは2つの長さの和で、これもコンパイル時に決まり、型の一部になります。<code>head ++ [_]u8{7} ++ head</code> は左から順につながり、<code>{ 1, 2 }</code>、<code>{ 7 }</code>、<code>{ 1, 2 }</code> を並べた <code>[5]u8</code> の配列 <code>{ 1, 2, 7, 1, 2 }</code> になります。<code>head</code> を2回使っても、それぞれの場所に要素が写されるだけで、<code>head</code> 自体は変わりません。
+      </p>
+      <p>
+        <code>all.len</code> は2 + 1 + 2で5です。添字は0から数えるので、<code>all[3]</code> は2つ目の <code>head</code> の先頭の1です。添字を1から数えると、3番目の要素の7を答えることになります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/read">Today</a></li>
+    <li><a href="/zig/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

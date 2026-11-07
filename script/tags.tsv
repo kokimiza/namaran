@@ -340,6 +340,7 @@ range-adaptor	レンジアダプタ
 range-for	範囲for
 rate-limiting	流量制限
 rational-number	有理数
+raw-string-literal	生文字列リテラル
 read-write-lock	読み書きロック
 reborrow	再借用
 record-syntax	レコード構文
