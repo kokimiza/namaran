@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「遅延評価」を扱ったNamaranのコーディングドリル46問。Data.Array、listArray、累積和、scanl、scanl1、未定義の配列要素。">
+<meta name="description" content="「遅延評価」を扱ったNamaranのコーディングドリル49問。正格な畳み込み、foldl'、seq、サンク、スペースリーク、一定のメモリ。">
 <title>遅延評価</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/laziness">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>遅延評価</h2>
 
   <p class="lede">
-    「遅延評価」を扱った46問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「遅延評価」を扱った49問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/haskell/write/2026-11-09">Haskell / WRITE · 2026-11-09</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">1回の走査で個数と合計</span> <span class="past-concepts">正格な畳み込み, foldl', seq, サンク, スペースリーク, 一定のメモリ, 個数と合計, strict fold, space leak, constant memory</span></li>
+    <li><a href="/haskell/read/2026-11-09">Haskell / READ · 2026-11-09</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">終わらないファイルの先頭</span> <span class="past-concepts">遅延評価, 無限リスト, lines, unlines, take, filter, 巨大なファイル, 一定のメモリ, lazy evaluation, infinite list, streaming</span></li>
+    <li><a href="/haskell/debug/2026-11-09">Haskell / DEBUG · 2026-11-09</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">withFileで行数を数える</span> <span class="past-concepts">遅延IO, withFile, hGetContents, ハンドル, 閉じたハンドル, return $!, 一定のメモリ, lazy IO, delayed read on closed handle, file handle</span></li>
     <li><a href="/haskell/debug/2026-11-07">Haskell / DEBUG · 2026-11-07</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">範囲内なのに未定義</span> <span class="past-concepts">Data.Array, listArray, 累積和, scanl, scanl1, 未定義の配列要素, 境界チェック, prefix sum, undefined array element, bounds check</span></li>
     <li><a href="/rust/debug/2026-11-05">Rust / DEBUG · 2026-11-05</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">上限を過ぎても回るfilter</span> <span class="past-concepts">filter と take_while, 無限イテレータ, std::iter::successors, 整数オーバーフロー, ループの終了条件, infinite iterator, overflow check, panic</span></li>
     <li><a href="/haskell/write/2026-11-05">Haskell / WRITE · 2026-11-05</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">無限リストを交互に分ける</span> <span class="past-concepts">反駁不能パターン, 遅延パターン, foldr, 無限リスト, タプルを返す畳み込み, irrefutable pattern, lazy pattern, infinite list</span></li>

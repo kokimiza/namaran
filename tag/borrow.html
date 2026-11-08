@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「借用」を扱ったNamaranのコーディングドリル10問。アリーナ、添字で参照する木、インデックスベースの木、可変借用、arena allocation、index-based tree。">
+<meta name="description" content="「借用」を扱ったNamaranのコーディングドリル11問。WAL、ログの再生、再起動、冪等性、clone、std::mem::take。">
 <title>借用</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/borrow">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>借用</h2>
 
   <p class="lede">
-    「借用」を扱った10問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「借用」を扱った11問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/debug/2026-11-09">Rust / DEBUG · 2026-11-09</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">再起動のたびに増える残高</span> <span class="past-concepts">WAL, ログの再生, 再起動, 冪等性, clone, std::mem::take, 借用, write-ahead log, replay, idempotent recovery</span></li>
     <li><a href="/rust/write/2026-11-02">Rust / WRITE · 2026-11-02</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">添字で指すアリーナの木</span> <span class="past-concepts">アリーナ, 添字で参照する木, インデックスベースの木, 可変借用, arena allocation, index-based tree, NodeId</span></li>
     <li><a href="/rust/debug/2026-11-02">Rust / DEBUG · 2026-11-02</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">文の終わりまで残る借用</span> <span class="past-concepts">RefCell, 二重借用, 一時オブジェクトの寿命, BorrowMutError, already borrowed, temporary lifetime, arena allocation</span></li>
     <li><a href="/rust/write/2026-10-28">Rust / WRITE · 2026-10-28</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">借りた値を土台に作る</span> <span class="past-concepts">構造体更新記法, 借用からのムーブ, clone, 1つのフィールドだけ変えたコピー, functional update syntax, struct update</span></li>

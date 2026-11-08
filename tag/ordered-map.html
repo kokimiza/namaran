@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「順序付きマップ」を扱ったNamaranのコーディングドリル17問。口座間の送金、atomicModifyIORef'、確認と更新を不可分に、Data.Map、check-then-act、atomic transfer。">
+<meta name="description" content="「順序付きマップ」を扱ったNamaranのコーディングドリル18問。WAL、ログ先行書き込み、障害復旧、再生、str::split、末尾の空文字列。">
 <title>順序付きマップ</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/ordered-map">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>順序付きマップ</h2>
 
   <p class="lede">
-    「順序付きマップ」を扱った17問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「順序付きマップ」を扱った18問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/read/2026-11-09">Rust / READ · 2026-11-09</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">コミット済みだけを再生</span> <span class="past-concepts">WAL, ログ先行書き込み, 障害復旧, 再生, str::split, 末尾の空文字列, collect, BTreeMap, 同じキーの上書き, write-ahead logging, crash recovery, replay</span></li>
     <li><a href="/haskell/write/2026-11-03">Haskell / WRITE · 2026-11-03</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">2つの口座を1度に更新</span> <span class="past-concepts">口座間の送金, atomicModifyIORef', 確認と更新を不可分に, Data.Map, check-then-act, atomic transfer</span></li>
     <li><a href="/cpp/debug/2026-10-29">C++ / DEBUG · 2026-10-29</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">加点が反映されない</span> <span class="past-concepts">構造化束縛, 範囲for, 要素のコピー, auto&amp;, structured binding, range-based for, std::map</span></li>
     <li><a href="/cpp/write/2026-10-25">C++ / WRITE · 2026-10-25</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">在庫を下限まで補充</span> <span class="past-concepts">構造化束縛, 参照で束縛して書き換える, 範囲for, std::map, structured binding, auto&amp;, range-based for</span></li>

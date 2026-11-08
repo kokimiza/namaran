@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「遅延IO」を扱ったNamaranのコーディングドリル1問。遅延IO、readFile、hGetContents、ファイルのロック、resource busy、lazy I/O。">
+<meta name="description" content="「遅延IO」を扱ったNamaranのコーディングドリル2問。遅延IO、withFile、hGetContents、ハンドル、閉じたハンドル、return $!。">
 <title>遅延IO</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/lazy-io">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>遅延IO</h2>
 
   <p class="lede">
-    「遅延IO」を扱った1問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「遅延IO」を扱った2問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/haskell/debug/2026-11-09">Haskell / DEBUG · 2026-11-09</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">withFileで行数を数える</span> <span class="past-concepts">遅延IO, withFile, hGetContents, ハンドル, 閉じたハンドル, return $!, 一定のメモリ, lazy IO, delayed read on closed handle, file handle</span></li>
     <li><a href="/haskell/debug/2026-09-26">Haskell / DEBUG · 2026-09-26</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">読み終わらないファイル</span> <span class="past-concepts">遅延IO, readFile, hGetContents, ファイルのロック, resource busy, lazy I/O, readIO</span></li>
   </ul>
 

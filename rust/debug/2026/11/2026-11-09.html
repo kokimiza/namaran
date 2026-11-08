@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="ログを読み直して残高を作り直す再起動処理が、再生のたびにログを書き足してしまう。借用エラーを避けるためのcloneが残した複製を、mem::takeで取り除くRust 2024のドリル。">
+<title>再起動のたびに増える残高</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-11-09">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-09" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-11-09",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-11-09",
+      "datePublished": "2026-11-09",
+      "dateModified": "2026-11-09",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "再起動のたびに増える残高" },
+      "keywords": "write-ahead-log, idempotency, borrow, clone-trait",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "ログを読み直して残高を作り直す再起動処理が、再生のたびにログを書き足してしまう。借用エラーを避けるためのcloneが残した複製を、mem::takeで取り除くRust 2024のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-09">C23</a>
+  <a href="/cpp/debug/2026-11-09">C++26</a>
+  <a href="/rust/debug/2026-11-09" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-09">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-09">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-09">READ</a>
+  <a href="/rust/write/2026-11-09">WRITE</a>
+  <a href="/rust/debug/2026-11-09" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="再起動のたびに増える残高"
+  data-tags="write-ahead-log idempotency borrow clone-trait"
+  data-concepts="WAL, ログの再生, 再起動, 冪等性, clone, std::mem::take, 借用, write-ahead log, replay, idempotent recovery"
+  data-level="whale"
+>
+  <h2>2026-11-09</h2>
+  <div class="code-frame">
+    <p class="code-filename">wallet.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">struct</span> <span class="ty">Wallet</span> {</span>
+<span class="code-line">    balance: <span class="ty">i64</span>,</span>
+<span class="code-line">    log: <span class="ty">Vec</span>&lt;<span class="ty">i64</span>&gt;,</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">impl</span> <span class="ty">Wallet</span> {</span>
+<span class="code-line">    <span class="kw">fn</span> <span class="fn">deposit</span>(&amp;<span class="kw">mut</span> <span class="kw">self</span>, x: <span class="ty">i64</span>) {</span>
+<span class="code-line">        <span class="kw">self</span>.log.<span class="fn">push</span>(x);</span>
+<span class="code-line">        <span class="kw">self</span>.balance += x;</span>
+<span class="code-line">    }</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="kw">fn</span> <span class="fn">restart</span>(&amp;<span class="kw">mut</span> <span class="kw">self</span>) {</span>
+<span class="code-line">        <span class="kw">self</span>.balance = <span class="nu">0</span>;</span>
+<span class="code-line">        <span class="kw">for</span> x <span class="kw">in</span> <span class="kw">self</span>.log.<span class="fn">clone</span>() {</span>
+<span class="code-line">            <span class="kw">self</span>.<span class="fn">deposit</span>(x);</span>
+<span class="code-line">        }</span>
+<span class="code-line">    }</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    入金をログ <code>log</code> に記録し、再起動したときはログを読み直して残高を作り直すつもりの財布です。<code>Wallet { balance: 0, log: Vec::new() }</code> から始めて <code>deposit(100)</code>、<code>restart()</code>、<code>deposit(50)</code>、<code>restart()</code> の順に呼ぶと、最後の <code>balance</code> は本来 <code>150</code> のはずが、いまは <code>250</code> です。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line">    <span class="kw">fn</span> <span class="fn">restart</span>(&amp;<span class="kw">mut</span> <span class="kw">self</span>) {</span>
+<span class="code-line">        <span class="kw">self</span>.balance = <span class="nu">0</span>;</span>
+<span class="code-line del">        <span class="kw">for</span> x <span class="kw">in</span> <span class="kw">self</span>.log<span class="chg">.<span class="fn">clone</span>(</span>) {</span>
+<span class="code-line">            <span class="kw">self</span>.<span class="fn">deposit</span>(x);</span>
+<span class="code-line">        }</span>
+<span class="code-line">    }</span>
+</code></pre>
+      <p>
+        250は100 + 100 + 50で、2回目の <code>restart</code> の時点で、ログに100が2つ入っていたことになります。100を2つにしたのは1回目の <code>restart</code> です。<code>restart</code> は残高を作り直すのに <code>deposit</code> を呼びますが、<code>deposit</code> は入金を <code>self.log</code> に書き足してから残高を増やします。ループが回っているのは <code>clone</code> で作った複製なので、書き足してもループの回数は変わりません。そのかわり <code>self.log</code> には元の記録と、再生で書き足した記録の両方が残ります。1回目の <code>restart</code> のあとの残高は100で正しく見えますが、ログは <code>[100, 100]</code> になっており、<code>deposit(50)</code> で <code>[100, 100, 50]</code>、2回目の <code>restart</code> で残高250になります。再起動のたびにログが倍に増えるので、回数を重ねるほど残高はずれていきます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line">    <span class="kw">fn</span> <span class="fn">restart</span>(&amp;<span class="kw">mut</span> <span class="kw">self</span>) {</span>
+<span class="code-line">        <span class="kw">self</span>.balance = <span class="nu">0</span>;</span>
+<span class="code-line ins">        <span class="kw">for</span> x <span class="kw">in</span> <span class="chg">std::mem::<span class="fn">take</span>(&amp;<span class="kw">mut</span></span> <span class="kw">self</span>.log) {</span>
+<span class="code-line">            <span class="kw">self</span>.<span class="fn">deposit</span>(x);</span>
+<span class="code-line">        }</span>
+<span class="code-line">    }</span>
+</code></pre>
+      <p>
+        <code>std::mem::take(&amp;mut self.log)</code> は、<code>self.log</code> を空の <code>Vec</code> と入れ替え、それまでの中身を返します。ループは古い記録を受け取って回り、<code>deposit</code> はそれを空になった <code>self.log</code> へ1つずつ戻すので、<code>restart</code> のあとのログは前と同じ <code>[100]</code> になります。何度再起動してもログと残高は変わらず、2回目の <code>restart</code> は <code>[100, 50]</code> から150を作ります。
+      </p>
+      <p>
+        <code>clone</code> が書かれていたのは、<code>for x in &amp;self.log</code> のまま <code>self.deposit(x)</code> を呼ぶと、<code>self.log</code> を共有で借りている間に <code>self</code> を可変で借りることになり、コンパイルが通らないからです。このエラーは、読んでいるログと書き足すログが同じものだと指摘しています。<code>clone</code> は複製を作ってエラーを消しますが、二重になった記録はそのまま残ります。<code>take</code> は記録を複製せずに取り出すので、借用は衝突せず、ログに同じ記録が2つ並ぶこともありません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

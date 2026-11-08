@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="0から2のn乗未満までの整数のビットで部分集合をすべて試すとき、mask 0 の空集合も1つとして数えられることを確かめるC++26のドリル。">
+<title>空集合も1つの部分集合</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-11-09">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-09" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-11-09",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-11-09",
+      "datePublished": "2026-11-09",
+      "dateModified": "2026-11-09",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "空集合も1つの部分集合" },
+      "keywords": "subset-enumeration, bitmask, bit-operation",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "0から2のn乗未満までの整数のビットで部分集合をすべて試すとき、mask 0 の空集合も1つとして数えられることを確かめるC++26のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-09">C23</a>
+  <a href="/cpp/read/2026-11-09" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-11-09">Rust 2024</a>
+  <a href="/haskell/read/2026-11-09">Haskell 2010</a>
+  <a href="/zig/read/2026-11-09">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-09" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-11-09">WRITE</a>
+  <a href="/cpp/debug/2026-11-09">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="空集合も1つの部分集合"
+  data-tags="subset-enumeration bitmask bit-operation"
+  data-concepts="ビット全探索, 部分集合の列挙, 空集合, ビットマスク, 2のn乗通り, bit brute force, subset enumeration, empty set"
+  data-level="hedgehog"
+>
+  <h2>2026-11-09</h2>
+  <div class="code-frame">
+    <p class="code-filename">subset_count.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;print&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="ty">int</span> a[] = {<span class="nu">3</span>, <span class="nu">5</span>, <span class="nu">8</span>};</span>
+<span class="code-line">    <span class="ty">int</span> count = <span class="nu">0</span>;</span>
+<span class="code-line">    <span class="kw">for</span> (<span class="ty">int</span> mask = <span class="nu">0</span>; mask &lt; (<span class="nu">1</span> &lt;&lt; <span class="nu">3</span>); ++mask) {</span>
+<span class="code-line">        <span class="ty">int</span> sum = <span class="nu">0</span>;</span>
+<span class="code-line">        <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; <span class="nu">3</span>; ++i) {</span>
+<span class="code-line">            <span class="kw">if</span> ((mask &gt;&gt; i) &amp; <span class="nu">1</span>) {</span>
+<span class="code-line">                sum += a[i];</span>
+<span class="code-line">            }</span>
+<span class="code-line">        }</span>
+<span class="code-line">        <span class="kw">if</span> (sum % <span class="nu">8</span> == <span class="nu">0</span>) {</span>
+<span class="code-line">            ++count;</span>
+<span class="code-line">        }</span>
+<span class="code-line">    }</span>
+<span class="code-line">    std::<span class="fn">println</span>(<span class="st">"{}"</span>, count);</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>4</samp></pre>
+      </div>
+      <p>
+        <code>mask</code> は0から <code>(1 &lt;&lt; 3) - 1</code>(7)までの8通りを動き、<code>mask</code> の <code>i</code> ビット目が1なら <code>a[i]</code> を選んだとみなします。3要素の部分集合は2<sup>3</sup> = 8個あり、8つの <code>mask</code> がちょうど1つずつに対応します。<code>mask</code> の順に和を並べると、0(何も選ばない)、3、5、8(3と5)、8(8だけ)、11、13、16です。8で割り切れるのは0、8、8、16の4つなので、<code>count</code> は4になります。
+      </p>
+      <p>
+        見落としやすいのは <code>mask</code> が0のときです。0はどのビットも立っていないので、内側のループは何も足さず、<code>sum</code> は0のまま残ります。これは要素を1つも選ばない空の部分集合で、0 % 8 は0なので条件を満たします。部分集合と聞いて要素を選んだものだけを思い浮かべると、3と5の組と8だけの組と全部の組を数えて3と答えます。ループは <code>mask = 0</code> から始まり、空集合を除く処理はどこにもありません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

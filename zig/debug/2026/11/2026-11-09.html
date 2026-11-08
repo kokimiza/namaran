@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="1つの配列に書式化した結果のスライスを、ループで何個も取っておく。スライスは配列の一部を指すだけなので、配列を使い回すと前のラベルも書き換わることを確かめるZig 0.17のドリル。">
+<title>そろってしまうラベル</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/debug/2026-11-09">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / DEBUG", "item": "https://namaran.jocarium.productions/zig/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-09" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / DEBUG — 2026-11-09",
+      "url": "https://namaran.jocarium.productions/zig/debug/2026-11-09",
+      "datePublished": "2026-11-09",
+      "dateModified": "2026-11-09",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "そろってしまうラベル" },
+      "keywords": "slice, array, aliasing, string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "1つの配列に書式化した結果のスライスを、ループで何個も取っておく。スライスは配列の一部を指すだけなので、配列を使い回すと前のラベルも書き換わることを確かめるZig 0.17のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-09">C23</a>
+  <a href="/cpp/debug/2026-11-09">C++26</a>
+  <a href="/rust/debug/2026-11-09">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-09">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-09" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-09">READ</a>
+  <a href="/zig/write/2026-11-09">WRITE</a>
+  <a href="/zig/debug/2026-11-09" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="そろってしまうラベル"
+  data-tags="slice array aliasing string"
+  data-concepts="スライス, バッファの使い回し, std.mem.print, bufPrint, 配列とスライス, エイリアス, slice, reused buffer, aliasing"
+  data-level="peacock"
+>
+  <h2>2026-11-09</h2>
+  <div class="code-frame">
+    <p class="code-filename">labels.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {</span>
+<span class="code-line">    <span class="kw">var</span> out: [<span class="nu">64</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line">    <span class="kw">var</span> w = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;out);</span>
+<span class="code-line">    <span class="kw">var</span> buf: [<span class="nu">16</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line">    <span class="kw">var</span> labels: [<span class="nu">3</span>][]<span class="kw">const</span> <span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line">    <span class="kw">for</span> (&amp;labels, <span class="nu">0</span>..) |*label, i| {</span>
+<span class="code-line">        label.* = <span class="kw">try</span> std.mem.<span class="fn">print</span>(&amp;buf, <span class="st">"item{d}"</span>, .{i});</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="kw">try</span> w.interface.<span class="fn">print</span>(<span class="st">"{s} {s} {s}\n"</span>, .{ labels[<span class="nu">0</span>], labels[<span class="nu">1</span>], labels[<span class="nu">2</span>] });</span>
+<span class="code-line">    <span class="kw">try</span> w.interface.<span class="fn">flush</span>();</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>item0</code>、<code>item1</code>、<code>item2</code> の3つのラベルを作って <code>labels</code> に取っておき、最後に1行で表示するつもりのプログラムです。本来は <code>item0 item1 item2</code> が表示されるはずが、いまは <code>item2 item2 item2</code> が表示されます。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del">    <span class="kw">var</span> <span class="chg">buf</span>: [<span class="nu">16</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line">    <span class="kw">var</span> labels: [<span class="nu">3</span>][]<span class="kw">const</span> <span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line">    <span class="kw">for</span> (&amp;labels, <span class="nu">0</span>..) |*label, i| {</span>
+<span class="code-line del">        label.* = <span class="kw">try</span> std.mem.<span class="fn">print</span>(&amp;<span class="chg">buf</span>, <span class="st">"item{d}"</span>, .{i});</span>
+<span class="code-line">    }</span>
+</code></pre>
+      <p>
+        <code>std.mem.print</code> は渡された <code>buf</code> の先頭から結果を書き込み、書いた部分を指すスライス <code>[]u8</code> を返します。スライスは先頭を指すポインタと長さの組で、文字そのものは持っていません。3回の呼び出しはどれも同じ <code>buf</code> の先頭に書くので、<code>labels</code> の3つのスライスはすべて <code>buf[0..5]</code> を指します。ループが終わった時点で <code>buf</code> に残っているのは最後に書いた <code>item2</code> だけで、3つのラベルはそれを3回読みます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins">    <span class="kw">var</span> <span class="chg">bufs: [<span class="nu">3</span>]</span>[<span class="nu">16</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line">    <span class="kw">var</span> labels: [<span class="nu">3</span>][]<span class="kw">const</span> <span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line">    <span class="kw">for</span> (&amp;labels, <span class="nu">0</span>..) |*label, i| {</span>
+<span class="code-line ins">        label.* = <span class="kw">try</span> std.mem.<span class="fn">print</span>(&amp;<span class="chg">bufs[i]</span>, <span class="st">"item{d}"</span>, .{i});</span>
+<span class="code-line">    }</span>
+</code></pre>
+      <p>
+        ラベルごとに書き込み先を分けます。<code>bufs</code> は16バイトの配列を3つ並べた配列で、<code>&amp;bufs[i]</code> は <code>i</code> 番目の配列を指す <code>*[16]u8</code> です。これが <code>[]u8</code> に変換されて渡るので、<code>i</code> 番目のラベルは <code>bufs[i]</code> の中を指し、あとの呼び出しに上書きされません。<code>labels</code> はスライスを入れているだけなので、<code>bufs</code> は <code>labels</code> を使い終わるまで同じスコープに置いておく必要があります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/debug">Today</a></li>
+    <li><a href="/zig/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="0と1の表で行や列を何度でも反転できるとき、1の個数の最大値を求める。行の反転だけをビット全探索し、列は1本ずつ独立に決めればよいと見抜くC++26のドリル。">
+<title>行と列を反転して1を最大に</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-11-09">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-09" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-11-09",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-11-09",
+      "datePublished": "2026-11-09",
+      "dateModified": "2026-11-09",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "行と列を反転して1を最大に" },
+      "keywords": "subset-enumeration, bitmask, greedy-algorithm, bit-operation",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "0と1の表で行や列を何度でも反転できるとき、1の個数の最大値を求める。行の反転だけをビット全探索し、列は1本ずつ独立に決めればよいと見抜くC++26のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-09">C23</a>
+  <a href="/cpp/write/2026-11-09" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-11-09">Rust 2024</a>
+  <a href="/haskell/write/2026-11-09">Haskell 2010</a>
+  <a href="/zig/write/2026-11-09">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-09">READ</a>
+  <a href="/cpp/write/2026-11-09" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-11-09">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="行と列を反転して1を最大に"
+  data-tags="subset-enumeration bitmask greedy-algorithm bit-operation"
+  data-concepts="ビット全探索, 部分集合の列挙, 行と列の反転, 独立に決める, 0と1の表, bit brute force, flip rows and columns, binary grid"
+  data-level="whale"
+>
+  <h2>2026-11-09</h2>
+  <div class="code-frame">
+    <p class="code-filename">flip_grid.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="ty">int</span> <span class="fn">max_ones</span>(<span class="kw">const</span> std::<span class="ty">vector</span>&lt;std::<span class="ty">string</span>&gt;&amp; rows) {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>0</code> と <code>1</code> だけからなる同じ長さの文字列を何行か並べた表 <code>rows</code> があります。1回の操作では、どれか1行か、どれか1列を選び、その中の文字をすべて反転します(<code>0</code> と <code>1</code> を入れ替えます)。操作を好きな順に何回でも行ってよいとき、表に含まれる <code>1</code> の個数として作れる最大値を返す <code>max_ones</code> を書いてください。行は1行以上10行以下、列は1列以上10000列以下です。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>max_ones({"101", "010"})</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>6</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>max_ones({"11", "10"})</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>3</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>max_ones({"0110"})</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>4</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line ins"><span class="pp">#include</span> <span class="st">&lt;algorithm&gt;</span></span>
+<span class="code-line ins"><span class="pp">#include</span> <span class="st">&lt;print&gt;</span></span>
+<span class="code-line ins"><span class="pp">#include</span> <span class="st">&lt;string&gt;</span></span>
+<span class="code-line ins"><span class="pp">#include</span> <span class="st">&lt;vector&gt;</span></span>
+<span class="code-line ins"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">max_ones</span>(<span class="kw">const</span> std::<span class="ty">vector</span>&lt;std::<span class="ty">string</span>&gt;&amp; rows) {</span>
+<span class="code-line ins">    <span class="kw">const</span> <span class="ty">int</span> h = <span class="kw">static_cast</span>&lt;<span class="ty">int</span>&gt;(rows.<span class="fn">size</span>());</span>
+<span class="code-line ins">    <span class="kw">const</span> std::<span class="ty">size_t</span> w = rows[<span class="nu">0</span>].<span class="fn">size</span>();</span>
+<span class="code-line ins">    <span class="ty">int</span> best = <span class="nu">0</span>;</span>
+<span class="code-line ins">    <span class="kw">for</span> (<span class="ty">int</span> flip = <span class="nu">0</span>; flip &lt; (<span class="nu">1</span> &lt;&lt; h); ++flip) {</span>
+<span class="code-line ins">        <span class="ty">int</span> total = <span class="nu">0</span>;</span>
+<span class="code-line ins">        <span class="kw">for</span> (std::<span class="ty">size_t</span> j = <span class="nu">0</span>; j &lt; w; ++j) {</span>
+<span class="code-line ins">            <span class="ty">int</span> ones = <span class="nu">0</span>;</span>
+<span class="code-line ins">            <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; h; ++i) {</span>
+<span class="code-line ins">                ones += (rows[i][j] == <span class="st">'1'</span>) != ((flip &gt;&gt; i) &amp; <span class="nu">1</span>);</span>
+<span class="code-line ins">            }</span>
+<span class="code-line ins">            total += std::<span class="fn">max</span>(ones, h - ones);</span>
+<span class="code-line ins">        }</span>
+<span class="code-line ins">        best = std::<span class="fn">max</span>(best, total);</span>
+<span class="code-line ins">    }</span>
+<span class="code-line ins">    <span class="kw">return</span> best;</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        同じ行や列を2回反転すると元に戻り、反転の順番を入れ替えても結果は変わりません。どのマスも、その行と列が反転された回数の合計が奇数か偶数かだけで決まるからです。そのため、各行と各列について決めるのは「1回反転するかしないか」だけです。とはいえ、行と列の組み合わせをまとめて試すと、列が10000本あれば2<sup>10010</sup> 通りになり、試し切れません。
+      </p>
+      <p>
+        行の反転を先に決めてしまうと、残りは列ごとの問題に分かれます。列を反転してもほかの列のマスは変わらないので、各列は互いに関係なく、良いほうを選べます。列の中に <code>1</code> が <code>ones</code> 個あれば、反転しなければ <code>ones</code> 個、反転すれば <code>h - ones</code> 個なので、その列から得られるのは <code>std::max(ones, h - ones)</code> 個です。行の反転の決め方は、行の集合の部分集合なので、高々2<sup>10</sup> = 1024通りです。参考実装では整数 <code>flip</code> の <code>i</code> ビット目が1なら <code>i</code> 行目を反転したとみなし、全部の <code>flip</code> について列ごとの最大を足し、その最大を返します。反転後のマスが <code>1</code> になるのは、元の文字が <code>1</code> であることと行を反転したことの一方だけが成り立つときなので、<code>(rows[i][j] == '1') != ((flip &gt;&gt; i) &amp; 1)</code> で数えます。計算は1024 × 10 × 10000回ほどの比較で終わります。これは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        入力例1では、2行目を反転すると表は <code>"101"</code> が2行になり、各列は2マスとも同じ文字になるので、<code>0</code> の列を反転して6マスすべてを <code>1</code> にできます。入力例2では、1列目は2マスが同じ文字、2列目は違う文字です。列を反転しても2マスが同じかどうかは変わらず、行を反転すると全部の列で同時に入れ替わるので、どちらかの列には必ず <code>0</code> が1つ残り、最大は3です。行が1行だけの入力例3では、列ごとに反転するかどうかを選べるので、4マスすべてが <code>1</code> になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="どこまでも続く文字列をlinesで行に分け、filterとtakeで先頭の2行だけを取り出す。遅延評価で、必要な行の分だけ文字列が作られることを確かめるHaskell 2010のドリル。">
+<title>終わらないファイルの先頭</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-11-09">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-09" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-11-09",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-11-09",
+      "datePublished": "2026-11-09",
+      "dateModified": "2026-11-09",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "終わらないファイルの先頭" },
+      "keywords": "laziness, infinite-list, string, list",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "どこまでも続く文字列をlinesで行に分け、filterとtakeで先頭の2行だけを取り出す。遅延評価で、必要な行の分だけ文字列が作られることを確かめるHaskell 2010のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-09">C23</a>
+  <a href="/cpp/read/2026-11-09">C++26</a>
+  <a href="/rust/read/2026-11-09">Rust 2024</a>
+  <a href="/haskell/read/2026-11-09" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/read/2026-11-09">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-09" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-11-09">WRITE</a>
+  <a href="/haskell/debug/2026-11-09">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="終わらないファイルの先頭"
+  data-tags="laziness infinite-list string list"
+  data-concepts="遅延評価, 無限リスト, lines, unlines, take, filter, 巨大なファイル, 一定のメモリ, lazy evaluation, infinite list, streaming"
+  data-level="hedgehog"
+>
+  <h2>2026-11-09</h2>
+  <div class="code-frame">
+    <p class="code-filename">LongLines.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()</span>
+<span class="code-line"><span class="fn">main</span> = <span class="kw">do</span></span>
+<span class="code-line">  <span class="kw">let</span> file = unlines (map show [<span class="nu">1</span> <span class="op">::</span> <span class="ty">Int</span> ..])</span>
+<span class="code-line">  print (take <span class="nu">2</span> (filter ((&gt; <span class="nu">2</span>) . length) (lines file)))</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>["100","101"]</samp></pre>
+      </div>
+      <p>
+        <code>file</code> は <code>"1\n2\n3\n…"</code> とどこまでも続く文字列で、巨大なファイルの中身の代わりです。Haskell の式は値が必要になったときに、必要な分だけ評価されるので、<code>let</code> で束縛した時点では1文字も作られません。<code>print</code> が結果を表示しようとして <code>take 2</code> に要素を求め、<code>take</code> は <code>filter</code> に、<code>filter</code> は <code>lines</code> に1行ずつ求めます。<code>lines</code> が1行を返すのに要るのは次の改行までの文字だけなので、<code>file</code> も1行分ずつしか作られません。
+      </p>
+      <p>
+        <code>"1"</code> から <code>"99"</code> までの行は長さが2以下なので <code>filter</code> に捨てられ、長さが3の最初の行 <code>"100"</code> と次の <code>"101"</code> が <code>take</code> に渡ります。2つ受け取った <code>take 2</code> はそれ以上要素を求めずにリストを閉じるので、<code>"102"</code> から先の行も文字列も作られず、プログラムは終わります。<code>print</code> は <code>String</code> のリストを <code>show</code> で表示するので、各行は引用符付きで、空白なしのカンマで区切られます。<code>unlines</code> や <code>lines</code> が文字列全体を作り終えてから次へ進むと考えると、このプログラムは終わらないと答えることになります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

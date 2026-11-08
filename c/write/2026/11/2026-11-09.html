@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="区切り文字でトークンを1つずつ返す関数を、呼び出し側のポインタを進める出力引数と、終わりを示す戻り値で書く。空のトークンと終わりのNULLを区別するC23のドリル。">
+<title>位置を進めるトークン分割</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-11-09">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-09" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-11-09",
+      "url": "https://namaran.jocarium.productions/c/write/2026-11-09",
+      "datePublished": "2026-11-09",
+      "dateModified": "2026-11-09",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "位置を進めるトークン分割" },
+      "keywords": "pointer, function-parameter, null-terminated-string, sentinel, string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "区切り文字でトークンを1つずつ返す関数を、呼び出し側のポインタを進める出力引数と、終わりを示す戻り値で書く。空のトークンと終わりのNULLを区別するC23のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-09" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-11-09">C++26</a>
+  <a href="/rust/write/2026-11-09">Rust 2024</a>
+  <a href="/haskell/write/2026-11-09">Haskell 2010</a>
+  <a href="/zig/write/2026-11-09">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-09">READ</a>
+  <a href="/c/write/2026-11-09" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-11-09">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="位置を進めるトークン分割"
+  data-tags="pointer function-parameter null-terminated-string sentinel string"
+  data-concepts="トークン分割, ポインタへのポインタ, 出力引数, 空のトークン, 終わりを示すNULL, strsep, tokenizer, pointer to pointer, out parameter"
+  data-level="bison"
+>
+  <h2>2026-11-09</h2>
+  <div class="code-frame">
+    <p class="code-filename">next_token.c</p>
+    <pre class="code"><code><span class="code-line"><span class="ty">char</span>* <span class="fn">next_token</span>(<span class="ty">char</span>** cursor, <span class="ty">char</span> delim) {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    書き換えてよい文字列を区切り文字 <code>delim</code> で区切り、先頭からトークンを1つずつ返す <code>next_token</code> を書いてください。トークンは元の文字列の中に置いたまま、区切り文字を <code>'\0'</code> に書き換えて終端します。呼び出し側が持つ状態は <code>*cursor</code> だけなので、次に読む位置は <code>*cursor</code> に残します。区切り文字が続く所や末尾の区切り文字の後ろにある空のトークン <code>""</code> も1つと数え、トークンを返し終えたあとの呼び出しでは <code>NULL</code> を返します。<code>delim</code> は <code>'\0'</code> ではありません。例では、<code>char s[]</code> に入れた文字列の先頭を指す <code>p</code> から始めて <code>next_token(&amp;p, ',')</code> を <code>NULL</code> が返るまで呼び、返った値を順に書きます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>"a,,b"</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>"a" "" "b" NULL</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>"x,"</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>"x" "" NULL</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>""</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>"" NULL</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line ins"><span class="pp">#include</span> <span class="st">&lt;string.h&gt;</span></span>
+<span class="code-line ins"></span>
+<span class="code-line"><span class="ty">char</span>* <span class="fn">next_token</span>(<span class="ty">char</span>** cursor, <span class="ty">char</span> delim) {</span>
+<span class="code-line ins">    <span class="ty">char</span>* start = *cursor;</span>
+<span class="code-line ins">    <span class="kw">if</span> (start == <span class="nu">NULL</span>) {</span>
+<span class="code-line ins">        <span class="kw">return</span> <span class="nu">NULL</span>;</span>
+<span class="code-line ins">    }</span>
+<span class="code-line ins">    <span class="ty">char</span>* end = <span class="fn">strchr</span>(start, delim);</span>
+<span class="code-line ins">    <span class="kw">if</span> (end == <span class="nu">NULL</span>) {</span>
+<span class="code-line ins">        *cursor = <span class="nu">NULL</span>;</span>
+<span class="code-line ins">    } <span class="kw">else</span> {</span>
+<span class="code-line ins">        *end = <span class="st">'\0'</span>;</span>
+<span class="code-line ins">        *cursor = end + <span class="nu">1</span>;</span>
+<span class="code-line ins">    }</span>
+<span class="code-line ins">    <span class="kw">return</span> start;</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        返すトークンは元の文字列の一部なので、戻り値はトークンの先頭 <code>start</code> を指すポインタで足ります。この領域は呼び出し側の配列で、関数から戻っても寿命は続きます。<code>strchr</code> で区切り文字を探し、見つかればそこへ <code>'\0'</code> を書いてトークンを終端し、次の位置 <code>end + 1</code> を <code>*cursor</code> に書きます。C の引数は値渡しなので、<code>cursor</code> 自身を進めても呼び出し側の <code>p</code> は動きません。<code>p</code> のアドレスを受け取っているから、<code>*cursor</code> への代入で <code>p</code> を進められます。これは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        終わりの判定では、空のトークンとトークンが無いことを区別します。<code>*cursor</code> が文字列の終端 <code>'\0'</code> を指していても、そこにはまだ空のトークンが1つ残っていることがあります。入力例2では、<code>"x"</code> を返したあとの <code>*cursor</code> は終端を指しており、ここで <code>NULL</code> を返すと末尾の <code>""</code> が落ちます。そこで、区切り文字が見つからずに最後のトークンを返すときに <code>*cursor</code> を <code>NULL</code> にし、次の呼び出しは <code>*cursor</code> が <code>NULL</code> であることで終わりを知ります。入力例1では <code>"a"</code> を返したあと <code>*cursor</code> は2つ目の <code>,</code> を指し、そこですぐ区切り文字が見つかるので <code>""</code> が返ります。残りの <code>"b"</code> には区切り文字が無いので <code>*cursor</code> が <code>NULL</code> になり、4回目で <code>NULL</code> が返ります。入力例3の空文字列も、区切り文字の無い最後のトークンとして <code>""</code> を1回返します。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

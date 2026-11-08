@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「番兵値」を扱ったNamaranのコーディングドリル9問。奇数の最大値、空の集合、見つからないとき、出力引数、負の数の剰余、初期値。">
+<meta name="description" content="「番兵値」を扱ったNamaranのコーディングドリル12問。多要素ポインタ、番兵付きポインタ、ヌル終端文字列、文字列の長さ、strlen、many-item pointer。">
 <title>番兵値</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/sentinel">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>番兵値</h2>
 
   <p class="lede">
-    「番兵値」を扱った9問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「番兵値」を扱った12問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/write/2026-11-09">Zig / WRITE · 2026-11-09</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">番兵まで数える長さ</span> <span class="past-concepts">多要素ポインタ, 番兵付きポインタ, ヌル終端文字列, 文字列の長さ, strlen, many-item pointer, sentinel-terminated pointer, null-terminated string</span></li>
+    <li><a href="/c/write/2026-11-09">C / WRITE · 2026-11-09</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">位置を進めるトークン分割</span> <span class="past-concepts">トークン分割, ポインタへのポインタ, 出力引数, 空のトークン, 終わりを示すNULL, strsep, tokenizer, pointer to pointer, out parameter</span></li>
+    <li><a href="/c/debug/2026-11-09">C / DEBUG · 2026-11-09</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">見つからない時の-1</span> <span class="past-concepts">戻り値の判定, 見つからないときの-1, 0は偽, 0以外は真, 番兵値, 線形探索, return value check, sentinel value, truthiness</span></li>
     <li><a href="/c/write/2026-11-08">C / WRITE · 2026-11-08</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">奇数の最大値と見つからない時</span> <span class="past-concepts">奇数の最大値, 空の集合, 見つからないとき, 出力引数, 負の数の剰余, 初期値, max of odd numbers, empty result, out parameter, negative remainder</span></li>
     <li><a href="/cpp/debug/2026-10-23">C++ / DEBUG · 2026-10-23</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">届かない閉路を見つける</span> <span class="past-concepts">ベルマン-フォード法, 負の閉路の検出, 到達できない頂点, 番兵値の inf, Bellman-Ford, negative cycle detection, unreachable vertex</span></li>
     <li><a href="/c/debug/2026-10-16">C / DEBUG · 2026-10-16</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">見つからないときの戻り値</span> <span class="past-concepts">末尾の1つ先, 見つからないときの戻り値, NULLとの比較, 番兵, one past the end, not found sentinel, past-the-end pointer</span></li>

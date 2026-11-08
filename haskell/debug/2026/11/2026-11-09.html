@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="withFileの中でhGetContentsした行数を、評価しないまま外へ返してしまう。ハンドルが閉じてから遅延読み込みが走る誤りを、return $! で中で数え切って直すHaskell 2010のドリル。">
+<title>withFileで行数を数える</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-11-09">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-09" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-11-09",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-11-09",
+      "datePublished": "2026-11-09",
+      "dateModified": "2026-11-09",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "withFileで行数を数える" },
+      "keywords": "lazy-io, laziness, resource-management, io",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "withFileの中でhGetContentsした行数を、評価しないまま外へ返してしまう。ハンドルが閉じてから遅延読み込みが走る誤りを、return $! で中で数え切って直すHaskell 2010のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-09">C23</a>
+  <a href="/cpp/debug/2026-11-09">C++26</a>
+  <a href="/rust/debug/2026-11-09">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-09" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-09">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-09">READ</a>
+  <a href="/haskell/write/2026-11-09">WRITE</a>
+  <a href="/haskell/debug/2026-11-09" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="withFileで行数を数える"
+  data-tags="lazy-io laziness resource-management io"
+  data-concepts="遅延IO, withFile, hGetContents, ハンドル, 閉じたハンドル, return $!, 一定のメモリ, lazy IO, delayed read on closed handle, file handle"
+  data-level="peacock"
+>
+  <h2>2026-11-09</h2>
+  <div class="code-frame">
+    <p class="code-filename">CountLines.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">import</span> <span class="ty">System.IO</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">countLines</span> <span class="op">::</span> <span class="ty">FilePath</span> <span class="op">-&gt;</span> <span class="ty">IO</span> <span class="ty">Int</span></span>
+<span class="code-line"><span class="fn">countLines</span> path = withFile path <span class="ty">ReadMode</span> $ \h <span class="op">-&gt;</span> <span class="kw">do</span></span>
+<span class="code-line">  s <span class="op">&lt;-</span> hGetContents h</span>
+<span class="code-line">  return (length (lines s))</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()</span>
+<span class="code-line"><span class="fn">main</span> = <span class="kw">do</span></span>
+<span class="code-line">  writeFile <span class="st">"access.log"</span> <span class="st">"GET /\nGET /a\nPOST /b\n"</span></span>
+<span class="code-line">  countLines <span class="st">"access.log"</span> &gt;&gt;= print</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    ファイルを一定のメモリで読みながら行数を数え、表示するつもりのプログラムです。3行の <code>access.log</code> を書いてから <code>countLines</code> を呼ぶと、本来は <code>3</code> が表示されるはずが、いまは何も表示されず、<code>access.log: hGetContents: illegal operation (delayed read on closed handle)</code> という例外で終わります。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line"><span class="fn">countLines</span> path = withFile path <span class="ty">ReadMode</span> $ \h <span class="op">-&gt;</span> <span class="kw">do</span></span>
+<span class="code-line">  s <span class="op">&lt;-</span> hGetContents h</span>
+<span class="code-line del">  return <span class="chg">(</span>length (lines s)<span class="chg">)</span></span>
+</code></pre>
+      <p>
+        <code>hGetContents</code> はファイルの中身をその場では読まず、文字列が評価されたときに、そこまでをハンドルから読み出します。<code>return (length (lines s))</code> も行数を数えずに、「<code>s</code> の行数」という未評価の式を返します。<code>withFile</code> は渡した関数が値を返すとハンドルを閉じるので、この式は1文字も読まれないまま <code>withFile</code> の外へ出ます。<code>main</code> の <code>print</code> が行数を表示しようとして初めて式が評価され、<code>hGetContents</code> は閉じたハンドルから続きを読もうとして例外を投げます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line"><span class="fn">countLines</span> path = withFile path <span class="ty">ReadMode</span> $ \h <span class="op">-&gt;</span> <span class="kw">do</span></span>
+<span class="code-line">  s <span class="op">&lt;-</span> hGetContents h</span>
+<span class="code-line ins">  return <span class="chg">$!</span> length (lines s)</span>
+</code></pre>
+      <p>
+        <code>return $! x</code> は <code>x</code> を評価してから <code>return</code> します。<code>Int</code> を評価すると数そのものまで計算されるので、<code>length</code> は <code>withFile</code> の中で、ハンドルが開いている間にファイルを最後まで読み、3を数え終えます。<code>withFile</code> の外へ出るのは評価済みの3です。<code>length</code> が数え終えた行はもう誰からも参照されないので、すぐに捨てられ、ファイルが大きくなっても使うメモリは増えません。ファイル全体を一度に読む <code>hGetContents'</code> に替えても例外は消えますが、中身をすべてメモリに置くので、一定のメモリで数えるという目的からは外れます<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li><code>hGetContents'</code> は base 4.15(GHC 9.0)で <code>System.IO</code> に加わりました。Haskell 2010 の報告書の <code>System.IO</code> には無い関数です。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

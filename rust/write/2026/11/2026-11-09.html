@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="長さの1バイトと本体を並べたWALから、書き終えたレコードだけを取り出す。途中で切れた最後のレコードを、スライスのgetでパニックせずに捨てるRust 2024のドリル。">
+<title>途中で切れたログを読む</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-11-09">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-09" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-11-09",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-11-09",
+      "datePublished": "2026-11-09",
+      "dateModified": "2026-11-09",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "途中で切れたログを読む" },
+      "keywords": "write-ahead-log, slice, boundary, pattern-matching",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "長さの1バイトと本体を並べたWALから、書き終えたレコードだけを取り出す。途中で切れた最後のレコードを、スライスのgetでパニックせずに捨てるRust 2024のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-09">C23</a>
+  <a href="/cpp/write/2026-11-09">C++26</a>
+  <a href="/rust/write/2026-11-09" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-11-09">Haskell 2010</a>
+  <a href="/zig/write/2026-11-09">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-09">READ</a>
+  <a href="/rust/write/2026-11-09" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-11-09">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="途中で切れたログを読む"
+  data-tags="write-ahead-log slice boundary pattern-matching"
+  data-concepts="WAL, ログ先行書き込み, 長さ付きレコード, 書きかけのレコード, スライス, get, split_first, write-ahead log, length-prefixed record, torn write"
+  data-level="hedgehog"
+>
+  <h2>2026-11-09</h2>
+  <div class="code-frame">
+    <p class="code-filename">records.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">records</span>(<span class="kw">mut</span> log: &amp;[<span class="ty">u8</span>]) -&gt; <span class="ty">Vec</span>&lt;&amp;[<span class="ty">u8</span>]&gt; {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    ログ <code>log</code> には、レコードが「本体の長さを表す1バイト」と「その長さ分の本体」の組で、隙間なく並んでいます。書き込みの途中でプロセスが落ちると、最後のレコードは途中で切れていることがあります。書き終えたレコードの本体を、先頭から順に <code>log</code> の一部として返す <code>records</code> を書いてください。途中で切れた最後のレコードは捨て、そのときもパニックしてはいけません。長さが0のレコードは、空の本体を持つ1つのレコードです。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>records(&amp;[2, 7, 7, 1, 9, 3, 4])</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>[[7, 7], [9]]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>records(&amp;[0, 1, 5])</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>[[], [5]]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>records(&amp;[])</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>[]</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">records</span>(<span class="kw">mut</span> log: &amp;[<span class="ty">u8</span>]) -&gt; <span class="ty">Vec</span>&lt;&amp;[<span class="ty">u8</span>]&gt; {</span>
+<span class="code-line ins">    <span class="kw">let</span> <span class="kw">mut</span> out = <span class="ty">Vec</span>::<span class="fn">new</span>();</span>
+<span class="code-line ins">    <span class="kw">while</span> <span class="kw">let</span> <span class="fn">Some</span>((&amp;n, rest)) = log.<span class="fn">split_first</span>() {</span>
+<span class="code-line ins">        <span class="kw">let</span> <span class="fn">Some</span>(body) = rest.<span class="fn">get</span>(..n <span class="kw">as</span> <span class="ty">usize</span>) <span class="kw">else</span> {</span>
+<span class="code-line ins">            <span class="kw">break</span>;</span>
+<span class="code-line ins">        };</span>
+<span class="code-line ins">        out.<span class="fn">push</span>(body);</span>
+<span class="code-line ins">        log = &amp;rest[n <span class="kw">as</span> <span class="ty">usize</span>..];</span>
+<span class="code-line ins">    }</span>
+<span class="code-line ins">    out</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        <code>split_first</code> は、スライスが空でなければ先頭の要素と残りのスライスを <code>Some</code> で返し、空なら <code>None</code> を返します。<code>while let</code> で受ければ、先頭の1バイトを長さ <code>n</code> として読み、ログを読み切ったところでループが終わります。本体は <code>rest.get(..n as usize)</code> で取り出します。添字の <code>rest[..n as usize]</code> は範囲が長さを超えるとパニックしますが、<code>get</code> は同じ範囲を <code>Option</code> で返し、足りなければ <code>None</code> になります。<code>let</code>-<code>else</code> でこの <code>None</code> を受けて <code>break</code> すれば、切れたレコードを捨ててそこで止まれます。本体を取れたら <code>out</code> に入れ、<code>log</code> を本体の次へ進めます。返す <code>&amp;[u8]</code> は <code>log</code> の一部を指すだけなので、本体を複製せずに返せます。これは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        入力例1では、長さ2の <code>[7, 7]</code>、長さ1の <code>[9]</code> を取り出したあと、長さ3に対して残りが <code>[4]</code> の1バイトしかないので <code>get</code> が <code>None</code> を返し、2つで止まります。入力例2の先頭の0は長さ0のレコードで、<code>get(..0)</code> は空のスライスを <code>Some</code> で返すので、<code>[]</code> が1つのレコードとして入ります。空のログの入力例3では、最初の <code>split_first</code> が <code>None</code> を返し、ループは1回も回りません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

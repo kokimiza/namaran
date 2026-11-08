@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="実引数と戻り値が、関数の宣言した型へどう変換されるか。doubleからintへの切り捨てと、int同士の割り算を読むC23のドリル。">
+<title>引数と戻り値の型変換</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-11-09">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-09" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-11-09",
+      "url": "https://namaran.jocarium.productions/c/read/2026-11-09",
+      "datePublished": "2026-11-09",
+      "dateModified": "2026-11-09",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "引数と戻り値の型変換" },
+      "keywords": "function-parameter, implicit-conversion, division, rounding",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "実引数と戻り値が、関数の宣言した型へどう変換されるか。doubleからintへの切り捨てと、int同士の割り算を読むC23のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-09" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-11-09">C++26</a>
+  <a href="/rust/read/2026-11-09">Rust 2024</a>
+  <a href="/haskell/read/2026-11-09">Haskell 2010</a>
+  <a href="/zig/read/2026-11-09">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-09" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-11-09">WRITE</a>
+  <a href="/c/debug/2026-11-09">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="引数と戻り値の型変換"
+  data-tags="function-parameter implicit-conversion division rounding"
+  data-concepts="引数の型変換, 戻り値の型変換, 0方向への切り捨て, 整数の割り算, 関数プロトタイプ, argument conversion, return type conversion, truncation toward zero"
+  data-level="hedgehog"
+>
+  <h2>2026-11-09</h2>
+  <div class="code-frame">
+    <p class="code-filename">half_mean.c</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">half</span>(<span class="ty">double</span> x) {</span>
+<span class="code-line">    <span class="kw">return</span> x / <span class="nu">2</span>;</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">double</span> <span class="fn">mean</span>(<span class="ty">int</span> a, <span class="ty">int</span> b) {</span>
+<span class="code-line">    <span class="kw">return</span> (a + b) / <span class="nu">2</span>;</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {</span>
+<span class="code-line">    <span class="fn">printf</span>(<span class="st">"%d %.1f\n"</span>, <span class="fn">half</span>(-<span class="nu">7</span>), <span class="fn">mean</span>(<span class="nu">3</span>, <span class="nu">4</span>));</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>-3 3.0</samp></pre>
+      </div>
+      <p>
+        プロトタイプで型を宣言した関数を呼ぶと、実引数は仮引数の型へ、<code>return</code> の式は戻り値の型へ、それぞれ代入と同じ規則で変換されます。<code>half(-7)</code> では、<code>int</code> の -7 が仮引数 <code>x</code> に入るときに <code>double</code> の -7.0 になります。<code>x / 2</code> は <code>double</code> の割り算なので -3.5 です。この値を <code>int</code> で返すとき、浮動小数点数から整数への変換は小数部を捨てます。捨てる向きは0の方向なので、-3.5 は -3 になります。
+      </p>
+      <p>
+        <code>mean(3, 4)</code> は順番が逆です。<code>(a + b) / 2</code> は <code>int</code> 同士の割り算で、7 / 2 は3になります。戻り値の型 <code>double</code> への変換はこの割り算が終わったあとに行われるので、返るのは3.0で、<code>%.1f</code> は <code>3.0</code> と表示します。戻り値の型が <code>double</code> でも、式の中の割り算が <code>double</code> で行われるわけではありません。
+      </p>
+      <p>
+        -3.5 を小さい方の整数へ丸めると考えると、<code>half(-7)</code> を -4 と答えます。戻り値の型が <code>double</code> なので割り算も小数で行われると考えると、<code>mean(3, 4)</code> を3.5と答えます。宣言した型への変換は値が関数に入るときと出るときにだけ起き、関数の中の式は、そのときのオペランドの型で計算されます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
