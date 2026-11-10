@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="演算子を前に置く書き方の四則演算を再帰で計算する関数が、引き算と割り算の結果を取り違える。関数の引数の評価順が決まっていないことと、字句を読み進める呼び出しを並べる危うさを直す C++26 のドリル。">
+<title>引数の評価順と前置記法</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-11-11">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-11" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-11-11",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-11-11",
+      "datePublished": "2026-11-11",
+      "dateModified": "2026-11-11",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "引数の評価順と前置記法" },
+      "keywords": "evaluation-order, parsing, recursion",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "演算子を前に置く書き方の四則演算を再帰で計算する関数が、引き算と割り算の結果を取り違える。関数の引数の評価順が決まっていないことと、字句を読み進める呼び出しを並べる危うさを直す C++26 のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-11">C23</a>
+  <a href="/cpp/debug/2026-11-11" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-11-11">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-11">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-11">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-11">READ</a>
+  <a href="/cpp/write/2026-11-11">WRITE</a>
+  <a href="/cpp/debug/2026-11-11" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="引数の評価順と前置記法"
+  data-tags="evaluation-order parsing recursion"
+  data-concepts="関数の引数の評価順, 未規定, 前置記法, ポーランド記法, 再帰下降構文解析, order of evaluation, unspecified behavior, prefix notation"
+  data-level="whale"
+>
+  <h2>2026-11-11</h2>
+  <div class="code-frame">
+    <p class="code-filename">prefix.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;print&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">apply</span>(<span class="ty">char</span> op, <span class="ty">int</span> a, <span class="ty">int</span> b) {</span>
+<span class="code-line">    <span class="kw">return</span> op == <span class="st">'+'</span> ? a + b : op == <span class="st">'-'</span> ? a - b : op == <span class="st">'*'</span> ? a * b : a / b;</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">eval</span>(<span class="kw">const</span> <span class="ty">char</span>*&amp; p) {</span>
+<span class="code-line">    <span class="ty">char</span> c = *p++;</span>
+<span class="code-line">    <span class="kw">if</span> (c &gt;= <span class="st">'0'</span> &amp;&amp; c &lt;= <span class="st">'9'</span>) {</span>
+<span class="code-line">        <span class="kw">return</span> c - <span class="st">'0'</span>;</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="kw">return</span> <span class="fn">apply</span>(c, <span class="fn">eval</span>(p), <span class="fn">eval</span>(p));</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="kw">const</span> <span class="ty">char</span>* src = <span class="st">"/-93-41"</span>;</span>
+<span class="code-line">    std::<span class="fn">println</span>(<span class="st">"{}"</span>, <span class="fn">eval</span>(src));</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>eval</code> は、演算子を2つのオペランドの前に置く書き方で書いた、1桁の整数の四則演算を計算する関数です。この書き方では <code>-93</code> が 9 − 3 を、<code>/-93-41</code> が (9 − 3) / (4 − 1) を表します。<code>/-93-41</code> を渡すと本来は <code>2</code> を出力するはずが、いまは手元の g++ でビルドすると <code>0</code> を出力します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del">    <span class="kw">return</span> <span class="fn">apply</span>(c, <span class="chg"><span class="fn">eval</span>(p), <span class="fn">eval</span>(p)</span>);</span>
+</code></pre>
+      <p>
+        2つの <code>eval(p)</code> はどちらも <code>p</code> を進めるので、先に呼ばれたほうが左のオペランドを読みます。ところが C++ は、関数の引数をどの順に評価するかを決めていません。g++ はこの呼び出しで右の引数から評価するため、<code>b</code> に入る <code>eval</code> が先に <code>-93</code> を読み、<code>a</code> に入る <code>eval</code> が <code>-41</code> を読みます。
+      </p>
+      <p>
+        入れ替わりはすべての段で起きるので、<code>-93</code> は 3 − 9 = −6、<code>-41</code> は 1 − 4 = −3 になり、全体は −3 / −6 です。<code>int</code> の割り算は0の方向へ切り捨てるので、結果は 0 になります。<code>+</code> と <code>*</code> はオペランドを入れ替えても値が同じなので、足し算と掛け算だけの式ではこの欠陥が表に出ません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins">    <span class="ty">int</span> lhs = <span class="fn">eval</span>(p);</span>
+<span class="code-line ins">    <span class="ty">int</span> rhs = <span class="fn">eval</span>(p);</span>
+<span class="code-line ins">    <span class="kw">return</span> <span class="fn">apply</span>(c, <span class="chg">lhs, rhs</span>);</span>
+</code></pre>
+      <p>
+        別々の文に分けると、前の文の評価は次の文より先に必ず終わります。左のオペランドを読む <code>eval</code> が先に呼ばれることがコードの並びで決まるので、どのコンパイラでも <code>/-93-41</code> は 6 / 3 = 2 になります。字句を読み進める呼び出しを1つの式の中に2つ並べず、読む順に変数へ受けるのが確実です。<sup class="fn-ref">1</sup>
+      </p>
+      <ol class="footnotes">
+        <li>C++17 で、<code>&lt;&lt;</code> のオペランドや波括弧の初期化子リストなど、いくつかの評価順が左から右に決まりました。関数の引数は対象外で、どれか1つの引数の評価を丸ごと済ませてから次へ進むことだけが保証されています(順序の決まらない引数どうしが入り混じることはないので、未定義動作ではありません)。同じ式を波括弧で <code>Node{c, eval(p), eval(p)}</code> のように書いた場合は、左から順に評価されます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「整数オーバーフロー」を扱ったNamaranのコーディングドリル27問。ループの終了条件、符号なし整数、checked_sub、std::iter::successors、アンダーフロー、unsigned underflow。">
+<meta name="description" content="「整数オーバーフロー」を扱ったNamaranのコーディングドリル29問。comptime、IntFittingRange、型を返す関数、整数のオーバーフロー、2の累乗、illegal behavior。">
 <title>整数オーバーフロー</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/integer-overflow">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,12 @@
   <h2>整数オーバーフロー</h2>
 
   <p class="lede">
-    「整数オーバーフロー」を扱った27問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「整数オーバーフロー」を扱った29問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/debug/2026-11-11">Zig / DEBUG · 2026-11-11</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">個数の型が1ビット足りない</span> <span class="past-concepts">comptime, IntFittingRange, 型を返す関数, 整数のオーバーフロー, 2の累乗, illegal behavior, integer overflow, off-by-one</span></li>
+    <li><a href="/rust/debug/2026-11-11">Rust / DEBUG · 2026-11-11</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">usizeの差を外積に使う</span> <span class="past-concepts">外積, usize, 符号なし整数の引き算, オーバーフロー, as による変換, unsigned subtraction overflow, cross product, panic</span></li>
     <li><a href="/rust/write/2026-11-05">Rust / WRITE · 2026-11-05</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">0で止まるカウントダウン</span> <span class="past-concepts">ループの終了条件, 符号なし整数, checked_sub, std::iter::successors, アンダーフロー, unsigned underflow, loop termination</span></li>
     <li><a href="/rust/debug/2026-11-05">Rust / DEBUG · 2026-11-05</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">上限を過ぎても回るfilter</span> <span class="past-concepts">filter と take_while, 無限イテレータ, std::iter::successors, 整数オーバーフロー, ループの終了条件, infinite iterator, overflow check, panic</span></li>
     <li><a href="/rust/debug/2026-11-04">Rust / DEBUG · 2026-11-04</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">i64にする前の掛け算</span> <span class="past-concepts">整数オーバーフロー, asによる変換の位置, i64::from, 多角形の面積, 靴紐公式, integer overflow, cast before multiply, shoelace formula</span></li>

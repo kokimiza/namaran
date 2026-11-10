@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="unsigned の値が2の累乗かどうかを返す関数を、&lt;stdbit.h&gt; の stdc_count_ones で書く。2の累乗は2進数で1のビットがちょうど1つという性質を使う C23 のドリル。">
+<title>2の累乗はビット1つ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-11-11">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-11" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-11-11",
+      "url": "https://namaran.jocarium.productions/c/write/2026-11-11",
+      "datePublished": "2026-11-11",
+      "dateModified": "2026-11-11",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "2の累乗はビット1つ" },
+      "keywords": "population-count, bit-operation",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "unsigned の値が2の累乗かどうかを返す関数を、<stdbit.h> の stdc_count_ones で書く。2の累乗は2進数で1のビットがちょうど1つという性質を使う C23 のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-11" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-11-11">C++26</a>
+  <a href="/rust/write/2026-11-11">Rust 2024</a>
+  <a href="/haskell/write/2026-11-11">Haskell 2010</a>
+  <a href="/zig/write/2026-11-11">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-11">READ</a>
+  <a href="/c/write/2026-11-11" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-11-11">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="2の累乗はビット1つ"
+  data-tags="population-count bit-operation"
+  data-concepts="stdc_count_ones, ポップカウント, 2の累乗判定, power of two, population count, &lt;stdbit.h&gt;"
+  data-level="hedgehog"
+>
+  <h2>2026-11-11</h2>
+  <div class="code-frame">
+    <p class="code-filename">power_of_two.c</p>
+    <pre class="code"><code><span class="code-line"><span class="ty">bool</span> <span class="fn">is_power_of_two</span>(<span class="ty">unsigned</span> x) {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>x</code> が2の累乗(1, 2, 4, 8, …)なら <code>true</code>、そうでなければ <code>false</code> を返す <code>is_power_of_two</code> を、<code>&lt;stdbit.h&gt;</code> の関数を使って書いてください。<code>x</code> が0のときは <code>false</code> です。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>is_power_of_two(64)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>true</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>is_power_of_two(0)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>false</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>is_power_of_two(96)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>false</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line ins"><span class="pp">#include</span> <span class="st">&lt;stdbit.h&gt;</span></span>
+<span class="code-line ins"></span>
+<span class="code-line"><span class="ty">bool</span> <span class="fn">is_power_of_two</span>(<span class="ty">unsigned</span> x) {</span>
+<span class="code-line ins">    <span class="kw">return</span> <span class="fn">stdc_count_ones</span>(x) == <span class="nu">1</span>;</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        2の累乗 2<sup>k</sup> を2進数で書くと、2<sup>k</sup> の位だけが1で、ほかの桁はすべて0です。逆に、1のビットがちょうど1つの数は、その桁の 2<sup>k</sup> そのものです。そこで <code>stdc_count_ones</code> で1のビットを数え、1と比べます。これは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        入力例を追うと、64 は <code>1000000</code> で1が1つなので <code>true</code>、96 は <code>1100000</code> で1が2つなので <code>false</code> です。0 は1のビットが1つも無いので、数えた結果は0になり、特別扱いしなくても <code>false</code> になります。<code>stdc_count_ones</code> は引数の型に合わせて働く総称の関数で、<code>unsigned int</code> を渡すと <code>stdc_count_ones_ui</code> と同じ結果を返します。
+      </p>
+      <p>
+        <code>&lt;stdbit.h&gt;</code> を使わない昔ながらの書き方は <code>x != 0 &amp;&amp; (x &amp; (x - 1)) == 0</code> です。<code>x - 1</code> は最下位の1を0にしてその下を1で埋めるので、1が1つだけなら <code>&amp;</code> の結果が0になります。こちらは0を別に除く必要があります。C23 の <code>stdc_has_single_bit</code> を使えば、判定そのものを1回の呼び出しで書けます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

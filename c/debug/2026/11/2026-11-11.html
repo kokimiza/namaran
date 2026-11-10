@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="&lt;stdbit.h&gt; の stdc_bit_width で桁数を求めて unsigned を2進数で表示する関数が、先頭に余計な0を付けてしまう。ビット幅と最上位ビットの番号の違いを直す C23 のドリル。">
+<title>ビット幅と最上位の番号</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-11-11">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-11" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-11-11",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-11-11",
+      "datePublished": "2026-11-11",
+      "dateModified": "2026-11-11",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "ビット幅と最上位の番号" },
+      "keywords": "bit-operation, off-by-one, radix-conversion",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "<stdbit.h> の stdc_bit_width で桁数を求めて unsigned を2進数で表示する関数が、先頭に余計な0を付けてしまう。ビット幅と最上位ビットの番号の違いを直す C23 のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-11" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-11-11">C++26</a>
+  <a href="/rust/debug/2026-11-11">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-11">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-11">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-11">READ</a>
+  <a href="/c/write/2026-11-11">WRITE</a>
+  <a href="/c/debug/2026-11-11" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="ビット幅と最上位の番号"
+  data-tags="bit-operation off-by-one radix-conversion"
+  data-concepts="stdc_bit_width, ビット幅, 最上位ビット, 2進数表示, bit width, most significant bit, off-by-one"
+  data-level="hedgehog"
+>
+  <h2>2026-11-11</h2>
+  <div class="code-frame">
+    <p class="code-filename">binary.c</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stdbit.h&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">void</span> <span class="fn">print_binary</span>(<span class="ty">unsigned</span> n) {</span>
+<span class="code-line">    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="fn">stdc_bit_width</span>(n); i &gt;= <span class="nu">0</span>; i--) {</span>
+<span class="code-line">        <span class="fn">putchar</span>(<span class="st">'0'</span> + ((n &gt;&gt; i) &amp; <span class="nu">1</span>));</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="fn">putchar</span>(<span class="st">'\n'</span>);</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {</span>
+<span class="code-line">    <span class="fn">print_binary</span>(<span class="nu">6</span>);</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>print_binary</code> は、1以上の <code>n</code> を先頭に0を付けずに2進数で表示する関数です。<code>print_binary(6)</code> は <code>110</code> と表示するはずが、いまは <code>0110</code> と表示します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del">    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="fn">stdc_bit_width</span>(n); i &gt;= <span class="nu">0</span>; i--) {</span>
+<span class="code-line">        <span class="fn">putchar</span>(<span class="st">'0'</span> + ((n &gt;&gt; i) &amp; <span class="nu">1</span>));</span>
+<span class="code-line">    }</span>
+</code></pre>
+      <p>
+        <code>stdc_bit_width(n)</code> は <code>n</code> を表すのに要るビットの数で、6 (<code>110</code>) なら3です。3ビットの数が使う桁は 2<sup>0</sup>, 2<sup>1</sup>, 2<sup>2</sup> の位で、最上位のビットの番号は2です。ところがループは <code>i = 3</code> から始まるので、最初に <code>(6 &gt;&gt; 3) &amp; 1</code>、つまり存在しない 2<sup>3</sup> の位の0を表示し、そのあとに <code>110</code> が続いて <code>0110</code> になります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins">    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="fn">stdc_bit_width</span>(n) <span class="chg">- <span class="nu">1</span></span>; i &gt;= <span class="nu">0</span>; i--) {</span>
+<span class="code-line">        <span class="fn">putchar</span>(<span class="st">'0'</span> + ((n &gt;&gt; i) &amp; <span class="nu">1</span>));</span>
+<span class="code-line">    }</span>
+</code></pre>
+      <p>
+        幅が w ビットなら、ビットの番号は0から w − 1 までです。開始を <code>stdc_bit_width(n) - 1</code> にすれば、最初に表示するのは最上位の1になり、6 は <code>110</code> と表示されます。ビットの個数はそのままでは番号にならず、0から数える番号の最後は個数から1を引いた値になります。<sup class="fn-ref">1</sup>
+      </p>
+      <ol class="footnotes">
+        <li>直す前のコードには、表示が崩れるだけでは済まない入力もあります。<code>n</code> が 2<sup>31</sup> 以上なら <code>stdc_bit_width(n)</code> は32で、最初の <code>n &gt;&gt; 32</code> は <code>unsigned</code> の幅以上のシフトになり、未定義動作です。直したあとは最大でも31ビットのシフトで済みます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

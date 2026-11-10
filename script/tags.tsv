@@ -56,6 +56,7 @@ character-encoding	文字コード
 check-digit	チェックディジット
 checked-arithmetic	検査付き演算
 checksum	チェックサム
+chinese-remainder-theorem	中国剰余定理
 church-encoding	Church符号化
 clone-trait	Cloneトレイト
 closure	クロージャ
@@ -316,6 +317,7 @@ phantom-type	ファントム型
 point-free	ポイントフリー
 pointer	ポインタ
 pointer-decay	配列のポインタ化
+population-count	ポップカウント
 precise-capturing	精密な捕捉
 prefix-sum	累積和
 prepared-statement	プリペアドステートメント

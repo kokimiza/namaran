@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="comptime 引数 n で容量を決める固定長スタックが、len の型を std.math.IntFittingRange(0, n - 1) で選んだせいで、n が2の累乗のときだけ満杯にする push で panic する。個数の取りうる値から型を選び直す Zig 0.17 のドリル。">
+<title>個数の型が1ビット足りない</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/debug/2026-11-11">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / DEBUG", "item": "https://namaran.jocarium.productions/zig/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-11" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / DEBUG — 2026-11-11",
+      "url": "https://namaran.jocarium.productions/zig/debug/2026-11-11",
+      "datePublished": "2026-11-11",
+      "dateModified": "2026-11-11",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "個数の型が1ビット足りない" },
+      "keywords": "comptime, integer-overflow, off-by-one, stack",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "comptime 引数 n で容量を決める固定長スタックが、len の型を std.math.IntFittingRange(0, n - 1) で選んだせいで、n が2の累乗のときだけ満杯にする push で panic する。個数の取りうる値から型を選び直す Zig 0.17 のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-11">C23</a>
+  <a href="/cpp/debug/2026-11-11">C++26</a>
+  <a href="/rust/debug/2026-11-11">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-11">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-11" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-11">READ</a>
+  <a href="/zig/write/2026-11-11">WRITE</a>
+  <a href="/zig/debug/2026-11-11" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="個数の型が1ビット足りない"
+  data-tags="comptime integer-overflow off-by-one stack"
+  data-concepts="comptime, IntFittingRange, 型を返す関数, 整数のオーバーフロー, 2の累乗, illegal behavior, integer overflow, off-by-one"
+  data-level="whale"
+>
+  <h2>2026-11-11</h2>
+  <div class="code-frame">
+    <p class="code-filename">stack.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">Stack</span>(<span class="kw">comptime</span> n: <span class="ty">usize</span>) <span class="ty">type</span> {</span>
+<span class="code-line">    <span class="kw">return</span> <span class="kw">struct</span> {</span>
+<span class="code-line">        items: [n]<span class="ty">u8</span> = <span class="nu">undefined</span>,</span>
+<span class="code-line">        len: std.math.<span class="ty">IntFittingRange</span>(<span class="nu">0</span>, n - <span class="nu">1</span>) = <span class="nu">0</span>,</span>
+<span class="code-line">        <span class="kw">fn</span> <span class="fn">push</span>(self: *<span class="mc">@This</span>(), c: <span class="ty">u8</span>) <span class="ty">void</span> {</span>
+<span class="code-line">            self.items[self.len] = c;</span>
+<span class="code-line">            self.len += <span class="nu">1</span>;</span>
+<span class="code-line">        }</span>
+<span class="code-line">    };</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {</span>
+<span class="code-line">    <span class="kw">var</span> s: <span class="ty">Stack</span>(<span class="nu">4</span>) = .{};</span>
+<span class="code-line">    <span class="kw">for</span> (<span class="st">"abcd"</span>) |c| s.<span class="fn">push</span>(c);</span>
+<span class="code-line">    <span class="kw">try</span> std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writeStreamingAll</span>(init.io, s.items[<span class="nu">0</span>..s.len]);</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>Stack(n)</code> は、文字を最大 <code>n</code> 個積める固定長のスタックの型を返す関数です。<code>Stack(4)</code> に <code>abcd</code> を1文字ずつ積んでから中身を表示すると、本来は <code>abcd</code> を出力するはずが、いまは手元の実行で4文字目の <code>push</code> が <code>integer overflow</code> の panic で止まります。同じように <code>Stack(3)</code> に3文字、<code>Stack(5)</code> に5文字を積むと、どちらも満杯まで正しく積めます。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del">        len: std.math.<span class="ty">IntFittingRange</span>(<span class="nu">0</span>, n <span class="chg">- <span class="nu">1</span></span>) = <span class="nu">0</span>,</span>
+</code></pre>
+      <p>
+        <code>std.math.IntFittingRange(0, k)</code> は、0 から k までを表せるいちばん小さい符号なし整数型を返します。上限を <code>n - 1</code> にすると、<code>len</code> を <code>items</code> の添字と同じ範囲として扱うことになります。しかし <code>len</code> は積んだ個数で、空の0から満杯の <code>n</code> までの n + 1 通りの値を取ります。<code>Stack(4)</code> では型が 0 から 3 までの <code>u2</code> になり、4文字目を積んで <code>len</code> を4にする <code>self.len += 1</code> がオーバーフローします。Debug ビルドはこの illegal behavior を安全検査で止めるので、panic になります。<sup class="fn-ref">1</sup>
+      </p>
+      <p>
+        3 や 5 で動くのは、0 から n − 1 を表す型と 0 から n を表す型が、たまたま同じだからです。<code>Stack(3)</code> は上限2でも3でも <code>u2</code>、<code>Stack(5)</code> は上限4でも5でも <code>u3</code> です。上限が n − 1 から n に増えたときに1ビット足りなくなるのは、n が2の累乗で、n − 1 がちょうどそのビット数で表せる最大値のときだけです。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins">        len: std.math.<span class="ty">IntFittingRange</span>(<span class="nu">0</span>, n) = <span class="nu">0</span>,</span>
+</code></pre>
+      <p>
+        上限を <code>n</code> にすれば、<code>len</code> の型は満杯の個数まで表せます。<code>Stack(4)</code> では <code>u3</code> になり、4文字目のあとの <code>len</code> は4のまま収まって <code>abcd</code> が表示されます。添字として使うときは 0 から n − 1 の範囲に収まり、<code>items</code> を読み書きする側は変わりません。
+      </p>
+      <ol class="footnotes">
+        <li>panic で止まるのは、安全検査のある Debug と ReleaseSafe だけです。ReleaseFast や ReleaseSmall ではこの足し算が検査されず、その後の動きは保証されません。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/debug">Today</a></li>
+    <li><a href="/zig/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

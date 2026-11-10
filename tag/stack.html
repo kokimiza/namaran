@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「スタック」を扱ったNamaranのコーディングドリル8問。型を返す関数、ジェネリックな構造体、@This、構造体のメソッド、名前空間としての構造体、オプショナル型。">
+<meta name="description" content="「スタック」を扱ったNamaranのコーディングドリル10問。comptime、型を返す関数、@This、固定長スタック、既定値つきフィールド、generic data structure。">
 <title>スタック</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/stack">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,12 @@
   <h2>スタック</h2>
 
   <p class="lede">
-    「スタック」を扱った8問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「スタック」を扱った10問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/write/2026-11-11">Zig / WRITE · 2026-11-11</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">固定長スタックの型を返す</span> <span class="past-concepts">comptime, 型を返す関数, @This, 固定長スタック, 既定値つきフィールド, generic data structure, type function, optional</span></li>
+    <li><a href="/zig/debug/2026-11-11">Zig / DEBUG · 2026-11-11</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">個数の型が1ビット足りない</span> <span class="past-concepts">comptime, IntFittingRange, 型を返す関数, 整数のオーバーフロー, 2の累乗, illegal behavior, integer overflow, off-by-one</span></li>
     <li><a href="/zig/write/2026-11-06">Zig / WRITE · 2026-11-06</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">型を返す関数でスタック</span> <span class="past-concepts">型を返す関数, ジェネリックな構造体, @This, 構造体のメソッド, 名前空間としての構造体, オプショナル型, type function, generic struct, struct method, fixed-capacity stack</span></li>
     <li><a href="/rust/read/2026-11-05">Rust / READ · 2026-11-05</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">積み直しながら空にする</span> <span class="past-concepts">while let, Vec::pop, ループの終了条件, 後入れ先出し, LIFO, loop termination, Option</span></li>
     <li><a href="/zig/write/2026-10-31">Zig / WRITE · 2026-10-31</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">積んで降ろすメソッド</span> <span class="past-concepts">メソッド, selfパラメータ, 構造体へのポインタ, オプショナル型, スタック, method, self parameter, optional</span></li>

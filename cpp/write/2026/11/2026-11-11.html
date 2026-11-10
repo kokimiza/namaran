@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="数字と + - * / と括弧からなる式の文字列を計算する関数を、優先順位の段ごとに関数を分けた再帰下降構文解析で書く。左から計算する規則と括弧の扱いを1つにまとめる C++26 のドリル。">
+<title>四則演算の式を計算する</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-11-11">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-11" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-11-11",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-11-11",
+      "datePublished": "2026-11-11",
+      "dateModified": "2026-11-11",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "四則演算の式を計算する" },
+      "keywords": "parsing, recursion, operator-precedence, associativity",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "数字と + - * / と括弧からなる式の文字列を計算する関数を、優先順位の段ごとに関数を分けた再帰下降構文解析で書く。左から計算する規則と括弧の扱いを1つにまとめる C++26 のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-11">C23</a>
+  <a href="/cpp/write/2026-11-11" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-11-11">Rust 2024</a>
+  <a href="/haskell/write/2026-11-11">Haskell 2010</a>
+  <a href="/zig/write/2026-11-11">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-11">READ</a>
+  <a href="/cpp/write/2026-11-11" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-11-11">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="四則演算の式を計算する"
+  data-tags="parsing recursion operator-precedence associativity"
+  data-concepts="再帰下降構文解析, 演算子の優先順位, 左結合, 括弧, 式の評価, recursive descent parser, operator precedence, expression evaluation"
+  data-level="bison"
+>
+  <h2>2026-11-11</h2>
+  <div class="code-frame">
+    <p class="code-filename">calc.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;string_view&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">evaluate</span>(std::<span class="ty">string_view</span> s) {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    数字と <code>+</code> <code>-</code> <code>*</code> <code>/</code> と括弧だけからなる式の文字列 <code>s</code> を計算して返す <code>evaluate</code> を書いてください。<code>*</code> と <code>/</code> は <code>+</code> と <code>-</code> より先に計算し、同じ強さの演算子どうしは左から順に計算します。数は0以上の整数で何桁でもよく、空白は含みません。<code>/</code> は <code>int</code> の割り算と同じく0の方向へ切り捨てます。<code>s</code> は正しい式で、0で割ることはなく、途中の値も <code>int</code> に収まるものとします。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>evaluate("100-20/3-4")</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>90</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>evaluate("2*(3-5)*(8/(1+1))")</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>-16</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>evaluate("7")</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>7</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;string_view&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line ins"><span class="kw">namespace</span> {</span>
+<span class="code-line ins"><span class="ty">int</span> <span class="fn">expr</span>(std::<span class="ty">string_view</span>&amp; s);</span>
+<span class="code-line ins"></span>
+<span class="code-line ins"><span class="ty">bool</span> <span class="fn">next_is</span>(std::<span class="ty">string_view</span> s, <span class="ty">char</span> c) {</span>
+<span class="code-line ins">    <span class="kw">return</span> !s.<span class="fn">empty</span>() &amp;&amp; s.<span class="fn">front</span>() == c;</span>
+<span class="code-line ins">}</span>
+<span class="code-line ins"></span>
+<span class="code-line ins"><span class="ty">int</span> <span class="fn">factor</span>(std::<span class="ty">string_view</span>&amp; s) {</span>
+<span class="code-line ins">    <span class="kw">if</span> (<span class="fn">next_is</span>(s, <span class="st">'('</span>)) {</span>
+<span class="code-line ins">        s.<span class="fn">remove_prefix</span>(<span class="nu">1</span>);</span>
+<span class="code-line ins">        <span class="ty">int</span> v = <span class="fn">expr</span>(s);</span>
+<span class="code-line ins">        s.<span class="fn">remove_prefix</span>(<span class="nu">1</span>);</span>
+<span class="code-line ins">        <span class="kw">return</span> v;</span>
+<span class="code-line ins">    }</span>
+<span class="code-line ins">    <span class="ty">int</span> v = <span class="nu">0</span>;</span>
+<span class="code-line ins">    <span class="kw">while</span> (!s.<span class="fn">empty</span>() &amp;&amp; s.<span class="fn">front</span>() &gt;= <span class="st">'0'</span> &amp;&amp; s.<span class="fn">front</span>() &lt;= <span class="st">'9'</span>) {</span>
+<span class="code-line ins">        v = v * <span class="nu">10</span> + (s.<span class="fn">front</span>() - <span class="st">'0'</span>);</span>
+<span class="code-line ins">        s.<span class="fn">remove_prefix</span>(<span class="nu">1</span>);</span>
+<span class="code-line ins">    }</span>
+<span class="code-line ins">    <span class="kw">return</span> v;</span>
+<span class="code-line ins">}</span>
+<span class="code-line ins"></span>
+<span class="code-line ins"><span class="ty">int</span> <span class="fn">term</span>(std::<span class="ty">string_view</span>&amp; s) {</span>
+<span class="code-line ins">    <span class="ty">int</span> v = <span class="fn">factor</span>(s);</span>
+<span class="code-line ins">    <span class="kw">while</span> (<span class="fn">next_is</span>(s, <span class="st">'*'</span>) || <span class="fn">next_is</span>(s, <span class="st">'/'</span>)) {</span>
+<span class="code-line ins">        <span class="ty">char</span> op = s.<span class="fn">front</span>();</span>
+<span class="code-line ins">        s.<span class="fn">remove_prefix</span>(<span class="nu">1</span>);</span>
+<span class="code-line ins">        <span class="ty">int</span> rhs = <span class="fn">factor</span>(s);</span>
+<span class="code-line ins">        v = op == <span class="st">'*'</span> ? v * rhs : v / rhs;</span>
+<span class="code-line ins">    }</span>
+<span class="code-line ins">    <span class="kw">return</span> v;</span>
+<span class="code-line ins">}</span>
+<span class="code-line ins"></span>
+<span class="code-line ins"><span class="ty">int</span> <span class="fn">expr</span>(std::<span class="ty">string_view</span>&amp; s) {</span>
+<span class="code-line ins">    <span class="ty">int</span> v = <span class="fn">term</span>(s);</span>
+<span class="code-line ins">    <span class="kw">while</span> (<span class="fn">next_is</span>(s, <span class="st">'+'</span>) || <span class="fn">next_is</span>(s, <span class="st">'-'</span>)) {</span>
+<span class="code-line ins">        <span class="ty">char</span> op = s.<span class="fn">front</span>();</span>
+<span class="code-line ins">        s.<span class="fn">remove_prefix</span>(<span class="nu">1</span>);</span>
+<span class="code-line ins">        <span class="ty">int</span> rhs = <span class="fn">term</span>(s);</span>
+<span class="code-line ins">        v = op == <span class="st">'+'</span> ? v + rhs : v - rhs;</span>
+<span class="code-line ins">    }</span>
+<span class="code-line ins">    <span class="kw">return</span> v;</span>
+<span class="code-line ins">}</span>
+<span class="code-line ins">} <span class="cm">// namespace</span></span>
+<span class="code-line ins"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">evaluate</span>(std::<span class="ty">string_view</span> s) {</span>
+<span class="code-line ins">    <span class="kw">return</span> <span class="fn">expr</span>(s);</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        優先順位の段ごとに関数を1つずつ用意しました。<code>expr</code> は <code>+</code> と <code>-</code> でつながった並びを、<code>term</code> は <code>*</code> と <code>/</code> でつながった並びを、<code>factor</code> は数か括弧で囲んだ式を読みます。低い段の関数は1段高い段の関数を呼んでオペランドを読むので、<code>expr</code> が <code>-</code> の右を <code>term</code> で読んだ時点で <code>20/3</code> は1つの値 6 にまとまり、割り算が先に済みます。括弧は <code>factor</code> から一番低い段の <code>expr</code> に戻って読むことで、中身全体を1つのオペランドとして扱えます。これは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        同じ段の演算子は、<code>while</code> で左から順に <code>v</code> へ畳み込みます。<code>100-20/3-4</code> では <code>v</code> が 100、94、90 と変わり、左から計算した 90 が返ります。どの段の関数も同じ <code>std::string_view</code> を参照で受け取り、読んだ分だけ <code>remove_prefix</code> で先頭を進めるので、呼び出しから戻った側は続きの位置から読めます。<code>next_is</code> で空かどうかを先に確かめるのは、式の終わりで <code>front()</code> を呼ばないためです。
+      </p>
+      <p>
+        <code>2*(3-5)*(8/(1+1))</code> では、<code>factor</code> が <code>(</code> を見るたびに <code>expr</code> を呼び、内側の <code>expr</code> は <code>)</code> を見ると自分の担当する演算子ではないのでループを抜けて戻ります。閉じ括弧は呼び出した <code>factor</code> が読み飛ばし、値は −2 と 4 になって、全体は 2 × (−2) × 4 = −16 です。<code>7</code> のように演算子の無い式では、どのループも1回も回らず、<code>factor</code> が読んだ7がそのまま返ります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="整数のリストのどの2つを選んでも最大公約数が1になるかを判定する関数を、tails と内包表記で書く。隣り合う組だけでなくすべての組を調べる Haskell 2010 のドリル。">
+<title>どの2つも互いに素か</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-11-11">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-11" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-11-11",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-11-11",
+      "datePublished": "2026-11-11",
+      "dateModified": "2026-11-11",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "どの2つも互いに素か" },
+      "keywords": "greatest-common-divisor, list-comprehension, number-theory",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "整数のリストのどの2つを選んでも最大公約数が1になるかを判定する関数を、tails と内包表記で書く。隣り合う組だけでなくすべての組を調べる Haskell 2010 のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-11">C23</a>
+  <a href="/cpp/write/2026-11-11">C++26</a>
+  <a href="/rust/write/2026-11-11">Rust 2024</a>
+  <a href="/haskell/write/2026-11-11" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/write/2026-11-11">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-11">READ</a>
+  <a href="/haskell/write/2026-11-11" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-11-11">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="どの2つも互いに素か"
+  data-tags="greatest-common-divisor list-comprehension number-theory"
+  data-concepts="互いに素, 最大公約数, gcd, すべての組, tails, リスト内包表記, pairwise coprime, list comprehension"
+  data-level="hedgehog"
+>
+  <h2>2026-11-11</h2>
+  <div class="code-frame">
+    <p class="code-filename">Coprime.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="fn">pairwiseCoprime</span> <span class="op">::</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> <span class="ty">Bool</span></span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    整数のリスト <code>xs</code> から異なる位置の2つの要素をどう選んでも、その最大公約数が1なら <code>True</code>、そうでなければ <code>False</code> を返す <code>pairwiseCoprime</code> を書いてください。要素はすべて1以上です。要素が1つ以下のときは、選べる組が無いので <code>True</code> です。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>pairwiseCoprime [3, 5, 7]</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>True</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>pairwiseCoprime [4, 9, 10]</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>False</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>pairwiseCoprime []</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>True</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line ins"><span class="kw">import</span> <span class="ty">Data.List</span> (tails)</span>
+<span class="code-line ins"></span>
+<span class="code-line"><span class="fn">pairwiseCoprime</span> <span class="op">::</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> <span class="ty">Bool</span></span>
+<span class="code-line ins"><span class="fn">pairwiseCoprime</span> xs = and [gcd a b == <span class="nu">1</span> | (a : bs) <span class="op">&lt;-</span> tails xs, b <span class="op">&lt;-</span> bs]</span>
+</code></pre>
+      </div>
+      <p>
+        <code>tails xs</code> は <code>xs</code> の後ろの部分を長い順に並べたリストで、<code>[4, 9, 10]</code> なら <code>[[4, 9, 10], [9, 10], [10], []]</code> です。内包表記で各要素を <code>(a : bs)</code> と受けると、<code>a</code> とそれより後ろの要素 <code>b</code> の組がちょうど1回ずつ作られます。すべての組で <code>gcd a b == 1</code> なら <code>and</code> が <code>True</code> を返します。これは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        入力例2で、隣り合う 4 と 9、9 と 10 の最大公約数はどちらも1ですが、離れた 4 と 10 は2を共有しています。隣どうしだけを調べると、この組を見落として <code>True</code> を返してしまいます。空リストと1要素のリストでは組が1つも作られず、<code>and []</code> は <code>True</code> なので、境界の場合を別に書く必要はありません。最後の <code>[]</code> はパターン <code>(a : bs)</code> に一致せず、内包表記の中では一致しない要素が読み飛ばされます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

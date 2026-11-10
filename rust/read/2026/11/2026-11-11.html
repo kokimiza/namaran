@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="放物線 y = x² 上の9点から3点を選ぶすべての組について、外積の符号で左に曲がる組を数える。外積を因数分解して、1組ずつ調べずに符号を見抜く Rust 2024 のドリル。">
+<title>放物線上の3点の向き</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-11-11">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / READ", "item": "https://namaran.jocarium.productions/rust/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-11" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / READ — 2026-11-11",
+      "url": "https://namaran.jocarium.productions/rust/read/2026-11-11",
+      "datePublished": "2026-11-11",
+      "dateModified": "2026-11-11",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "放物線上の3点の向き" },
+      "keywords": "cross-product, computational-geometry, combinatorics",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "放物線 y = x² 上の9点から3点を選ぶすべての組について、外積の符号で左に曲がる組を数える。外積を因数分解して、1組ずつ調べずに符号を見抜く Rust 2024 のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-11">C23</a>
+  <a href="/cpp/read/2026-11-11">C++26</a>
+  <a href="/rust/read/2026-11-11" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/read/2026-11-11">Haskell 2010</a>
+  <a href="/zig/read/2026-11-11">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-11" class="active" aria-current="page">READ</a>
+  <a href="/rust/write/2026-11-11">WRITE</a>
+  <a href="/rust/debug/2026-11-11">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="放物線上の3点の向き"
+  data-tags="cross-product computational-geometry combinatorics"
+  data-concepts="外積, 3点の向き, 左回り, 放物線, 因数分解, 組合せの数, cross product, orientation, counterclockwise"
+  data-level="whale"
+>
+  <h2>2026-11-11</h2>
+  <div class="code-frame">
+    <p class="code-filename">parabola.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">cross</span>(o: (<span class="ty">i32</span>, <span class="ty">i32</span>), a: (<span class="ty">i32</span>, <span class="ty">i32</span>), b: (<span class="ty">i32</span>, <span class="ty">i32</span>)) -&gt; <span class="ty">i32</span> {</span>
+<span class="code-line">    (a.<span class="nu">0</span> - o.<span class="nu">0</span>) * (b.<span class="nu">1</span> - o.<span class="nu">1</span>) - (a.<span class="nu">1</span> - o.<span class="nu">1</span>) * (b.<span class="nu">0</span> - o.<span class="nu">0</span>)</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="kw">let</span> p: <span class="ty">Vec</span>&lt;(<span class="ty">i32</span>, <span class="ty">i32</span>)&gt; = (-<span class="nu">4</span>..=<span class="nu">4</span>).<span class="fn">map</span>(|x| (x, x * x)).<span class="fn">collect</span>();</span>
+<span class="code-line">    <span class="kw">let</span> <span class="kw">mut</span> left = <span class="nu">0</span>;</span>
+<span class="code-line">    <span class="kw">for</span> i <span class="kw">in</span> <span class="nu">0</span>..p.<span class="fn">len</span>() {</span>
+<span class="code-line">        <span class="kw">for</span> j <span class="kw">in</span> i + <span class="nu">1</span>..p.<span class="fn">len</span>() {</span>
+<span class="code-line">            <span class="kw">for</span> k <span class="kw">in</span> j + <span class="nu">1</span>..p.<span class="fn">len</span>() {</span>
+<span class="code-line">                <span class="kw">if</span> <span class="fn">cross</span>(p[i], p[j], p[k]) &gt; <span class="nu">0</span> {</span>
+<span class="code-line">                    left += <span class="nu">1</span>;</span>
+<span class="code-line">                }</span>
+<span class="code-line">            }</span>
+<span class="code-line">        }</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="mc">println!</span>(<span class="st">"{left}"</span>);</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>84</samp></pre>
+      </div>
+      <p>
+        <code>cross(o, a, b)</code> は、<code>o</code> から <code>a</code> へ進み、そこから <code>b</code> へ向かうときに左へ曲がるなら正、右へ曲がるなら負、一直線なら0になる値です。<code>p</code> は x = −4 から 4 までの9点 (x, x²) を x の小さい順に並べたもので、三重ループは <code>i &lt; j &lt; k</code> のすべての組、つまり9点から3点を選ぶ 9C3 = 84 通りを調べます。
+      </p>
+      <p>
+        84通りを1つずつ計算しなくても、この点の並びなら式から符号が決まります。x 座標が x1, x2, x3 の3点を入れると、値は (x2 − x1)(x3² − x1²) − (x2² − x1²)(x3 − x1) です。(x2 − x1)(x3 − x1) でくくると、残りは (x3 + x1) − (x2 + x1) = x3 − x2 なので、全体は (x2 − x1)(x3 − x1)(x3 − x2) になります。<code>i &lt; j &lt; k</code> なら x1 &lt; x2 &lt; x3 で、3つの差はどれも正です。したがってどの組も正になり、<code>left</code> は 84 です。
+      </p>
+      <p>
+        (−2, 4), (0, 0), (2, 4) のように y 軸に対して左右対称な組を見ると、向きが打ち消し合いそうに思えます。実際には、この組も x の小さい順に回ると左に曲がり、値は 2 × 4 × 2 = 16 です。放物線 y = x² は下に凸な曲線なので、その上の点を x の順にたどると、どの3点を取っても左へ曲がります。一直線に並ぶ3点も無いので、0になる組もありません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/read">Today</a></li>
+    <li><a href="/rust/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

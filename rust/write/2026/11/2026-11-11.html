@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="3点の向きを外積で返す cross を使い、点が三角形の内側か辺の上にあるかを判定する関数を書く。三角形の頂点がどちら回りに並んでいても正しく答える Rust 2024 のドリル。">
+<title>外積で三角形の内外判定</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-11-11">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-11" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-11-11",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-11-11",
+      "datePublished": "2026-11-11",
+      "dateModified": "2026-11-11",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "外積で三角形の内外判定" },
+      "keywords": "cross-product, computational-geometry",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "3点の向きを外積で返す cross を使い、点が三角形の内側か辺の上にあるかを判定する関数を書く。三角形の頂点がどちら回りに並んでいても正しく答える Rust 2024 のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-11">C23</a>
+  <a href="/cpp/write/2026-11-11">C++26</a>
+  <a href="/rust/write/2026-11-11" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-11-11">Haskell 2010</a>
+  <a href="/zig/write/2026-11-11">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-11">READ</a>
+  <a href="/rust/write/2026-11-11" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-11-11">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="外積で三角形の内外判定"
+  data-tags="cross-product computational-geometry"
+  data-concepts="外積, 三角形の内外判定, 点と三角形, 符号がそろう, cross product, point in triangle, orientation"
+  data-level="hedgehog"
+>
+  <h2>2026-11-11</h2>
+  <div class="code-frame">
+    <p class="code-filename">triangle.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">type</span> <span class="ty">Point</span> = (<span class="ty">i64</span>, <span class="ty">i64</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">cross</span>(o: <span class="ty">Point</span>, a: <span class="ty">Point</span>, b: <span class="ty">Point</span>) -&gt; <span class="ty">i64</span> {</span>
+<span class="code-line">    (a.<span class="nu">0</span> - o.<span class="nu">0</span>) * (b.<span class="nu">1</span> - o.<span class="nu">1</span>) - (a.<span class="nu">1</span> - o.<span class="nu">1</span>) * (b.<span class="nu">0</span> - o.<span class="nu">0</span>)</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">contains</span>(tri: [<span class="ty">Point</span>; <span class="nu">3</span>], p: <span class="ty">Point</span>) -&gt; <span class="ty">bool</span> {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>cross(o, a, b)</code> は、<code>o</code> から <code>a</code> へ進み、そこから <code>b</code> へ向かうときに左へ曲がるなら正、右へ曲がるなら負、一直線なら0を返します。これを使い、点 <code>p</code> が三角形 <code>tri</code> の内側か辺の上にあれば <code>true</code>、外側なら <code>false</code> を返す <code>contains</code> を書いてください。<code>tri</code> の3頂点は一直線に並ばず、左回りと右回りのどちらの順でも来ます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>contains([(0, 0), (4, 0), (0, 4)], (1, 1))</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>true</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>contains([(0, 0), (4, 0), (0, 4)], (3, 3))</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>false</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>contains([(0, 0), (0, 4), (4, 0)], (2, 2))</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>true</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line ins"><span class="kw">fn</span> <span class="fn">contains</span>(tri: [<span class="ty">Point</span>; <span class="nu">3</span>], p: <span class="ty">Point</span>) -&gt; <span class="ty">bool</span> {</span>
+<span class="code-line ins">    <span class="kw">let</span> [a, b, c] = tri;</span>
+<span class="code-line ins">    <span class="kw">let</span> s = [<span class="fn">cross</span>(a, b, p), <span class="fn">cross</span>(b, c, p), <span class="fn">cross</span>(c, a, p)];</span>
+<span class="code-line ins">    s.<span class="fn">iter</span>().<span class="fn">all</span>(|&amp;v| v &gt;= <span class="nu">0</span>) || s.<span class="fn">iter</span>().<span class="fn">all</span>(|&amp;v| v &lt;= <span class="nu">0</span>)</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        三角形の辺を a → b → c → a の順にたどると、内側の点はどの辺から見ても同じ側にあります。そこで3本の辺それぞれについて <code>cross</code> を求め、3つの符号がそろっているかを調べます。頂点が左回りなら内側の点は3つとも正、右回りなら3つとも負になるので、「すべて0以上」か「すべて0以下」のどちらかが成り立てば内側です。辺の上の点では、その辺の値が0になり、0は両方の条件に入るので <code>true</code> になります。これは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        入力例1の三角形は左回りで、(1, 1) に対する3つの値は 4, 8, 4 とすべて正です。(3, 3) では辺 (4, 0) → (0, 4) に対する値だけが −8 になり、符号がそろわないので <code>false</code> を返します。入力例3は頂点が右回りで、(2, 2) は辺 (0, 4) → (4, 0) の上にあります。値は −8, 0, −8 で、すべて0以下なので <code>true</code> です。<code>let [a, b, c] = tri;</code> は配列のパターンで3頂点に名前を付けており、要素数が型で3に決まっているので、このパターンは必ず一致します。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="1桁の数を読み、演算子の右側を再帰呼び出しで丸ごと読む構文解析器が、+ と - の混じった式をどう計算するか。各項の符号を、左にある - の個数から一度に決める C++26 のドリル。">
+<title>右へ伸びる再帰と符号</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-11-11">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-11" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-11-11",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-11-11",
+      "datePublished": "2026-11-11",
+      "dateModified": "2026-11-11",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "右へ伸びる再帰と符号" },
+      "keywords": "parsing, recursion, associativity",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "1桁の数を読み、演算子の右側を再帰呼び出しで丸ごと読む構文解析器が、+ と - の混じった式をどう計算するか。各項の符号を、左にある - の個数から一度に決める C++26 のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-11">C23</a>
+  <a href="/cpp/read/2026-11-11" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-11-11">Rust 2024</a>
+  <a href="/haskell/read/2026-11-11">Haskell 2010</a>
+  <a href="/zig/read/2026-11-11">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-11" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-11-11">WRITE</a>
+  <a href="/cpp/debug/2026-11-11">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="右へ伸びる再帰と符号"
+  data-tags="parsing recursion associativity"
+  data-concepts="再帰下降構文解析, 右再帰, 結合性, 符号の反転, recursive descent parser, right recursion, associativity"
+  data-level="whale"
+>
+  <h2>2026-11-11</h2>
+  <div class="code-frame">
+    <p class="code-filename">signs.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;print&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">const</span> <span class="ty">char</span>* p = <span class="st">"1-2+3-4+5-6+7-8+9"</span>;</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">expr</span>() {</span>
+<span class="code-line">    <span class="ty">int</span> v = *p++ - <span class="st">'0'</span>;</span>
+<span class="code-line">    <span class="ty">char</span> op = *p++;</span>
+<span class="code-line">    <span class="kw">return</span> op == <span class="st">'+'</span> ? v + <span class="fn">expr</span>() : op == <span class="st">'-'</span> ? v - <span class="fn">expr</span>() : v;</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    std::<span class="fn">println</span>(<span class="st">"{}"</span>, <span class="fn">expr</span>());</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>9</samp></pre>
+      </div>
+      <p>
+        <code>expr</code> は数字を1つと演算子を1つ読み、残りの文字列全体を自分自身の再帰呼び出しで計算してから、<code>v</code> とその結果に演算子を当てはめます。そのため <code>1-2+3-…</code> は 1 − (2 + (3 − (4 + …))) と計算され、どの演算子も右側の全体を相手にします。
+      </p>
+      <p>
+        9段の入れ子を内側から開く代わりに、各数字の符号を直接決められます。<code>-</code> はその右側の全体の符号を反転させ、<code>+</code> は何も変えません。ある数字の符号は、それより左にある <code>-</code> の個数が偶数なら正、奇数なら負です。左から 1 は0個で正、2 と 3 は1個で負、4 と 5 は2個で正、6 と 7 は3個で負、8 と 9 は4個で正なので、1 − 2 − 3 + 4 + 5 − 6 − 7 + 8 + 9 = 9 になります。
+      </p>
+      <p>
+        見慣れた左からの計算 1 − 2 + 3 − … + 9 では 5 になります。このコードでは <code>-</code> の直後にある <code>+</code> もその引き算の右側に入るので、たとえば 3 は足されずに引かれます。最後の <code>9</code> のあとで読む <code>op</code> は終端の <code>'\0'</code> で、どちらの演算子とも一致しないので 9 がそのまま返ります。このとき <code>p</code> は配列の末尾の1つ先を指しますが、そこを読むことはないので問題ありません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

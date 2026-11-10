@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="格子上の点を usize の組で持ち、外積で曲がる向きを求める関数が、座標の差を i64 に変換する前に usize のまま引き算して panic する。変換の位置を直す Rust 2024 のドリル。">
+<title>usizeの差を外積に使う</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-11-11">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-11" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-11-11",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-11-11",
+      "datePublished": "2026-11-11",
+      "dateModified": "2026-11-11",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "usizeの差を外積に使う" },
+      "keywords": "cross-product, integer-overflow, signed-unsigned, type-conversion",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "格子上の点を usize の組で持ち、外積で曲がる向きを求める関数が、座標の差を i64 に変換する前に usize のまま引き算して panic する。変換の位置を直す Rust 2024 のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-11">C23</a>
+  <a href="/cpp/debug/2026-11-11">C++26</a>
+  <a href="/rust/debug/2026-11-11" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-11">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-11">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-11">READ</a>
+  <a href="/rust/write/2026-11-11">WRITE</a>
+  <a href="/rust/debug/2026-11-11" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="usizeの差を外積に使う"
+  data-tags="cross-product integer-overflow signed-unsigned type-conversion"
+  data-concepts="外積, usize, 符号なし整数の引き算, オーバーフロー, as による変換, unsigned subtraction overflow, cross product, panic"
+  data-level="peacock"
+>
+  <h2>2026-11-11</h2>
+  <div class="code-frame">
+    <p class="code-filename">turns.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">type</span> <span class="ty">Pt</span> = (<span class="ty">usize</span>, <span class="ty">usize</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">cross</span>(o: <span class="ty">Pt</span>, a: <span class="ty">Pt</span>, b: <span class="ty">Pt</span>) -&gt; <span class="ty">i64</span> {</span>
+<span class="code-line">    <span class="kw">let</span> dx1 = (a.<span class="nu">0</span> - o.<span class="nu">0</span>) <span class="kw">as</span> <span class="ty">i64</span>;</span>
+<span class="code-line">    <span class="kw">let</span> dy1 = (a.<span class="nu">1</span> - o.<span class="nu">1</span>) <span class="kw">as</span> <span class="ty">i64</span>;</span>
+<span class="code-line">    <span class="kw">let</span> dx2 = (b.<span class="nu">0</span> - o.<span class="nu">0</span>) <span class="kw">as</span> <span class="ty">i64</span>;</span>
+<span class="code-line">    <span class="kw">let</span> dy2 = (b.<span class="nu">1</span> - o.<span class="nu">1</span>) <span class="kw">as</span> <span class="ty">i64</span>;</span>
+<span class="code-line">    dx1 * dy2 - dy1 * dx2</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="kw">let</span> path = [(<span class="nu">0</span>, <span class="nu">0</span>), (<span class="nu">4</span>, <span class="nu">0</span>), (<span class="nu">4</span>, <span class="nu">3</span>), (<span class="nu">1</span>, <span class="nu">5</span>)];</span>
+<span class="code-line">    <span class="kw">for</span> w <span class="kw">in</span> path.<span class="fn">windows</span>(<span class="nu">3</span>) {</span>
+<span class="code-line">        <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="fn">cross</span>(w[<span class="nu">0</span>], w[<span class="nu">1</span>], w[<span class="nu">2</span>]));</span>
+<span class="code-line">    }</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>cross</code> は、格子上の点 <code>o</code> から <code>a</code> へ進み、そこから <code>b</code> へ向かうときに左へ曲がるなら正、右へ曲がるなら負、一直線なら0を返す関数です。経路 (0, 0), (4, 0), (4, 3), (1, 5) の連続する3点ごとに値を表示し、本来は <code>12</code> と <code>9</code> の2行を出力するはずが、いまは手元の実行で <code>12</code> を出力したあと、<code>attempt to subtract with overflow</code> という panic で止まります。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del">    <span class="kw">let</span> dx1 = <span class="chg">(</span>a.<span class="nu">0</span> - o.<span class="nu">0</span><span class="chg">)</span> <span class="kw">as</span> <span class="ty">i64</span>;</span>
+<span class="code-line del">    <span class="kw">let</span> dy1 = <span class="chg">(</span>a.<span class="nu">1</span> - o.<span class="nu">1</span><span class="chg">)</span> <span class="kw">as</span> <span class="ty">i64</span>;</span>
+<span class="code-line del">    <span class="kw">let</span> dx2 = <span class="chg">(</span>b.<span class="nu">0</span> - o.<span class="nu">0</span><span class="chg">)</span> <span class="kw">as</span> <span class="ty">i64</span>;</span>
+<span class="code-line del">    <span class="kw">let</span> dy2 = <span class="chg">(</span>b.<span class="nu">1</span> - o.<span class="nu">1</span><span class="chg">)</span> <span class="kw">as</span> <span class="ty">i64</span>;</span>
+</code></pre>
+      <p>
+        <code>as i64</code> は付いていますが、括弧の中の引き算は <code>usize</code> のまま行われ、変換はそのあとです。1組目の (0, 0), (4, 0), (4, 3) では差がすべて0以上なので 12 が出ます。2組目の (4, 0), (4, 3), (1, 5) では <code>o</code> が (4, 0)、<code>b</code> が (1, 5) なので、<code>b.0 - o.0</code> は 1 − 4 です。−3 は <code>usize</code> で表せないので、オーバーフローを検査するデバッグビルドはここで panic します。<sup class="fn-ref">1</sup>
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins">    <span class="kw">let</span> dx1 = a.<span class="nu">0</span> <span class="chg"><span class="kw">as</span> <span class="ty">i64</span></span> - o.<span class="nu">0</span> <span class="kw">as</span> <span class="ty">i64</span>;</span>
+<span class="code-line ins">    <span class="kw">let</span> dy1 = a.<span class="nu">1</span> <span class="chg"><span class="kw">as</span> <span class="ty">i64</span></span> - o.<span class="nu">1</span> <span class="kw">as</span> <span class="ty">i64</span>;</span>
+<span class="code-line ins">    <span class="kw">let</span> dx2 = b.<span class="nu">0</span> <span class="chg"><span class="kw">as</span> <span class="ty">i64</span></span> - o.<span class="nu">0</span> <span class="kw">as</span> <span class="ty">i64</span>;</span>
+<span class="code-line ins">    <span class="kw">let</span> dy2 = b.<span class="nu">1</span> <span class="chg"><span class="kw">as</span> <span class="ty">i64</span></span> - o.<span class="nu">1</span> <span class="kw">as</span> <span class="ty">i64</span>;</span>
+</code></pre>
+      <p>
+        座標を1つずつ <code>i64</code> に変換してから引けば、差が負になっても <code>i64</code> の値として表せます。<code>as</code> は <code>-</code> より強く結び付くので、<code>a.0 as i64 - o.0 as i64</code> は変換した2つの値の引き算です。2組目は dx1 = 0, dy1 = 3, dx2 = −3, dy2 = 5 で、0 × 5 − 3 × (−3) = 9 になります。座標そのものは負にならないので <code>usize</code> で持てますが、座標の差は負になりうるので、引き算の前に符号付きの型へ移す必要があります。
+      </p>
+      <ol class="footnotes">
+        <li>オーバーフローの検査を外したリリースビルドでは、1 − 4 は 2<sup>64</sup> − 3 に回り込み、それを <code>as i64</code> で変換すると −3 に戻ります。そのため、リリースビルドだけで試すと正しい値が出て、欠陥に気付けません。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

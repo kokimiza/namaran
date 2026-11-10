@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「構文解析」を扱ったNamaranのコーディングドリル21問。std.Io.Reader、takeDelimiter、区切り文字、空の欄、末尾の区切り、delimiter。">
+<meta name="description" content="「構文解析」を扱ったNamaranのコーディングドリル24問。再帰下降構文解析、演算子の優先順位、左結合、括弧、式の評価、recursive descent parser。">
 <title>構文解析</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/parsing">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>構文解析</h2>
 
   <p class="lede">
-    「構文解析」を扱った21問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「構文解析」を扱った24問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/cpp/write/2026-11-11">C++ / WRITE · 2026-11-11</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">四則演算の式を計算する</span> <span class="past-concepts">再帰下降構文解析, 演算子の優先順位, 左結合, 括弧, 式の評価, recursive descent parser, operator precedence, expression evaluation</span></li>
+    <li><a href="/cpp/read/2026-11-11">C++ / READ · 2026-11-11</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">右へ伸びる再帰と符号</span> <span class="past-concepts">再帰下降構文解析, 右再帰, 結合性, 符号の反転, recursive descent parser, right recursion, associativity</span></li>
+    <li><a href="/cpp/debug/2026-11-11">C++ / DEBUG · 2026-11-11</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">引数の評価順と前置記法</span> <span class="past-concepts">関数の引数の評価順, 未規定, 前置記法, ポーランド記法, 再帰下降構文解析, order of evaluation, unspecified behavior, prefix notation</span></li>
     <li><a href="/zig/read/2026-11-04">Zig / READ · 2026-11-04</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">コンマで区切って読む</span> <span class="past-concepts">std.Io.Reader, takeDelimiter, 区切り文字, 空の欄, 末尾の区切り, delimiter, empty field, trailing delimiter</span></li>
     <li><a href="/haskell/write/2026-11-01">Haskell / WRITE · 2026-11-01</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">読めなければNothing</span> <span class="past-concepts">reads, read, 安全な読み取り, 読み残し, Maybe, ReadS, readMaybe, safe parsing</span></li>
     <li><a href="/haskell/debug/2026-11-01">Haskell / DEBUG · 2026-11-01</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">保存した平均が読めない</span> <span class="past-concepts">read, show, 型注釈, 型推論, 往復変換, no parse, round trip, Prelude.read</span></li>
