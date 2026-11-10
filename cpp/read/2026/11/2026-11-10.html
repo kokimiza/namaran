@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="consteval関数を、const int の変数と普通の int の変数で1回ずつ呼ぶ。consteval関数の呼び出しはどれも定数式でなければならず、constexpr関数のように実行時へ回されないことを確かめるC++26のドリル。">
+<title>実行時に回せない関数</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-11-10">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-10" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-11-10",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-11-10",
+      "datePublished": "2026-11-10",
+      "dateModified": "2026-11-10",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "実行時に回せない関数" },
+      "keywords": "consteval, constexpr",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "consteval関数を、const int の変数と普通の int の変数で1回ずつ呼ぶ。consteval関数の呼び出しはどれも定数式でなければならず、constexpr関数のように実行時へ回されないことを確かめるC++26のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-10">C23</a>
+  <a href="/cpp/read/2026-11-10" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-11-10">Rust 2024</a>
+  <a href="/haskell/read/2026-11-10">Haskell 2010</a>
+  <a href="/zig/read/2026-11-10">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-10" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-11-10">WRITE</a>
+  <a href="/cpp/debug/2026-11-10">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="実行時に回せない関数"
+  data-tags="consteval constexpr"
+  data-concepts="consteval, 即時関数, 定数式, コンパイル時評価, constexprとの違い, immediate function, constant expression, compile-time evaluation"
+  data-level="hedgehog"
+>
+  <h2>2026-11-10</h2>
+  <div class="code-frame">
+    <p class="code-filename">square.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">consteval</span> <span class="ty">int</span> <span class="fn">square</span>(<span class="ty">int</span> x) {</span>
+<span class="code-line">    <span class="kw">return</span> x * x;</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="kw">const</span> <span class="ty">int</span> a = <span class="nu">3</span>;</span>
+<span class="code-line">    <span class="ty">int</span> b = <span class="nu">4</span>;</span>
+<span class="code-line">    std::cout &lt;&lt; <span class="fn">square</span>(a) &lt;&lt; <span class="st">' '</span> &lt;&lt; <span class="fn">square</span>(b) &lt;&lt; <span class="st">'\n'</span>;</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>コンパイルエラー</samp></pre>
+      </div>
+      <p>
+        <code>consteval</code> を付けた関数は、呼び出しのたびにその場でコンパイル時に評価されます。呼び出し全体が定数式になれなければ、実行時に回されることはなく、プログラムがコンパイルエラーになります。
+      </p>
+      <p>
+        <code>square(a)</code> は通ります。<code>a</code> は <code>const</code> 付きの整数型の変数で、定数の <code>3</code> で初期化されているので、定数式の中でその値を使えます。<code>square(b)</code> は通りません。<code>b</code> は <code>const</code> の付かない普通の変数で、<code>4</code> で初期化されていても、その値をコンパイル時の計算には使えないからです。GCC は「<code>square(b)</code> は定数式ではない」「<code>b</code> の値は定数式で使えない」と報告して止まり、何も出力されません。
+      </p>
+      <p>
+        <code>constexpr</code> 関数と同じように考えると、<code>square(b)</code> は実行時に計算されると読んで <code>9 16</code> と答えます。<code>constexpr</code> 関数は、定数式として評価できないときは普通の関数として実行時に呼ばれます。<code>consteval</code> 関数にはその逃げ道がありません。<code>int b = 4;</code> を <code>const int b = 4;</code> に変えれば、<code>9 16</code> が出力されます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

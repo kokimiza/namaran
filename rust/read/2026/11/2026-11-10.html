@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="パスワードを包む型にDisplayを実装して中身を伏せ、長さだけを出す。その型を持つ構造体を {:?} で出すと、derive(Debug) は各フィールドのDisplayではなくDebugを使うことを確かめるRust 2024のドリル。">
+<title>伏せたはずのパスワード</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-11-10">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / READ", "item": "https://namaran.jocarium.productions/rust/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-10" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / READ — 2026-11-10",
+      "url": "https://namaran.jocarium.productions/rust/read/2026-11-10",
+      "datePublished": "2026-11-10",
+      "dateModified": "2026-11-10",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "伏せたはずのパスワード" },
+      "keywords": "trait, deriving, string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "パスワードを包む型にDisplayを実装して中身を伏せ、長さだけを出す。その型を持つ構造体を {:?} で出すと、derive(Debug) は各フィールドのDisplayではなくDebugを使うことを確かめるRust 2024のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-10">C23</a>
+  <a href="/cpp/read/2026-11-10">C++26</a>
+  <a href="/rust/read/2026-11-10" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/read/2026-11-10">Haskell 2010</a>
+  <a href="/zig/read/2026-11-10">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-10" class="active" aria-current="page">READ</a>
+  <a href="/rust/write/2026-11-10">WRITE</a>
+  <a href="/rust/debug/2026-11-10">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="伏せたはずのパスワード"
+  data-tags="trait deriving string"
+  data-concepts="derive(Debug), Display, Debug, フォーマット指定子, ログのマスキング, 機密情報, format trait, redaction, secret logging"
+  data-level="peacock"
+>
+  <h2>2026-11-10</h2>
+  <div class="code-frame">
+    <p class="code-filename">login.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">use</span> std::fmt;</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="pp">#[derive(Debug)]</span></span>
+<span class="code-line"><span class="kw">struct</span> <span class="fn">Secret</span>(<span class="ty">String</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">impl</span> fmt::<span class="ty">Display</span> <span class="kw">for</span> <span class="ty">Secret</span> {</span>
+<span class="code-line">    <span class="kw">fn</span> <span class="fn">fmt</span>(&amp;<span class="kw">self</span>, f: &amp;<span class="kw">mut</span> fmt::<span class="ty">Formatter</span>) -&gt; fmt::<span class="ty">Result</span> {</span>
+<span class="code-line">        <span class="mc">write!</span>(f, <span class="st">"&lt;{} bytes&gt;"</span>, <span class="kw">self</span>.<span class="nu">0</span>.<span class="fn">len</span>())</span>
+<span class="code-line">    }</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="pp">#[derive(Debug)]</span></span>
+<span class="code-line"><span class="kw">struct</span> <span class="fn">Login</span>(<span class="ty">String</span>, <span class="ty">Secret</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="kw">let</span> login = <span class="fn">Login</span>(<span class="st">"ann"</span>.<span class="fn">to_string</span>(), <span class="fn">Secret</span>(<span class="st">"hunter2"</span>.<span class="fn">to_string</span>()));</span>
+<span class="code-line">    <span class="mc">println!</span>(<span class="st">"{} {} {:?}"</span>, login.<span class="nu">0</span>, login.<span class="nu">1</span>, login);</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>ann &lt;7 bytes&gt; Login("ann", Secret("hunter2"))</samp></pre>
+      </div>
+      <p>
+        <code>println!</code> の書式指定は、値を出すときに使うトレイトを決めます。<code>{}</code> は <code>Display</code> を、<code>{:?}</code> は <code>Debug</code> を使います。2つ目の <code>{}</code> に渡した <code>login.1</code> は <code>Secret</code> なので、手で書いた <code>Display</code> が呼ばれ、中身の代わりにバイト数 <code>&lt;7 bytes&gt;</code> が出ます。
+      </p>
+      <p>
+        3つ目の <code>{:?}</code> には <code>login</code> 全体を渡しています。<code>Login</code> の <code>Debug</code> は <code>#[derive(Debug)]</code> が作ったもので、型の名前に続けて、各フィールドをそのフィールドの型の <code>Debug</code> で並べます。<code>Secret</code> の <code>Debug</code> もやはり <code>derive</code> で作られているので、包んでいる <code>String</code> を <code>Debug</code> で出し、引用符付きの <code>"hunter2"</code> がそのまま出力されます。<code>"ann"</code> に引用符が付くのも、<code>String</code> の <code>Debug</code> が文字列をエスケープして引用符で囲むからです。
+      </p>
+      <p>
+        <code>Secret</code> に伏せる処理を書いたのだから、<code>Login</code> を出したときも伏せられると考えると、<code>Login("ann", &lt;7 bytes&gt;)</code> と答えます。<code>Display</code> と <code>Debug</code> は別のトレイトで、<code>derive(Debug)</code> が中のフィールドに使うのは <code>Debug</code> だけです。ログに構造体を <code>{:?}</code> で出す場面で伏せたいなら、<code>Secret</code> の <code>Debug</code> を <code>derive</code> せずに手で実装し、そちらで中身を隠します。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/read">Today</a></li>
+    <li><a href="/rust/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

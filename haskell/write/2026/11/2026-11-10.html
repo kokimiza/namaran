@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="鍵と値の組の並びを、鍵ごとに値のリストへまとめた Map を Data.Map.insertWith で作る。値は元の並びに現れた順に残す。insertWith が組み合わせ関数に新しい値と古い値をどの順で渡すかを使い分けるHaskell 2010のドリル。">
+<title>現れた順にまとめる</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-11-10">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-10" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-11-10",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-11-10",
+      "datePublished": "2026-11-10",
+      "dateModified": "2026-11-10",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "現れた順にまとめる" },
+      "keywords": "ordered-map, fold, list",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "鍵と値の組の並びを、鍵ごとに値のリストへまとめた Map を Data.Map.insertWith で作る。値は元の並びに現れた順に残す。insertWith が組み合わせ関数に新しい値と古い値をどの順で渡すかを使い分けるHaskell 2010のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-10">C23</a>
+  <a href="/cpp/write/2026-11-10">C++26</a>
+  <a href="/rust/write/2026-11-10">Rust 2024</a>
+  <a href="/haskell/write/2026-11-10" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/write/2026-11-10">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-10">READ</a>
+  <a href="/haskell/write/2026-11-10" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-11-10">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="現れた順にまとめる"
+  data-tags="ordered-map fold list"
+  data-concepts="Data.Map, insertWith, 鍵ごとにまとめる, グループ化, foldr, 結合の順序, group by key, insertWith argument order"
+  data-level="peacock"
+>
+  <h2>2026-11-10</h2>
+  <div class="code-frame">
+    <p class="code-filename">GroupBy.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="fn">groupInOrder</span> <span class="op">::</span> (<span class="ty">Ord</span> k) <span class="op">=&gt;</span> [(k, v)] <span class="op">-&gt;</span> <span class="ty">Map.Map</span> k [v]</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    鍵と値の組のリストを受け取り、鍵ごとに、その鍵を持つ組の値を集めたリストを対応させた <code>Map</code> を返す <code>groupInOrder</code> を書いてください。<code>Map</code> は <code>import qualified Data.Map as Map</code> で読み込んであります。各リストの中の値は、受け取ったリストに現れた順に並べます。受け取ったリストが空なら空の <code>Map</code> を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>groupInOrder [("x", 1), ("y", 2), ("x", 3), ("x", 4)]</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>fromList [("x",[1,3,4]),("y",[2])]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>groupInOrder [('b', "late"), ('a', "only"), ('b', "later")]</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>fromList [('a',["only"]),('b',["late","later"])]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>groupInOrder []</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>fromList []</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="fn">groupInOrder</span> <span class="op">::</span> (<span class="ty">Ord</span> k) <span class="op">=&gt;</span> [(k, v)] <span class="op">-&gt;</span> <span class="ty">Map.Map</span> k [v]</span>
+<span class="code-line ins"><span class="fn">groupInOrder</span> = foldr (\(k, v) <span class="op">-&gt;</span> <span class="ty">Map</span>.insertWith (++) k [v]) <span class="ty">Map</span>.empty</span>
+</code></pre>
+      </div>
+      <p>
+        <code>Map.insertWith f k new m</code> は、<code>k</code> がまだ無ければ <code>new</code> をそのまま入れ、すでに <code>old</code> があれば <code>f new old</code> に置き換えます。組み合わせ関数が受け取るのは新しい値が先、古い値が後です。<code>(++)</code> を渡すと <code>[v] ++ old</code> になり、あとから挿入した値ほどリストの前に付きます。そこで <code>foldr</code> を使い、リストの右端の組から挿入します。あとから挿入されるのは元のリストで前にある組なので、前に付けていくと元の順に並びます。これは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        左から順に読む <code>foldl</code> に同じ <code>insertWith (++) k [v]</code> を組み合わせると、入力例1の <code>"x"</code> は <code>[4,3,1]</code> と逆順になります。<code>foldl</code> のまま直すなら <code>insertWith (flip (++)) k [v]</code> で古いリストの後ろに付けますが、<code>++</code> は左のリストを毎回たどり直すので、同じ鍵の値が n 個あると手間は n の2乗に比例して増えます。<code>foldr</code> と前に付ける組み合わせなら、1回の挿入で付け足すのは要素1つ分です。入力例3の空リストでは <code>foldr</code> が初期値の <code>Map.empty</code> をそのまま返します。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

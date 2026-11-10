@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="FixedBufferAllocator を変数にコピーし、元とコピーのそれぞれから allocator() で確保して書き込む。割り当て器の状態は構造体の値にあり、コピーすると確保位置は2つに分かれるのに、切り出す配列は1つのままであることを見抜くZig 0.17のドリル。">
+<title>コピーした割り当て器</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/read/2026-11-10">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / READ", "item": "https://namaran.jocarium.productions/zig/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-10" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / READ — 2026-11-10",
+      "url": "https://namaran.jocarium.productions/zig/read/2026-11-10",
+      "datePublished": "2026-11-10",
+      "dateModified": "2026-11-10",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "コピーした割り当て器" },
+      "keywords": "memory-management, aliasing, slice",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "FixedBufferAllocator を変数にコピーし、元とコピーのそれぞれから allocator() で確保して書き込む。割り当て器の状態は構造体の値にあり、コピーすると確保位置は2つに分かれるのに、切り出す配列は1つのままであることを見抜くZig 0.17のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-10">C23</a>
+  <a href="/cpp/read/2026-11-10">C++26</a>
+  <a href="/rust/read/2026-11-10">Rust 2024</a>
+  <a href="/haskell/read/2026-11-10">Haskell 2010</a>
+  <a href="/zig/read/2026-11-10" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-10" class="active" aria-current="page">READ</a>
+  <a href="/zig/write/2026-11-10">WRITE</a>
+  <a href="/zig/debug/2026-11-10">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="コピーした割り当て器"
+  data-tags="memory-management aliasing slice"
+  data-concepts="FixedBufferAllocator, std.mem.Allocator, アロケータのコピー, 確保位置, 領域の重なり, allocator interface, copied allocator state, aliasing"
+  data-level="whale"
+>
+  <h2>2026-11-10</h2>
+  <div class="code-frame">
+    <p class="code-filename">fork.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {</span>
+<span class="code-line">    <span class="kw">var</span> out: [<span class="nu">64</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line">    <span class="kw">var</span> w = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;out);</span>
+<span class="code-line">    <span class="kw">var</span> buf: [<span class="nu">8</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line">    <span class="kw">var</span> fba = std.heap.<span class="ty">FixedBufferAllocator</span>.<span class="fn">init</span>(&amp;buf);</span>
+<span class="code-line">    <span class="kw">var</span> spare = fba;</span>
+<span class="code-line">    <span class="kw">const</span> x = <span class="kw">try</span> fba.<span class="fn">allocator</span>().<span class="fn">alloc</span>(<span class="ty">u8</span>, <span class="nu">3</span>);</span>
+<span class="code-line">    <span class="mc">@memset</span>(x, <span class="nu">1</span>);</span>
+<span class="code-line">    <span class="kw">const</span> y = <span class="kw">try</span> spare.<span class="fn">allocator</span>().<span class="fn">alloc</span>(<span class="ty">u8</span>, <span class="nu">4</span>);</span>
+<span class="code-line">    <span class="mc">@memset</span>(y, <span class="nu">2</span>);</span>
+<span class="code-line">    <span class="kw">const</span> z = <span class="kw">try</span> fba.<span class="fn">allocator</span>().<span class="fn">alloc</span>(<span class="ty">u8</span>, <span class="nu">2</span>);</span>
+<span class="code-line">    <span class="mc">@memset</span>(z, <span class="nu">3</span>);</span>
+<span class="code-line">    <span class="kw">try</span> w.interface.<span class="fn">print</span>(<span class="st">"{any} {any}\n"</span>, .{ x, y });</span>
+<span class="code-line">    <span class="kw">try</span> w.interface.<span class="fn">flush</span>();</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>{ 2, 2, 2 } { 2, 2, 2, 3 }</samp></pre>
+      </div>
+      <p>
+        <code>FixedBufferAllocator</code> は、渡された配列を指すスライス <code>buffer</code> と、次に切り出す位置 <code>end_index</code> の2つのフィールドだけを持つ構造体です。確保のたびに <code>buffer</code> の <code>end_index</code> から必要なバイト数を切り出し、<code>end_index</code> をその分進めます。<code>allocator()</code> は <code>*FixedBufferAllocator</code> を受け取り、そのポインタを中に持った <code>std.mem.Allocator</code> を返します。どの構造体の <code>end_index</code> を進めるかは、<code>allocator()</code> を呼んだ変数で決まります。
+      </p>
+      <p>
+        <code>var spare = fba;</code> は構造体の値のコピーなので、<code>spare</code> は自分の <code>end_index</code> を持ち、その値は0です。一方、コピーされた <code>buffer</code> は先頭のポインタと長さの組であるスライスなので、<code>spare</code> の <code>buffer</code> も同じ <code>buf</code> を指します。1つの配列に、互いを知らない2つの切り出し位置ができたことになり、出力はここから決まります。
+      </p>
+      <p>
+        <code>x</code> は <code>fba</code> から <code>buf[0..3]</code> を受け取り、<code>fba</code> の位置は3に進みます。<code>y</code> は <code>spare</code> の位置0から切り出されるので <code>buf[0..4]</code> で、<code>2</code> を書くと <code>x</code> の3バイトも上書きされます。<code>z</code> は <code>fba</code> の位置3から <code>buf[3..5]</code> を受け取り、<code>3</code> を書くと <code>y</code> の最後の1バイト <code>buf[3]</code> が変わります。<code>x</code> は <code>{ 2, 2, 2 }</code>、<code>y</code> は <code>{ 2, 2, 2, 3 }</code> になります。
+      </p>
+      <p>
+        <code>spare</code> を独立した割り当て器だと読むと、<code>x</code> と <code>y</code> は重ならず <code>{ 1, 1, 1 } { 2, 2, 2, 2 }</code> と答えます。逆に <code>spare</code> が <code>fba</code> と状態を共有すると読むと、3回の確保で合計9バイトが要り、8バイトの <code>buf</code> から <code>z</code> を切り出せずに <code>error.OutOfMemory</code> で終わると答えます。実際には、配列はスライスを通して共有され、切り出し位置は値として分かれています。割り当て器を使う側に渡すのは <code>fba.allocator()</code> の戻り値で、構造体そのものはコピーせず1か所に置いておきます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/read">Today</a></li>
+    <li><a href="/zig/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

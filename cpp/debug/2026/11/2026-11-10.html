@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="呼び出した行の番号を付けてメッセージを出すつもりのトレース関数が、どの呼び出しでも同じ行番号を出す。consteval関数 std::source_location::current() がどこで評価されるかと、既定引数が呼び出し側で評価されることを確かめるC++26のドリル。">
+<title>どれも同じ行番号</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-11-10">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-10" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-11-10",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-11-10",
+      "datePublished": "2026-11-10",
+      "dateModified": "2026-11-10",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "どれも同じ行番号" },
+      "keywords": "consteval, default-argument",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "呼び出した行の番号を付けてメッセージを出すつもりのトレース関数が、どの呼び出しでも同じ行番号を出す。consteval関数 std::source_location::current() がどこで評価されるかと、既定引数が呼び出し側で評価されることを確かめるC++26のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-10">C23</a>
+  <a href="/cpp/debug/2026-11-10" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-11-10">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-10">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-10">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-10">READ</a>
+  <a href="/cpp/write/2026-11-10">WRITE</a>
+  <a href="/cpp/debug/2026-11-10" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="どれも同じ行番号"
+  data-tags="consteval default-argument"
+  data-concepts="std::source_location, source_location::current, 既定引数, デフォルト引数, 呼び出し元の行番号, default argument, caller line number"
+  data-level="hedgehog"
+>
+  <h2>2026-11-10</h2>
+  <div class="code-frame">
+    <p class="code-filename">trace.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;source_location&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;string_view&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">void</span> <span class="fn">trace</span>(std::<span class="ty">string_view</span> msg) {</span>
+<span class="code-line">    std::cout &lt;&lt; std::source_location::<span class="fn">current</span>().<span class="fn">line</span>() &lt;&lt; <span class="st">": "</span> &lt;&lt; msg &lt;&lt; <span class="st">'\n'</span>;</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="fn">trace</span>(<span class="st">"start"</span>);</span>
+<span class="code-line">    <span class="fn">trace</span>(<span class="st">"stop"</span>);</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>trace</code> は、自分を呼び出した行の番号を付けてメッセージを出すつもりの関数です。このプログラムは本来、<code>10: start</code> と <code>11: stop</code> の2行を出力するはずが、いまは <code>6: start</code> と <code>6: stop</code> を出力します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del"><span class="ty">void</span> <span class="fn">trace</span>(std::<span class="ty">string_view</span> msg) {</span>
+<span class="code-line del">    std::cout &lt;&lt; <span class="chg">std::source_location::<span class="fn">current</span>()</span>.<span class="fn">line</span>() &lt;&lt; <span class="st">": "</span> &lt;&lt; msg &lt;&lt; <span class="st">'\n'</span>;</span>
+</code></pre>
+      <p>
+        <code>std::source_location::current()</code> は <code>consteval</code> 関数で、書かれたその場所でコンパイル時に評価され、その式があるファイル名と行番号を値として埋め込みます。この呼び出しは <code>trace</code> の本体の6行目にあるので、出力される行番号はいつも6です。<code>trace</code> がどこから何回呼ばれても、本体のこの式が評価し直されて呼び出し元を調べることはありません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins"><span class="ty">void</span> <span class="fn">trace</span>(std::<span class="ty">string_view</span> msg<span class="chg">, std::source_location loc = std::source_location::<span class="fn">current</span>()</span>) {</span>
+<span class="code-line ins">    std::cout &lt;&lt; <span class="chg">loc</span>.<span class="fn">line</span>() &lt;&lt; <span class="st">": "</span> &lt;&lt; msg &lt;&lt; <span class="st">'\n'</span>;</span>
+</code></pre>
+      <p>
+        <code>current()</code> を既定引数に移します。既定引数の式は、関数の宣言の場所ではなく、引数を省いた呼び出しのたびにその呼び出し側で評価されます。<code>current()</code> もその呼び出しの位置で評価されるので、10行目の <code>trace("start")</code> では10が、11行目の <code>trace("stop")</code> では11が <code>loc</code> に入ります。<code>std::source_location::current()</code> を既定引数に書くこの形は、規格がこの関数の使い方として想定しているものです<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>規格の <code>std::source_location</code> の節には、<code>current()</code> を既定引数に書いて呼び出し側の位置を受け取る例が載っています。C++20 で導入される前は、同じ目的に <code>__LINE__</code> を使うマクロが使われていました。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

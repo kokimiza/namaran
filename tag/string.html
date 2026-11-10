@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「文字列」を扱ったNamaranのコーディングドリル102問。多要素ポインタ、番兵付きポインタ、ヌル終端文字列、文字列の長さ、strlen、many-item pointer。">
+<meta name="description" content="「文字列」を扱ったNamaranのコーディングドリル105問。ログのマスキング、機密情報を伏せる、split_once、logfmt、パターンガード、redaction。">
 <title>文字列</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/string">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>文字列</h2>
 
   <p class="lede">
-    「文字列」を扱った102問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「文字列」を扱った105問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/write/2026-11-10">Rust / WRITE · 2026-11-10</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">鍵を残して値を伏せる</span> <span class="past-concepts">ログのマスキング, 機密情報を伏せる, split_once, logfmt, パターンガード, redaction, log masking, key value</span></li>
+    <li><a href="/rust/read/2026-11-10">Rust / READ · 2026-11-10</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">伏せたはずのパスワード</span> <span class="past-concepts">derive(Debug), Display, Debug, フォーマット指定子, ログのマスキング, 機密情報, format trait, redaction, secret logging</span></li>
+    <li><a href="/rust/debug/2026-11-10">Rust / DEBUG · 2026-11-10</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">1文字目だけ残す</span> <span class="past-concepts">文字列スライス, バイト位置, 文字境界, UTF-8, char_indices, chars, メールアドレスのマスキング, char boundary, string slicing</span></li>
     <li><a href="/zig/write/2026-11-09">Zig / WRITE · 2026-11-09</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">番兵まで数える長さ</span> <span class="past-concepts">多要素ポインタ, 番兵付きポインタ, ヌル終端文字列, 文字列の長さ, strlen, many-item pointer, sentinel-terminated pointer, null-terminated string</span></li>
     <li><a href="/zig/debug/2026-11-09">Zig / DEBUG · 2026-11-09</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">そろってしまうラベル</span> <span class="past-concepts">スライス, バッファの使い回し, std.mem.print, bufPrint, 配列とスライス, エイリアス, slice, reused buffer, aliasing</span></li>
     <li><a href="/rust/read/2026-11-09">Rust / READ · 2026-11-09</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">コミット済みだけを再生</span> <span class="past-concepts">WAL, ログ先行書き込み, 障害復旧, 再生, str::split, 末尾の空文字列, collect, BTreeMap, 同じキーの上書き, write-ahead logging, crash recovery, replay</span></li>

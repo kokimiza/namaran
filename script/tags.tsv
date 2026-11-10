@@ -74,6 +74,7 @@ conditional-operator	三項演算子
 consistent-hashing	コンシステントハッシュ
 const-correctness	const正当性
 const-generic	constジェネリクス
+consteval	consteval関数
 constexpr	コンパイル時計算
 constructor	コンストラクタ
 continuation-passing-style	継続渡しスタイル

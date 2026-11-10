@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「アリーナアロケータ」を扱ったNamaranのコーディングドリル3問。アリーナ、添字で参照する木、インデックスベースの木、可変借用、arena allocation、index-based tree。">
+<meta name="description" content="「アリーナアロケータ」を扱ったNamaranのコーディングドリル4問。ArenaAllocator、std.mem.Allocator、一時領域、解放済みの領域、所有権、defer arena.deinit。">
 <title>アリーナアロケータ</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/arena-allocator">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>アリーナアロケータ</h2>
 
   <p class="lede">
-    「アリーナアロケータ」を扱った3問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「アリーナアロケータ」を扱った4問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/debug/2026-11-10">Zig / DEBUG · 2026-11-10</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">アリーナで作って返す</span> <span class="past-concepts">ArenaAllocator, std.mem.Allocator, 一時領域, 解放済みの領域, 所有権, defer arena.deinit, use after free, temporary allocation</span></li>
     <li><a href="/rust/write/2026-11-02">Rust / WRITE · 2026-11-02</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">添字で指すアリーナの木</span> <span class="past-concepts">アリーナ, 添字で参照する木, インデックスベースの木, 可変借用, arena allocation, index-based tree, NodeId</span></li>
     <li><a href="/rust/read/2026-11-02">Rust / READ · 2026-11-02</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">アリーナに入れた値の破棄</span> <span class="past-concepts">Drop の順序, アリーナ, まとめて解放, 所有権の移動, 宣言の逆順, drop order, Vec drop order, arena allocation</span></li>
     <li><a href="/rust/debug/2026-11-02">Rust / DEBUG · 2026-11-02</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">文の終わりまで残る借用</span> <span class="past-concepts">RefCell, 二重借用, 一時オブジェクトの寿命, BorrowMutError, already borrowed, temporary lifetime, arena allocation</span></li>

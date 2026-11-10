@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「メモリ管理」を扱ったNamaranのコーディングドリル11問。std.Io.Writer.Allocating、toOwnedSlice、defer、deinit、アロケータ、所有権の受け渡し。">
+<meta name="description" content="「メモリ管理」を扱ったNamaranのコーディングドリル14問。std.mem.Allocator、errdefer、確保の失敗、所有権の受け渡し、dupe、checkAllAllocationFailures。">
 <title>メモリ管理</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/memory-management">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>メモリ管理</h2>
 
   <p class="lede">
-    「メモリ管理」を扱った11問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「メモリ管理」を扱った14問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/write/2026-11-10">Zig / WRITE · 2026-11-10</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">2つ確保して渡す</span> <span class="past-concepts">std.mem.Allocator, errdefer, 確保の失敗, 所有権の受け渡し, dupe, checkAllAllocationFailures, caller owns memory, allocation failure</span></li>
+    <li><a href="/zig/read/2026-11-10">Zig / READ · 2026-11-10</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">コピーした割り当て器</span> <span class="past-concepts">FixedBufferAllocator, std.mem.Allocator, アロケータのコピー, 確保位置, 領域の重なり, allocator interface, copied allocator state, aliasing</span></li>
+    <li><a href="/zig/debug/2026-11-10">Zig / DEBUG · 2026-11-10</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">アリーナで作って返す</span> <span class="past-concepts">ArenaAllocator, std.mem.Allocator, 一時領域, 解放済みの領域, 所有権, defer arena.deinit, use after free, temporary allocation</span></li>
     <li><a href="/zig/write/2026-11-02">Zig / WRITE · 2026-11-02</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">書いた文字列を返す</span> <span class="past-concepts">std.Io.Writer.Allocating, toOwnedSlice, defer, deinit, アロケータ, 所有権の受け渡し, allocating writer, caller owns memory</span></li>
     <li><a href="/zig/write/2026-10-26">Zig / WRITE · 2026-10-26</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">失敗の位置を返す複製</span> <span class="past-concepts">errdefer, catch |err|, 部分的な後始末, FailingAllocator, partial cleanup, error diagnostics, Allocator</span></li>
     <li><a href="/zig/debug/2026-10-23">Zig / DEBUG · 2026-10-23</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">constの付いた型は別の型</span> <span class="past-concepts">@typeInfo, 構造体のフィールドの走査, inline for, 型の等値比較, []const u8, メモリリーク, type reflection, memory leak</span></li>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「解放後の使用」を扱ったNamaranのコーディングドリル1問。解放後の使用、ダングリング、use after free。">
+<meta name="description" content="「解放後の使用」を扱ったNamaranのコーディングドリル2問。ArenaAllocator、std.mem.Allocator、一時領域、解放済みの領域、所有権、defer arena.deinit。">
 <title>解放後の使用</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/use-after-free">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>解放後の使用</h2>
 
   <p class="lede">
-    「解放後の使用」を扱った1問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「解放後の使用」を扱った2問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/debug/2026-11-10">Zig / DEBUG · 2026-11-10</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">アリーナで作って返す</span> <span class="past-concepts">ArenaAllocator, std.mem.Allocator, 一時領域, 解放済みの領域, 所有権, defer arena.deinit, use after free, temporary allocation</span></li>
     <li><a href="/c/debug/2026-09-07">C / DEBUG · 2026-09-07</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">解放後に使う</span> <span class="past-concepts">解放後の使用, ダングリング, use after free</span></li>
   </ul>
 

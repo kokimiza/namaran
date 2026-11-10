@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Data.Map.Strict の insertWith で余りごとの個数を IORef に数えていく集計が、300万件で数百MBのメモリを使う。値を正格に評価する Map を使っても、表を書き換える処理そのものが後回しになっていればサンクが溜まることを見つけるHaskell 2010のドリル。">
+<title>正格なのに膨らむ表</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-11-10">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-10" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-11-10",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-11-10",
+      "datePublished": "2026-11-10",
+      "dateModified": "2026-11-10",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "正格なのに膨らむ表" },
+      "keywords": "space-leak, thunk, ioref, strictness, ordered-map",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "Data.Map.Strict の insertWith で余りごとの個数を IORef に数えていく集計が、300万件で数百MBのメモリを使う。値を正格に評価する Map を使っても、表を書き換える処理そのものが後回しになっていればサンクが溜まることを見つけるHaskell 2010のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-10">C23</a>
+  <a href="/cpp/debug/2026-11-10">C++26</a>
+  <a href="/rust/debug/2026-11-10">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-10" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-10">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-10">READ</a>
+  <a href="/haskell/write/2026-11-10">WRITE</a>
+  <a href="/haskell/debug/2026-11-10" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="正格なのに膨らむ表"
+  data-tags="space-leak thunk ioref strictness ordered-map"
+  data-concepts="Data.Map.Strict, insertWith, IORef, modifyIORef, modifyIORef&#x27;, スペースリーク, サンク, 遅延評価, space leak, lazy modifyIORef"
+  data-level="whale"
+>
+  <h2>2026-11-10</h2>
+  <div class="code-frame">
+    <p class="code-filename">Counts.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">import</span> <span class="ty">Data.IORef</span></span>
+<span class="code-line"><span class="kw">import</span> <span class="kw">qualified</span> <span class="ty">Data.Map.Strict</span> <span class="kw">as</span> <span class="ty">Map</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()</span>
+<span class="code-line"><span class="fn">main</span> = <span class="kw">do</span></span>
+<span class="code-line">  ref <span class="op">&lt;-</span> newIORef <span class="ty">Map</span>.empty</span>
+<span class="code-line">  mapM_ (\x <span class="op">-&gt;</span> modifyIORef ref (<span class="ty">Map</span>.insertWith (+) (x `mod` <span class="nu">10</span>) <span class="nu">1</span>)) [<span class="nu">1</span> .. <span class="nu">3000000</span> <span class="op">::</span> <span class="ty">Int</span>]</span>
+<span class="code-line">  counts <span class="op">&lt;-</span> readIORef ref</span>
+<span class="code-line">  print (<span class="ty">Map</span>.lookup <span class="nu">7</span> counts <span class="op">::</span> <span class="ty">Maybe</span> <span class="ty">Int</span>)</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    1から3000000までの整数を10で割った余りごとに数え、余りが7の個数を表示するプログラムです。出力はいまも本来の <code>Just 300000</code> と一致しますが、最適化なしでビルドして <code>+RTS -s</code> で測ると、実行中に約240MBのデータが残り続け、プロセスは約560MBのメモリを使います。正しく直すと出力は同じまま、使うメモリは6MBほどに収まります。いまのままでは、件数に比例してメモリが増え、件数を増やすといずれメモリが尽きて止まります。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del">  mapM_ (\x <span class="op">-&gt;</span> modifyIORef ref (<span class="ty">Map</span>.insertWith (+) (x `mod` <span class="nu">10</span>) <span class="nu">1</span>)) [<span class="nu">1</span> .. <span class="nu">3000000</span> <span class="op">::</span> <span class="ty">Int</span>]</span>
+</code></pre>
+      <p>
+        <code>Data.Map.Strict</code> の <code>insertWith</code> は、挿入するときに <code>(+)</code> の結果を評価するので、表の中に足し算の式が溜まることはありません。ただしそれは <code>insertWith</code> が実際に呼ばれたときの話です。<code>modifyIORef ref f</code> は、<code>ref</code> の中身 <code>m</code> を <code>f m</code> という未評価の式に置き換えるだけで、<code>f</code> を呼びません。300万回の <code>modifyIORef</code> のあと、<code>ref</code> に入っているのは表ではなく、<code>insertWith</code> の呼び出しが300万段入れ子になった1つの式です。
+      </p>
+      <p>
+        この式は、最後の <code>print</code> が表を必要としたときに初めて内側から順に計算され、そこでようやく1回ずつの <code>insertWith</code> が正格に値を足していきます。結果が正しいのはそのためで、溜まっていたのは表の値ではなく、表を作る処理のほうです。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins">  mapM_ (\x <span class="op">-&gt;</span> modifyIORef<span class="chg">'</span> ref (<span class="ty">Map</span>.insertWith (+) (x `mod` <span class="nu">10</span>) <span class="nu">1</span>)) [<span class="nu">1</span> .. <span class="nu">3000000</span> <span class="op">::</span> <span class="ty">Int</span>]</span>
+</code></pre>
+      <p>
+        <code>modifyIORef'</code> は、新しい中身 <code>f m</code> を弱頭部正規形<sup class="fn-ref">1</sup>まで評価してから書き込みます。<code>Map</code> の弱頭部正規形を求めるには <code>insertWith</code> を最後まで実行するしかないので、1回の <code>modifyIORef'</code> ごとに挿入が済み、正格な <code>Map</code> がその場で個数を足します。<code>ref</code> にはいつも10個の整数を持つ小さな表だけが入り、古い表はすぐに捨てられます。<code>modifyIORef'</code> は Haskell 2010 の報告書には無く、GHC に付く base の <code>Data.IORef</code> にあります。
+      </p>
+      <ol class="footnotes">
+        <li>弱頭部正規形(weak head normal form、WHNF)は、式を一番外側の構成子かラムダ式が見えるところまで評価した形です。<code>Map</code> は木の形全体が決まらないと一番外側の構成子も決まらないので、表を弱頭部正規形まで評価すると、それまでの挿入はすべて済みます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「コンストラクタ」を扱ったNamaranのコーディングドリル15問。二段階初期化、コンストラクタ内の仮想関数呼び出し、純粋仮想関数、ファクトリ関数、two-phase initialization、pure virtual call。">
+<meta name="description" content="「コンストラクタ」を扱ったNamaranのコーディングドリル16問。consteval コンストラクタ、コンパイル時の値の検査、throwとコンパイルエラー、static_assertと引数、compile-time validation、immediate func。">
 <title>コンストラクタ</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/constructor">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>コンストラクタ</h2>
 
   <p class="lede">
-    「コンストラクタ」を扱った15問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「コンストラクタ」を扱った16問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/cpp/write/2026-11-10">C++ / WRITE · 2026-11-10</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">範囲外ならビルドを止める</span> <span class="past-concepts">consteval コンストラクタ, コンパイル時の値の検査, throwとコンパイルエラー, static_assertと引数, compile-time validation, immediate function, constant evaluation</span></li>
     <li><a href="/cpp/write/2026-10-14">C++ / WRITE · 2026-10-14</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">構築のあとでinitを呼ぶ</span> <span class="past-concepts">二段階初期化, コンストラクタ内の仮想関数呼び出し, 純粋仮想関数, ファクトリ関数, two-phase initialization, pure virtual call</span></li>
     <li><a href="/cpp/read/2026-10-14">C++ / READ · 2026-10-14</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">構築中に呼ぶ仮想関数</span> <span class="past-concepts">コンストラクタ内の仮想関数呼び出し, 構築中の動的型, 仮想関数, virtual call in constructor, dynamic type during construction</span></li>
     <li><a href="/cpp/debug/2026-10-14">C++ / DEBUG · 2026-10-14</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">構築時に決まったラベル</span> <span class="past-concepts">コンストラクタ内の仮想関数呼び出し, 構築中の動的型, メンバ初期化子, virtual call in constructor, member initializer list</span></li>

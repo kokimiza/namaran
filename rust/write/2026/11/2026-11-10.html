@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="key=value を空白で並べたログの1行から、指定した鍵の値だけを *** に置き換え、鍵と他の項目は残す関数を書く。split_once で最初の = だけで分けることと、鍵を完全一致で比べることを組み合わせるRust 2024のドリル。">
+<title>鍵を残して値を伏せる</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-11-10">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-10" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-11-10",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-11-10",
+      "datePublished": "2026-11-10",
+      "dateModified": "2026-11-10",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "鍵を残して値を伏せる" },
+      "keywords": "string, iterator, pattern-guard",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "key=value を空白で並べたログの1行から、指定した鍵の値だけを *** に置き換え、鍵と他の項目は残す関数を書く。split_once で最初の = だけで分けることと、鍵を完全一致で比べることを組み合わせるRust 2024のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-10">C23</a>
+  <a href="/cpp/write/2026-11-10">C++26</a>
+  <a href="/rust/write/2026-11-10" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-11-10">Haskell 2010</a>
+  <a href="/zig/write/2026-11-10">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-10">READ</a>
+  <a href="/rust/write/2026-11-10" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-11-10">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="鍵を残して値を伏せる"
+  data-tags="string iterator pattern-guard"
+  data-concepts="ログのマスキング, 機密情報を伏せる, split_once, logfmt, パターンガード, redaction, log masking, key value"
+  data-level="bison"
+>
+  <h2>2026-11-10</h2>
+  <div class="code-frame">
+    <p class="code-filename">redact.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">redact</span>(line: &amp;<span class="ty">str</span>, secrets: &amp;[&amp;<span class="ty">str</span>]) -&gt; <span class="ty">String</span> {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    ログの1行 <code>line</code> は、項目を空白1つで区切って並べたもので、各項目は <code>鍵=値</code> の形か、<code>=</code> を含まない語です。鍵は <code>=</code> を含まず、値は <code>=</code> を含むことがあります。鍵が <code>secrets</code> のどれかと完全に一致する項目だけを、値を <code>***</code> に置き換えて <code>鍵=***</code> にし、それ以外の項目は元のまま、元の順に空白1つで並べた文字列を返す <code>redact</code> を書いてください。<code>line</code> が空なら空の文字列を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>redact("user=ann token=abc123 status=200", &amp;["token"])</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>"user=ann token=*** status=200"</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>redact("next=/a?token=x pass=a=b", &amp;["pass", "token"])</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>"next=/a?token=x pass=***"</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>redact("", &amp;["token"])</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>""</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">redact</span>(line: &amp;<span class="ty">str</span>, secrets: &amp;[&amp;<span class="ty">str</span>]) -&gt; <span class="ty">String</span> {</span>
+<span class="code-line ins">    line.<span class="fn">split</span>(<span class="st">' '</span>)</span>
+<span class="code-line ins">        .<span class="fn">map</span>(|field| <span class="kw">match</span> field.<span class="fn">split_once</span>(<span class="st">'='</span>) {</span>
+<span class="code-line ins">            <span class="fn">Some</span>((key, _)) <span class="kw">if</span> secrets.<span class="fn">contains</span>(&amp;key) =&gt; <span class="mc">format!</span>(<span class="st">"{key}=***"</span>),</span>
+<span class="code-line ins">            _ =&gt; field.<span class="fn">to_string</span>(),</span>
+<span class="code-line ins">        })</span>
+<span class="code-line ins">        .<span class="fn">collect</span>::&lt;<span class="ty">Vec</span>&lt;_&gt;&gt;()</span>
+<span class="code-line ins">        .<span class="fn">join</span>(<span class="st">" "</span>)</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        項目ごとに伏せるかどうかを決め、決めた項目を空白でつなぎ直します。鍵を取り出すのは <code>split_once('=')</code> で、これは最初の <code>=</code> の前後で文字列を2つに分けます。入力例2の <code>pass=a=b</code> は鍵 <code>pass</code> と値 <code>a=b</code> に分かれ、値の中の <code>=</code> は鍵を決めるのに使われません。<code>=</code> の無い項目では <code>None</code> が返り、2つ目の腕でそのまま残ります。これは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        伏せる項目は、鍵を <code>secrets</code> と完全一致で比べて選びます。<code>secrets</code> は <code>&amp;[&amp;str]</code> なので、<code>contains</code> には要素の型 <code>&amp;str</code> への参照 <code>&amp;key</code> を渡します。行の中から <code>"token="</code> という文字列を探して置き換えるやり方では、入力例2の <code>next=/a?token=x</code> の値の途中にある <code>token=</code> にも反応し、伏せる必要のない遷移先の情報が壊れます。逆に <code>split</code> で <code>=</code> をすべて区切りにすると、<code>pass=a=b</code> の値の後半が別の部品として残ります。最初の <code>=</code> で分けることと鍵の完全一致を両方守ると、調べたい項目は残り、秘密の値だけが消えます。
+      </p>
+      <p>
+        <code>split(' ')</code> は、空の <code>line</code> に対しても空の項目を1つ返します。その項目は <code>=</code> を含まないのでそのまま残り、<code>join</code> の結果は空の文字列になって、入力例3を満たします。<code>split_whitespace</code> を使うと連続した空白が1つにまとまるので、問題文の形の入力なら同じ結果になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
