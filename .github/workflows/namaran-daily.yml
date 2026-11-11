@@ -252,7 +252,7 @@ jobs:
       - name: Write drills with Claude Code (namaran-daily skill)
         id: claude
         if: steps.plan.outputs.combos != ''
-        uses: anthropics/claude-code-action@d535f5172dec02b204866b393d6b20b9b2aaf98d # v1.0.266
+        uses: anthropics/claude-code-action@61a9c274fa7110a66dfafc1bbbced03833eb25fe # v1.0.269
         with:
           # Subscription token from `claude setup-token`. To bill API credits
           # instead, replace this line with:
