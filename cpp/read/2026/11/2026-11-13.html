@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="48個の1を std::priority_queue に入れ、小さい2つを取り出して和を戻す操作を1つになるまで続け、足した和の合計を表示する。47回の操作を追わずに、Huffman 符号の符号長の和として数える C++26 のドリル。">
+<title>48個の1を併合する</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-11-13">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-13" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-11-13",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-11-13",
+      "datePublished": "2026-11-13",
+      "dateModified": "2026-11-13",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "48個の1を併合する" },
+      "keywords": "huffman-coding, priority-queue, greedy-algorithm, invariant",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "48個の1を std::priority_queue に入れ、小さい2つを取り出して和を戻す操作を1つになるまで続け、足した和の合計を表示する。47回の操作を追わずに、Huffman 符号の符号長の和として数える C++26 のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-13">C23</a>
+  <a href="/cpp/read/2026-11-13" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-11-13">Rust 2024</a>
+  <a href="/haskell/read/2026-11-13">Haskell 2010</a>
+  <a href="/zig/read/2026-11-13">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-13" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-11-13">WRITE</a>
+  <a href="/cpp/debug/2026-11-13">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="48個の1を併合する"
+  data-tags="huffman-coding priority-queue greedy-algorithm invariant"
+  data-concepts="ハフマン符号, 符号長, 優先度付きキュー, 最小ヒープ, std::greater, Huffman coding, code length, priority_queue"
+  data-level="whale"
+>
+  <h2>2026-11-13</h2>
+  <div class="code-frame">
+    <p class="code-filename">merge.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;functional&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;queue&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;vector&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    std::priority_queue q{std::greater&lt;&gt;{}, std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt;(<span class="nu">48</span>, <span class="nu">1</span>)};</span>
+<span class="code-line">    <span class="ty">int</span> total = <span class="nu">0</span>;</span>
+<span class="code-line">    <span class="kw">while</span> (q.<span class="fn">size</span>() &gt; <span class="nu">1</span>) {</span>
+<span class="code-line">        <span class="ty">int</span> a = q.<span class="fn">top</span>();</span>
+<span class="code-line">        q.<span class="fn">pop</span>();</span>
+<span class="code-line">        <span class="ty">int</span> b = q.<span class="fn">top</span>();</span>
+<span class="code-line">        q.<span class="fn">pop</span>();</span>
+<span class="code-line">        total += a + b;</span>
+<span class="code-line">        q.<span class="fn">push</span>(a + b);</span>
+<span class="code-line">    }</span>
+<span class="code-line">    std::cout &lt;&lt; total &lt;&lt; <span class="st">'\n'</span>;</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>272</samp></pre>
+      </div>
+      <p>
+        <code>std::greater&lt;&gt;</code> を渡した <code>priority_queue</code> は、<code>top()</code> がいちばん小さい値を返します。ループは小さい2つを取り出し、その和を <code>total</code> に足してキューに戻すことを、要素が1つになるまで47回繰り返します。47回を1回ずつ追う代わりに、足される和が何を数えているかを見ます。キューの値はどれも、最初の1を何個か束ねたもので、値はその個数です。和 <code>a + b</code> を足すことは、新しくできた束に含まれる1を1個ずつ数えることなので、<code>total</code> は「1つ1つの1が、自分を含む束が作られた回数」を48個分足したものになります。
+      </p>
+      <p>
+        この回数は段ごとに数えられます。キューに1が残っている間は1どうしが組になり、戻した2は1より大きいので、1を使い切るまで取り出されません。48個の1は24個の2になり、続いて12個の4、6個の8、3個の16になります。どの段でも48個の1がそれぞれ1回ずつ束に入るので、4段で 48 × 4 = 192 です。残った3個の16は、16 + 16 = 32 を作ってから、16 + 32 = 48 を作ります。ここで足されるのは 32 + 48 = 80 で、合計は 192 + 80 = 272 です。1の側から数えると、先に組にならなかった16個は5回、32を作った32個は6回束に入り、16 × 5 + 32 × 6 = 272 になります。
+      </p>
+      <p>
+        48個の1を、2の累乗の個数のように同じ深さまで均等に束ねられると考えると、全員が6回で 288、あるいは全員が5回で 240 と答えてしまいます。48は2の累乗ではないので、最後の3個の16で回数に差が出ます。このループは Huffman 符号を作る手順そのもので、1つ1つの1が束に入った回数はその記号の符号の長さ、<code>total</code> は全記号を符号にしたときのビット数の合計です。<sup class="fn-ref">1</sup>
+      </p>
+      <ol class="footnotes">
+        <li>Huffman 符号は、出現回数の少ない2つを繰り返しまとめて木を作り、根からの深さを符号の長さにする方法です。出現回数がすべて等しい48記号なら、16記号に5ビット、32記号に6ビットの符号が割り当てられます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

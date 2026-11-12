@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="文字列リテラルで初期化した char 配列と、同じ文字列リテラルを指すポインタを並べ、配列の1文字目を書き換えたあとに3つを表示する。配列が中身のコピーを持つことを確かめる C23 のドリル。">
+<title>配列はリテラルの写し</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-11-13">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-13" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-11-13",
+      "url": "https://namaran.jocarium.productions/c/read/2026-11-13",
+      "datePublished": "2026-11-13",
+      "dateModified": "2026-11-13",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "配列はリテラルの写し" },
+      "keywords": "string, array, pointer, initialization",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "文字列リテラルで初期化した char 配列と、同じ文字列リテラルを指すポインタを並べ、配列の1文字目を書き換えたあとに3つを表示する。配列が中身のコピーを持つことを確かめる C23 のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-13" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-11-13">C++26</a>
+  <a href="/rust/read/2026-11-13">Rust 2024</a>
+  <a href="/haskell/read/2026-11-13">Haskell 2010</a>
+  <a href="/zig/read/2026-11-13">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-13" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-11-13">WRITE</a>
+  <a href="/c/debug/2026-11-13">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="配列はリテラルの写し"
+  data-tags="string array pointer initialization"
+  data-concepts="char配列の初期化, 文字列リテラル, ポインタ, 配列とポインタの違い, string literal, char array initialization"
+  data-level="hedgehog"
+>
+  <h2>2026-11-13</h2>
+  <div class="code-frame">
+    <p class="code-filename">copy.c</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {</span>
+<span class="code-line">    <span class="ty">char</span> a[] = <span class="st">"abc"</span>;</span>
+<span class="code-line">    <span class="kw">const</span> <span class="ty">char</span>* p = <span class="st">"abc"</span>;</span>
+<span class="code-line">    <span class="ty">char</span>* q = a;</span>
+<span class="code-line">    a[<span class="nu">0</span>] = <span class="st">'x'</span>;</span>
+<span class="code-line">    <span class="fn">printf</span>(<span class="st">"%s %s %s\n"</span>, a, p, q);</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>xbc abc xbc</samp></pre>
+      </div>
+      <p>
+        <code>char a[] = "abc";</code> は、要素数4の配列 <code>a</code> を作り、文字列リテラルの <code>'a'</code> <code>'b'</code> <code>'c'</code> <code>'\0'</code> をその要素へコピーします。<code>a</code> はリテラルとは別の、書き換えてよい自分の記憶域を持ちます。一方の <code>p</code> は配列ではなくポインタで、文字列リテラルそのものを指します。<code>q</code> は <code>a</code> の先頭を指すポインタです。
+      </p>
+      <p>
+        <code>a[0] = 'x'</code> が書き換えるのは配列 <code>a</code> の1文字目で、リテラルの <code>"abc"</code> には触れません。そのため <code>a</code> は <code>xbc</code>、<code>p</code> が指すリテラルは <code>abc</code> のままです。<code>q</code> は <code>a</code> と同じ記憶域を指しているので、<code>a</code> の変更がそのまま見えて <code>xbc</code> になります。
+      </p>
+      <p>
+        <code>a</code> と <code>p</code> を同じ <code>"abc"</code> を共有する名前だと読むと、3つとも <code>xbc</code> と答えてしまいます。共有しているのは <code>q</code> と <code>a</code> だけです。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

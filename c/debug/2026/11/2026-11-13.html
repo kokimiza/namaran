@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="国コードを char codes[][3] の表に並べて strcmp で探す関数が、3文字のコードだけ見つけられない。文字数と行の幅が同じとき終端の '\0' が入らない C23 の配列初期化を直すドリル。">
+<title>3文字の行に終端なし</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-11-13">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-13" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-11-13",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-11-13",
+      "datePublished": "2026-11-13",
+      "dateModified": "2026-11-13",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "3文字の行に終端なし" },
+      "keywords": "null-terminated-string, initialization, multidimensional-array, buffer-overflow",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "国コードを char codes[][3] の表に並べて strcmp で探す関数が、3文字のコードだけ見つけられない。文字数と行の幅が同じとき終端の '\\0' が入らない C23 の配列初期化を直すドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-13" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-11-13">C++26</a>
+  <a href="/rust/debug/2026-11-13">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-13">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-13">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-13">READ</a>
+  <a href="/c/write/2026-11-13">WRITE</a>
+  <a href="/c/debug/2026-11-13" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="3文字の行に終端なし"
+  data-tags="null-terminated-string initialization multidimensional-array buffer-overflow"
+  data-concepts="char配列の初期化, ヌル終端, 文字列リテラル, 2次元配列, strcmp, unterminated string, char array initialization, string literal"
+  data-level="whale"
+>
+  <h2>2026-11-13</h2>
+  <div class="code-frame">
+    <p class="code-filename">country.c</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;string.h&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">static</span> <span class="kw">const</span> <span class="ty">char</span> codes[][<span class="nu">3</span>] = {<span class="st">"JP"</span>, <span class="st">"USA"</span>, <span class="st">"UK"</span>};</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">static</span> <span class="ty">int</span> <span class="fn">find</span>(<span class="kw">const</span> <span class="ty">char</span>* code) {</span>
+<span class="code-line">    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; <span class="nu">3</span>; i++) {</span>
+<span class="code-line">        <span class="kw">if</span> (<span class="fn">strcmp</span>(codes[i], code) == <span class="nu">0</span>) {</span>
+<span class="code-line">            <span class="kw">return</span> i;</span>
+<span class="code-line">        }</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="kw">return</span> -<span class="nu">1</span>;</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {</span>
+<span class="code-line">    <span class="fn">printf</span>(<span class="st">"%d %d %d\n"</span>, <span class="fn">find</span>(<span class="st">"JP"</span>), <span class="fn">find</span>(<span class="st">"USA"</span>), <span class="fn">find</span>(<span class="st">"UK"</span>));</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>find</code> は、表 <code>codes</code> から引数と同じ国コードの行を探してその番号を返し、見つからなければ <code>-1</code> を返す関数です。このプログラムは <code>0 1 2</code> を出力するはずが、いまは <code>0 -1 2</code> を出力し、表にあるはずの <code>"USA"</code> だけが見つかりません。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del"><span class="kw">static</span> <span class="kw">const</span> <span class="ty">char</span> codes[][<span class="chg"><span class="nu">3</span></span>] = {<span class="st">"JP"</span>, <span class="st">"USA"</span>, <span class="st">"UK"</span>};</span>
+</code></pre>
+      <p>
+        <code>"USA"</code> だけが見つからないのは、3文字のコードが <code>"USA"</code> だけだからです。<code>codes</code> の行は3要素の <code>char</code> 配列で、<code>"USA"</code> の初期化には <code>'U'</code> <code>'S'</code> <code>'A'</code> の3つで行が埋まります。C では、文字列リテラルの文字数が配列の要素数とちょうど同じとき、終端の <code>'\0'</code> は入らず、エラーにもなりません。<sup class="fn-ref">1</sup> <code>"JP"</code> と <code>"UK"</code> は2文字なので、3つ目に <code>'\0'</code> が入ります。
+      </p>
+      <p>
+        2次元配列の行はメモリ上に隙間なく並ぶので、<code>codes[1]</code> の <code>USA</code> のすぐ後ろには <code>codes[2]</code> の <code>UK\0</code> が続きます。<code>strcmp(codes[1], "USA")</code> は <code>'\0'</code> に出会うまで読み進め、<code>"USAUK"</code> と <code>"USA"</code> を比べることになるので、一致しません。行の外まで読むこの比較は未定義動作で、<code>-1</code> は手元の実行で観測した結果です。表の最後の行が3文字なら、配列の外まで読むことになります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins"><span class="kw">static</span> <span class="kw">const</span> <span class="ty">char</span> codes[][<span class="chg"><span class="nu">4</span></span>] = {<span class="st">"JP"</span>, <span class="st">"USA"</span>, <span class="st">"UK"</span>};</span>
+</code></pre>
+      <p>
+        行を4要素にすると、3文字のコードにも <code>'\0'</code> の入る場所ができ、どの行もヌル終端の文字列になります。<code>strcmp(codes[1], "USA")</code> は4文字目の <code>'\0'</code> で止まって一致し、<code>0 1 2</code> が出力されます。行の要素数は、いちばん長いコードの文字数に1を足した数にします。<code>static const char* const codes[] = {...}</code> のようにポインタの配列にしても直ります。各ポインタが指す文字列リテラルには、いつも <code>'\0'</code> が付いているからです。
+      </p>
+      <ol class="footnotes">
+        <li>C++ では、この初期化はコンパイルエラーです。<code>'\0'</code> の分も配列に収まらなければならないからです。GCC 15 には、C でこの形を知らせる <code>-Wunterminated-string-initialization</code> という警告が加わりました。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

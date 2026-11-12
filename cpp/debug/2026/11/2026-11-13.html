@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Huffman 符号の合計ビット数を std::set で求めると、重複の無い入力なのに答えが小さくなる。足した和が既にある値と等しいと set に入らない欠陥を、std::multiset に変えて直す C++26 のドリル。">
+<title>和がsetから消える</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-11-13">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-13" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-11-13",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-11-13",
+      "datePublished": "2026-11-13",
+      "dateModified": "2026-11-13",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "和がsetから消える" },
+      "keywords": "huffman-coding, set, priority-queue, deduplication",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "Huffman 符号の合計ビット数を std::set で求めると、重複の無い入力なのに答えが小さくなる。足した和が既にある値と等しいと set に入らない欠陥を、std::multiset に変えて直す C++26 のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-13">C23</a>
+  <a href="/cpp/debug/2026-11-13" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-11-13">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-13">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-13">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-13">READ</a>
+  <a href="/cpp/write/2026-11-13">WRITE</a>
+  <a href="/cpp/debug/2026-11-13" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="和がsetから消える"
+  data-tags="huffman-coding set priority-queue deduplication"
+  data-concepts="ハフマン符号, std::set, std::multiset, 重複するキー, 優先度付きキューの代用, Huffman coding, duplicate keys"
+  data-level="whale"
+>
+  <h2>2026-11-13</h2>
+  <div class="code-frame">
+    <p class="code-filename">cost.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;set&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    std::<span class="ty">set</span>&lt;<span class="ty">int</span>&gt; q{<span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">3</span>, <span class="nu">4</span>};</span>
+<span class="code-line">    <span class="ty">int</span> total = <span class="nu">0</span>;</span>
+<span class="code-line">    <span class="kw">while</span> (q.<span class="fn">size</span>() &gt; <span class="nu">1</span>) {</span>
+<span class="code-line">        <span class="ty">int</span> a = q.<span class="fn">extract</span>(q.<span class="fn">begin</span>()).<span class="fn">value</span>();</span>
+<span class="code-line">        <span class="ty">int</span> b = q.<span class="fn">extract</span>(q.<span class="fn">begin</span>()).<span class="fn">value</span>();</span>
+<span class="code-line">        total += a + b;</span>
+<span class="code-line">        q.<span class="fn">insert</span>(a + b);</span>
+<span class="code-line">    }</span>
+<span class="code-line">    std::cout &lt;&lt; total &lt;&lt; <span class="st">'\n'</span>;</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    出現回数が 1, 2, 3, 4 回の4文字を、出現回数に応じた長さの 0 と 1 の符号にしたとき、全体が何ビットになるかを求めるプログラムです。回数の小さい2つを取り出し、その和を足し込んでから戻す操作を、値が1つになるまで繰り返します。本来は <code>19</code> を出力するはずが、いまは <code>10</code> を出力します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del">    std::<span class="chg"><span class="ty">set</span></span>&lt;<span class="ty">int</span>&gt; q{<span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">3</span>, <span class="nu">4</span>};</span>
+</code></pre>
+      <p>
+        入力の 1, 2, 3, 4 に重複は無いので、<code>std::set</code> でも困らないように見えます。重複が生まれるのは、ループが戻す和のほうです。1回目は 1 と 2 を取り出して <code>total</code> を3にし、和の3を <code>insert</code> します。ところが <code>q</code> にはもとの3がまだ残っていて、<code>std::set</code> は同じ値を2つ持てないので、この <code>insert</code> は何もしません。<code>q</code> は {3, 4} になり、2回目は 3 + 4 = 7 を足して <code>total</code> が10、<code>q</code> は {7} になってループが終わります。3が1つ消えた分、操作が1回少なくなり、足し込む和も変わりました。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins">    std::<span class="chg"><span class="ty">multiset</span></span>&lt;<span class="ty">int</span>&gt; q{<span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">3</span>, <span class="nu">4</span>};</span>
+</code></pre>
+      <p>
+        <code>std::multiset</code> は同じ値をいくつでも持てるので、戻した3はもとの3と並んで残ります。{3, 3, 4} から 3 + 3 = 6、{4, 6} から 4 + 6 = 10 を足し、<code>total</code> は 3 + 6 + 10 = 19 になります。<code>extract</code> と <code>insert</code> は <code>std::multiset</code> にもあり、ほかの行はそのまま使えます。入力そのものに同じ回数の文字が並ぶ場合も、すべての値が残ります。<sup class="fn-ref">1</sup>
+      </p>
+      <ol class="footnotes">
+        <li>小さい順に取り出すだけなら、<code>std::priority_queue&lt;int, std::vector&lt;int&gt;, std::greater&lt;&gt;&gt;</code> も同じ値をいくつでも持てます。この用途でよく使われるのはこちらで、<code>top</code> と <code>pop</code> の2行で1つを取り出します。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

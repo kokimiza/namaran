@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="会員名簿と、同じ人が何度も記録される入館記録を Data.List の intersect で照合すると、来館した会員の数が多く出る。intersect が左のリストの重複をそのまま残すことを、引数の順で直す Haskell 2010 のドリル。">
+<title>intersectの重複</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-11-13">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-13" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-11-13",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-11-13",
+      "datePublished": "2026-11-13",
+      "dateModified": "2026-11-13",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "intersectの重複" },
+      "keywords": "list, set, deduplication",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "会員名簿と、同じ人が何度も記録される入館記録を Data.List の intersect で照合すると、来館した会員の数が多く出る。intersect が左のリストの重複をそのまま残すことを、引数の順で直す Haskell 2010 のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-13">C23</a>
+  <a href="/cpp/debug/2026-11-13">C++26</a>
+  <a href="/rust/debug/2026-11-13">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-13" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-13">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-13">READ</a>
+  <a href="/haskell/write/2026-11-13">WRITE</a>
+  <a href="/haskell/debug/2026-11-13" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="intersectの重複"
+  data-tags="list set deduplication"
+  data-concepts="Data.List.intersect, リストの共通部分, 積集合, 重複, 引数の順, list intersection, duplicates"
+  data-level="hedgehog"
+>
+  <h2>2026-11-13</h2>
+  <div class="code-frame">
+    <p class="code-filename">Attend.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">import</span> <span class="ty">Data.List</span> (intersect)</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">members</span> <span class="op">::</span> [<span class="ty">String</span>]</span>
+<span class="code-line"><span class="fn">members</span> = [<span class="st">"ann"</span>, <span class="st">"bob"</span>, <span class="st">"cid"</span>]</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">checkins</span> <span class="op">::</span> [<span class="ty">String</span>]</span>
+<span class="code-line"><span class="fn">checkins</span> = [<span class="st">"bob"</span>, <span class="st">"eve"</span>, <span class="st">"bob"</span>, <span class="st">"ann"</span>, <span class="st">"bob"</span>]</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()</span>
+<span class="code-line"><span class="fn">main</span> = print (length (checkins `intersect` members))</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    会員名簿 <code>members</code> と入館記録 <code>checkins</code> を照合し、来館した会員が何人いるかを表示するつもりのプログラムです。入館記録には、会員でない人も、同じ人が入館するたびに何度も記録されます。名簿に同じ名前はありません。この入力では <code>ann</code> と <code>bob</code> の2人なので、本来は <code>2</code> を出力するはずが、いまは <code>4</code> を出力します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del"><span class="fn">main</span> = print (length (<span class="chg">checkins</span> `intersect` <span class="chg">members</span>))</span>
+</code></pre>
+      <p>
+        <code>xs `intersect` ys</code> は、<code>xs</code> の要素のうち <code>ys</code> にあるものを、<code>xs</code> の順に、<code>xs</code> にある数だけ残します。名前は集合の共通部分を思わせますが、<code>intersect</code> は左のリストを先頭から1つずつ調べて残すかどうかを決めるだけなので、左に3回ある <code>bob</code> は3回とも残ります。<code>checkins `intersect` members</code> は <code>["bob","bob","ann","bob"]</code> になり、その長さの <code>4</code> が表示されます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins"><span class="fn">main</span> = print (length (<span class="chg">members</span> `intersect` <span class="chg">checkins</span>))</span>
+</code></pre>
+      <p>
+        重複の無い名簿を左に置くと、名簿の名前のうち入館記録にあるものが1つずつ残ります。<code>members `intersect` checkins</code> は <code>["ann","bob"]</code> で、長さは <code>2</code> です。入館記録に同じ人が何度あっても、右のリストは「あるかどうか」を調べるのに使われるだけなので、数には影響しません。<sup class="fn-ref">1</sup>
+      </p>
+      <ol class="footnotes">
+        <li><code>Data.List</code> の <code>union</code> も左右で扱いが違い、<code>xs `union` ys</code> は <code>xs</code> をそのまま残して、<code>ys</code> からは <code>xs</code> に無い要素を重複を除いて足します。左に重複があれば、それも残ります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

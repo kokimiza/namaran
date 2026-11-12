@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="char names[][8] の形で並んだ名前を、辞書順にその場で並べ替える関数を書く。行は配列なので代入では入れ替えられず、中身をコピーして動かす C23 のドリル。">
+<title>行ごとコピーで並べ替え</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-11-13">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-13" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-11-13",
+      "url": "https://namaran.jocarium.productions/c/write/2026-11-13",
+      "datePublished": "2026-11-13",
+      "dateModified": "2026-11-13",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "行ごとコピーで並べ替え" },
+      "keywords": "multidimensional-array, string, insertion-sort, pointer-decay",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "char names[][8] の形で並んだ名前を、辞書順にその場で並べ替える関数を書く。行は配列なので代入では入れ替えられず、中身をコピーして動かす C23 のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-13" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-11-13">C++26</a>
+  <a href="/rust/write/2026-11-13">Rust 2024</a>
+  <a href="/haskell/write/2026-11-13">Haskell 2010</a>
+  <a href="/zig/write/2026-11-13">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-13">READ</a>
+  <a href="/c/write/2026-11-13" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-11-13">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="行ごとコピーで並べ替え"
+  data-tags="multidimensional-array string insertion-sort pointer-decay"
+  data-concepts="2次元char配列, 文字列の並べ替え, 配列は代入できない, memcpy, strcmp, char array of strings, sort strings in place"
+  data-level="bison"
+>
+  <h2>2026-11-13</h2>
+  <div class="code-frame">
+    <p class="code-filename">names.c</p>
+    <pre class="code"><code><span class="code-line"><span class="ty">void</span> <span class="fn">sort_names</span>(<span class="ty">char</span> names[][<span class="nu">8</span>], <span class="ty">size_t</span> n) {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    1行に1つずつ、ヌル終端の名前(7文字以内)が入った <code>n</code> 行の配列 <code>names</code> を、<code>strcmp</code> の順で昇順にその場で並べ替える <code>sort_names</code> を書いてください。同じ名前が複数あってもかまいません。<code>n</code> が0か1なら何もしません。例では、呼び出す前の配列の中身を初期化子の形で書き、出力例には呼び出したあとの中身を同じ形で書きます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>{"pear", "fig", "apple"}</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>{"apple", "fig", "pear"}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>{"kiwi"}</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>{"kiwi"}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>{"plum", "date", "plum", "banana"}</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>{"banana", "date", "plum", "plum"}</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="ty">void</span> <span class="fn">sort_names</span>(<span class="ty">char</span> names[][<span class="nu">8</span>], <span class="ty">size_t</span> n) {</span>
+<span class="code-line ins">    <span class="kw">for</span> (<span class="ty">size_t</span> i = <span class="nu">1</span>; i &lt; n; i++) {</span>
+<span class="code-line ins">        <span class="ty">char</span> key[<span class="kw">sizeof</span> names[<span class="nu">0</span>]];</span>
+<span class="code-line ins">        <span class="fn">memcpy</span>(key, names[i], <span class="kw">sizeof</span> key);</span>
+<span class="code-line ins">        <span class="ty">size_t</span> j = i;</span>
+<span class="code-line ins">        <span class="kw">while</span> (j &gt; <span class="nu">0</span> &amp;&amp; <span class="fn">strcmp</span>(names[j - <span class="nu">1</span>], key) &gt; <span class="nu">0</span>) {</span>
+<span class="code-line ins">            <span class="fn">memcpy</span>(names[j], names[j - <span class="nu">1</span>], <span class="kw">sizeof</span> key);</span>
+<span class="code-line ins">            j--;</span>
+<span class="code-line ins">        }</span>
+<span class="code-line ins">        <span class="fn">memcpy</span>(names[j], key, <span class="kw">sizeof</span> key);</span>
+<span class="code-line ins">    }</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        <code>names</code> の各行は <code>char[8]</code> の配列です。配列は代入できないので、<code>names[j] = names[j - 1]</code> のように行を入れ替えることはできず、中身の8バイトを <code>memcpy</code> で動かします。ポインタの配列 <code>const char *names[]</code> なら指す先を入れ替えるだけで済みますが、ここでは文字そのものが行に並んでいるので、動かすのも文字です。参考実装は挿入ソートで、これが唯一の正解ではありません。
+      </p>
+      <p>
+        行の大きさは <code>sizeof names[0]</code> で取れます。仮引数の <code>char names[][8]</code> は <code>char (*)[8]</code>、つまり8文字の行へのポインタに置き換わるので、<code>sizeof names</code> はポインタの大きさになりますが、<code>names[0]</code> は行そのもので8になります。挿入する行を <code>key</code> に写してから前の行を1つずつ後ろへずらし、空いた位置に <code>key</code> を書き戻します。
+      </p>
+      <p>
+        <code>key</code> を配列ではなく、行 <code>i</code> を指すポインタにすると、名前は写されません。前の行をずらした時点で行 <code>i</code> は上書きされ、<code>key</code> から読める名前も変わります。入力例1では、<code>"fig"</code> を挿入するときに <code>key</code> の指す先が <code>"pear"</code> に変わり、名前が失われます。<code>strcmp(...) &gt; 0</code> のときだけずらすので、入力例3の2つの <code>"plum"</code> のように等しい名前は元の順のまま残ります。<code>n</code> が0か1ならループが一度も回らず、配列は変わりません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Data.List の (\\) で文字列 &quot;aabbbc&quot; から &quot;abbz&quot; を引いた結果を表示する。右のリストの要素1つにつき、左から最初の1つだけが消えるリストの差を追う Haskell 2010 のドリル。">
+<title>\\は1つずつ消す</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-11-13">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-13" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-11-13",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-11-13",
+      "datePublished": "2026-11-13",
+      "dateModified": "2026-11-13",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "\\\\は1つずつ消す" },
+      "keywords": "list, set, string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "Data.List の (\\\\) で文字列 \"aabbbc\" から \"abbz\" を引いた結果を表示する。右のリストの要素1つにつき、左から最初の1つだけが消えるリストの差を追う Haskell 2010 のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-13">C23</a>
+  <a href="/cpp/read/2026-11-13">C++26</a>
+  <a href="/rust/read/2026-11-13">Rust 2024</a>
+  <a href="/haskell/read/2026-11-13" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/read/2026-11-13">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-13" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-11-13">WRITE</a>
+  <a href="/haskell/debug/2026-11-13">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="\\は1つずつ消す"
+  data-tags="list set string"
+  data-concepts="リストの差, 差集合, Data.List, (\\), 重複のある差, list difference, multiset difference"
+  data-level="hedgehog"
+>
+  <h2>2026-11-13</h2>
+  <div class="code-frame">
+    <p class="code-filename">Stock.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">import</span> <span class="ty">Data.List</span> ((\\))</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()</span>
+<span class="code-line"><span class="fn">main</span> = putStrLn (<span class="st">"aabbbc"</span> \\ <span class="st">"abbz"</span>)</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>abc</samp></pre>
+      </div>
+      <p>
+        <code>xs \\ ys</code> は、<code>ys</code> の要素を左から1つずつ取り、そのたびに <code>xs</code> から同じ値を最初の1つだけ消します。<code>"aabbbc"</code> から、<code>'a'</code> で先頭の <code>a</code> が消えて <code>"abbbc"</code>、続く2つの <code>'b'</code> で <code>b</code> が2つ消えて <code>"abc"</code> になります。<code>'z'</code> は <code>"abc"</code> に無いので、何も消えずに <code>"abc"</code> が残ります。
+      </p>
+      <p>
+        <code>\\</code> を「右にある文字を左から全部取り除く」操作として読むと、<code>a</code> も <code>b</code> も残らず <code>c</code> と答えてしまいます。<code>\\</code> が消すのは右の要素1つにつき1つだけなので、左に3つあった <code>b</code> は、右の2つの分だけ減って1つ残ります。在庫 <code>"aabbbc"</code> から売れた分 <code>"abbz"</code> を引いた残り、のように個数で引き算をする関数です。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

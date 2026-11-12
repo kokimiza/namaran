@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「リフレクション」を扱ったNamaranのコーディングドリル6問。comptime var、inline for、@typeInfo、フィールドの型を数える、コンパイル時の集計、type reflection。">
+<meta name="description" content="「リフレクション」を扱ったNamaranのコーディングドリル8問。@typeInfo、型の値の個数、積の法則、comptime_int、型をたどる再帰、cardinality of a type。">
 <title>リフレクション</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/reflection">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,12 @@
   <h2>リフレクション</h2>
 
   <p class="lede">
-    「リフレクション」を扱った6問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「リフレクション」を扱った8問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/write/2026-11-13">Zig / WRITE · 2026-11-13</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">型の値は何通りか</span> <span class="past-concepts">@typeInfo, 型の値の個数, 積の法則, comptime_int, 型をたどる再帰, cardinality of a type, type reflection</span></li>
+    <li><a href="/zig/read/2026-11-13">Zig / READ · 2026-11-13</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">@TypeOfの中の呼び出し</span> <span class="past-concepts">@TypeOf, 副作用, 評価されない式, @typeName, 型の調査, no runtime side effects, unevaluated operand</span></li>
     <li><a href="/zig/write/2026-10-25">Zig / WRITE · 2026-10-25</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">型の合うフィールドを数える</span> <span class="past-concepts">comptime var, inline for, @typeInfo, フィールドの型を数える, コンパイル時の集計, type reflection, comptime_int</span></li>
     <li><a href="/zig/write/2026-10-24">Zig / WRITE · 2026-10-24</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">列挙子の名前でフィールドへ</span> <span class="past-concepts">inline else, @field, @tagName, 実行時の値でフィールドを選ぶ, comptime field access, enum to field, switch prong expansion</span></li>
     <li><a href="/zig/write/2026-10-23">Zig / WRITE · 2026-10-23</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">2倍の幅で掛ける</span> <span class="past-concepts">@TypeOf, @typeInfo, @Int, 型を返す関数, 幅を広げてから掛ける, widening multiplication, type reflection, anytype</span></li>

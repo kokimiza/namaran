@@ -185,6 +185,7 @@ hash-table	ハッシュ表
 heap	ヒープ
 higher-order	高階関数
 higher-ranked-trait-bound	高階トレイト境界
+huffman-coding	ハフマン符号
 hyperloglog	HyperLogLog
 idempotency	冪等性
 immutability	不変性

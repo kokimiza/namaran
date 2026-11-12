@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="長さのそろわない 0 と 1 の符号を std::map で受け取り、ビット列を文字列に戻す decode を書く。どの符号もほかの符号の先頭部分にならない性質を使い、先頭から一致した時点で1文字を確定する C++26 のドリル。">
+<title>長さの違う符号を戻す</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-11-13">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-13" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-11-13",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-11-13",
+      "datePublished": "2026-11-13",
+      "dateModified": "2026-11-13",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "長さの違う符号を戻す" },
+      "keywords": "huffman-coding, ordered-map, string, init-statement",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "長さのそろわない 0 と 1 の符号を std::map で受け取り、ビット列を文字列に戻す decode を書く。どの符号もほかの符号の先頭部分にならない性質を使い、先頭から一致した時点で1文字を確定する C++26 のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-13">C23</a>
+  <a href="/cpp/write/2026-11-13" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-11-13">Rust 2024</a>
+  <a href="/haskell/write/2026-11-13">Haskell 2010</a>
+  <a href="/zig/write/2026-11-13">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-13">READ</a>
+  <a href="/cpp/write/2026-11-13" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-11-13">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="長さの違う符号を戻す"
+  data-tags="huffman-coding ordered-map string init-statement"
+  data-concepts="ハフマン符号の復号, 接頭符号, 可変長符号, std::map::find, Huffman decoding, prefix code, prefix-free code"
+  data-level="peacock"
+>
+  <h2>2026-11-13</h2>
+  <div class="code-frame">
+    <p class="code-filename">decode.cpp</p>
+    <pre class="code"><code><span class="code-line">std::<span class="ty">string</span> <span class="fn">decode</span>(<span class="kw">const</span> std::<span class="ty">map</span>&lt;std::<span class="ty">string</span>, <span class="ty">char</span>&gt;&amp; codes, <span class="kw">const</span> std::<span class="ty">string</span>&amp; bits) {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>codes</code> は、<code>'0'</code> と <code>'1'</code> からなる符号から1文字への表です。符号の長さはそろっていませんが、どの符号も、ほかの符号の先頭部分にはなっていません。符号を並べてつないだビット列 <code>bits</code> を受け取り、元の文字列を返す <code>decode</code> を書いてください。<code>bits</code> は必ず符号の並びに切り分けられ、空なら空文字列を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>decode({{"0", 'a'}, {"10", 'b'}, {"11", 'c'}}, "010110")</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>"abca"</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>decode({{"0", 'a'}, {"10", 'b'}, {"11", 'c'}}, "")</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>""</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>decode({{"00", 'x'}, {"01", 'y'}, {"1", 'z'}}, "1001101")</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>"zxzzy"</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line">std::<span class="ty">string</span> <span class="fn">decode</span>(<span class="kw">const</span> std::<span class="ty">map</span>&lt;std::<span class="ty">string</span>, <span class="ty">char</span>&gt;&amp; codes, <span class="kw">const</span> std::<span class="ty">string</span>&amp; bits) {</span>
+<span class="code-line ins">    std::<span class="ty">string</span> out;</span>
+<span class="code-line ins">    std::<span class="ty">string</span> buf;</span>
+<span class="code-line ins">    <span class="kw">for</span> (<span class="ty">char</span> b : bits) {</span>
+<span class="code-line ins">        buf += b;</span>
+<span class="code-line ins">        <span class="kw">if</span> (<span class="kw">auto</span> it = codes.<span class="fn">find</span>(buf); it != codes.<span class="fn">end</span>()) {</span>
+<span class="code-line ins">            out += it-&gt;second;</span>
+<span class="code-line ins">            buf.<span class="fn">clear</span>();</span>
+<span class="code-line ins">        }</span>
+<span class="code-line ins">    }</span>
+<span class="code-line ins">    <span class="kw">return</span> out;</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        符号の長さがそろっていないので、<code>bits</code> を決まった幅で切ることはできません。代わりに先頭から1ビットずつ <code>buf</code> に足し、<code>buf</code> が表のどれかの符号と一致した時点で、その文字を確定して <code>buf</code> を空に戻します。これは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        一致した時点で確定してよいのは、どの符号もほかの符号の先頭部分になっていないからです。<code>buf</code> が符号 <code>"10"</code> と一致したなら、<code>"10"</code> で始まる長い符号は表に無いので、もっと読み進めて別の符号になる可能性はありません。入力例3では、<code>1</code> が <code>z</code>、続く <code>0</code> はどれとも一致せず、<code>00</code> で <code>x</code> になり、残りの <code>1</code> <code>1</code> <code>01</code> が <code>z</code> <code>z</code> <code>y</code> になります。表は <code>const</code> 参照で受けているので、引くには <code>operator[]</code> ではなく <code>find</code> を使います。<code>operator[]</code> は無いキーを挿入する関数で、<code>const</code> の <code>std::map</code> には呼べません。<code>bits</code> が空ならループが回らず、空の <code>out</code> を返します。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「可変性」を扱ったNamaranのコーディングドリル14問。タグ付きunion、union(enum)、有効なフィールド、フィールドへの代入、安全検査、illegal behavior。">
+<meta name="description" content="「可変性」を扱ったNamaranのコーディングドリル15問。std::mem::swap、可変参照への参照、&amp;mut &amp;mut i32、再借用、値の交換、swap references。">
 <title>可変性</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/mutability">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>可変性</h2>
 
   <p class="lede">
-    「可変性」を扱った14問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「可変性」を扱った15問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/debug/2026-11-13">Rust / DEBUG · 2026-11-13</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">参照を入れ替えたswap</span> <span class="past-concepts">std::mem::swap, 可変参照への参照, &amp;mut &amp;mut i32, 再借用, 値の交換, swap references, reborrow</span></li>
     <li><a href="/zig/debug/2026-11-07">Zig / DEBUG · 2026-11-07</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">有効でない側への代入</span> <span class="past-concepts">タグ付きunion, union(enum), 有効なフィールド, フィールドへの代入, 安全検査, illegal behavior, tagged union, active field, inactive union field</span></li>
     <li><a href="/zig/debug/2026-11-06">Zig / DEBUG · 2026-11-06</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">コピーに売った在庫</span> <span class="past-concepts">構造体のメソッド, 構造体のコピー, selfをポインタで受ける, 要素へのポインタ, struct method, struct copy, pointer receiver, value semantics</span></li>
     <li><a href="/zig/debug/2026-10-31">Zig / DEBUG · 2026-10-31</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">入金したのに残高が同じ</span> <span class="past-concepts">メソッド呼び出し, selfのポインタ, 構造体のコピー, 配列の要素へのポインタ, constとvar, method call, copy of struct, pointer to array element</span></li>

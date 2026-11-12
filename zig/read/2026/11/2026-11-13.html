@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="呼び出し回数を数える関数を @TypeOf の中で呼び、その型で変数を作ってからもう一度呼ぶ。@TypeOf の引数は実行時の副作用を持たないことを確かめる Zig 0.17 のドリル。">
+<title>@TypeOfの中の呼び出し</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/read/2026-11-13">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / READ", "item": "https://namaran.jocarium.productions/zig/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-13" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / READ — 2026-11-13",
+      "url": "https://namaran.jocarium.productions/zig/read/2026-11-13",
+      "datePublished": "2026-11-13",
+      "dateModified": "2026-11-13",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "@TypeOfの中の呼び出し" },
+      "keywords": "builtin-function, comptime, side-effect, reflection",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "呼び出し回数を数える関数を @TypeOf の中で呼び、その型で変数を作ってからもう一度呼ぶ。@TypeOf の引数は実行時の副作用を持たないことを確かめる Zig 0.17 のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-13">C23</a>
+  <a href="/cpp/read/2026-11-13">C++26</a>
+  <a href="/rust/read/2026-11-13">Rust 2024</a>
+  <a href="/haskell/read/2026-11-13">Haskell 2010</a>
+  <a href="/zig/read/2026-11-13" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-13" class="active" aria-current="page">READ</a>
+  <a href="/zig/write/2026-11-13">WRITE</a>
+  <a href="/zig/debug/2026-11-13">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="@TypeOfの中の呼び出し"
+  data-tags="builtin-function comptime side-effect reflection"
+  data-concepts="@TypeOf, 副作用, 評価されない式, @typeName, 型の調査, no runtime side effects, unevaluated operand"
+  data-level="hedgehog"
+>
+  <h2>2026-11-13</h2>
+  <div class="code-frame">
+    <p class="code-filename">peek.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">var</span> calls: <span class="ty">u8</span> = <span class="nu">0</span>;</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">next</span>() <span class="ty">u8</span> {</span>
+<span class="code-line">    calls += <span class="nu">1</span>;</span>
+<span class="code-line">    <span class="kw">return</span> calls;</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {</span>
+<span class="code-line">    <span class="kw">const</span> <span class="ty">T</span> = <span class="mc">@TypeOf</span>(<span class="fn">next</span>());</span>
+<span class="code-line">    <span class="kw">const</span> x: <span class="ty">T</span> = <span class="fn">next</span>();</span>
+<span class="code-line">    <span class="kw">var</span> buf: [<span class="nu">64</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line">    <span class="kw">var</span> w = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;buf);</span>
+<span class="code-line">    <span class="kw">try</span> w.interface.<span class="fn">print</span>(<span class="st">"{s} {d} {d}\n"</span>, .{ <span class="mc">@typeName</span>(<span class="ty">T</span>), x, calls });</span>
+<span class="code-line">    <span class="kw">try</span> w.interface.<span class="fn">flush</span>();</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>u8 1 1</samp></pre>
+      </div>
+      <p>
+        <code>@TypeOf(next())</code> が返すのは、<code>next()</code> を呼んだら得られる値の型で、<code>next</code> の戻り値の型 <code>u8</code> です。langref は、<code>@TypeOf</code> の引数の式は評価されるものの、実行時の副作用を持たない(no runtime side-effects)ことを保証しています。型を決めるために <code>next</code> の中身が実行されることはなく、<code>calls</code> は0のままです。
+      </p>
+      <p>
+        次の行の <code>next()</code> は普通の呼び出しなので、<code>calls</code> が1になり、<code>x</code> も1になります。<code>@typeName(T)</code> は <code>"u8"</code> なので、<code>u8 1 1</code> が出力されます。<code>@TypeOf</code> の中の呼び出しも1回と数えると、<code>x</code> と <code>calls</code> がどちらも2になり、<code>u8 2 2</code> と答えてしまいます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/read">Today</a></li>
+    <li><a href="/zig/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

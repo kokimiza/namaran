@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「パニック」を扱ったNamaranのコーディングドリル13問。文字列スライス、バイト位置、文字境界、UTF-8、char_indices、chars。">
+<meta name="description" content="「パニック」を扱ったNamaranのコーディングドリル14問。@TypeOf、anytype、合計のオーバーフロー、u8、平均、illegal behavior。">
 <title>パニック</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/panic">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>パニック</h2>
 
   <p class="lede">
-    「パニック」を扱った13問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「パニック」を扱った14問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/debug/2026-11-13">Zig / DEBUG · 2026-11-13</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">要素の型で合計する</span> <span class="past-concepts">@TypeOf, anytype, 合計のオーバーフロー, u8, 平均, illegal behavior, integer overflow, accumulator type</span></li>
     <li><a href="/rust/debug/2026-11-10">Rust / DEBUG · 2026-11-10</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">1文字目だけ残す</span> <span class="past-concepts">文字列スライス, バイト位置, 文字境界, UTF-8, char_indices, chars, メールアドレスのマスキング, char boundary, string slicing</span></li>
     <li><a href="/zig/debug/2026-11-07">Zig / DEBUG · 2026-11-07</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">有効でない側への代入</span> <span class="past-concepts">タグ付きunion, union(enum), 有効なフィールド, フィールドへの代入, 安全検査, illegal behavior, tagged union, active field, inactive union field</span></li>
     <li><a href="/rust/debug/2026-11-02">Rust / DEBUG · 2026-11-02</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">文の終わりまで残る借用</span> <span class="past-concepts">RefCell, 二重借用, 一時オブジェクトの寿命, BorrowMutError, already borrowed, temporary lifetime, arena allocation</span></li>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「コンパイル時実行」を扱ったNamaranのコーディングドリル23問。comptime、型を返す関数、@This、固定長スタック、既定値つきフィールド、generic data structure。">
+<meta name="description" content="「コンパイル時実行」を扱ったNamaranのコーディングドリル25問。@typeInfo、型の値の個数、積の法則、comptime_int、型をたどる再帰、cardinality of a type。">
 <title>コンパイル時実行</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/comptime">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,12 @@
   <h2>コンパイル時実行</h2>
 
   <p class="lede">
-    「コンパイル時実行」を扱った23問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「コンパイル時実行」を扱った25問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/write/2026-11-13">Zig / WRITE · 2026-11-13</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">型の値は何通りか</span> <span class="past-concepts">@typeInfo, 型の値の個数, 積の法則, comptime_int, 型をたどる再帰, cardinality of a type, type reflection</span></li>
+    <li><a href="/zig/read/2026-11-13">Zig / READ · 2026-11-13</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">@TypeOfの中の呼び出し</span> <span class="past-concepts">@TypeOf, 副作用, 評価されない式, @typeName, 型の調査, no runtime side effects, unevaluated operand</span></li>
     <li><a href="/zig/write/2026-11-11">Zig / WRITE · 2026-11-11</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">固定長スタックの型を返す</span> <span class="past-concepts">comptime, 型を返す関数, @This, 固定長スタック, 既定値つきフィールド, generic data structure, type function, optional</span></li>
     <li><a href="/zig/read/2026-11-11">Zig / READ · 2026-11-11</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">同じ引数なら同じ型</span> <span class="past-concepts">comptime, 型を返す関数, container-level variable, コンテナの変数, 同じ型, generic type, type function, memoization</span></li>
     <li><a href="/zig/debug/2026-11-11">Zig / DEBUG · 2026-11-11</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">個数の型が1ビット足りない</span> <span class="past-concepts">comptime, IntFittingRange, 型を返す関数, 整数のオーバーフロー, 2の累乗, illegal behavior, integer overflow, off-by-one</span></li>
