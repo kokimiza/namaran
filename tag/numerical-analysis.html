@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「数値計算」を扱ったNamaranのコーディングドリル7問。整数平方根、Newton法の初期値、停止条件、単調減少、integer square root、Newton's method。">
+<meta name="description" content="「数値計算」を扱ったNamaranのコーディングドリル10問。Kahanの加算、Neumaierの加算、補正付き総和、丸め誤差、情報落ち、compensated summation。">
 <title>数値計算</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/numerical-analysis">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>数値計算</h2>
 
   <p class="lede">
-    「数値計算」を扱った7問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「数値計算」を扱った10問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/cpp/write/2026-11-14">C++ / WRITE · 2026-11-14</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">大きい値が後から来る総和</span> <span class="past-concepts">Kahanの加算, Neumaierの加算, 補正付き総和, 丸め誤差, 情報落ち, compensated summation, Kahan summation, Neumaier summation</span></li>
+    <li><a href="/cpp/read/2026-11-14">C++ / READ · 2026-11-14</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">1e16に1を4回足す</span> <span class="past-concepts">浮動小数点数の加算, 情報落ち, 丸め, 足す順序, double の仮数部, floating-point addition, absorption, rounding error</span></li>
+    <li><a href="/cpp/debug/2026-11-14">C++ / DEBUG · 2026-11-14</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">0で推論した補正の型</span> <span class="past-concepts">auto の型推論, 整数リテラル 0, double から int への変換, 切り捨て, Kahanの加算, auto deduction, floating-integral conversion, compensated summation</span></li>
     <li><a href="/c/write/2026-10-29">C / WRITE · 2026-10-29</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">反復で求める整数平方根</span> <span class="past-concepts">整数平方根, Newton法の初期値, 停止条件, 単調減少, integer square root, Newton's method, isqrt</span></li>
     <li><a href="/c/read/2026-10-29">C / READ · 2026-10-29</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">逆数の反復が止まる回数</span> <span class="past-concepts">Newton法, 逆数の反復, 2のべき乗を法とする逆元, 誤差の2乗, Newton's method, modular inverse, quadratic convergence</span></li>
     <li><a href="/c/debug/2026-10-29">C / DEBUG · 2026-10-29</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">初期値で決まる収束先</span> <span class="past-concepts">Newton法, 初期値, 収束先の根, 放物線の頂点, Newton's method, initial guess, root finding</span></li>

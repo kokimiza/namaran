@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="std.Io.Writerのbufferedが返す、まだflushしていないバイト列を、同じWriterへ書き戻すループの出力を読むドリルです。2026-11-14のZig READ。">
+<title>まだ送っていない分を書く</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/read/2026-11-14">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / READ", "item": "https://namaran.jocarium.productions/zig/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-14" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / READ — 2026-11-14",
+      "url": "https://namaran.jocarium.productions/zig/read/2026-11-14",
+      "datePublished": "2026-11-14",
+      "dateModified": "2026-11-14",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "まだ送っていない分を書く" },
+      "keywords": "buffering, stdio, slice, io",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "std.Io.Writerのbufferedが返す、まだflushしていないバイト列を、同じWriterへ書き戻すループの出力を読むドリルです。2026-11-14のZig READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-14">C23</a>
+  <a href="/cpp/read/2026-11-14">C++26</a>
+  <a href="/rust/read/2026-11-14">Rust 2024</a>
+  <a href="/haskell/read/2026-11-14">Haskell 2010</a>
+  <a href="/zig/read/2026-11-14" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-14" class="active" aria-current="page">READ</a>
+  <a href="/zig/write/2026-11-14">WRITE</a>
+  <a href="/zig/debug/2026-11-14">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="まだ送っていない分を書く"
+  data-tags="buffering stdio slice io"
+  data-concepts="std.Io.Writer, buffered, flush, バッファ付き出力, まだ書き出していないバイト, 引数の評価順, buffered writer, pending bytes"
+  data-level="whale"
+>
+  <h2>2026-11-14</h2>
+  <div class="code-frame">
+    <p class="code-filename">ruler.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {</span>
+<span class="code-line">    <span class="kw">var</span> buf: [<span class="nu">64</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line">    <span class="kw">var</span> stdout_writer = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;buf);</span>
+<span class="code-line">    <span class="kw">const</span> w = &amp;stdout_writer.interface;</span>
+<span class="code-line">    <span class="kw">try</span> w.<span class="fn">writeByte</span>(<span class="st">'a'</span>);</span>
+<span class="code-line">    <span class="kw">for</span> (<span class="nu">1</span>..<span class="nu">7</span>) |i| {</span>
+<span class="code-line">        <span class="kw">try</span> w.<span class="fn">print</span>(<span class="st">"{d}{s}"</span>, .{ i, w.<span class="fn">buffered</span>() });</span>
+<span class="code-line">        <span class="kw">if</span> (i % <span class="nu">3</span> == <span class="nu">0</span>) <span class="kw">try</span> w.<span class="fn">flush</span>();</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="kw">try</span> w.<span class="fn">writeByte</span>(<span class="st">'\n'</span>);</span>
+<span class="code-line">    <span class="kw">try</span> w.<span class="fn">flush</span>();</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>a1a2a1a3a1a2a1a4546454</samp></pre>
+      </div>
+      <p>
+        <code>w.buffered()</code> が返すのは、<code>buf</code> にたまっていて、まだ標準出力へ送っていないバイト列です。<code>flush</code> はそれをすべて送り出し、たまった分を空にします。<code>buf</code> は64バイトあり、このプログラムが一度にためるのは最大15バイトなので、<code>flush</code> を呼ぶまでバイトが勝手に送られることはありません。
+      </p>
+      <p>
+        <code>print</code> の引数は、<code>print</code> が書き始める前に評価されます。<code>w.buffered()</code> はその時点でたまっている分を指すスライスで、長さもそこで決まります。<code>print</code> はまず <code>i</code> を書き、続けてこのスライスを書くので、たまっている文字列を S とすると、1回の <code>print</code> で S は「S、<code>i</code>、S」になります。S の長さは1回ごとに2倍に1を足した長さになり、中身もこの形のまま決まるので、1文字ずつ追う必要はありません。
+      </p>
+      <p>
+        <code>'a'</code> から始めると、<code>i</code> が1で <code>a1a</code>、2で <code>a1a2a1a</code>、3で <code>a1a2a1a3a1a2a1a</code> になり、ここで <code>flush</code> がこの15文字を出して S を空にします。<code>i</code> が4のときの S は空なので、書かれるのは <code>4</code> だけです。そこから5で <code>454</code>、6で <code>4546454</code> になって、また <code>flush</code> されます。最後に改行を書いて <code>flush</code> するので、出力は2つのかたまりをつないだ1行です。
+      </p>
+      <p>
+        <code>buffered()</code> がそれまでに書いたすべてを返すと考えると、<code>i</code> が4以降も S が伸び続け、<code>a1a2a1a3a1a2a1a4a1a2a1a3a1a2a1a</code> のような行を答えることになります。<code>flush</code> の後に残っているのは、まだ送っていない分だけです。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/read">Today</a></li>
+    <li><a href="/zig/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

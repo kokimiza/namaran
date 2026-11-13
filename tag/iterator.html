@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「イテレータ」を扱ったNamaranのコーディングドリル53問。ログのマスキング、機密情報を伏せる、split_once、logfmt、パターンガード、redaction。">
+<meta name="description" content="「イテレータ」を扱ったNamaranのコーディングドリル54問。as_chunks、固定長の塊への分割、余りの要素、レーンごとの和、zip、SIMD風のループ。">
 <title>イテレータ</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/iterator">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>イテレータ</h2>
 
   <p class="lede">
-    「イテレータ」を扱った53問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「イテレータ」を扱った54問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/read/2026-11-14">Rust / READ · 2026-11-14</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">4本のレーンで足す</span> <span class="past-concepts">as_chunks, 固定長の塊への分割, 余りの要素, レーンごとの和, zip, SIMD風のループ, chunk slices into arrays, remainder</span></li>
     <li><a href="/rust/write/2026-11-10">Rust / WRITE · 2026-11-10</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">鍵を残して値を伏せる</span> <span class="past-concepts">ログのマスキング, 機密情報を伏せる, split_once, logfmt, パターンガード, redaction, log masking, key value</span></li>
     <li><a href="/rust/read/2026-11-09">Rust / READ · 2026-11-09</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">コミット済みだけを再生</span> <span class="past-concepts">WAL, ログ先行書き込み, 障害復旧, 再生, str::split, 末尾の空文字列, collect, BTreeMap, 同じキーの上書き, write-ahead logging, crash recovery, replay</span></li>
     <li><a href="/rust/write/2026-11-07">Rust / WRITE · 2026-11-07</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">u8を全部調べる</span> <span class="past-concepts">プロパティベーステスト, 全数検査, 反例, 閉区間の範囲, ..=, Iterator::find, property-based testing, exhaustive testing, counterexample, inclusive range</span></li>

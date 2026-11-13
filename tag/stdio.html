@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「標準入出力」を扱ったNamaranのコーディングドリル27問。std.Io.Writer、インターフェース、書式指定、16進数、ゼロ埋め、Writer interface。">
+<meta name="description" content="「標準入出力」を扱ったNamaranのコーディングドリル30問。std.Io.Reader、std.Io.Writer、takeByte、行番号、行の先頭、最後の改行。">
 <title>標準入出力</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/stdio">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>標準入出力</h2>
 
   <p class="lede">
-    「標準入出力」を扱った27問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「標準入出力」を扱った30問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/write/2026-11-14">Zig / WRITE · 2026-11-14</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">空でない行に番号を振る</span> <span class="past-concepts">std.Io.Reader, std.Io.Writer, takeByte, 行番号, 行の先頭, 最後の改行, EndOfStream, line numbering, streaming copy</span></li>
+    <li><a href="/zig/read/2026-11-14">Zig / READ · 2026-11-14</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">まだ送っていない分を書く</span> <span class="past-concepts">std.Io.Writer, buffered, flush, バッファ付き出力, まだ書き出していないバイト, 引数の評価順, buffered writer, pending bytes</span></li>
+    <li><a href="/zig/debug/2026-11-14">Zig / DEBUG · 2026-11-14</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">写したinterfaceで書く</span> <span class="past-concepts">std.Io.Writer, interface フィールド, @fieldParentPtr, 構造体のコピー, ポインタで渡す, flush, writer interface, copied interface</span></li>
     <li><a href="/zig/write/2026-11-04">Zig / WRITE · 2026-11-04</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">Writerへ16進で書く</span> <span class="past-concepts">std.Io.Writer, インターフェース, 書式指定, 16進数, ゼロ埋め, Writer interface, hex dump, zero padding</span></li>
     <li><a href="/zig/read/2026-11-04">Zig / READ · 2026-11-04</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">コンマで区切って読む</span> <span class="past-concepts">std.Io.Reader, takeDelimiter, 区切り文字, 空の欄, 末尾の区切り, delimiter, empty field, trailing delimiter</span></li>
     <li><a href="/zig/debug/2026-11-04">Zig / DEBUG · 2026-11-04</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">エラーで抜けると消える行</span> <span class="past-concepts">std.Io.Writer, flush, errdefer, tryで抜ける, バッファに残った出力, buffered output, early return, error path</span></li>

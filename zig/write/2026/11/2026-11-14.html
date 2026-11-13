@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="std.Io.Readerから読んだバイト列を、空でない行の先頭にだけ行番号を付けてstd.Io.Writerへ写す関数を書くドリルです。入力の改行を1つも足さず減らさずに保ちます。2026-11-14のZig WRITE。">
+<title>空でない行に番号を振る</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/write/2026-11-14">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / WRITE", "item": "https://namaran.jocarium.productions/zig/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-14" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / WRITE — 2026-11-14",
+      "url": "https://namaran.jocarium.productions/zig/write/2026-11-14",
+      "datePublished": "2026-11-14",
+      "dateModified": "2026-11-14",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "空でない行に番号を振る" },
+      "keywords": "io, stdio, state-machine, line-ending",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "std.Io.Readerから読んだバイト列を、空でない行の先頭にだけ行番号を付けてstd.Io.Writerへ写す関数を書くドリルです。入力の改行を1つも足さず減らさずに保ちます。2026-11-14のZig WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-14">C23</a>
+  <a href="/cpp/write/2026-11-14">C++26</a>
+  <a href="/rust/write/2026-11-14">Rust 2024</a>
+  <a href="/haskell/write/2026-11-14">Haskell 2010</a>
+  <a href="/zig/write/2026-11-14" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-14">READ</a>
+  <a href="/zig/write/2026-11-14" class="active" aria-current="page">WRITE</a>
+  <a href="/zig/debug/2026-11-14">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="空でない行に番号を振る"
+  data-tags="io stdio state-machine line-ending"
+  data-concepts="std.Io.Reader, std.Io.Writer, takeByte, 行番号, 行の先頭, 最後の改行, EndOfStream, line numbering, streaming copy"
+  data-level="whale"
+>
+  <h2>2026-11-14</h2>
+  <div class="code-frame">
+    <p class="code-filename">number_lines.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">numberLines</span>(r: *std.<span class="ty">Io</span>.<span class="ty">Reader</span>, w: *std.<span class="ty">Io</span>.<span class="ty">Writer</span>) !<span class="ty">void</span> {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>r</code> から読んだバイト列を <code>w</code> へそのまま写しながら、空でない行の先頭にだけ、1から数えた番号と <code>: </code> を付ける <code>numberLines</code> を書いてください。番号は空でない行だけを数えます。入力のバイトは1つも変えず、改行を足したり減らしたりもしません。最後の行が改行で終わらなくてもかまいません。<code>w</code> の <code>flush</code> は呼び出し側が行います。例では、<code>r</code> から読める内容と <code>w</code> に書かれた内容を Zig の文字列リテラルで書きます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>"a\n\nb\n"</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>"1: a\n\n2: b\n"</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>"x\ny"</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>"1: x\n2: y"</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>""</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>""</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">numberLines</span>(r: *std.<span class="ty">Io</span>.<span class="ty">Reader</span>, w: *std.<span class="ty">Io</span>.<span class="ty">Writer</span>) !<span class="ty">void</span> {</span>
+<span class="code-line ins">    <span class="kw">var</span> line: <span class="ty">usize</span> = <span class="nu">0</span>;</span>
+<span class="code-line ins">    <span class="kw">var</span> at_start = <span class="nu">true</span>;</span>
+<span class="code-line ins">    <span class="kw">while</span> (r.<span class="fn">takeByte</span>()) |c| {</span>
+<span class="code-line ins">        <span class="kw">if</span> (at_start <span class="kw">and</span> c != <span class="st">'\n'</span>) {</span>
+<span class="code-line ins">            line += <span class="nu">1</span>;</span>
+<span class="code-line ins">            <span class="kw">try</span> w.<span class="fn">print</span>(<span class="st">"{d}: "</span>, .{line});</span>
+<span class="code-line ins">        }</span>
+<span class="code-line ins">        <span class="kw">try</span> w.<span class="fn">writeByte</span>(c);</span>
+<span class="code-line ins">        at_start = c == <span class="st">'\n'</span>;</span>
+<span class="code-line ins">    } <span class="kw">else</span> |err| <span class="kw">switch</span> (err) {</span>
+<span class="code-line ins">        <span class="kw">error</span>.<span class="ty">EndOfStream</span> =&gt; {},</span>
+<span class="code-line ins">        <span class="kw">else</span> =&gt; |e| <span class="kw">return</span> e,</span>
+<span class="code-line ins">    }</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        行の番号は、改行を読んだときではなく、その行の最初のバイトを書く直前に付けます。参考実装は、直前に書いたのが改行か、まだ何も書いていないことを <code>at_start</code> で覚えておき、<code>at_start</code> のときに読んだバイトが改行でなければ番号を書きます。読んだバイトは <code>writeByte</code> でそのまま写します。<code>takeByte</code> は入力が尽きると <code>error.EndOfStream</code> を返すので、それはループの終わりとして受け、ほかのエラーは呼び出し元へ返します。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        この1つの条件で、行の境目の扱いがすべて決まります。入力例1の2つ目の改行は、<code>at_start</code> のときに読んだ改行なので、番号を付けずに写され、空の行は数えられません。入力の最後の改行の後には読むバイトが無いので、余計な番号は付きません。入力例2の <code>y</code> のように改行で終わらない最後の行にも、最初のバイトで番号が付きます。空の入力では一度もバイトを読まないので、何も書きません。
+      </p>
+      <p>
+        改行を読んだ直後に次の行の番号を書く作りにすると、入力例1の最後の改行の後に <code>3: </code> が付いてしまいます。行ごとに区切って読む関数を使うと、最後の行が改行で終わっていたかどうかが分からなくなり、入力例2で改行を足してしまいがちです。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/write">Today</a></li>
+    <li><a href="/zig/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「スライス」を扱ったNamaranのコーディングドリル38問。&amp;mut &amp;str、文字列スライスを進める、共有参照は Copy、split_at、カーソル、advance a string slice。">
+<meta name="description" content="「スライス」を扱ったNamaranのコーディングドリル40問。std.Io.Writer、buffered、flush、バッファ付き出力、まだ書き出していないバイト、引数の評価順。">
 <title>スライス</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/slice">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,12 @@
   <h2>スライス</h2>
 
   <p class="lede">
-    「スライス」を扱った38問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「スライス」を扱った40問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/read/2026-11-14">Zig / READ · 2026-11-14</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">まだ送っていない分を書く</span> <span class="past-concepts">std.Io.Writer, buffered, flush, バッファ付き出力, まだ書き出していないバイト, 引数の評価順, buffered writer, pending bytes</span></li>
+    <li><a href="/rust/read/2026-11-14">Rust / READ · 2026-11-14</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">4本のレーンで足す</span> <span class="past-concepts">as_chunks, 固定長の塊への分割, 余りの要素, レーンごとの和, zip, SIMD風のループ, chunk slices into arrays, remainder</span></li>
     <li><a href="/rust/write/2026-11-13">Rust / WRITE · 2026-11-13</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">&amp;mut &amp;strで先頭を切る</span> <span class="past-concepts">&amp;mut &amp;str, 文字列スライスを進める, 共有参照は Copy, split_at, カーソル, advance a string slice, shared reference is Copy</span></li>
     <li><a href="/zig/read/2026-11-10">Zig / READ · 2026-11-10</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">コピーした割り当て器</span> <span class="past-concepts">FixedBufferAllocator, std.mem.Allocator, アロケータのコピー, 確保位置, 領域の重なり, allocator interface, copied allocator state, aliasing</span></li>
     <li><a href="/rust/debug/2026-11-10">Rust / DEBUG · 2026-11-10</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">1文字目だけ残す</span> <span class="past-concepts">文字列スライス, バイト位置, 文字境界, UTF-8, char_indices, chars, メールアドレスのマスキング, char boundary, string slicing</span></li>

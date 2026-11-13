@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="std.Io.File.Writerのinterfaceフィールドを別の変数にコピーしてから書き込み、flushで落ちる誤りを直すドリルです。2026-11-14のZig DEBUG。">
+<title>写したinterfaceで書く</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/debug/2026-11-14">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / DEBUG", "item": "https://namaran.jocarium.productions/zig/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-14" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / DEBUG — 2026-11-14",
+      "url": "https://namaran.jocarium.productions/zig/debug/2026-11-14",
+      "datePublished": "2026-11-14",
+      "dateModified": "2026-11-14",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "写したinterfaceで書く" },
+      "keywords": "io, stdio, pointer, struct",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "std.Io.File.Writerのinterfaceフィールドを別の変数にコピーしてから書き込み、flushで落ちる誤りを直すドリルです。2026-11-14のZig DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-14">C23</a>
+  <a href="/cpp/debug/2026-11-14">C++26</a>
+  <a href="/rust/debug/2026-11-14">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-14">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-14" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-14">READ</a>
+  <a href="/zig/write/2026-11-14">WRITE</a>
+  <a href="/zig/debug/2026-11-14" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="写したinterfaceで書く"
+  data-tags="io stdio pointer struct"
+  data-concepts="std.Io.Writer, interface フィールド, @fieldParentPtr, 構造体のコピー, ポインタで渡す, flush, writer interface, copied interface"
+  data-level="hedgehog"
+>
+  <h2>2026-11-14</h2>
+  <div class="code-frame">
+    <p class="code-filename">greet.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">greet</span>(w: *std.<span class="ty">Io</span>.<span class="ty">Writer</span>, names: []<span class="kw">const</span> []<span class="kw">const</span> <span class="ty">u8</span>) !<span class="ty">void</span> {</span>
+<span class="code-line">    <span class="kw">for</span> (names) |name| <span class="kw">try</span> w.<span class="fn">print</span>(<span class="st">"hello, {s}\n"</span>, .{name});</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {</span>
+<span class="code-line">    <span class="kw">var</span> buf: [<span class="nu">64</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line">    <span class="kw">const</span> stdout_writer = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;buf);</span>
+<span class="code-line">    <span class="kw">var</span> stdout = stdout_writer.interface;</span>
+<span class="code-line">    <span class="kw">try</span> <span class="fn">greet</span>(&amp;stdout, &amp;.{ <span class="st">"ann"</span>, <span class="st">"bob"</span> });</span>
+<span class="code-line">    <span class="kw">try</span> stdout.<span class="fn">flush</span>();</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>greet</code> で名前ごとに挨拶を1行ずつ標準出力へ書き、最後に <code>flush</code> するつもりのプログラムです。本来は <code>hello, ann</code> と <code>hello, bob</code> の2行を出力するはずが、いまは何も出力されず、手元の実行では <code>flush</code> の中で Segmentation fault になって止まります。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del">    <span class="chg"><span class="kw">const</span></span> stdout_writer = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;buf);</span>
+<span class="code-line del">    <span class="chg"><span class="kw">var</span></span> stdout = stdout_writer.interface;</span>
+<span class="code-line del">    <span class="kw">try</span> <span class="fn">greet</span>(<span class="chg">&amp;</span>stdout, &amp;.{ <span class="st">"ann"</span>, <span class="st">"bob"</span> });</span>
+</code></pre>
+      <p>
+        <code>std.Io.Writer</code> は、ファイルへの書き方を知っている <code>std.Io.File.Writer</code> の中に、<code>interface</code> というフィールドとして埋め込まれています。バッファが足りなくなったときや <code>flush</code> で実際に書き出す処理は、受け取った <code>*std.Io.Writer</code> から <code>@fieldParentPtr</code> でそれを含む <code>File.Writer</code> の位置を逆算し、そこにあるファイルや <code>io</code> を使います。
+      </p>
+      <p>
+        <code>var stdout = stdout_writer.interface;</code> は、そのフィールドを別の変数へ値としてコピーします。コピーはどの <code>File.Writer</code> の中にもないので、<code>flush</code> が逆算した位置にあるのは、スタック上の関係のないバイトです。それをファイルや <code>io</code> として使った時点で illegal behavior になり、手元では不正なアドレスを読んで落ちました。<code>print</code> はバッファに書くだけで済んでいたので、ここまでは何事もなく進みます。<code>stdout_writer</code> を <code>const</code> にしているのは、<code>var</code> のままだと、一度も書き換えない変数としてコンパイルエラーになるからです。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins">    <span class="chg"><span class="kw">var</span></span> stdout_writer = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>().<span class="fn">writer</span>(init.io, &amp;buf);</span>
+<span class="code-line ins">    <span class="chg"><span class="kw">const</span></span> stdout = <span class="chg">&amp;</span>stdout_writer.interface;</span>
+<span class="code-line ins">    <span class="kw">try</span> <span class="fn">greet</span>(stdout, &amp;.{ <span class="st">"ann"</span>, <span class="st">"bob"</span> });</span>
+</code></pre>
+      <p>
+        <code>&amp;stdout_writer.interface</code> で、<code>File.Writer</code> の中にあるフィールドそのものを指すポインタを取ります。<code>flush</code> の逆算はこのポインタから正しい <code>File.Writer</code> にたどり着き、たまった2行を標準出力へ書き出します。<code>interface</code> を通して書き込むとバッファの位置などが書き換わるので、<code>stdout_writer</code> は <code>var</code> になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/debug">Today</a></li>
+    <li><a href="/zig/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

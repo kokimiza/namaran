@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="_Genericの制御式が、配列やconst付きの要素、代入式のときにどの型として扱われ、評価されるのかを読むドリルです。2026-11-14のC READ。">
+<title>_Genericが見る型</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-11-14">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-14" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-11-14",
+      "url": "https://namaran.jocarium.productions/c/read/2026-11-14",
+      "datePublished": "2026-11-14",
+      "dateModified": "2026-11-14",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "_Genericが見る型" },
+      "keywords": "generic-selection, pointer-decay, const-correctness, side-effect",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "_Genericの制御式が、配列やconst付きの要素、代入式のときにどの型として扱われ、評価されるのかを読むドリルです。2026-11-14のC READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-14" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-11-14">C++26</a>
+  <a href="/rust/read/2026-11-14">Rust 2024</a>
+  <a href="/haskell/read/2026-11-14">Haskell 2010</a>
+  <a href="/zig/read/2026-11-14">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-14" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-11-14">WRITE</a>
+  <a href="/c/debug/2026-11-14">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="_Genericが見る型"
+  data-tags="generic-selection pointer-decay const-correctness side-effect"
+  data-concepts="_Generic, 型による分岐, 左辺値変換, 配列からポインタへの変換, 評価されないオペランド, generic selection, lvalue conversion, unevaluated operand"
+  data-level="bison"
+>
+  <h2>2026-11-14</h2>
+  <div class="code-frame">
+    <p class="code-filename">type_name.c</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="pp">#define</span> <span class="fn">NAME</span>(x) <span class="kw">_Generic</span>((x), <span class="ty">char</span>: <span class="st">"char"</span>, <span class="ty">int</span>: <span class="st">"int"</span>, <span class="ty">char</span>*: <span class="st">"char*"</span>, <span class="kw">default</span>: <span class="st">"other"</span>)</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {</span>
+<span class="code-line">    <span class="kw">const</span> <span class="ty">char</span> tag[] = <span class="st">"ab"</span>;</span>
+<span class="code-line">    <span class="ty">char</span> c = tag[<span class="nu">0</span>];</span>
+<span class="code-line">    <span class="fn">printf</span>(<span class="st">"%s %s %s\n"</span>, <span class="fn">NAME</span>(tag), <span class="fn">NAME</span>(tag[<span class="nu">1</span>]), <span class="fn">NAME</span>(c = <span class="st">'z'</span>));</span>
+<span class="code-line">    <span class="fn">printf</span>(<span class="st">"%c\n"</span>, c);</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>other char char
+a</samp></pre>
+      </div>
+      <p>
+        <code>_Generic</code> は制御式の値ではなく型で関連付けを選びます。このときの型は、式を値として読み出したときの型です。配列は先頭要素へのポインタになり、オブジェクト自身に付いた <code>const</code> などの修飾子は外れます。<sup class="fn-ref">1</sup> そして制御式は型を決めるためだけに使われ、実行時には評価されません。
+      </p>
+      <p>
+        <code>tag</code> は <code>const char</code> の配列なので、値として読むと <code>const char*</code> になります。外れるのは <code>tag</code> 自身に付いた修飾子だけで、ポインタが指す先の <code>const</code> は型の一部として残ります。<code>const char*</code> は <code>char*</code> と別の型なので <code>char*</code> の関連付けには当たらず、<code>default</code> の <code>"other"</code> が選ばれます。
+      </p>
+      <p>
+        <code>tag[1]</code> は <code>const char</code> の要素そのものです。こちらは値として読み出すと要素自身の <code>const</code> が外れて <code>char</code> になり、<code>"char"</code> が選ばれます。同じ <code>const</code> でも、ポインタの指す先に付いていれば残り、読み出す値そのものに付いていれば外れます。
+      </p>
+      <p>
+        <code>c = 'z'</code> の型は、代入式の規則で左辺の型 <code>char</code> です。右辺の <code>'z'</code> が <code>int</code> であることは代入式の型に関係しないので、3つ目も <code>"char"</code> です。制御式は評価されないので代入は起きず、<code>c</code> は <code>tag[0]</code> から入れた <code>'a'</code> のまま2行目に出ます。
+      </p>
+      <p>
+        配列が <code>char*</code> になると考えると1つ目を <code>char*</code>、<code>const</code> が付いた要素はどこにも当たらないと考えると2つ目を <code>other</code>、<code>'z'</code> の型で選ばれると考えると3つ目を <code>int</code> と答えます。代入が実行されると考えると、2行目は <code>z</code> になります。
+      </p>
+      <ol class="footnotes">
+        <li>制御式の型をこれらの変換の後の型とする文言は、C11 に対する欠陥報告 DR 481 を受けて C17 で規格に入りました。それ以前は、<code>const</code> 付きの式をどの関連付けに当てるかが処理系によって分かれていました。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

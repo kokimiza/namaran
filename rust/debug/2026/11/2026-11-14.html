@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="SIMDのレジスタで値を同時にずらして足す累積和を配列でまねたコードが、前の手順で書き換えた値を読んでしまう誤りを直すドリルです。2026-11-14のRust DEBUG。">
+<title>同時にずらして足す累積和</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-11-14">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-14" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-11-14",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-11-14",
+      "datePublished": "2026-11-14",
+      "dateModified": "2026-11-14",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "同時にずらして足す累積和" },
+      "keywords": "simd, prefix-sum, array, mutability",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "SIMDのレジスタで値を同時にずらして足す累積和を配列でまねたコードが、前の手順で書き換えた値を読んでしまう誤りを直すドリルです。2026-11-14のRust DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-14">C23</a>
+  <a href="/cpp/debug/2026-11-14">C++26</a>
+  <a href="/rust/debug/2026-11-14" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-14">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-14">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-14">READ</a>
+  <a href="/rust/write/2026-11-14">WRITE</a>
+  <a href="/rust/debug/2026-11-14" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="同時にずらして足す累積和"
+  data-tags="simd prefix-sum array mutability"
+  data-concepts="累積和, ずらして足す, レーンの同時更新, 配列のコピー, 書き換えた値を読む, prefix sum, shift and add, in-place update"
+  data-level="whale"
+>
+  <h2>2026-11-14</h2>
+  <div class="code-frame">
+    <p class="code-filename">prefix_sums.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">prefix_sums</span>(<span class="kw">mut</span> v: [<span class="ty">u32</span>; <span class="nu">4</span>]) -&gt; [<span class="ty">u32</span>; <span class="nu">4</span>] {</span>
+<span class="code-line">    <span class="kw">for</span> d <span class="kw">in</span> [<span class="nu">1</span>, <span class="nu">2</span>] {</span>
+<span class="code-line">        <span class="kw">for</span> i <span class="kw">in</span> d..<span class="nu">4</span> {</span>
+<span class="code-line">            v[i] += v[i - d];</span>
+<span class="code-line">        }</span>
+<span class="code-line">    }</span>
+<span class="code-line">    v</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="mc">println!</span>(<span class="st">"{:?}"</span>, <span class="fn">prefix_sums</span>([<span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">3</span>, <span class="nu">4</span>]));</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>prefix_sums</code> は、4つの値の先頭からの累積和を、SIMD のレジスタで行う手順をまねて求めるつもりの関数です。レジスタの値を <code>d</code> 個ずらしたものを元の値に足す操作を、<code>d</code> が1と2のときに1回ずつ行います。<code>prefix_sums([1, 2, 3, 4])</code> は本来 <code>[1, 3, 6, 10]</code> を返すはずが、いまは <code>[1, 3, 7, 13]</code> を返します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line">    <span class="kw">for</span> d <span class="kw">in</span> [<span class="nu">1</span>, <span class="nu">2</span>] {</span>
+<span class="code-line">        <span class="kw">for</span> i <span class="kw">in</span> d..<span class="nu">4</span> {</span>
+<span class="code-line del">            v[i] += <span class="chg">v</span>[i - d];</span>
+<span class="code-line">        }</span>
+<span class="code-line">    }</span>
+</code></pre>
+      <p>
+        SIMD の命令は、4本のレーンを同時に計算します。<code>d</code> 個ずらして足す1回の操作では、どのレーンも、操作の前の値を読んで足します。<code>d</code> が1の操作で各レーンは「自分と1つ前」の和になり、<code>d</code> が2の操作でそこに「2つ前と3つ前」の和が加わって、ちょうど先頭からの和になります。この手順が正しいのは、各操作の中ですべてのレーンが操作の前の値を読むときだけです。
+      </p>
+      <p>
+        内側の <code>for</code> は <code>i</code> を小さい順に回し、<code>v[i]</code> をその場で書き換えます。そのため <code>v[i - d]</code> は、同じ操作の中ですでに書き換えた値になることがあります。<code>d</code> が1の操作では、<code>v[2]</code> に足す <code>v[1]</code> がもう <code>1 + 2</code> になっていて、この1回で <code>[1, 3, 6, 10]</code> まで進んでしまいます。続く <code>d</code> が2の操作でさらに <code>v[0]</code> と <code>v[1]</code> が足され、<code>[1, 3, 7, 13]</code> になります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line">    <span class="kw">for</span> d <span class="kw">in</span> [<span class="nu">1</span>, <span class="nu">2</span>] {</span>
+<span class="code-line ins">        <span class="kw">let</span> prev = v;</span>
+<span class="code-line">        <span class="kw">for</span> i <span class="kw">in</span> d..<span class="nu">4</span> {</span>
+<span class="code-line ins">            v[i] += <span class="chg">prev</span>[i - d];</span>
+<span class="code-line">        }</span>
+<span class="code-line">    }</span>
+</code></pre>
+      <p>
+        操作の前の値を <code>prev</code> に写しておき、足す側はいつも <code>prev</code> から読みます。<code>[u32; 4]</code> は <code>Copy</code> なので、<code>let prev = v;</code> で配列が丸ごと複製され、<code>v</code> を書き換えても <code>prev</code> は変わりません。これで1回の操作の中のどの足し算も、レジスタと同じく操作の前の値を使い、<code>[1, 3, 6, 10]</code> が返ります。<code>i</code> を大きい順に回しても、読む <code>v[i - d]</code> がまだ書き換えていない位置になるので、同じように直ります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
