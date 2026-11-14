@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Kahanの加算で途中まで溜めた2つの和と補正値KSumを、1つにまとめるmergeを書くHaskell 2010のWRITE。KSum s cがs - cという値を表すと見抜き、もう片方の2つの成分を同じaddで足し込む。">
+<title>補正付きの和をつなぐ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-11-15">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-15" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-11-15",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-11-15",
+      "datePublished": "2026-11-15",
+      "dateModified": "2026-11-15",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "補正付きの和をつなぐ" },
+      "keywords": "kahan-summation, floating-point, invariant, fold",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "Kahanの加算で途中まで溜めた2つの和と補正値KSumを、1つにまとめるmergeを書くHaskell 2010のWRITE。KSum s cがs - cという値を表すと見抜き、もう片方の2つの成分を同じaddで足し込む。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-15">C23</a>
+  <a href="/cpp/write/2026-11-15">C++26</a>
+  <a href="/rust/write/2026-11-15">Rust 2024</a>
+  <a href="/haskell/write/2026-11-15" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/write/2026-11-15">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-15">READ</a>
+  <a href="/haskell/write/2026-11-15" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-11-15">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="補正付きの和をつなぐ"
+  data-tags="kahan-summation floating-point invariant fold"
+  data-concepts="Kahanの加算, 補正付き総和, 補正値, 和の結合, 浮動小数点数, 丸め誤差, compensated summation, Kahan summation, merge"
+  data-level="whale"
+>
+  <h2>2026-11-15</h2>
+  <div class="code-frame">
+    <p class="code-filename">KSumMerge.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">data</span> <span class="ty">KSum</span> = <span class="ty">KSum</span> <span class="ty">Double</span> <span class="ty">Double</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">add</span> <span class="op">::</span> <span class="ty">KSum</span> <span class="op">-&gt;</span> <span class="ty">Double</span> <span class="op">-&gt;</span> <span class="ty">KSum</span></span>
+<span class="code-line"><span class="fn">add</span> (<span class="ty">KSum</span> s c) x = <span class="ty">KSum</span> t ((t - s) - y)</span>
+<span class="code-line"> <span class="kw">where</span></span>
+<span class="code-line">  y = x - c</span>
+<span class="code-line">  t = s + y</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">ksum</span> <span class="op">::</span> [<span class="ty">Double</span>] <span class="op">-&gt;</span> <span class="ty">KSum</span></span>
+<span class="code-line"><span class="fn">ksum</span> = foldl add (<span class="ty">KSum</span> <span class="nu">0</span> <span class="nu">0</span>)</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">total</span> <span class="op">::</span> <span class="ty">KSum</span> <span class="op">-&gt;</span> <span class="ty">Double</span></span>
+<span class="code-line"><span class="fn">total</span> (<span class="ty">KSum</span> s _) = s</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">merge</span> <span class="op">::</span> <span class="ty">KSum</span> <span class="op">-&gt;</span> <span class="ty">KSum</span> <span class="op">-&gt;</span> <span class="ty">KSum</span></span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>ksum</code> は、<code>add</code> で値を1つずつ <code>KSum</code> に足し込み、丸めで失われた分を2つ目の成分に残しながら総和を求めます。2つの <code>KSum</code> を1つにまとめる <code>merge</code> を書いてください。<code>total (merge (ksum xs) (ksum ys))</code> が、<code>xs</code> と <code>ys</code> の値をすべて足した正確な値に近くなるようにします。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>total (merge (ksum [1e20]) (ksum [-1e20, 1]))</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>1.0</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>total (merge (ksum [1, 2]) (ksum [3]))</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>6.0</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>total (merge (ksum []) (ksum [0.5]))</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>0.5</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="kw">data</span> <span class="ty">KSum</span> = <span class="ty">KSum</span> <span class="ty">Double</span> <span class="ty">Double</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">add</span> <span class="op">::</span> <span class="ty">KSum</span> <span class="op">-&gt;</span> <span class="ty">Double</span> <span class="op">-&gt;</span> <span class="ty">KSum</span></span>
+<span class="code-line"><span class="fn">add</span> (<span class="ty">KSum</span> s c) x = <span class="ty">KSum</span> t ((t - s) - y)</span>
+<span class="code-line"> <span class="kw">where</span></span>
+<span class="code-line">  y = x - c</span>
+<span class="code-line">  t = s + y</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">ksum</span> <span class="op">::</span> [<span class="ty">Double</span>] <span class="op">-&gt;</span> <span class="ty">KSum</span></span>
+<span class="code-line"><span class="fn">ksum</span> = foldl add (<span class="ty">KSum</span> <span class="nu">0</span> <span class="nu">0</span>)</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">total</span> <span class="op">::</span> <span class="ty">KSum</span> <span class="op">-&gt;</span> <span class="ty">Double</span></span>
+<span class="code-line"><span class="fn">total</span> (<span class="ty">KSum</span> s _) = s</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">merge</span> <span class="op">::</span> <span class="ty">KSum</span> <span class="op">-&gt;</span> <span class="ty">KSum</span> <span class="op">-&gt;</span> <span class="ty">KSum</span></span>
+<span class="code-line ins"><span class="fn">merge</span> a (<span class="ty">KSum</span> s c) = add (add a s) (negate c)</span>
+</code></pre>
+      </div>
+      <p>
+        <code>add</code> の中で、<code>t</code> は <code>s + y</code> を丸めた値で、<code>(t - s) - y</code> は丸めで余分に足した分です。値が丸めで切り捨てられれば、この差は負になります。<code>KSum s c</code> は、<code>s</code> から <code>c</code> を引いた <code>s - c</code> が、それまでに足した値の正確な総和に近い、という状態を保っています。次の値から <code>c</code> を引いてから足すのは、この <code>- c</code> を総和に戻すためです。
+      </p>
+      <p>
+        この見方をすると、<code>KSum s c</code> は「<code>s</code> と <code>- c</code> という2つの値」と同じものです。そこで <code>merge</code> は、片方の <code>KSum</code> に、もう片方の <code>s</code> と <code>negate c</code> を同じ <code>add</code> で順に足し込みます。足し込む値が2つ増えるだけなので、どちらの補正値も捨てずに済みます。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        入力例 1 では、<code>ksum [-1e20, 1]</code> の <code>1</code> は <code>-1e20</code> に足したときに丸めで消え、<code>KSum (-1e20) (-1)</code> になります。<code>s</code> は <code>-1e20</code> ですが、失われた <code>1</code> は <code>c</code> の <code>-1</code> に残っています。参考実装では、<code>1e20</code> に <code>-1e20</code> を足して <code>0</code> になり、そこへ <code>negate (-1)</code> の <code>1</code> を足して <code>1.0</code> になります。成分ごとに足して <code>KSum (s1 + s2) (c1 + c2)</code> を作ると、<code>total</code> が見るのは <code>s</code> だけなので <code>0.0</code> になり、<code>c</code> を引かずに足すと <code>-1.0</code> になります。入力例 3 の空のリストは <code>KSum 0 0</code> なので、<code>0.5</code> をそのまま足した値になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

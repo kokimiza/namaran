@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="英小文字と数字からなる名前を、数字の連続を数として比べる自然順で比較するnatural_cmpを書くRust 2024のWRITE。桁数に上限がないので整数に変換できず、先頭の0を除いた桁数と文字の並びで比べる。">
+<title>桁数に上限のない自然順</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-11-15">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-15" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-11-15",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-11-15",
+      "datePublished": "2026-11-15",
+      "dateModified": "2026-11-15",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "桁数に上限のない自然順" },
+      "keywords": "natural-sort, comparison, arbitrary-precision, string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "英小文字と数字からなる名前を、数字の連続を数として比べる自然順で比較するnatural_cmpを書くRust 2024のWRITE。桁数に上限がないので整数に変換できず、先頭の0を除いた桁数と文字の並びで比べる。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-15">C23</a>
+  <a href="/cpp/write/2026-11-15">C++26</a>
+  <a href="/rust/write/2026-11-15" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-11-15">Haskell 2010</a>
+  <a href="/zig/write/2026-11-15">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-15">READ</a>
+  <a href="/rust/write/2026-11-15" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-11-15">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="桁数に上限のない自然順"
+  data-tags="natural-sort comparison arbitrary-precision string"
+  data-concepts="自然順ソート, 自然順比較, 数字の連続, 桁数, 先頭の0, Ordering, タプルの比較, natural sort, natural order"
+  data-level="whale"
+>
+  <h2>2026-11-15</h2>
+  <div class="code-frame">
+    <p class="code-filename">natural_cmp.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">use</span> std::cmp::<span class="ty">Ordering</span>;</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">natural_cmp</span>(a: &amp;<span class="ty">str</span>, b: &amp;<span class="ty">str</span>) -&gt; <span class="ty">Ordering</span> {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    英小文字と数字だけからなる2つの名前を比べ、<code>a</code> が <code>b</code> より前なら <code>Less</code>、後ろなら <code>Greater</code>、同じ位置なら <code>Equal</code> を返す <code>natural_cmp</code> を書いてください。名前は、数字の連続とそれ以外の1文字ずつに区切って先頭から比べます。数字の連続どうしは0以上の整数として比べ、桁数に上限はありません。数として等しい連続(<code>007</code> と <code>7</code>)は等しいとみなします。それ以外の組は文字コードの順で比べ、片方の名前が先に尽きたらそちらを前にします。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>natural_cmp("file2", "file10")</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>Less</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>natural_cmp("v99999999999999999999", "v100000000000000000000")</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>Less</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>natural_cmp("img007", "img7")</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>Equal</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="kw">use</span> std::cmp::<span class="ty">Ordering</span>;</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">natural_cmp</span>(a: &amp;<span class="ty">str</span>, b: &amp;<span class="ty">str</span>) -&gt; <span class="ty">Ordering</span> {</span>
+<span class="code-line ins">    <span class="fn">key</span>(a).<span class="fn">cmp</span>(&amp;<span class="fn">key</span>(b))</span>
+<span class="code-line">}</span>
+<span class="code-line ins"></span>
+<span class="code-line ins"><span class="kw">fn</span> <span class="fn">key</span>(<span class="kw">mut</span> s: &amp;<span class="ty">str</span>) -&gt; <span class="ty">Vec</span>&lt;(<span class="ty">bool</span>, <span class="ty">usize</span>, &amp;<span class="ty">str</span>)&gt; {</span>
+<span class="code-line ins">    <span class="kw">let</span> <span class="kw">mut</span> k = <span class="ty">Vec</span>::<span class="fn">new</span>();</span>
+<span class="code-line ins">    <span class="kw">while</span> !s.<span class="fn">is_empty</span>() {</span>
+<span class="code-line ins">        <span class="kw">let</span> n = s.<span class="fn">find</span>(|c: <span class="ty">char</span>| !c.<span class="fn">is_ascii_digit</span>()).<span class="fn">unwrap_or</span>(s.<span class="fn">len</span>());</span>
+<span class="code-line ins">        <span class="kw">if</span> n == <span class="nu">0</span> {</span>
+<span class="code-line ins">            k.<span class="fn">push</span>((<span class="nu">true</span>, <span class="nu">1</span>, &amp;s[..<span class="nu">1</span>]));</span>
+<span class="code-line ins">            s = &amp;s[<span class="nu">1</span>..];</span>
+<span class="code-line ins">        } <span class="kw">else</span> {</span>
+<span class="code-line ins">            <span class="kw">let</span> digits = s[..n].<span class="fn">trim_start_matches</span>(<span class="st">'0'</span>);</span>
+<span class="code-line ins">            k.<span class="fn">push</span>((<span class="nu">false</span>, digits.<span class="fn">len</span>(), digits));</span>
+<span class="code-line ins">            s = &amp;s[n..];</span>
+<span class="code-line ins">        }</span>
+<span class="code-line ins">    }</span>
+<span class="code-line ins">    k</span>
+<span class="code-line ins">}</span>
+</code></pre>
+      </div>
+      <p>
+        入力例 2 の数は <code>u64</code> の上限(約 1.8 × 10<sup>19</sup>)を超えるので、数字の連続を整数に直して比べる方法は使えません。整数に直さなくても、先頭の0を除いた数字の並びなら、桁数の多い方が大きい数です。桁数が同じなら、上の桁から順に比べて最初に違った桁で大小が決まり、これは文字列を辞書式に比べるのと同じです。そこで数字の連続を、先頭の0を除いて「桁数、数字の並び」の組にすれば、組の比較がそのまま数の比較になります。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        参考実装は、この組を名前全体に広げます。<code>key</code> は名前を区切り、数字の連続を <code>(false, 桁数, 0を除いた並び)</code> に、それ以外の1文字を <code>(true, 1, その文字)</code> にした <code>Vec</code> を作ります。<code>Vec</code> とタプルの比較は先頭の要素から順に比べる辞書式なので、2つの <code>key</code> を <code>cmp</code> で比べるだけで、区切りを先頭から比べる処理も、先に尽きた方を前にする処理も済みます。数字の連続と英小文字の組は、先頭の <code>bool</code> の <code>false &lt; true</code> で数字の方が前になり、文字コードで <code>'0'</code> から <code>'9'</code> が <code>'a'</code> より小さいことと一致します。
+      </p>
+      <p>
+        入力例 2 では、<code>"v"</code> が等しく、続く数字の連続は 20 桁と 21 桁なので <code>Less</code> です。入力例 3 では、<code>"007"</code> も <code>"7"</code> も0を除くと <code>(false, 1, "7")</code> になり、<code>Equal</code> になります。0 だけの連続は空の並びになりますが、<code>"0"</code> と <code>"00"</code> がどちらも桁数 0 で等しくなり、どの正の数よりも前に来るので、そのままで正しく比べられます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

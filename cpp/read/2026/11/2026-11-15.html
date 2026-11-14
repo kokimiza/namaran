@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="仮想関数の基底と派生で既定の引数が違うとき、基底への参照から呼ぶと、どちらの本体がどちらの既定値で動くかを追うC++26のREAD。">
+<title>既定の引数は宣言から</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-11-15">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-15" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-11-15",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-11-15",
+      "datePublished": "2026-11-15",
+      "dateModified": "2026-11-15",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "既定の引数は宣言から" },
+      "keywords": "default-argument, virtual-function, function-declaration",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "仮想関数の基底と派生で既定の引数が違うとき、基底への参照から呼ぶと、どちらの本体がどちらの既定値で動くかを追うC++26のREAD。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-15">C23</a>
+  <a href="/cpp/read/2026-11-15" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-11-15">Rust 2024</a>
+  <a href="/haskell/read/2026-11-15">Haskell 2010</a>
+  <a href="/zig/read/2026-11-15">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-15" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-11-15">WRITE</a>
+  <a href="/cpp/debug/2026-11-15">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="既定の引数は宣言から"
+  data-tags="default-argument virtual-function function-declaration"
+  data-concepts="デフォルト引数, 既定の引数, 仮想関数, 静的型, 動的型, default argument, virtual function, static type"
+  data-level="hedgehog"
+>
+  <h2>2026-11-15</h2>
+  <div class="code-frame">
+    <p class="code-filename">shape_scale.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">struct</span> <span class="ty">Shape</span> {</span>
+<span class="code-line">    <span class="kw">virtual</span> <span class="ty">int</span> <span class="fn">scale</span>(<span class="ty">int</span> factor = <span class="nu">1</span>) <span class="kw">const</span> {</span>
+<span class="code-line">        <span class="kw">return</span> factor;</span>
+<span class="code-line">    }</span>
+<span class="code-line">};</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">struct</span> <span class="ty">Circle</span> : <span class="ty">Shape</span> {</span>
+<span class="code-line">    <span class="ty">int</span> <span class="fn">scale</span>(<span class="ty">int</span> factor = <span class="nu">2</span>) <span class="kw">const</span> <span class="kw">override</span> {</span>
+<span class="code-line">        <span class="kw">return</span> factor * <span class="nu">10</span>;</span>
+<span class="code-line">    }</span>
+<span class="code-line">};</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="kw">const</span> <span class="ty">Shape</span>&amp; s = <span class="ty">Circle</span>{};</span>
+<span class="code-line">    std::cout &lt;&lt; s.<span class="fn">scale</span>() &lt;&lt; <span class="st">' '</span> &lt;&lt; <span class="ty">Circle</span>{}.<span class="fn">scale</span>() &lt;&lt; <span class="st">'\n'</span>;</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>10 20</samp></pre>
+      </div>
+      <p>
+        既定の引数は関数の宣言に付いていて、呼び出し式をコンパイルするときに、その式から見える宣言で決まります。どの宣言が見えるかは、呼び出しに使った式の静的な型で決まります。一方、仮想関数のどの本体が動くかは、実行時にオブジェクトの実際の型で決まります。2つは別々に決まるので、組み合わせが食い違うことがあります。
+      </p>
+      <p>
+        <code>s</code> の静的な型は <code>const Shape&amp;</code> なので、<code>s.scale()</code> の欠けた引数は <code>Shape::scale</code> の宣言にある <code>1</code> で補われます。<code>s</code> が指しているのは <code>Circle</code> なので、動く本体は <code>Circle::scale</code> で、<code>1 * 10</code> の <code>10</code> を返します。<code>Circle{}.scale()</code> は静的な型も <code>Circle</code> なので、<code>Circle::scale</code> の宣言にある <code>2</code> が使われ、<code>20</code> になります。
+      </p>
+      <p>
+        既定の引数も仮想関数と同じく実行時の型で選ばれると考えると、1つ目も <code>20</code> と答えます。逆に、基底への参照から呼べば基底の本体が動くと考えると、1つ目は <code>1</code> になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

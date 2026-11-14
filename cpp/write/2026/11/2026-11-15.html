@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="型の並びTsのそれぞれを値で受け取る関数の多重定義に、U型の値を渡したとき選ばれる引数の型を求めるC++26のWRITE。本体のない関数宣言をdecltypeの中で呼び、コンパイラのオーバーロード解決に型を選ばせる。">
+<title>定義のない関数で型を選ぶ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-11-15">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-15" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-11-15",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-11-15",
+      "datePublished": "2026-11-15",
+      "dateModified": "2026-11-15",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "定義のない関数で型を選ぶ" },
+      "keywords": "overload-resolution, unevaluated-operand, function-declaration, variadic-template, template",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "型の並びTsのそれぞれを値で受け取る関数の多重定義に、U型の値を渡したとき選ばれる引数の型を求めるC++26のWRITE。本体のない関数宣言をdecltypeの中で呼び、コンパイラのオーバーロード解決に型を選ばせる。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-15">C23</a>
+  <a href="/cpp/write/2026-11-15" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-11-15">Rust 2024</a>
+  <a href="/haskell/write/2026-11-15">Haskell 2010</a>
+  <a href="/zig/write/2026-11-15">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-15">READ</a>
+  <a href="/cpp/write/2026-11-15" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-11-15">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="定義のない関数で型を選ぶ"
+  data-tags="overload-resolution unevaluated-operand function-declaration variadic-template template"
+  data-concepts="関数宣言, 定義のない関数, decltype, declval, オーバーロード解決, 評価されないオペランド, パラメータパック, unevaluated operand, overload resolution"
+  data-level="whale"
+>
+  <h2>2026-11-15</h2>
+  <div class="code-frame">
+    <p class="code-filename">chosen_type.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;type_traits&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;utility&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">template</span> &lt;<span class="kw">class</span> <span class="ty">U</span>, <span class="kw">class</span>... <span class="ty">Ts</span>&gt; <span class="kw">struct</span> <span class="ty">chosen</span> {</span>
+<span class="code-line">};</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    型の並び <code>Ts</code> の各型 <code>T</code> について、<code>T</code> を値で受け取る関数が1つずつあり、すべて同じ名前で多重定義されているとします。そこへ <code>U</code> 型の値を1つ渡して呼んだとき、選ばれる関数の引数の型を <code>chosen&lt;U, Ts...&gt;::type</code> にしてください。<code>Ts</code> は互いに異なる1個以上の型で、選ばれる関数はいつもただ1つに決まるものとします。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>chosen&lt;float, int, double&gt;::type</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>double</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>chosen&lt;const char*, std::string, bool&gt;::type</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>bool</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>chosen&lt;int, int&gt;::type</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>int</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;type_traits&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;utility&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line ins"><span class="kw">template</span> &lt;<span class="kw">class</span> <span class="ty">T</span>&gt; <span class="kw">struct</span> <span class="ty">candidate</span> {</span>
+<span class="code-line ins">    <span class="kw">static</span> std::type_identity&lt;<span class="ty">T</span>&gt; <span class="fn">pick</span>(<span class="ty">T</span>);</span>
+<span class="code-line ins">};</span>
+<span class="code-line ins"></span>
+<span class="code-line ins"><span class="kw">template</span> &lt;<span class="kw">class</span>... <span class="ty">Ts</span>&gt; <span class="kw">struct</span> <span class="ty">candidates</span> : candidate&lt;<span class="ty">Ts</span>&gt;... {</span>
+<span class="code-line ins">    <span class="kw">using</span> candidate&lt;<span class="ty">Ts</span>&gt;::pick...;</span>
+<span class="code-line ins">};</span>
+<span class="code-line ins"></span>
+<span class="code-line"><span class="kw">template</span> &lt;<span class="kw">class</span> <span class="ty">U</span>, <span class="kw">class</span>... <span class="ty">Ts</span>&gt; <span class="kw">struct</span> <span class="ty">chosen</span> {</span>
+<span class="code-line ins">    <span class="kw">using</span> type = <span class="kw">decltype</span>(candidates&lt;<span class="ty">Ts</span>...&gt;::<span class="fn">pick</span>(std::declval&lt;<span class="ty">U</span>&gt;()))::type;</span>
+<span class="code-line">};</span>
+</code></pre>
+      </div>
+      <p>
+        どの関数が選ばれるかを決める規則を、型の計算として書き直す必要はありません。問題文にある多重定義を実際に宣言し、そこへ <code>U</code> の値を渡す呼び出し式を書けば、コンパイラ自身が選びます。選ばれた関数が分かるように、<code>candidate&lt;T&gt;::pick</code> は <code>std::type_identity&lt;T&gt;</code> を返すと宣言しておき、呼び出し式の型を <code>decltype</code> で取り出して、その <code>::type</code> を答えにします。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        <code>pick</code> には本体がありません。<code>decltype</code> の中の式は型を調べるためだけにあり、評価されないので、呼ぶ関数は宣言されていれば足り、定義は要りません。<code>U</code> の値も同じで、<code>std::declval&lt;U&gt;()</code> は宣言だけの関数で、<code>U</code> を作れる型かどうかに関係なく「<code>U</code> の値」を表す式になります。<code>Ts</code> の型ごとに <code>pick</code> を1つずつ並べるには、<code>candidate&lt;Ts&gt;</code> をすべて基底クラスにし、<code>using candidate&lt;Ts&gt;::pick...;</code> でそれぞれの <code>pick</code> を1つの多重定義にまとめます。この <code>using</code> がないと、基底ごとの同じ名前がぶつかって呼び出しが曖昧になります。
+      </p>
+      <p>
+        入力例 1 では、<code>float</code> から <code>double</code> への変換は浮動小数点数の昇格として扱われ、<code>int</code> への変換より優先されます。入力例 2 では、<code>const char*</code> から <code>bool</code> への変換は組み込みの変換で、<code>std::string</code> のコンストラクタを通す変換より優先されるので、<code>bool</code> が選ばれます。こうした順位を自分で表にすると、例 2 のような思いがけない結果を取りこぼしますが、コンパイラに選ばせれば本物の呼び出しと同じ答えになります。入力例 3 のように候補が1つなら、その型がそのまま答えです。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

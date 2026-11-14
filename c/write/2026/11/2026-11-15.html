@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="数字でない文字に出会うとlongjmpで抜ける関数を使い、失敗したら-1を返す関数をsetjmpで書くC23のWRITE。setjmpをどの関数で呼び、戻り値でどう枝分かれするかを確かめる。">
+<title>longjmpの受け皿を作る</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-11-15">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-15" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-11-15",
+      "url": "https://namaran.jocarium.productions/c/write/2026-11-15",
+      "datePublished": "2026-11-15",
+      "dateModified": "2026-11-15",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "longjmpの受け皿を作る" },
+      "keywords": "setjmp, error-handling, control-flow",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "数字でない文字に出会うとlongjmpで抜ける関数を使い、失敗したら-1を返す関数をsetjmpで書くC23のWRITE。setjmpをどの関数で呼び、戻り値でどう枝分かれするかを確かめる。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-15" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-11-15">C++26</a>
+  <a href="/rust/write/2026-11-15">Rust 2024</a>
+  <a href="/haskell/write/2026-11-15">Haskell 2010</a>
+  <a href="/zig/write/2026-11-15">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-15">READ</a>
+  <a href="/c/write/2026-11-15" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-11-15">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="longjmpの受け皿を作る"
+  data-tags="setjmp error-handling control-flow"
+  data-concepts="setjmp, longjmp, 非局所脱出, エラー処理, setjmpの戻り値, non-local jump, error recovery"
+  data-level="hedgehog"
+>
+  <h2>2026-11-15</h2>
+  <div class="code-frame">
+    <p class="code-filename">sum_digits.c</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;setjmp.h&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">static</span> jmp_buf on_error;</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">static</span> <span class="ty">int</span> <span class="fn">digit</span>(<span class="ty">char</span> c) {</span>
+<span class="code-line">    <span class="kw">if</span> (c &lt; <span class="st">'0'</span> || c &gt; <span class="st">'9'</span>) {</span>
+<span class="code-line">        <span class="fn">longjmp</span>(on_error, <span class="nu">1</span>);</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="kw">return</span> c - <span class="st">'0'</span>;</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">sum_digits</span>(<span class="kw">const</span> <span class="ty">char</span>* s) {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    文字列 <code>s</code> の各文字を <code>digit</code> で数に直し、その和を返す <code>sum_digits</code> を書いてください。<code>digit</code> は数字でない文字を受け取ると <code>longjmp(on_error, 1)</code> を呼んで戻ってきません。そのときは <code>sum_digits</code> が <code>-1</code> を返すようにします。空の文字列なら <code>0</code> です。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>sum_digits("2026")</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>10</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>sum_digits("12a4")</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>-1</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>sum_digits("")</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;setjmp.h&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">static</span> jmp_buf on_error;</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">static</span> <span class="ty">int</span> <span class="fn">digit</span>(<span class="ty">char</span> c) {</span>
+<span class="code-line">    <span class="kw">if</span> (c &lt; <span class="st">'0'</span> || c &gt; <span class="st">'9'</span>) {</span>
+<span class="code-line">        <span class="fn">longjmp</span>(on_error, <span class="nu">1</span>);</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="kw">return</span> c - <span class="st">'0'</span>;</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">sum_digits</span>(<span class="kw">const</span> <span class="ty">char</span>* s) {</span>
+<span class="code-line ins">    <span class="kw">if</span> (<span class="fn">setjmp</span>(on_error) != <span class="nu">0</span>) {</span>
+<span class="code-line ins">        <span class="kw">return</span> -<span class="nu">1</span>;</span>
+<span class="code-line ins">    }</span>
+<span class="code-line ins">    <span class="ty">int</span> sum = <span class="nu">0</span>;</span>
+<span class="code-line ins">    <span class="kw">for</span> (; *s != <span class="st">'\0'</span>; s++) {</span>
+<span class="code-line ins">        sum += <span class="fn">digit</span>(*s);</span>
+<span class="code-line ins">    }</span>
+<span class="code-line ins">    <span class="kw">return</span> sum;</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        <code>longjmp</code> は、<code>on_error</code> に記録した <code>setjmp</code> の呼び出し位置へ戻ります。戻り先の関数は、<code>longjmp</code> が呼ばれた時点でまだ実行中でなければなりません。そこで <code>setjmp</code> は <code>sum_digits</code> の中で、<code>digit</code> を呼ぶ前に呼びます。初めて呼ばれた <code>setjmp</code> は 0 を返すので、そのまま和を数える処理へ進みます。<code>longjmp(on_error, 1)</code> で戻ってきたときは 1 を返すので、<code>if</code> の中で <code>-1</code> を返します。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        入力例 2 では、<code>'1'</code> と <code>'2'</code> を足したあと、<code>'a'</code> を受け取った <code>digit</code> が <code>longjmp</code> を呼びます。制御は <code>sum_digits</code> の先頭の <code>setjmp</code> に戻り、ループの続きの <code>'4'</code> は読まれずに <code>-1</code> が返ります。入力例 3 の空の文字列ではループが一度も回らず、<code>sum</code> の初期値 0 が返ります。
+      </p>
+      <p>
+        <code>setjmp</code> を呼ぶだけの補助関数を作り、それを <code>sum_digits</code> から呼ぶ書き方では動きません。補助関数が戻った時点でその呼び出しは終わっているので、そこへ <code>longjmp</code> で戻ることはできず、未定義動作になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

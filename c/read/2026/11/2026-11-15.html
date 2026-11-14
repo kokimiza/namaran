@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="setjmpとlongjmpで同じ関数の中を行き来するとき、volatileの局所変数がどの値を持つかと、longjmpに0を渡したときsetjmpが何を返すかを追うC23のREAD。">
+<title>longjmpは値を戻さない</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-11-15">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-15" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-11-15",
+      "url": "https://namaran.jocarium.productions/c/read/2026-11-15",
+      "datePublished": "2026-11-15",
+      "dateModified": "2026-11-15",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "longjmpは値を戻さない" },
+      "keywords": "setjmp, volatile, control-flow, switch",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "setjmpとlongjmpで同じ関数の中を行き来するとき、volatileの局所変数がどの値を持つかと、longjmpに0を渡したときsetjmpが何を返すかを追うC23のREAD。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-15" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-11-15">C++26</a>
+  <a href="/rust/read/2026-11-15">Rust 2024</a>
+  <a href="/haskell/read/2026-11-15">Haskell 2010</a>
+  <a href="/zig/read/2026-11-15">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-15" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-11-15">WRITE</a>
+  <a href="/c/debug/2026-11-15">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="longjmpは値を戻さない"
+  data-tags="setjmp volatile control-flow switch"
+  data-concepts="setjmp, longjmp, volatile, 非局所脱出, setjmpの戻り値, non-local jump, jmp_buf"
+  data-level="bison"
+>
+  <h2>2026-11-15</h2>
+  <div class="code-frame">
+    <p class="code-filename">retry_jump.c</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;setjmp.h&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {</span>
+<span class="code-line">    jmp_buf env;</span>
+<span class="code-line">    <span class="kw">volatile</span> <span class="ty">int</span> n = <span class="nu">1</span>;</span>
+<span class="code-line">    <span class="kw">switch</span> (<span class="fn">setjmp</span>(env)) {</span>
+<span class="code-line">        <span class="kw">case</span> <span class="nu">0</span>:</span>
+<span class="code-line">            n += <span class="nu">10</span>;</span>
+<span class="code-line">            <span class="fn">longjmp</span>(env, <span class="nu">0</span>);</span>
+<span class="code-line">        <span class="kw">case</span> <span class="nu">1</span>:</span>
+<span class="code-line">            n *= <span class="nu">2</span>;</span>
+<span class="code-line">            <span class="fn">longjmp</span>(env, n);</span>
+<span class="code-line">        <span class="kw">default</span>:</span>
+<span class="code-line">            <span class="fn">printf</span>(<span class="st">"%d\n"</span>, n);</span>
+<span class="code-line">    }</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>22</samp></pre>
+      </div>
+      <p>
+        <code>longjmp</code> が戻すのは実行の位置だけです。制御は <code>setjmp</code> から戻ってきたところへ移りますが、メモリにあるオブジェクトの値は巻き戻りません。<code>n</code> は <code>volatile</code> なので、<code>setjmp</code> を呼んだあとに書き換えても値は不定にならず、最後に書いた値のまま残ります。<code>setjmp</code> の戻り値は <code>longjmp</code> に渡した値ですが、0 を渡したときだけは 1 が返ります。0 は「初めて呼ばれた」ことを表す値なので、<code>longjmp</code> からは返せません。
+      </p>
+      <p>
+        初めて呼ばれた <code>setjmp</code> は 0 を返し、<code>case 0</code> で <code>n</code> が 11 になります。<code>longjmp(env, 0)</code> で戻ると <code>setjmp</code> は 1 を返すので、次は <code>case 1</code> に入ります。ここで <code>n</code> は 11 のままなので 22 になり、<code>longjmp(env, 22)</code> で戻ります。<code>setjmp</code> は 22 を返し、どの <code>case</code> にも当たらないので <code>default</code> で 22 を出力します。
+      </p>
+      <p>
+        <code>longjmp</code> に渡した 0 がそのまま返ると考えると、<code>case 0</code> を何度も繰り返して終わらないと答えます。<code>longjmp</code> で <code>n</code> が <code>setjmp</code> を呼んだときの 1 に戻ると考えると、<code>case 1</code> で 2 になり、出力は 1 か 2 になります。<code>setjmp</code> のあとで書き換えた局所変数は値が不定になると覚えていても、<code>volatile</code> が付いていればその規則は当てはまりません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
