@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="std::vector の先頭と末尾を入れ替える関数テンプレートが、std::vector&lt;bool&gt; のときだけ値を失うC++26のDEBUG。auto で受けた退避用の変数が bool ではなく要素を指す代理オブジェクトになる欠陥を扱う。">
+<title>autoで退避した先頭</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-11-16">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-16" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-11-16",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-11-16",
+      "datePublished": "2026-11-16",
+      "dateModified": "2026-11-16",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "autoで退避した先頭" },
+      "keywords": "vector-bool, type-deduction, swap, template",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "std::vector の先頭と末尾を入れ替える関数テンプレートが、std::vector<bool> のときだけ値を失うC++26のDEBUG。auto で受けた退避用の変数が bool ではなく要素を指す代理オブジェクトになる欠陥を扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-16">C23</a>
+  <a href="/cpp/debug/2026-11-16" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-11-16">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-16">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-16">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-16">READ</a>
+  <a href="/cpp/write/2026-11-16">WRITE</a>
+  <a href="/cpp/debug/2026-11-16" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="autoで退避した先頭"
+  data-tags="vector-bool type-deduction swap template"
+  data-concepts="vector&lt;bool&gt;, auto, 型推論, 代理オブジェクト, 値の退避, 関数テンプレート, proxy reference, auto type deduction, vector&lt;bool&gt;::reference"
+  data-level="peacock"
+>
+  <h2>2026-11-16</h2>
+  <div class="code-frame">
+    <p class="code-filename">swap_ends.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;vector&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">template</span> &lt;<span class="kw">class</span> <span class="ty">T</span>&gt; <span class="ty">void</span> <span class="fn">swap_ends</span>(std::<span class="ty">vector</span>&lt;<span class="ty">T</span>&gt;&amp; v) {</span>
+<span class="code-line">    <span class="kw">auto</span> tmp = v.<span class="fn">front</span>();</span>
+<span class="code-line">    v.<span class="fn">front</span>() = v.<span class="fn">back</span>();</span>
+<span class="code-line">    v.<span class="fn">back</span>() = tmp;</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    std::<span class="ty">vector</span>&lt;<span class="ty">bool</span>&gt; v{<span class="nu">true</span>, <span class="nu">false</span>, <span class="nu">false</span>};</span>
+<span class="code-line">    <span class="fn">swap_ends</span>(v);</span>
+<span class="code-line">    std::cout &lt;&lt; v[<span class="nu">0</span>] &lt;&lt; v[<span class="nu">1</span>] &lt;&lt; v[<span class="nu">2</span>] &lt;&lt; <span class="st">'\n'</span>;</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>swap_ends</code> は、どんな要素型の <code>std::vector</code> でも先頭と末尾の要素を入れ替えるつもりの関数テンプレートです。<code>{true, false, false}</code> を渡すと <code>001</code> が出力されるはずですが、いまは <code>000</code> が出力されます。<code>std::vector&lt;int&gt;</code> の <code>{1, 0, 0}</code> なら、正しく <code>0, 0, 1</code> に入れ替わります。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del"><span class="chg"><span class="kw">auto</span></span> tmp = v.<span class="fn">front</span>();</span>
+<span class="code-line">v.<span class="fn">front</span>() = v.<span class="fn">back</span>();</span>
+<span class="code-line">v.<span class="fn">back</span>() = tmp;</span>
+</code></pre>
+      <p>
+        <code>std::vector&lt;bool&gt;</code> の <code>front()</code> は <code>bool&amp;</code> ではなく、先頭のビットを指す代理オブジェクト <code>std::vector&lt;bool&gt;::reference</code> を値で返します。<code>auto</code> はこの型をそのまま推論するので、<code>tmp</code> は先頭の値の写しではなく、先頭のビットを指したままのオブジェクトになります。
+      </p>
+      <p>
+        次の行で先頭に末尾の <code>false</code> が入ると、<code>tmp</code> を通して見える値も <code>false</code> に変わります。最後の <code>v.back() = tmp;</code> は書き換わった先頭を末尾へ写すので、退避したはずの <code>true</code> はどこにも残らず、<code>000</code> になります。<code>std::vector&lt;int&gt;</code> では <code>front()</code> が <code>int&amp;</code> を返し、<code>auto</code> は参照を外して <code>int</code> の写しを作るので、この欠陥は表に出ません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins"><span class="chg"><span class="ty">T</span></span> tmp = v.<span class="fn">front</span>();</span>
+<span class="code-line">v.<span class="fn">front</span>() = v.<span class="fn">back</span>();</span>
+<span class="code-line">v.<span class="fn">back</span>() = tmp;</span>
+</code></pre>
+      <p>
+        <code>tmp</code> の型を要素型 <code>T</code> と書けば、<code>T</code> が <code>bool</code> のときは代理オブジェクトから <code>bool</code> への変換が起き、その時点の先頭の値 <code>true</code> が <code>tmp</code> に写されます。そのあと先頭を書き換えても <code>tmp</code> は変わらないので、末尾に <code>true</code> が入って <code>001</code> になります。<code>T</code> が <code>int</code> のときは、<code>auto</code> と書いたときと同じ写しになります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

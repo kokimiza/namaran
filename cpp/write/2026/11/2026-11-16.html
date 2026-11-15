@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="1バイトに8個のbool値を詰めるクラスに、ビットへの代入と読み出しができる operator[] を書くC++26のWRITE。bool&amp; を返せない理由と、std::vector&lt;bool&gt;::reference と同じ代理オブジェクトの作り方を扱う。">
+<title>ビットを指す代理を返す</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-11-16">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-16" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-11-16",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-11-16",
+      "datePublished": "2026-11-16",
+      "dateModified": "2026-11-16",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "ビットを指す代理を返す" },
+      "keywords": "vector-bool, operator-overload, implicit-conversion, reference, bit-operation",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "1バイトに8個のbool値を詰めるクラスに、ビットへの代入と読み出しができる operator[] を書くC++26のWRITE。bool& を返せない理由と、std::vector<bool>::reference と同じ代理オブジェクトの作り方を扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-16">C23</a>
+  <a href="/cpp/write/2026-11-16" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-11-16">Rust 2024</a>
+  <a href="/haskell/write/2026-11-16">Haskell 2010</a>
+  <a href="/zig/write/2026-11-16">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-16">READ</a>
+  <a href="/cpp/write/2026-11-16" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-11-16">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="ビットを指す代理を返す"
+  data-tags="vector-bool operator-overload implicit-conversion reference bit-operation"
+  data-concepts="代理オブジェクト, プロキシクラス, vector&lt;bool&gt;::reference, 変換演算子, コピー代入演算子, 参照メンバ, proxy object, conversion operator, bit packing"
+  data-level="bison"
+>
+  <h2>2026-11-16</h2>
+  <div class="code-frame">
+    <p class="code-filename">bits8.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;cstdint&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">class</span> <span class="ty">Bits8</span> {</span>
+<span class="code-line">    std::<span class="ty">uint8_t</span> byte_ = <span class="nu">0</span>;</span>
+<span class="code-line">};</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>Bits8</code> は8個の <code>bool</code> 値を <code>byte_</code> の各ビットに詰めて持つクラスで、i 番目の値を i ビット目に置きます。<code>Bits8 b;</code> に対して、<code>b[i] = true;</code> で i 番目を書き換え、<code>bool x = b[i];</code> で読み出し、<code>b[j] = b[i];</code> で i 番目の値を j 番目へ写せるように、public な <code>operator[]</code> と、それに要る型をクラスの中に書き足してください。<code>i</code> と <code>j</code> は 0 以上 7 以下です。例では、新しく作った <code>Bits8 b;</code> に入力の文を順に実行したあと、<code>b[0]</code> から <code>b[7]</code> までを <code>bool</code> として読んだ値を 0 と 1 で並べて書きます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>b[2] = true; b[5] = b[2]; b[2] = false;</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>00000100</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>(何もしない)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>00000000</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>b[0] = true; b[7] = true; b[0] = false;</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>00000001</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;cstdint&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">class</span> <span class="ty">Bits8</span> {</span>
+<span class="code-line">    std::<span class="ty">uint8_t</span> byte_ = <span class="nu">0</span>;</span>
+<span class="code-line ins"></span>
+<span class="code-line ins"><span class="kw">public</span>:</span>
+<span class="code-line ins">    <span class="kw">struct</span> <span class="ty">Ref</span> {</span>
+<span class="code-line ins">        std::<span class="ty">uint8_t</span>&amp; byte;</span>
+<span class="code-line ins">        <span class="ty">int</span> i;</span>
+<span class="code-line ins"></span>
+<span class="code-line ins">        <span class="ty">Ref</span>&amp; <span class="kw">operator</span>=(<span class="ty">bool</span> x) {</span>
+<span class="code-line ins">            <span class="kw">if</span> (x) {</span>
+<span class="code-line ins">                byte |= <span class="nu">1u</span> &lt;&lt; i;</span>
+<span class="code-line ins">            } <span class="kw">else</span> {</span>
+<span class="code-line ins">                byte &amp;= ~(<span class="nu">1u</span> &lt;&lt; i);</span>
+<span class="code-line ins">            }</span>
+<span class="code-line ins">            <span class="kw">return</span> *<span class="kw">this</span>;</span>
+<span class="code-line ins">        }</span>
+<span class="code-line ins">        <span class="ty">Ref</span>&amp; <span class="kw">operator</span>=(<span class="kw">const</span> <span class="ty">Ref</span>&amp; other) {</span>
+<span class="code-line ins">            <span class="kw">return</span> *<span class="kw">this</span> = <span class="ty">bool</span>(other);</span>
+<span class="code-line ins">        }</span>
+<span class="code-line ins">        <span class="kw">operator</span> <span class="ty">bool</span>() <span class="kw">const</span> {</span>
+<span class="code-line ins">            <span class="kw">return</span> (byte &gt;&gt; i) &amp; <span class="nu">1u</span>;</span>
+<span class="code-line ins">        }</span>
+<span class="code-line ins">    };</span>
+<span class="code-line ins"></span>
+<span class="code-line ins">    <span class="ty">Ref</span> <span class="kw">operator</span>[](<span class="ty">int</span> i) {</span>
+<span class="code-line ins">        <span class="kw">return</span> {byte_, i};</span>
+<span class="code-line ins">    }</span>
+<span class="code-line">};</span>
+</code></pre>
+      </div>
+      <p>
+        1ビットにはアドレスが無いので、<code>operator[]</code> は i 番目の値を指す <code>bool&amp;</code> を返せません。<code>bool</code> を値で返すと読み出しはできますが、<code>b[i] = true;</code> は組み込み型の一時オブジェクトへの代入になり、コンパイルできません。<code>std::uint8_t&amp;</code> を返せば代入は通りますが、バイト全体を <code>true</code>、つまり 1 で上書きしてしまいます。そこで、どのバイトの何ビット目かを覚えた小さな型 <code>Ref</code> を値で返し、代入と読み出しをこの型に肩代わりさせます。<code>std::vector&lt;bool&gt;</code> の <code>operator[]</code> が返す <code>std::vector&lt;bool&gt;::reference</code> も、同じ考え方の代理オブジェクトです。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        <code>operator=(bool)</code> は、<code>true</code> なら <code>1u &lt;&lt; i</code> とのビットORで i ビット目を立て、<code>false</code> なら <code>~(1u &lt;&lt; i)</code> とのビットANDで i ビット目だけを落とします。<code>operator bool</code> は i ビット目を取り出して <code>bool</code> に変換するので、<code>bool x = b[i];</code> も出力例を作るときの読み出しも、これを通ります。
+      </p>
+      <p>
+        この2つだけでは入力例 1 の <code>b[5] = b[2];</code> が通りません。右辺も左辺も <code>Ref</code> なので、<code>bool</code> を受ける代入ではなく <code>Ref</code> どうしのコピー代入が呼ばれる形になり、参照のメンバを持つクラスでは暗黙のコピー代入が削除されているからです。<code>operator=(const Ref&amp;)</code> を自分で定義し、右辺を <code>bool</code> として読んでから左辺のビットへ書くと、<code>b[2]</code> の値 1 が <code>b[5]</code> へ写り、そのあと <code>b[2] = false;</code> で2ビット目だけが落ちて <code>00000100</code> になります。入力例 3 でも、<code>b[0] = false;</code> は7ビット目に触れないので <code>00000001</code> が残ります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

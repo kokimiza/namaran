@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="見た目は同じ café を、合成済みの é と、e に結合文字のアクセントを続けた形で書いて比べるRust 2024のREAD。str の == と len と starts_with が、見た目ではなく UTF-8 のバイト列を見ることを扱う。">
+<title>同じcaféの違う中身</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-11-16">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / READ", "item": "https://namaran.jocarium.productions/rust/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-16" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / READ — 2026-11-16",
+      "url": "https://namaran.jocarium.productions/rust/read/2026-11-16",
+      "datePublished": "2026-11-16",
+      "dateModified": "2026-11-16",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "同じcaféの違う中身" },
+      "keywords": "unicode-normalization, unicode, utf-8, string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "見た目は同じ café を、合成済みの é と、e に結合文字のアクセントを続けた形で書いて比べるRust 2024のREAD。str の == と len と starts_with が、見た目ではなく UTF-8 のバイト列を見ることを扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-16">C23</a>
+  <a href="/cpp/read/2026-11-16">C++26</a>
+  <a href="/rust/read/2026-11-16" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/read/2026-11-16">Haskell 2010</a>
+  <a href="/zig/read/2026-11-16">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-16" class="active" aria-current="page">READ</a>
+  <a href="/rust/write/2026-11-16">WRITE</a>
+  <a href="/rust/debug/2026-11-16">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="同じcaféの違う中身"
+  data-tags="unicode-normalization unicode utf-8 string"
+  data-concepts="Unicode正規化, 合成済み文字, 結合文字, NFC, NFD, UTF-8のバイト長, 文字列比較, Unicode normalization, combining character, precomposed character"
+  data-level="peacock"
+>
+  <h2>2026-11-16</h2>
+  <div class="code-frame">
+    <p class="code-filename">cafe.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="kw">let</span> a = <span class="st">"caf\u{e9}"</span>;</span>
+<span class="code-line">    <span class="kw">let</span> b = <span class="st">"cafe\u{301}"</span>;</span>
+<span class="code-line">    <span class="mc">println!</span>(<span class="st">"{}"</span>, a == b);</span>
+<span class="code-line">    <span class="mc">println!</span>(<span class="st">"{} {}"</span>, a.<span class="fn">len</span>(), b.<span class="fn">len</span>());</span>
+<span class="code-line">    <span class="mc">println!</span>(<span class="st">"{} {}"</span>, a.<span class="fn">starts_with</span>(<span class="st">"cafe"</span>), b.<span class="fn">starts_with</span>(<span class="st">"cafe"</span>));</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>false
+5 6
+false true
+</samp></pre>
+      </div>
+      <p>
+        <code>a</code> の最後の文字 U+00E9 は、アクセント付きの é を1文字で表す合成済みの文字です。<code>b</code> は普通の <code>e</code> のあとに U+0301 を置いています。U+0301 は直前の文字の上にアクセントを重ねて表示させる結合文字なので、どちらも画面には café と出ますが、文字の並びは <code>a</code> が4文字、<code>b</code> が5文字で違います。<code>str</code> の <code>==</code> は UTF-8 のバイト列が同じかどうかを比べるだけなので、<code>false</code> です。
+      </p>
+      <p>
+        <code>len</code> は文字数ではなくバイト数を返します。U+00E9 も U+0301 も UTF-8 では2バイトなので、<code>a</code> は <code>caf</code> の3バイトと合わせて5、<code>b</code> は <code>cafe</code> の4バイトと合わせて6です。<code>starts_with</code> もバイト列の先頭を比べるので、<code>cafe</code> の4バイトがそのまま並ぶ <code>b</code> だけが <code>true</code> になり、4バイト目が é の1バイト目である <code>a</code> は <code>false</code> です。
+      </p>
+      <p>
+        見た目で読むと <code>true</code>、<code>4 4</code>、<code>false false</code> と答えたくなります。同じ見た目の文字列を等しいと判定するには、比べる前に、合成済みの文字と結合文字の並びのどちらかの形へそろえる変換が要ります。この変換を Unicode 正規化と呼び<sup class="fn-ref">1</sup>、Rust の標準ライブラリには含まれていません。
+      </p>
+      <ol class="footnotes">
+        <li>Unicode 正規化（Unicode normalization）は、見た目と意味が同じ文字列を1つの決まった並びに変換する Unicode の規則です。合成済みの文字にそろえる形を NFC、基本の文字と結合文字に分ける形を NFD と呼びます。Rust では <code>unicode-normalization</code> クレートの <code>nfc()</code> などが使われます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/read">Today</a></li>
+    <li><a href="/rust/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

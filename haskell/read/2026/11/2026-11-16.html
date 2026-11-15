@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="同じ値を組み立て直すつもりの2つの関数を、無限リストの入力で突き合わせ、最初に結果が食い違う入力を find で探すHaskell 2010のREAD。div と mod が切り捨てる向きと、quot が切り捨てる向きの違いを扱う。">
+<title>二つの実装の最初の食い違い</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-11-16">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-16" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-11-16",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-11-16",
+      "datePublished": "2026-11-16",
+      "dateModified": "2026-11-16",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "二つの実装の最初の食い違い" },
+      "keywords": "differential-testing, division, infinite-list, laziness",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "同じ値を組み立て直すつもりの2つの関数を、無限リストの入力で突き合わせ、最初に結果が食い違う入力を find で探すHaskell 2010のREAD。div と mod が切り捨てる向きと、quot が切り捨てる向きの違いを扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-16">C23</a>
+  <a href="/cpp/read/2026-11-16">C++26</a>
+  <a href="/rust/read/2026-11-16">Rust 2024</a>
+  <a href="/haskell/read/2026-11-16" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/read/2026-11-16">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-16" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-11-16">WRITE</a>
+  <a href="/haskell/debug/2026-11-16">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="二つの実装の最初の食い違い"
+  data-tags="differential-testing division infinite-list laziness"
+  data-concepts="差分テスト, div, mod, quot, rem, 負の数の除算, 無限リスト, find, differential testing, floor division, truncated division"
+  data-level="bison"
+>
+  <h2>2026-11-16</h2>
+  <div class="code-frame">
+    <p class="code-filename">Rebuild.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">import</span> <span class="ty">Data.List</span> (find)</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">rebuild1</span>, rebuild2 <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Int</span></span>
+<span class="code-line"><span class="fn">rebuild1</span> n = n `div` <span class="nu">2</span> * <span class="nu">2</span> + n `mod` <span class="nu">2</span></span>
+<span class="code-line"><span class="fn">rebuild2</span> n = n `quot` <span class="nu">2</span> * <span class="nu">2</span> + n `mod` <span class="nu">2</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()</span>
+<span class="code-line"><span class="fn">main</span> = print (find (\n <span class="op">-&gt;</span> rebuild1 n /= rebuild2 n) [<span class="nu">3</span>, <span class="nu">2</span> ..])</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>Just (-1)
+</samp></pre>
+      </div>
+      <p>
+        <code>[3, 2 ..]</code> は 3、2、1、0、-1、…と下へ続く無限リストで、<code>find</code> は先頭から順に調べて、条件を満たす最初の要素で止まります。リストの残りは評価されないので、どこかで2つの関数が食い違えばそこで <code>Just</code> が返り、食い違わなければ終わりません。答えを出すには、どの n で最初に食い違うかを、除算の2つの規則を合わせて調べることになります。
+      </p>
+      <p>
+        <code>div</code> は商を負の無限大の方向へ切り捨て、<code>mod</code> はその <code>div</code> と組になる余りで、割る数 2 と同じ符号の 0 か 1 になります。この2つは <code>(n `div` 2) * 2 + n `mod` 2 == n</code> を必ず満たすので、<code>rebuild1</code> はどの n でも n を返します。一方 <code>quot</code> は商を 0 の方向へ切り捨てます。0 以上の n では <code>div</code> と <code>quot</code> は同じ商を返すので、3 から 0 までは両者が一致します。
+      </p>
+      <p>
+        n = -1 では、<code>div</code> の商は -1、<code>quot</code> の商は 0 です。<code>mod</code> は -1 を 2 で割った余りを 1 とするので、<code>rebuild1 (-1)</code> は <code>-2 + 1</code> で -1、<code>rebuild2 (-1)</code> は <code>0 + 1</code> で 1 です。ここで初めて食い違い、<code>Just (-1)</code> が出力されます。
+      </p>
+      <p>
+        規則を1つだけ使うと、答えは「終わらない」になります。<code>quot</code> も <code>div</code> と同じく切り捨てると考えれば2つの関数は同じ式になり、<code>mod</code> の余りが C の <code>%</code> のように割られる数と同じ符号になると考えれば、<code>rebuild2 (-1)</code> も <code>0 + (-1)</code> で -1 になります。そう考えた <code>mod</code> は、<code>quot</code> と組になる余り <code>rem</code> そのものなので、<code>rebuild2</code> はすべての n で n を返し、やはり食い違いません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

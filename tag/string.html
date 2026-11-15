@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「文字列」を扱ったNamaranのコーディングドリル115問。自然順ソート、自然順比較、数字の連続、桁数、先頭の0、Ordering。">
+<meta name="description" content="「文字列」を扱ったNamaranのコーディングドリル118問。結合文字、ダイアクリティカルマーク、アクセント除去、chars、filter、collect。">
 <title>文字列</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/string">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>文字列</h2>
 
   <p class="lede">
-    「文字列」を扱った115問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「文字列」を扱った118問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/write/2026-11-16">Rust / WRITE · 2026-11-16</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">結合文字のアクセントを外す</span> <span class="past-concepts">結合文字, ダイアクリティカルマーク, アクセント除去, chars, filter, collect, 文字の範囲, combining diacritical marks, strip accents</span></li>
+    <li><a href="/rust/read/2026-11-16">Rust / READ · 2026-11-16</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">同じcaféの違う中身</span> <span class="past-concepts">Unicode正規化, 合成済み文字, 結合文字, NFC, NFD, UTF-8のバイト長, 文字列比較, Unicode normalization, combining character, precomposed character</span></li>
+    <li><a href="/rust/debug/2026-11-16">Rust / DEBUG · 2026-11-16</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">並べ替えで離れた同じ名前</span> <span class="past-concepts">Unicode正規化, 重複除去, dedup_by, sort_by_key, 隣接する重複, コードポイント順, 合成済み文字, 結合文字, Unicode normalization, dedup</span></li>
     <li><a href="/rust/write/2026-11-15">Rust / WRITE · 2026-11-15</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">桁数に上限のない自然順</span> <span class="past-concepts">自然順ソート, 自然順比較, 数字の連続, 桁数, 先頭の0, Ordering, タプルの比較, natural sort, natural order</span></li>
     <li><a href="/rust/read/2026-11-15">Rust / READ · 2026-11-15</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">数字入りの名前をsort</span> <span class="past-concepts">文字列の比較, 辞書式順序, バイト順, 自然順ソート, 大文字と小文字, lexicographic order, string sort</span></li>
     <li><a href="/rust/debug/2026-11-15">Rust / DEBUG · 2026-11-15</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">文字の位置で切る文字列</span> <span class="past-concepts">自然順ソート, 文字の位置, バイトの位置, 文字列スライス, chars, find, char boundary, byte index, natural sort</span></li>

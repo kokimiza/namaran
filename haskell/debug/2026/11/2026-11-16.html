@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="2つの実装の出力リストを zipWith で要素ごとに比べる差分テストが、片方の要素が足りないのに一致と判定するHaskell 2010のDEBUG。zipWith が短い方のリストの長さで止まる欠陥を扱う。">
+<title>短い方で止まる突き合わせ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-11-16">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-16" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-11-16",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-11-16",
+      "datePublished": "2026-11-16",
+      "dateModified": "2026-11-16",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "短い方で止まる突き合わせ" },
+      "keywords": "differential-testing, list, testing, boundary",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "2つの実装の出力リストを zipWith で要素ごとに比べる差分テストが、片方の要素が足りないのに一致と判定するHaskell 2010のDEBUG。zipWith が短い方のリストの長さで止まる欠陥を扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-16">C23</a>
+  <a href="/cpp/debug/2026-11-16">C++26</a>
+  <a href="/rust/debug/2026-11-16">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-16" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-16">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-16">READ</a>
+  <a href="/haskell/write/2026-11-16">WRITE</a>
+  <a href="/haskell/debug/2026-11-16" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="短い方で止まる突き合わせ"
+  data-tags="differential-testing list testing boundary"
+  data-concepts="差分テスト, zipWith, リストの長さ, 短い方で止まる, and, リストの比較, differential testing, zipWith truncation"
+  data-level="hedgehog"
+>
+  <h2>2026-11-16</h2>
+  <div class="code-frame">
+    <p class="code-filename">SameOutput.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="fn">sameOutput</span> <span class="op">::</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> <span class="ty">Bool</span></span>
+<span class="code-line"><span class="fn">sameOutput</span> xs ys = and (zipWith (==) xs ys)</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">runningSum</span>, runningSum' <span class="op">::</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> [<span class="ty">Int</span>]</span>
+<span class="code-line"><span class="fn">runningSum</span> = scanl1 (+)</span>
+<span class="code-line"><span class="fn">runningSum'</span> xs = [sum (take k xs) | k <span class="op">&lt;-</span> [<span class="nu">1</span> .. length xs - <span class="nu">1</span>]]</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()</span>
+<span class="code-line"><span class="fn">main</span> = print (sameOutput (runningSum [<span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">3</span>]) (runningSum' [<span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">3</span>]))</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>sameOutput</code> は、2つの実装が返したリストが同じかどうかを判定し、差分テストに使うつもりの関数です。<code>runningSum'</code> は <code>[1, 2, 3]</code> に対して <code>[1, 3]</code> を返し、<code>runningSum</code> の <code>[1, 3, 6]</code> と食い違うので、<code>False</code> が出力されるはずですが、いまは <code>True</code> が出力されます。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line"><span class="fn">sameOutput</span> <span class="op">::</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> <span class="ty">Bool</span></span>
+<span class="code-line del"><span class="fn">sameOutput</span> <span class="chg">xs ys = and (zipWith</span> (==) <span class="chg">xs ys)</span></span>
+</code></pre>
+      <p>
+        <code>zipWith</code> は2つのリストを先頭から組にして関数を適用し、どちらかのリストが尽きたところで止まります。<code>[1, 3, 6]</code> と <code>[1, 3]</code> では2組しか作られず、結果は <code>[True, True]</code> です。<code>runningSum</code> だけにある <code>6</code> はどの組にも入らないので、<code>and</code> は <code>True</code> を返します。
+      </p>
+      <p>
+        この書き方では、片方の実装が要素を落としても、余分に付け足しても、短い方の長さまでが一致していれば見逃します。片方が空リストを返せば、もう片方が何を返しても <code>True</code> になります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line"><span class="fn">sameOutput</span> <span class="op">::</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> <span class="ty">Bool</span></span>
+<span class="code-line ins"><span class="fn">sameOutput</span> = (==)</span>
+</code></pre>
+      <p>
+        リストの <code>==</code> は、要素を先頭から比べ、片方だけが先に尽きたら <code>False</code> を返します。長さの違いも食い違いとして扱われるので、<code>[1, 3, 6] == [1, 3]</code> は <code>False</code> になり、<code>runningSum'</code> の誤り（<code>length xs - 1</code> までしか数えていない）が見つかります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

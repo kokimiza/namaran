@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「ソート」を扱ったNamaranのコーディングドリル22問。文字列の比較、辞書式順序、バイト順、自然順ソート、大文字と小文字、lexicographic order。">
+<meta name="description" content="「ソート」を扱ったNamaranのコーディングドリル24問。Unicode正規化、重複除去、dedup_by、sort_by_key、隣接する重複、コードポイント順。">
 <title>ソート</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/sorting">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,12 @@
   <h2>ソート</h2>
 
   <p class="lede">
-    「ソート」を扱った22問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「ソート」を扱った24問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/debug/2026-11-16">Rust / DEBUG · 2026-11-16</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">並べ替えで離れた同じ名前</span> <span class="past-concepts">Unicode正規化, 重複除去, dedup_by, sort_by_key, 隣接する重複, コードポイント順, 合成済み文字, 結合文字, Unicode normalization, dedup</span></li>
+    <li><a href="/c/write/2026-11-16">C / WRITE · 2026-11-16</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">Morton順に並べる比較関数</span> <span class="past-concepts">qsortの比較関数, Morton順序, Z順序曲線, 符号なし整数の差, comparator, qsort, Morton code</span></li>
     <li><a href="/rust/read/2026-11-15">Rust / READ · 2026-11-15</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">数字入りの名前をsort</span> <span class="past-concepts">文字列の比較, 辞書式順序, バイト順, 自然順ソート, 大文字と小文字, lexicographic order, string sort</span></li>
     <li><a href="/cpp/write/2026-10-24">C++ / WRITE · 2026-10-24</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">答えが一つでない結果の検査</span> <span class="past-concepts">テストオラクル, 正解が一つに決まらない出力, 多重集合の比較, 小さい方から k 個, test oracle, multiset equality, k smallest elements</span></li>
     <li><a href="/c/write/2026-10-17">C / WRITE · 2026-10-17</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">qsortで長さ順、同長は元順</span> <span class="past-concepts">安定ソート, qsort, 比較関数, 元の位置で順位を決める, stable sort, qsort comparator, tie-breaking</span></li>

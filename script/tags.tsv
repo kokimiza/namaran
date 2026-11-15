@@ -118,6 +118,7 @@ design-by-contract	契約による設計
 designated-initializer	指示付き初期化子
 destructor	デストラクタ
 difference-list	差分リスト
+differential-testing	差分テスト
 digit-dp	桁DP
 display-width	表示幅
 divide-and-conquer	分割統治
@@ -205,6 +206,7 @@ init-statement	初期化文
 initialization	初期化
 initialization-order	初期化順序
 inline-else	inline else
+inline-for	inline for
 inline-function	インライン関数
 insertion-sort	挿入ソート
 integer-arithmetic	整数の演算
@@ -271,6 +273,7 @@ monoid	Monoid
 monomorphism-restriction	単相性制限
 monotonic-clock	単調増加時計
 monotonic-stack	単調スタック
+morton-order	Morton順序
 most-vexing-parse	最も厄介な構文解析
 move-semantics	ムーブ
 multidimensional-array	多次元配列
@@ -458,6 +461,7 @@ typeclass-law	型クラスの法則
 undefined-behavior	未定義動作
 unevaluated-operand	評価されないオペランド
 unicode	Unicode
+unicode-normalization	Unicode正規化
 unification	単一化
 unimodal-function	単峰関数
 union	共用体

@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="2つの実装を小さな入力すべてで突き合わせるために、長さ n の Bool のリストをすべて並べる関数を書くHaskell 2010のWRITE。長さ0のときに空リスト1つを返す基底と、リスト内包表記による再帰を扱う。">
+<title>長さnのBool列を全部作る</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-11-16">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-16" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-11-16",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-11-16",
+      "datePublished": "2026-11-16",
+      "dateModified": "2026-11-16",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "長さnのBool列を全部作る" },
+      "keywords": "differential-testing, recursion, list-comprehension",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "2つの実装を小さな入力すべてで突き合わせるために、長さ n の Bool のリストをすべて並べる関数を書くHaskell 2010のWRITE。長さ0のときに空リスト1つを返す基底と、リスト内包表記による再帰を扱う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-16">C23</a>
+  <a href="/cpp/write/2026-11-16">C++26</a>
+  <a href="/rust/write/2026-11-16">Rust 2024</a>
+  <a href="/haskell/write/2026-11-16" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/write/2026-11-16">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-16">READ</a>
+  <a href="/haskell/write/2026-11-16" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-11-16">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="長さnのBool列を全部作る"
+  data-tags="differential-testing recursion list-comprehension"
+  data-concepts="全探索, 入力の列挙, 差分テスト, 再帰, リスト内包表記, 基底の場合, exhaustive testing, enumerate inputs, replicateM"
+  data-level="hedgehog"
+>
+  <h2>2026-11-16</h2>
+  <div class="code-frame">
+    <p class="code-filename">AllBools.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="fn">allBools</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> [[<span class="ty">Bool</span>]]</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    2つの実装に同じ入力をすべて与えて結果を突き合わせるために、長さ <code>n</code> の <code>Bool</code> のリストをすべて並べたリストを返す <code>allBools</code> を書いてください。<code>False</code> を <code>True</code> より小さいとみなし、先頭の要素から順に比べた小さい順に並べます。<code>n</code> は 0 以上で、<code>n</code> が 0 なら長さ0のリスト、つまり空リストだけが1つ入ったリストを返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>allBools 2</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>[[False,False],[False,True],[True,False],[True,True]]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>allBools 1</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>[[False],[True]]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>allBools 0</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>[[]]</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="fn">allBools</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> [[<span class="ty">Bool</span>]]</span>
+<span class="code-line ins"><span class="fn">allBools</span> <span class="nu">0</span> = [[]]</span>
+<span class="code-line ins"><span class="fn">allBools</span> n = [b : bs | b <span class="op">&lt;-</span> [<span class="ty">False</span>, <span class="ty">True</span>], bs <span class="op">&lt;-</span> allBools (n - <span class="nu">1</span>)]</span>
+</code></pre>
+      </div>
+      <p>
+        長さ <code>n</code> のリストは、先頭の要素1つと、長さ <code>n - 1</code> の残りに分けられます。リスト内包表記で、先頭 <code>b</code> を <code>False</code> と <code>True</code> から選び、残り <code>bs</code> を <code>allBools (n - 1)</code> から選んで <code>b : bs</code> を作ると、すべての組み合わせが1回ずつ出てきます。左の生成器 <code>b</code> が外側のループになるので、先頭が <code>False</code> のものがすべて並んでから <code>True</code> のものが並び、問題の順序になります。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        再帰の止まる先の <code>allBools 0 = [[]]</code> は、長さ0のリストが空リスト1つだけあることを表します。ここを <code>[]</code> にすると、内包表記の <code>bs</code> が1つも選べないので、どの <code>n</code> でも結果が空になります。<code>allBools 1</code> は <code>[[]]</code> の唯一の要素に <code>False</code> と <code>True</code> を付けて <code>[[False],[True]]</code>、<code>allBools 2</code> はその2つにさらに先頭を付けて4つになり、長さ <code>n</code> では 2<sup>n</sup> 個のリストが並びます。<code>Control.Monad</code> の <code>replicateM n [False, True]</code> も同じリストを同じ順で返します。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
