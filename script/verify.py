@@ -63,7 +63,9 @@ non-comment line of every <pre class="code"> block appears in one of that
 combo's ok/ng/bug files, indented as it is there (a block may be shifted
 left as a whole, nothing more) — so the code readers see is the code that
 was checked and formatted — READ/DEBUG question code (outside
-<details>) is at most 18 lines, a WRITE page's examples sit in
+<details>) is at most 18 lines, every line of every listing (answers too)
+is at most 45 columns wide on pages from 2026-11-17 on (a wide character,
+kana in a string, takes two), a WRITE page's examples sit in
 <div class="examples">, a DEBUG answer is Wrong + listing then Right +
 listing, the Japanese prose has none of the patterns the humanizer-ja-tech
 revision pass removes (AI stock phrases, dashes, full-width alphanumerics,
@@ -92,6 +94,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import unicodedata
 
 import format as formatter
 import highlight
@@ -106,6 +109,9 @@ HLINT = os.environ.get("NAMARAN_HLINT", "hlint")
 ZIG = os.environ.get("NAMARAN_ZIG", "zig")
 
 failures = 0
+
+# The first day whose listings must fit in 45 columns (see page_problems).
+MAX_COLUMNS_SINCE = "2026-11-17"
 
 
 def fail(msg, details=()):
@@ -482,6 +488,23 @@ def page_problems(lang, typ, date, src_dir):
         if n > MAX_LINES:
             problems.append(f"question code is {n} lines; {typ.upper()} must fit in {MAX_LINES}"
                             " (a problem-design error: choose a smaller angle, see ponytail.md)")
+
+    # Every listing line fits the 45-column terminal (doc/requirements.md §12),
+    # answers included. The formatters wrap at 45 (script/format.py), but not
+    # string literals, comments or Zig, which zig fmt never wraps. Like the
+    # line limit, a line over it is a problem-design error, not a layout one.
+    # Pages published before the rule keep their wider lines.
+    MAX_COLUMNS = 45
+    if date >= MAX_COLUMNS_SINCE:
+        def columns(line):
+            return sum(0 if unicodedata.combining(c) else
+                       2 if unicodedata.east_asian_width(c) in "WF" else 1
+                       for c in line.expandtabs(4))
+        for b in re.findall(r'<pre class="code"><code>(.*?)</code></pre>', s, re.S):
+            for line in html.unescape(spans.sub("", b)).splitlines():
+                if columns(line) > MAX_COLUMNS:
+                    problems.append(f"code line is {columns(line)} columns; listings must fit in"
+                                    f" {MAX_COLUMNS} (see ponytail.md §2): {line.strip()!r}")
 
     # The shape each type's template gives (script/template-{type}.html).
     if typ == "write" and '<div class="examples">' not in s:

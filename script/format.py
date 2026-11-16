@@ -42,7 +42,12 @@ comment saying why — the same rule as for lint suppressions:
   Rust     #[rustfmt::skip] on the item or statement
   Haskell  {- FOURMOLU_DISABLE -}  ...  {- FOURMOLU_ENABLE -}  (column 0)
   Zig      // zig fmt: off  ...  // zig fmt: on
-Never to keep lines short of the 21-line limit (ponytail.md §2).
+Never to keep code within the 18-line or 45-column limit (ponytail.md §2).
+
+All three configs wrap at 45 columns, the width of a listing
+(doc/requirements.md §12). zig fmt cannot be told a width: it keeps a call
+on one line unless the argument list ends in a comma, so Zig sources are
+broken by hand, with a trailing comma, and zig fmt then lays them out.
 
 Formatters (override the command names with environment variables). Their
 output differs between versions, so clang-format, fourmolu and zig must be
