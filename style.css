@@ -8,8 +8,9 @@
      mono    data — dates, file names, language versions, code
 
    One fixed palette, not a light/dark pair. The page is warm paper; the
-   machine's voice — code frames and the footer — is a cool dark slab. There is
-   no switch and no client JS to run one (`script-src 'none'`).
+   machine's voice is black: code is an old UNIX terminal — Vim, sixteen
+   colours, xterm's own bitmap font — and the footer is the same black. There
+   is no switch and no client JS to run one (`script-src 'none'`).
 
    Vertical space comes from one scale, and each step means one thing:
      0.5rem   inside a unit      label to the thing it labels
@@ -41,33 +42,35 @@
   --wrong: #a2302a;
   --right: #2e6b3a;
 
-  /* the slab: cool dark — code frames and the footer */
-  --slab: #141a23;
-  --slab-bar: #1e2531;
-  --slab-ink: #c9d4e2;
+  /* the slab: the footer, in the terminal's black */
+  --slab: #000000;
   --slab-muted: #9aa7b8;
-  --slab-rule: #29323f;
   --slab-accent: #7fb2e8;
 
-  /* syntax: token classes written by script/highlight.sh. Warm keywords
-     against the cool slab echo the page; every colour is >= 5:1 on --slab. */
-  --syn-kw: #f29e5c;
-  --syn-ty: #6fcfc0;
-  --syn-fn: #82aaff;
-  --syn-st: #a5d47f;
-  --syn-nu: #f2c46d;
-  --syn-cm: #7d8ba0;
-  --syn-pp: #e889b5;
+  /* the terminal: code listings. xterm's default sixteen colours, and
+     nothing on the screen is painted outside them. The numbers are the ANSI
+     colour indices. Bright blue alone is not xterm's #5c5cff (4.4:1 on
+     black) but lifted to clear 5:1; every colour used for text clears it. */
+  --ansi-0: #000000;   /* black */
+  --ansi-1: #cd0000;   /* red */
+  --ansi-2: #00cd00;   /* green */
+  --ansi-3: #cdcd00;   /* yellow */
+  --ansi-6: #00cdcd;   /* cyan */
+  --ansi-7: #e5e5e5;   /* white: the text */
+  --ansi-8: #7f7f7f;   /* bright black */
+  --ansi-9: #ff0000;   /* bright red */
+  --ansi-10: #00ff00;  /* bright green */
+  --ansi-11: #ffff00;  /* bright yellow */
+  --ansi-12: #7373ff;  /* bright blue */
+  --ansi-13: #ff00ff;  /* bright magenta */
+  --ansi-14: #00ffff;  /* bright cyan */
+  --ansi-15: #ffffff;  /* bright white */
 
-  /* the window title bar: its height, and the three lights drawn into it.
-     Each light is a 0.75rem-wide tile as tall as the bar with a circle
-     centred in it, so one layer list serves any element whose bar starts at
-     its top edge. */
-  --bar: 2.25rem;
-  --window-lights:
-    radial-gradient(circle 0.36rem, #ed6a5e calc(100% - 1px), transparent) 1rem 0 / 0.75rem var(--bar) no-repeat,
-    radial-gradient(circle 0.36rem, #f5bf4f calc(100% - 1px), transparent) 2.25rem 0 / 0.75rem var(--bar) no-repeat,
-    radial-gradient(circle 0.36rem, #61c554 calc(100% - 1px), transparent) 3.5rem 0 / 0.75rem var(--bar) no-repeat;
+  /* The screen's margins: about half a row above and below, two blank
+     columns at the sides (one on narrow screens). In ch, so they follow the
+     code's own font. */
+  --term-y: 0.75rem;
+  --term-x: 2ch;
 
   /* the space scale — see the plan above */
   --s-unit: 0.5rem;
@@ -84,8 +87,24 @@
   --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Hiragino Sans", "Noto Sans JP", sans-serif;
   --font-mono: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  /* The terminal's face: X11's misc-fixed 9x15, the font xterm offers as
+     "Large". Public domain. Its pixels are outlines in /font/, one pixel per
+     1/15 em, so at 15px each lands on a device pixel. It covers Latin,
+     Greek and symbols; anything else (kana in an output) falls through. */
+  --font-term: "Fixed", var(--font-mono);
 
   color-scheme: light;
+}
+
+@font-face {
+  font-family: "Fixed";
+  src: url("/font/fixed-9x15.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Fixed";
+  font-weight: bold;
+  src: url("/font/fixed-9x15-bold.woff2") format("woff2");
 }
 
 /* ---------- reset ---------- */
@@ -503,114 +522,120 @@ nav a.active {
   border-color: var(--accent-strong);
 }
 
-/* ---------- code: windows ----------
-   Every listing is a small window lying on the paper: a title bar with the
-   three lights, the file name centred in it, the code below. Listings with no
-   file name (the ones inside answers) get the same bar, empty, so both kinds
-   read as one object. The bar is painted with backgrounds rather than extra
-   elements — the markup belongs to published pages and stays as it is. */
+/* ---------- code: the terminal ----------
+   Every listing is Vim on a black 16-colour terminal, the way it looked on a
+   UNIX workstation: no window and no title bar, square corners, just the
+   screen. Everything on it is one size of one bitmap face, as on a
+   character cell display: 9 by 15 pixels, rows 21 pixels apart.
+
+   The file name is the message Vim prints on the bottom line when it opens
+   a file: "next_x.c". In the markup the name comes first; the frame is a
+   column and `order` moves it last. Markup is untouched — it belongs to
+   published pages and stays as it is. */
 
 .code-frame,
 pre.code {
-  border-radius: 10px;
-  background-color: var(--slab);
-  color: var(--slab-ink);
+  margin: 0 0 var(--s-block);
+  background: var(--ansi-0);
+  color: var(--ansi-7);
   color-scheme: dark;
-  /* rgb(20 26 35) is --slab: a tight edge, then a soft shadow on the paper */
-  box-shadow:
-    0 0 0 1px rgb(20 26 35 / 0.9),
-    0 1px 2px rgb(20 26 35 / 0.16),
-    0 14px 30px -16px rgb(20 26 35 / 0.55);
+  font-family: var(--font-term);
+  font-size: 0.9375rem;
+  line-height: 1.4;
 }
 
 .code-frame {
-  margin: 0 0 var(--s-block);
+  display: flex;
+  flex-direction: column;
+  padding-bottom: var(--term-y);
+  /* Without this, a long line widens the frame instead of scrolling. */
   overflow: hidden;
 }
 
-/* The title bar. Symmetric side padding keeps the name centred on the window,
-   not on the space right of the lights. */
-.code-filename {
+.code-frame > pre {
   margin: 0;
-  padding: 0 4.75rem;
-  line-height: var(--bar);
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  text-align: center;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--slab-muted);
-  background: var(--window-lights), var(--slab-bar);
-  border-bottom: 1px solid var(--slab-rule);
+  background: none;
 }
 
-/* A bare listing draws its own bar and hairline. Backgrounds of a scroll
-   container stay put while its content scrolls, so the bar does not slide
-   away with long lines. */
-pre.code {
-  margin: 0 0 var(--s-block);
-  padding: calc(var(--bar) + 1px + 1.2rem) 1.5rem 1.35rem;
-  background:
-    var(--window-lights),
-    linear-gradient(var(--slab-rule), var(--slab-rule)) 0 var(--bar) / 100% 1px no-repeat,
-    linear-gradient(var(--slab-bar), var(--slab-bar)) 0 0 / 100% var(--bar) no-repeat,
-    var(--slab);
+pre.code,
+.code-frame > pre {
+  padding: var(--term-y) var(--term-x);
   overflow-x: auto;
   overscroll-behavior-x: contain;
-  scrollbar-color: var(--slab-rule) transparent;
+  scrollbar-color: var(--ansi-8) transparent;
 }
 
-.code-frame pre.code {
-  margin: 0;
-  padding: 1.2rem 1.5rem 1.35rem;
-  border-radius: 0;
-  background: none;
-  box-shadow: none;
+/* The frame's own padding is the screen's last row of margin. */
+.code-frame > pre.code,
+.code-frame > pre.output {
+  padding-bottom: 0;
 }
 
 pre.code code {
-  font-family: var(--font-mono);
-  font-size: 0.875rem;
-  line-height: 1.7;
+  font: inherit;
   white-space: pre;
   tab-size: 4;
 }
 
+.code-filename {
+  order: 1;
+  margin: 0;
+  padding: 0 var(--term-x);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.code-filename::before,
+.code-filename::after {
+  content: "\"";
+  content: "\"" / "";
+}
+
+/* Past the last line, the ~ Vim draws on rows beyond the end of the file.
+   It also keeps the message line from reading as one more line of code.
+   Every listing ends in a newline, so the ~ starts a row of its own. */
+pre.code > code::after {
+  content: "~";
+  content: "~" / "";
+  color: var(--ansi-12);
+  font-weight: bold;
+  user-select: none;
+}
+
+/* Reverse video, as a terminal shows a selection. */
+.code-frame ::selection,
 pre.code ::selection {
-  background: var(--slab-accent);
-  color: var(--slab);
+  background: var(--ansi-7);
+  color: var(--ansi-0);
 }
 
-/* New drill templates only. Line numbers and diff marks are CSS content,
-   so copying a listing still yields just the source. Published HTML keeps
-   the original layout. The highlighter supplies one span per source line,
-   and on answer listings it marks, the way git shows a diff, the lines that
-   changed (code-line del / ins) and within them the words (chg). Lines both
-   sides share stay plain.
+/* New drill templates only. Line numbers, diff signs and the end of the
+   buffer are CSS content, so copying a listing still yields just the
+   source. Published HTML keeps the original layout. The highlighter
+   supplies one span per source line, and on answer listings it marks, the
+   way git shows a diff, the lines that changed (code-line del / ins) and
+   within them the words (chg). Lines both sides share stay plain.
 
-   The gutter is just the numbers, quiet and right-aligned, then a column
-   for the diff sign. It has no box of its own: a box ends where the lines
-   end and leaves the window's padding above and below it bare. */
+   It is Vim with `:set number`: the numbers right-aligned in four columns,
+   the last one blank (numberwidth=4), in yellow — the normal yellow, a step
+   behind the keywords' bright one, where Vim uses the bright one for both.
+   A listing with changed lines
+   also gets a sign column, two columns left of the numbers, as a git plugin
+   draws one: a red - or a green +, and the number in the same colour. The
+   changed words are cells with the colour behind them, the way a terminal
+   can only show one: white on red (Vim's ErrorMsg), black on green. */
 .drill {
-  --line-no-w: 2.5rem;
-  --sign-w: 1.75rem;
-  --code-pad: 1.5rem;
-  --line-no: #66758a;
-  --del-line: #342228;
-  --del-gutter: #4a2a2e;
-  --del-word: #6e2e33;
-  --del-ink: #f0a29a;
-  --ins-line: #1a3029;
-  --ins-gutter: #1f4130;
-  --ins-word: #28593a;
-  --ins-ink: #9bd6a8;
+  --line-no-w: 4ch;
+  --sign-w: 0ch;
 }
 
-.drill pre.code,
-.drill .code-frame pre.code {
-  padding-left: 0;
-  padding-right: 0;
+.drill pre.code:has(.del, .ins) {
+  --sign-w: 2ch;
+}
+
+.drill pre.code {
+  padding-inline: 0;
 }
 
 .drill pre.code > code {
@@ -623,8 +648,8 @@ pre.code ::selection {
 .drill .code-line {
   display: block;
   position: relative;
-  min-height: 1.7em;
-  padding: 0 var(--code-pad) 0 calc(var(--line-no-w) + var(--sign-w));
+  min-height: 1.4em;
+  padding: 0 var(--term-x) 0 calc(var(--term-x) + var(--sign-w) + var(--line-no-w));
   counter-increment: code-line;
 }
 
@@ -632,41 +657,26 @@ pre.code ::selection {
   content: counter(code-line);
   content: counter(code-line) / "";
   position: absolute;
-  left: 0;
-  width: var(--line-no-w);
-  color: var(--line-no);
+  left: calc(var(--term-x) + var(--sign-w));
+  width: calc(var(--line-no-w) - 1ch);
+  color: var(--ansi-3);
   text-align: right;
-  font-variant-numeric: tabular-nums;
   user-select: none;
 }
 
 .drill .code-line.del {
-  --diff-line: var(--del-line);
-  --diff-gutter: var(--del-gutter);
-  --diff-ink: var(--del-ink);
-  --diff-sign: "−";
+  --diff-sign: "-";
+  --diff-ink: var(--ansi-9);
 }
 
 .drill .code-line.ins {
-  --diff-line: var(--ins-line);
-  --diff-gutter: var(--ins-gutter);
-  --diff-ink: var(--ins-ink);
   --diff-sign: "+";
-}
-
-/* The gutter of a changed line is a shade deeper than its code, so a run
-   of changed lines reads as one block down the left edge. */
-.drill .code-line.del,
-.drill .code-line.ins {
-  background: linear-gradient(to right,
-    var(--diff-gutter) calc(var(--line-no-w) + var(--sign-w) - 0.5rem),
-    var(--diff-line) 0);
+  --diff-ink: var(--ansi-10);
 }
 
 .drill .code-line.del::before,
 .drill .code-line.ins::before {
   color: var(--diff-ink);
-  opacity: 0.7;
 }
 
 .drill .code-line.del::after,
@@ -674,20 +684,39 @@ pre.code ::selection {
   content: var(--diff-sign);
   content: var(--diff-sign) / "";
   position: absolute;
-  left: calc(var(--line-no-w) + 0.375rem);
+  left: var(--term-x);
   color: var(--diff-ink);
+  font-weight: bold;
   user-select: none;
 }
 
-.drill .del .chg,
-.drill .ins .chg {
-  border-radius: 3px;
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
+/* A cell's colour fills the whole row, as on a terminal, not just the
+   glyphs' height: an inline-block is as tall as the line. */
+.drill .chg {
+  display: inline-block;
 }
 
-.drill .del .chg { background: var(--del-word); }
-.drill .ins .chg { background: var(--ins-word); }
+.drill .del .chg {
+  background: var(--ansi-1);
+}
+
+.drill .ins .chg {
+  background: var(--ansi-2);
+}
+
+.drill .del .chg,
+.drill .del .chg * {
+  color: var(--ansi-15);
+}
+
+.drill .ins .chg,
+.drill .ins .chg * {
+  color: var(--ansi-0);
+}
+
+.drill pre.code > code::after {
+  padding-left: var(--term-x);
+}
 
 .drill .answer-body .code-frame pre.code {
   margin-top: 0;
@@ -697,35 +726,54 @@ pre.code ::selection {
   margin-top: 0;
 }
 
-/* READ's result speaks in the same terminal voice as the code. Explanatory
-   prose remains on paper below it; results are never syntax highlighted. */
-.drill pre.output {
-  margin: 0;
-  padding: var(--s-sibling) 1.5rem;
-  overflow-x: auto;
-  font-family: var(--font-mono);
-  font-size: 0.875rem;
-  line-height: 1.7;
-  white-space: pre;
-  scrollbar-color: var(--slab-rule) transparent;
+/* WRITE's reference is what the reader types into the question's file, so
+   its bottom line is not a file name but the mode Vim shows while one types:
+   -- INSERT --, in bold (ModeMsg). "Reference" would only repeat the summary
+   above it; the label stays for screen readers. */
+.diff-added::after {
+  content: "-- INSERT --";
+  content: "-- INSERT --" / "";
+  order: 2;
+  padding: 0 var(--term-x);
+  font-weight: bold;
+}
+
+/* READ's result is the same screen without the editor: what the program
+   printed and nothing else. No numbers, no colours, no ~, and no message
+   line: under the last line of output, "Output" or a ~ would read as one
+   more line of it. The label stays for screen readers. Explanatory prose
+   remains on paper below it. */
+.diff-added > .code-filename,
+.answer-output > .code-filename {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .drill pre.output samp {
   font: inherit;
 }
 
-/* ---------- syntax ---------- */
+/* ---------- syntax ----------
+   Vim's own default colours for a dark background, group by group. A
+   16-colour terminal shows Vim's Yellow, Green, Magenta and so on as the
+   bright half of the palette. One departure: Vim paints Comment and
+   Identifier the same cyan, bold only on Identifier; here comments take the
+   normal cyan, so they sit one step back from function names. */
 
 pre.code .kw,
-pre.code .op { color: var(--syn-kw); }
-pre.code .ty { color: var(--syn-ty); }
-pre.code .lt { color: var(--syn-ty); font-style: italic; }
-pre.code .fn { color: var(--syn-fn); }
-pre.code .st { color: var(--syn-st); }
-pre.code .nu { color: var(--syn-nu); }
-pre.code .cm { color: var(--syn-cm); font-style: italic; }
+pre.code .op { color: var(--ansi-11); }  /* Statement */
+pre.code .ty { color: var(--ansi-10); }  /* Type */
+pre.code .st,
+pre.code .nu { color: var(--ansi-13); }  /* Constant */
+pre.code .fn { color: var(--ansi-14); font-weight: bold; }  /* Identifier */
+pre.code .cm { color: var(--ansi-6); }   /* Comment */
 pre.code .pp,
-pre.code .mc { color: var(--syn-pp); }
+pre.code .mc { color: var(--ansi-12); }  /* PreProc */
+pre.code .lt { color: var(--ansi-9); }   /* Special */
 
 /* ---------- the question ----------
    The one thing on the page the reader has to sit with, so it gets the widest
@@ -741,7 +789,7 @@ pre.code .mc { color: var(--syn-pp); }
 /* ---------- WRITE examples ----------
    Each example is one row: input on the left, its output on the right, so
    pair n reads across and never has to be matched by eye. They are data, so
-   mono on the paper panel — not the slab, which means "code to compile". The
+   mono on the paper panel — not the terminal, which means "code to compile". The
    examples take over the question's section step; the question keeps a block
    step above them. */
 
@@ -879,7 +927,7 @@ details.answer summary::after {
 
 /* Only inline code, in the question as well as the answer: WRITE questions
    before .examples carried theirs as `input -> output` pairs. A listing's
-   <code> sits inside <pre> and must stay on the slab, where the chip is
+   <code> sits inside <pre> and must stay on the terminal, where the chip is
    unreadable. */
 .question code,
 .answer-body :not(pre) > code {
@@ -1353,8 +1401,8 @@ footer a:hover {
 }
 
 /* ---------- narrow screens ----------
-   Tighter gutters. Code stays a window — running it edge to edge would cut
-   off the frame that makes it one — and wins its columns back from padding. */
+   Tighter gutters. Code keeps its screen inside the column, and wins a
+   column back on each side from its margins. */
 
 @media (max-width: 39.99rem) {
   .wrap,
@@ -1362,18 +1410,8 @@ footer a:hover {
     --gutter: 1.25rem;
     --s-major: 3.5rem;
     --s-section: 2.5rem;
+    --term-x: 1ch;
     padding-top: 3rem;
-  }
-
-  pre.code,
-  .code-frame pre.code {
-    padding-inline: 1rem;
-  }
-
-  .drill {
-    --line-no-w: 2rem;
-    --sign-w: 1.5rem;
-    --code-pad: 1rem;
   }
 
   .masthead {

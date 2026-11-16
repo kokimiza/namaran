@@ -78,6 +78,7 @@ Claudeが動くジョブは読み取り権限しか持ちません。公開す�
 ```text
 index.html, style.css, 404.html, _headers   サイト本体
 level/*.svg                                  難易度の動物(手描きのSVG)。style.css がマスクとして使う
+font/*.woff2                                 コードの書体(X11 の misc-fixed 9x15。パブリックドメイン)
 {c,cpp,rust,haskell,zig}/{read,write,debug}/
   YYYY/MM/YYYY-MM-DD.html                    日付ごとの問題ページ(年・月で分ける。URLは /{lang}/{type}/YYYY-MM-DD。公開後は編集しない)
   archive.html                               その言語・種別の過去問一覧(日付とお題)
