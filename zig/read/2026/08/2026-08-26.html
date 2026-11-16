@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="再帰の底で返したエラーがtryで呼び出し元へ伝わるとき、各段のdeferとerrdeferがどの順に動くかを追うドリル。最後はcatchが既定値に置き換える。">
+<title>tryが伝えるerrdefer</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/read/2026-08-26">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / READ", "item": "https://namaran.jocarium.productions/zig/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-26" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / READ — 2026-08-26",
+      "url": "https://namaran.jocarium.productions/zig/read/2026-08-26",
+      "datePublished": "2026-08-26",
+      "dateModified": "2026-08-26",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "tryが伝えるerrdefer" },
+      "keywords": "error-handling, defer, recursion",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "再帰の底で返したエラーがtryで呼び出し元へ伝わるとき、各段のdeferとerrdeferがどの順に動くかを追うドリル。最後はcatchが既定値に置き換える。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-08-26">C23</a>
+  <a href="/cpp/read/2026-08-26">C++26</a>
+  <a href="/rust/read/2026-08-26">Rust 2024</a>
+  <a href="/haskell/read/2026-08-26">Haskell 2010</a>
+  <a href="/zig/read/2026-08-26" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-08-26" class="active" aria-current="page">READ</a>
+  <a href="/zig/write/2026-08-26">WRITE</a>
+  <a href="/zig/debug/2026-08-26">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="tryが伝えるerrdefer"
+  data-tags="error-handling defer recursion"
+  data-concepts="errdefer, defer, try, catch, エラー共用体, error union, error return, 後始末の順序"
+  data-level="bison"
+>
+  <h2>2026-08-26</h2>
+  <div class="code-frame">
+    <p class="code-filename">unwind.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">step</span>(w: *std.<span class="ty">Io</span>.<span class="ty">Writer</span>, n: <span class="ty">u8</span>) !<span class="ty">u8</span> {</span>
+<span class="code-line">    <span class="kw">defer</span> w.<span class="fn">print</span>(<span class="st">"d{d} "</span>, .{n}) <span class="kw">catch</span> {};</span>
+<span class="code-line">    <span class="kw">errdefer</span> w.<span class="fn">print</span>(<span class="st">"e{d} "</span>, .{n}) <span class="kw">catch</span> {};</span>
+<span class="code-line">    <span class="kw">if</span> (n == <span class="nu">0</span>) <span class="kw">return</span> <span class="kw">error</span>.<span class="ty">Zero</span>;</span>
+<span class="code-line">    <span class="kw">return</span> <span class="kw">try</span> <span class="fn">step</span>(w, n - <span class="nu">1</span>) + <span class="nu">1</span>;</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {</span>
+<span class="code-line">    <span class="kw">var</span> buf: [<span class="nu">64</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line">    <span class="kw">const</span> file = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>();</span>
+<span class="code-line">    <span class="kw">var</span> writer = file.<span class="fn">writer</span>(init.io, &amp;buf);</span>
+<span class="code-line">    <span class="kw">const</span> out = &amp;writer.interface;</span>
+<span class="code-line">    <span class="kw">const</span> r = <span class="fn">step</span>(out, <span class="nu">2</span>) <span class="kw">catch</span> <span class="nu">9</span>;</span>
+<span class="code-line">    <span class="kw">try</span> out.<span class="fn">print</span>(<span class="st">"{d}\n"</span>, .{r});</span>
+<span class="code-line">    <span class="kw">try</span> out.<span class="fn">flush</span>();</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>e0 d0 e1 d1 e2 d2 9
+</samp></pre>
+      </div>
+      <p>
+        <code>step(out, 2)</code> は <code>step(w, 1)</code> を、それが <code>step(w, 0)</code> を呼び、どの段も最初に <code>defer</code> と <code>errdefer</code> を1つずつ登録します。<code>step(w, 0)</code> は <code>return error.Zero;</code> でエラーを返して抜けます。<code>defer</code> は関数を抜けるときに必ず、<code>errdefer</code> はエラーを返して抜けるときだけ動き、どちらも登録したのと逆の順に動きます。あとから登録した <code>errdefer</code> が先なので、最初に <code>e0 d0 </code> が書かれます。
+      </p>
+      <p>
+        <code>step(w, 1)</code> では、<code>try</code> が受け取った値がエラーだったので、<code>try</code> はそのエラーを <code>step(w, 1)</code> の戻り値として返します。<code>step(w, 1)</code> も自分でエラーを返して抜けたことになり、その段の <code>errdefer</code> が動いて <code>e1 d1 </code> が続きます。<code>step(w, 2)</code> も同じで <code>e2 d2 </code> です。<code>+ 1</code> はどの段でも計算されません。
+      </p>
+      <p>
+        <code>main</code> に戻った値は、エラーか <code>u8</code> のどちらかを持つエラー共用体（error union）で、中身は <code>error.Zero</code> です。<code>catch 9</code> はエラーのときに値を9に置き換えるので、<code>r</code> は9です。<code>r</code> を書くのは <code>step(out, 2)</code> が終わってからなので、<code>9</code> は行の最後に来ます。
+      </p>
+      <p>
+        <code>errdefer</code> はエラーを作った <code>step(w, 0)</code> だけで動くと読むと <code>e0 d0 d1 d2 9</code> に、書いた順に <code>defer</code> が先に動くと読むと <code>d0 e0 d1 e1 d2 e2 9</code> になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/read">Today</a></li>
+    <li><a href="/zig/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

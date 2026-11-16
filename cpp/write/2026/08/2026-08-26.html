@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="値なし・整数・文字列のどれかを持つstd::variantを、持っている型ごとに文字列へ変える関数を書くドリル。std::visitに渡すラムダの戻り値型をそろえる。">
+<title>型ごとに文字列へ変える</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-08-26">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-26" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-08-26",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-08-26",
+      "datePublished": "2026-08-26",
+      "dateModified": "2026-08-26",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "型ごとに文字列へ変える" },
+      "keywords": "variant, pattern-matching, lambda, type-deduction",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "値なし・整数・文字列のどれかを持つstd::variantを、持っている型ごとに文字列へ変える関数を書くドリル。std::visitに渡すラムダの戻り値型をそろえる。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-08-26">C23</a>
+  <a href="/cpp/write/2026-08-26" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-08-26">Rust 2024</a>
+  <a href="/haskell/write/2026-08-26">Haskell 2010</a>
+  <a href="/zig/write/2026-08-26">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-08-26">READ</a>
+  <a href="/cpp/write/2026-08-26" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-08-26">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="型ごとに文字列へ変える"
+  data-tags="variant pattern-matching lambda type-deduction"
+  data-concepts="std::visit, std::variant, std::monostate, overloadedパターン, ラムダの戻り値型, visitor, return type deduction"
+  data-level="peacock"
+>
+  <h2>2026-08-26</h2>
+  <div class="code-frame">
+    <p class="code-filename">show_value.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;string&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;variant&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">template</span> &lt;<span class="kw">class</span>... <span class="ty">F</span>&gt; <span class="kw">struct</span> <span class="ty">match</span> : <span class="ty">F</span>... {</span>
+<span class="code-line">    <span class="kw">using</span> <span class="ty">F</span>::<span class="kw">operator</span>()...;</span>
+<span class="code-line">};</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">using</span> <span class="ty">Value</span> = std::<span class="ty">variant</span>&lt;std::monostate,</span>
+<span class="code-line">                           <span class="ty">int</span>,</span>
+<span class="code-line">                           std::<span class="ty">string</span>&gt;;</span>
+<span class="code-line"></span>
+<span class="code-line">std::<span class="ty">string</span> <span class="fn">show</span>(<span class="kw">const</span> <span class="ty">Value</span>&amp; v) {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>Value</code> は、値が無い状態を表す <code>std::monostate</code>、整数、文字列のどれか1つを持ちます。<code>v</code> が値を持たなければ <code>null</code>、整数ならその10進表記、文字列なら前後を <code>"</code> で囲んだものを返す <code>show</code> を書いてください。<code>match</code> は、渡したラムダの <code>operator()</code> を1つのオーバーロードの集まりにまとめる型で、使っても使わなくてもかまいません。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>show(Value{})</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>null</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>show(42)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>42</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>show(std::string("hi"))</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>"hi"</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;string&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;variant&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">template</span> &lt;<span class="kw">class</span>... <span class="ty">F</span>&gt; <span class="kw">struct</span> <span class="ty">match</span> : <span class="ty">F</span>... {</span>
+<span class="code-line">    <span class="kw">using</span> <span class="ty">F</span>::<span class="kw">operator</span>()...;</span>
+<span class="code-line">};</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">using</span> <span class="ty">Value</span> = std::<span class="ty">variant</span>&lt;std::monostate,</span>
+<span class="code-line">                           <span class="ty">int</span>,</span>
+<span class="code-line">                           std::<span class="ty">string</span>&gt;;</span>
+<span class="code-line"></span>
+<span class="code-line">std::<span class="ty">string</span> <span class="fn">show</span>(<span class="kw">const</span> <span class="ty">Value</span>&amp; v) {</span>
+<span class="code-line ins">    <span class="kw">return</span> std::<span class="fn">visit</span>(</span>
+<span class="code-line ins">        match{</span>
+<span class="code-line ins">            [](std::monostate)</span>
+<span class="code-line ins">                -&gt; std::<span class="ty">string</span> {</span>
+<span class="code-line ins">                <span class="kw">return</span> <span class="st">"null"</span>;</span>
+<span class="code-line ins">            },</span>
+<span class="code-line ins">            [](<span class="ty">int</span> n) {</span>
+<span class="code-line ins">                <span class="kw">return</span> std::<span class="fn">to_string</span>(n);</span>
+<span class="code-line ins">            },</span>
+<span class="code-line ins">            [](<span class="kw">const</span> std::<span class="ty">string</span>&amp; s) {</span>
+<span class="code-line ins">                <span class="kw">return</span> <span class="st">'"'</span> + s + <span class="st">'"'</span>;</span>
+<span class="code-line ins">            },</span>
+<span class="code-line ins">        },</span>
+<span class="code-line ins">        v);</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        <code>std::visit</code> は、<code>v</code> がいま持っている型に合わせて、<code>match</code> にまとめたラムダのどれかを呼びます。ラムダは <code>Value</code> の3つの型に1つずつ用意し、<code>std::monostate</code> のときに <code>null</code> を返すラムダも欠かせません。<code>Value{}</code> は最初の型の <code>std::monostate</code> を持つので、入力例 1 はこのラムダを通ります。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        1つ目のラムダにだけ <code>-&gt; std::string</code> を書いているのは、<code>std::visit</code> が、どの型の場合も呼び出しの結果が同じ型であることを求めるからです。<code>return "null";</code> だけでは、このラムダの戻り値型は <code>const char*</code> と推論されます。ほかの2つは <code>std::string</code> を返すので、型がそろわずコンパイルできません。2つ目は <code>std::to_string</code> が、3つ目は <code>std::string</code> に文字を足した <code>'"' + s + '"'</code> が <code>std::string</code> になるので、書かなくても戻り値型がそろいます。
+      </p>
+      <p>
+        <code>v.index()</code> で番号を調べて <code>std::get</code> で取り出す書き方もできます。ただしその書き方では、<code>Value</code> に型を足して分岐を書き忘れても、コンパイラは教えてくれません。<code>std::visit</code> なら、受け取れない型が残った時点でコンパイルが止まります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

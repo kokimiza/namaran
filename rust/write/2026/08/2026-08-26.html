@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="重さの並びを2つの組に分けたときの、合計の差の最小値をビット全探索で求める関数を書くドリル。選んだ組の合計がわかれば、残りの組の合計は全体から引いて出る。">
+<title>二組に分けて差を最小に</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-08-26">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-26" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-08-26",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-08-26",
+      "datePublished": "2026-08-26",
+      "dateModified": "2026-08-26",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "二組に分けて差を最小に" },
+      "keywords": "subset-enumeration, bitmask, iterator",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "重さの並びを2つの組に分けたときの、合計の差の最小値をビット全探索で求める関数を書くドリル。選んだ組の合計がわかれば、残りの組の合計は全体から引いて出る。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-08-26">C23</a>
+  <a href="/cpp/write/2026-08-26">C++26</a>
+  <a href="/rust/write/2026-08-26" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-08-26">Haskell 2010</a>
+  <a href="/zig/write/2026-08-26">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-08-26">READ</a>
+  <a href="/rust/write/2026-08-26" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-08-26">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="二組に分けて差を最小に"
+  data-tags="subset-enumeration bitmask iterator"
+  data-concepts="ビット全探索, 部分集合の列挙, 分割問題, 補集合, bit brute force, partition, complement"
+  data-level="hedgehog"
+>
+  <h2>2026-08-26</h2>
+  <div class="code-frame">
+    <p class="code-filename">min_split.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">min_split</span>(w: &amp;[<span class="ty">u32</span>]) -&gt; <span class="ty">u32</span> {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    重さを並べた <code>w</code> の要素を2つの組に分けるとき、2つの組の重さの合計の差として取りうる最小の値を返す <code>min_split</code> を書いてください。片方の組が空になる分け方も含め、すべての分け方を考えます。<code>w</code> が空なら0を返します。<code>w</code> の要素は20個以下とします。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>min_split(&amp;[3, 1, 4, 2])</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>min_split(&amp;[5, 8])</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>3</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>min_split(&amp;[])</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">min_split</span>(w: &amp;[<span class="ty">u32</span>]) -&gt; <span class="ty">u32</span> {</span>
+<span class="code-line ins">    <span class="kw">let</span> total: <span class="ty">u32</span> = w.<span class="fn">iter</span>().<span class="fn">sum</span>();</span>
+<span class="code-line ins">    (<span class="nu">0</span>..<span class="nu">1u32</span> &lt;&lt; w.<span class="fn">len</span>())</span>
+<span class="code-line ins">        .<span class="fn">map</span>(|mask| {</span>
+<span class="code-line ins">            <span class="kw">let</span> s: <span class="ty">u32</span> = (<span class="nu">0</span>..w.<span class="fn">len</span>())</span>
+<span class="code-line ins">                .<span class="fn">filter</span>(|i| {</span>
+<span class="code-line ins">                    mask &gt;&gt; i &amp; <span class="nu">1</span> == <span class="nu">1</span></span>
+<span class="code-line ins">                })</span>
+<span class="code-line ins">                .<span class="fn">map</span>(|i| w[i])</span>
+<span class="code-line ins">                .<span class="fn">sum</span>();</span>
+<span class="code-line ins">            s.<span class="fn">abs_diff</span>(total - s)</span>
+<span class="code-line ins">        })</span>
+<span class="code-line ins">        .<span class="fn">min</span>()</span>
+</code></pre>
+      </div>
+      <p>
+        要素が n 個なら、各要素をどちらの組に入れるかで2の n 乗通りの分け方があり、<code>0..1u32 &lt;&lt; w.len()</code> の各 <code>mask</code> がそれぞれ1通りを表します。<code>mask</code> の i ビット目が1なら <code>w[i]</code> を一方の組に入れ、その組の合計を <code>s</code> とします。もう一方の組は、選ばなかった要素をすべて集めたものなので、その合計は全体の合計 <code>total</code> から <code>s</code> を引けば求まります。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        2つの組の差は <code>s.abs_diff(total - s)</code> で求めます。<code>u32</code> は負の値を持てないので、<code>s - (total - s)</code> と引くと、<code>s</code> の側が小さいときにデバッグビルドではパニックします。<code>abs_diff</code> は大きいほうから小さいほうを引くので、この心配がありません。<code>s</code> は <code>total</code> の一部の和なので、<code>total - s</code> が負になることもありません。
+      </p>
+      <p>
+        入力例 1 では、<code>{3, 2}</code> と <code>{1, 4}</code> がどちらも合計5になり、差は0です。入力例 3 の空の <code>w</code> では <code>1u32 &lt;&lt; 0</code> が1なので、<code>mask</code> は0の1通りだけです。何も選ばない組と空の組に分けたことになり、差0が最小値として残ります。<code>mask</code> は必ず1つ以上あるので、<code>min</code> が <code>None</code> を返して <code>unwrap</code> が失敗することもありません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

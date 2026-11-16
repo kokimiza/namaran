@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="面の数がそれぞれ違うサイコロを並べて振ったときの、目の出方をすべて列挙する関数を書くドリル。位置ごとに候補が違う直積は、replicateMではなくmapMで作る。">
+<title>位置ごとに候補が違う直積</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-08-26">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-26" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-08-26",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-08-26",
+      "datePublished": "2026-08-26",
+      "dateModified": "2026-08-26",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "位置ごとに候補が違う直積" },
+      "keywords": "cartesian-product, list-monad, monad, higher-order",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "面の数がそれぞれ違うサイコロを並べて振ったときの、目の出方をすべて列挙する関数を書くドリル。位置ごとに候補が違う直積は、replicateMではなくmapMで作る。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-08-26">C23</a>
+  <a href="/cpp/write/2026-08-26">C++26</a>
+  <a href="/rust/write/2026-08-26">Rust 2024</a>
+  <a href="/haskell/write/2026-08-26" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/write/2026-08-26">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-08-26">READ</a>
+  <a href="/haskell/write/2026-08-26" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-08-26">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="位置ごとに候補が違う直積"
+  data-tags="cartesian-product list-monad monad higher-order"
+  data-concepts="mapM, traverse, 直積, リストモナド, 候補が位置ごとに違う組み合わせ, cartesian product, list monad"
+  data-level="hedgehog"
+>
+  <h2>2026-08-26</h2>
+  <div class="code-frame">
+    <p class="code-filename">Rolls.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="fn">rolls</span> <span class="op">::</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> [[<span class="ty">Int</span>]]</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    面の数がそれぞれ違うサイコロを並べて振ったときの、目の出方をすべて返す <code>rolls</code> を書いてください。引数の各要素は、その位置のサイコロの面の数 k で、そのサイコロの目は1から k までです。目の出方を並べる順は問いません。面の数が0のサイコロが1つでもあれば、出方は1つも無いので空リストを返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>rolls [2, 3]</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>[[1,1],[1,2],[1,3],[2,1],[2,2],[2,3]]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>rolls [3]</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>[[1],[2],[3]]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>rolls [2, 0]</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>[]</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="fn">rolls</span> <span class="op">::</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> [[<span class="ty">Int</span>]]</span>
+<span class="code-line ins"><span class="fn">rolls</span> = mapM (\k <span class="op">-&gt;</span> [<span class="nu">1</span> .. k])</span>
+</code></pre>
+      </div>
+      <p>
+        各サイコロの面の数 <code>k</code> を、出うる目のリスト <code>[1 .. k]</code> に変えれば、あとはそれぞれのリストから1つずつ選ぶ組み合わせをすべて作るだけです。リストのモナドで <code>mapM</code> を使うと、<code>rolls [2, 3]</code> は <code>do { x &lt;- [1, 2]; y &lt;- [1, 2, 3]; return [x, y] }</code> と同じ計算になります。掲載したのは参考実装で、唯一の正解ではありません。<code>traverse</code> でも、<code>sequence (map (\k -&gt; [1 .. k]) ks)</code> でも同じ結果になります。
+      </p>
+      <p>
+        同じリストを n 回並べるなら <code>replicateM</code> で足りますが、ここでは位置ごとに候補のリストが違うので、リストのリストを順にたどる <code>mapM</code> を使います。入力例 3 では2つ目のサイコロの候補が空の <code>[1 .. 0]</code> になり、<code>y &lt;-</code> で選べる値が無いため、どの <code>x</code> からも組み合わせが作られず、結果は <code>[]</code> になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

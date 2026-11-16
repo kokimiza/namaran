@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="0から1 &lt;&lt; nまでの整数を部分集合に見立てて、要素の和が3の倍数になる選び方を数えるドリル。マスク0が表す、何も選ばない選び方も数に入る。">
+<title>何も選ばない選び方</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-08-26">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / READ", "item": "https://namaran.jocarium.productions/rust/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-26" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / READ — 2026-08-26",
+      "url": "https://namaran.jocarium.productions/rust/read/2026-08-26",
+      "datePublished": "2026-08-26",
+      "dateModified": "2026-08-26",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "何も選ばない選び方" },
+      "keywords": "subset-enumeration, bitmask, bit-operation",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "0から1 << nまでの整数を部分集合に見立てて、要素の和が3の倍数になる選び方を数えるドリル。マスク0が表す、何も選ばない選び方も数に入る。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-08-26">C23</a>
+  <a href="/cpp/read/2026-08-26">C++26</a>
+  <a href="/rust/read/2026-08-26" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/read/2026-08-26">Haskell 2010</a>
+  <a href="/zig/read/2026-08-26">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-08-26" class="active" aria-current="page">READ</a>
+  <a href="/rust/write/2026-08-26">WRITE</a>
+  <a href="/rust/debug/2026-08-26">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="何も選ばない選び方"
+  data-tags="subset-enumeration bitmask bit-operation"
+  data-concepts="ビット全探索, 部分集合の列挙, 空集合, ビットマスク, bit brute force, subset enumeration, empty set"
+  data-level="hedgehog"
+>
+  <h2>2026-08-26</h2>
+  <div class="code-frame">
+    <p class="code-filename">count_subsets.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="kw">let</span> a = [<span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">3</span>];</span>
+<span class="code-line">    <span class="kw">let</span> <span class="kw">mut</span> count = <span class="nu">0</span>;</span>
+<span class="code-line">    <span class="kw">for</span> mask <span class="kw">in</span> <span class="nu">0</span>..<span class="nu">1</span> &lt;&lt; a.<span class="fn">len</span>() {</span>
+<span class="code-line">        <span class="kw">let</span> <span class="kw">mut</span> sum = <span class="nu">0</span>;</span>
+<span class="code-line">        <span class="kw">for</span> (i, x) <span class="kw">in</span> a.<span class="fn">iter</span>().<span class="fn">enumerate</span>() {</span>
+<span class="code-line">            <span class="kw">if</span> mask &gt;&gt; i &amp; <span class="nu">1</span> == <span class="nu">1</span> {</span>
+<span class="code-line">                sum += x;</span>
+<span class="code-line">            }</span>
+<span class="code-line">        }</span>
+<span class="code-line">        <span class="kw">if</span> sum % <span class="nu">3</span> == <span class="nu">0</span> {</span>
+<span class="code-line">            count += <span class="nu">1</span>;</span>
+<span class="code-line">        }</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="mc">println!</span>(<span class="st">"{count}"</span>);</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>4
+</samp></pre>
+      </div>
+      <p>
+        <code>mask</code> は <code>0..1 &lt;&lt; a.len()</code> の範囲で、0から7までの8通りの値を取ります。<code>mask &gt;&gt; i &amp; 1 == 1</code> は <code>mask</code> の <code>i</code> ビット目が1かを調べる式で、1なら <code>a[i]</code> を和に入れます。Rust では <code>&gt;&gt;</code> が <code>&amp;</code> より、<code>&amp;</code> が <code>==</code> より先に結び付くので、この式は <code>((mask &gt;&gt; i) &amp; 1) == 1</code> と読みます。3要素からいくつかを選ぶ選び方は2の3乗の8通りで、<code>mask</code> の8つの値と1つずつ対応します。
+      </p>
+      <p>
+        8通りの和は、<code>mask</code> の順に 0、1、2、3、3、4、5、6 です。3で割り切れるのは、<code>mask</code> が0の和0、3の <code>{1, 2}</code> の和3、4の <code>{3}</code> の和3、7の <code>{1, 2, 3}</code> の和6の4つです。
+      </p>
+      <p>
+        <code>mask</code> が0のときは、どのビットも0なので何も選ばず、和は0のままです。0は3で割り切れるので、この何も選ばない選び方も数えられます。和が3と6になる選び方だけを数えて <code>3</code> と答えると、この1つを落とします。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/read">Today</a></li>
+    <li><a href="/rust/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

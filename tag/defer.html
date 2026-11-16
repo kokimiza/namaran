@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「defer文」を扱ったNamaranのコーディングドリル2問。std.mem.Allocator、errdefer、確保の失敗、所有権の受け渡し、dupe、checkAllAllocationFailures。">
+<meta name="description" content="「defer文」を扱ったNamaranのコーディングドリル3問。std.mem.Allocator、errdefer、確保の失敗、所有権の受け渡し、dupe、checkAllAllocationFailures。">
 <title>defer文</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/defer">
 <link rel="stylesheet" href="/style.css">
@@ -32,12 +32,13 @@
   <h2>defer文</h2>
 
   <p class="lede">
-    「defer文」を扱った2問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「defer文」を扱った3問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
     <li><a href="/zig/write/2026-11-10">Zig / WRITE · 2026-11-10</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">2つ確保して渡す</span> <span class="past-concepts">std.mem.Allocator, errdefer, 確保の失敗, 所有権の受け渡し, dupe, checkAllAllocationFailures, caller owns memory, allocation failure</span></li>
     <li><a href="/zig/debug/2026-11-10">Zig / DEBUG · 2026-11-10</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">アリーナで作って返す</span> <span class="past-concepts">ArenaAllocator, std.mem.Allocator, 一時領域, 解放済みの領域, 所有権, defer arena.deinit, use after free, temporary allocation</span></li>
+    <li><a href="/zig/read/2026-08-26">Zig / READ · 2026-08-26</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">tryが伝えるerrdefer</span> <span class="past-concepts">errdefer, defer, try, catch, エラー共用体, error union, error return, 後始末の順序</span></li>
   </ul>
 
   <p><a href="/topics">ほかのお題を見る</a></p>

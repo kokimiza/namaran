@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="部分集合をu8のマスクで列挙する関数が、要素8個でパニックする原因を直すドリル。マスクの値は0から255まですべてu8に入るが、範囲の終わりの256は入らない。">
+<title>終わりの256が入らない</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-08-26">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-26" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-08-26",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-08-26",
+      "datePublished": "2026-08-26",
+      "dateModified": "2026-08-26",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "終わりの256が入らない" },
+      "keywords": "subset-enumeration, bitmask, integer-overflow, panic, half-open-interval",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "部分集合をu8のマスクで列挙する関数が、要素8個でパニックする原因を直すドリル。マスクの値は0から255まですべてu8に入るが、範囲の終わりの256は入らない。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-08-26">C23</a>
+  <a href="/cpp/debug/2026-08-26">C++26</a>
+  <a href="/rust/debug/2026-08-26" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-08-26">Haskell 2010</a>
+  <a href="/zig/debug/2026-08-26">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-08-26">READ</a>
+  <a href="/rust/write/2026-08-26">WRITE</a>
+  <a href="/rust/debug/2026-08-26" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="終わりの256が入らない"
+  data-tags="subset-enumeration bitmask integer-overflow panic half-open-interval"
+  data-concepts="ビット全探索, シフトのオーバーフロー, 半開区間の終端, u8, shift overflow, bit brute force, exclusive range"
+  data-level="peacock"
+>
+  <h2>2026-08-26</h2>
+  <div class="code-frame">
+    <p class="code-filename">count_fits.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">count_fits</span>(w: &amp;[<span class="ty">u32</span>], cap: <span class="ty">u32</span>) -&gt; <span class="ty">usize</span> {</span>
+<span class="code-line">    (<span class="nu">0u8</span>..<span class="nu">1</span> &lt;&lt; w.<span class="fn">len</span>())</span>
+<span class="code-line">        .<span class="fn">filter</span>(|m| {</span>
+<span class="code-line">            <span class="kw">let</span> s: <span class="ty">u32</span> = (<span class="nu">0</span>..w.<span class="fn">len</span>())</span>
+<span class="code-line">                .<span class="fn">filter</span>(|i| m &gt;&gt; i &amp; <span class="nu">1</span> == <span class="nu">1</span>)</span>
+<span class="code-line">                .<span class="fn">map</span>(|i| w[i])</span>
+<span class="code-line">                .<span class="fn">sum</span>();</span>
+<span class="code-line">            s &lt;= cap</span>
+<span class="code-line">        })</span>
+<span class="code-line">        .<span class="fn">count</span>()</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="kw">let</span> w = [<span class="nu">1</span>, <span class="nu">1</span>, <span class="nu">1</span>, <span class="nu">1</span>, <span class="nu">1</span>, <span class="nu">1</span>, <span class="nu">1</span>, <span class="nu">1</span>];</span>
+<span class="code-line">    <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="fn">count_fits</span>(&amp;w, <span class="nu">1</span>));</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    重さを並べた <code>w</code> から、重さの合計が <code>cap</code> 以下になる選び方の数を、何も選ばない選び方も含めて数えるつもりの <code>count_fits</code> です。重さ1の品物8個と <code>cap = 1</code> を渡すと <code>9</code> と出力するはずが、いまは何も出力せずに <code>attempt to shift left with overflow</code> でパニックします。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del">(<span class="chg"><span class="nu">0u8</span></span>..<span class="nu">1</span> &lt;&lt; w.<span class="fn">len</span>())</span>
+</code></pre>
+      <p>
+        範囲 <code>a..b</code> の両端は同じ型なので、始まりを <code>0u8</code> と書くと、終わりの <code>1 &lt;&lt; w.len()</code> も <code>u8</code> で計算されます。<code>w</code> が8要素なら、これは <code>1u8 &lt;&lt; 8</code> です。<code>u8</code> は8ビットしかないので、8ビット以上ずらすシフトはオーバーフローとして扱われ、デバッグビルドではここでパニックします<sup class="fn-ref">1</sup>。選び方を1つも数えないうちに止まるので、何も出力されません。
+      </p>
+      <p>
+        8要素の選び方を表す <code>mask</code> の値は0から255までで、どれも <code>u8</code> に入ります。入らないのは、範囲の終わりに置いた256だけです。<code>a..b</code> は <code>b</code> を含まない範囲なので、最後の値255を回すには、その1つ先の256を書ける型が要ります。7要素までなら終わりは128以下で、このコードは正しく数えます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins">(<span class="chg"><span class="nu">0u16</span></span>..<span class="nu">1</span> &lt;&lt; w.<span class="fn">len</span>())</span>
+</code></pre>
+      <p>
+        マスクを <code>u16</code> にすると、<code>1u16 &lt;&lt; 8</code> は256になり、<code>mask</code> は0から255までの256通りを回ります。重さ1の品物8個で合計が1以下になるのは、何も選ばない1通りと、1個だけ選ぶ8通りなので、<code>9</code> が出力されます。<code>u16</code> で扱えるのは15要素までなので、要素数に上限がないなら <code>usize</code> にします。
+      </p>
+      <ol class="footnotes">
+        <li>リリースビルドでは整数オーバーフローの検査が外れ、シフトする量は型のビット数で割った余りになります。<code>1u8 &lt;&lt; 8</code> は <code>1u8 &lt;&lt; 0</code> の1になり、パニックせずに <code>mask</code> が0の1通りだけを数えて <code>1</code> を返します。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

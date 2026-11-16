@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="qsortで並べても、値が等しい要素の元の順を保つ比較関数を書くドリル。同じ配列を指すポインタどうしの大小を、最後の比較の基準に使う。">
+<title>qsortで元の順を保つ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-08-26">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-26" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-08-26",
+      "url": "https://namaran.jocarium.productions/c/write/2026-08-26",
+      "datePublished": "2026-08-26",
+      "dateModified": "2026-08-26",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "qsortで元の順を保つ" },
+      "keywords": "sorting, stability, function-pointer, pointer, comparison",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "qsortで並べても、値が等しい要素の元の順を保つ比較関数を書くドリル。同じ配列を指すポインタどうしの大小を、最後の比較の基準に使う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-08-26" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-08-26">C++26</a>
+  <a href="/rust/write/2026-08-26">Rust 2024</a>
+  <a href="/haskell/write/2026-08-26">Haskell 2010</a>
+  <a href="/zig/write/2026-08-26">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-08-26">READ</a>
+  <a href="/c/write/2026-08-26" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-08-26">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="qsortで元の順を保つ"
+  data-tags="sorting stability function-pointer pointer comparison"
+  data-concepts="qsortの比較関数, 安定ソート, 等しい要素の順序, ポインタの比較, comparator, stable sort, qsort"
+  data-level="peacock"
+>
+  <h2>2026-08-26</h2>
+  <div class="code-frame">
+    <p class="code-filename">stable_qsort.c</p>
+    <pre class="code"><code><span class="code-line"><span class="ty">int</span> <span class="fn">cmp_by_value</span>(<span class="kw">const</span> <span class="ty">void</span>* a,</span>
+<span class="code-line">                 <span class="kw">const</span> <span class="ty">void</span>* b) {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>ptrs</code> は、<code>int</code> の配列 <code>scores</code> の各要素を指すポインタを、添字の順に並べた配列です。<code>qsort(ptrs, n, sizeof ptrs[0], cmp_by_value)</code> で <code>ptrs</code> を指す先の値の小さい順に並べ、値が等しいものどうしは <code>scores</code> での順のまま残るように、比較関数 <code>cmp_by_value</code> を書いてください。<code>a</code> と <code>b</code> は <code>ptrs</code> の要素を指し、<code>a</code> を前に置くべきなら負、後ろに置くべきなら正を返します。例では、入力に <code>scores</code> の中身を、出力に並べたあとの <code>ptrs</code> が指す要素の添字を書きます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>{2, 1, 2, 1}</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>1 3 0 2</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>{5, 5, 5}</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>0 1 2</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>{3, 2, 1}</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>2 1 0</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="ty">int</span> <span class="fn">cmp_by_value</span>(<span class="kw">const</span> <span class="ty">void</span>* a,</span>
+<span class="code-line">                 <span class="kw">const</span> <span class="ty">void</span>* b) {</span>
+<span class="code-line ins">    <span class="kw">const</span> <span class="ty">int</span>* p = *(<span class="kw">const</span> <span class="ty">int</span>* <span class="kw">const</span>*)a;</span>
+<span class="code-line ins">    <span class="kw">const</span> <span class="ty">int</span>* q = *(<span class="kw">const</span> <span class="ty">int</span>* <span class="kw">const</span>*)b;</span>
+<span class="code-line ins">    <span class="kw">if</span> (*p != *q)</span>
+<span class="code-line ins">        <span class="kw">return</span> (*p &gt; *q) - (*p &lt; *q);</span>
+<span class="code-line ins">    <span class="kw">return</span> (p &gt; q) - (p &lt; q);</span>
+</code></pre>
+      </div>
+      <p>
+        C の規格は、<code>qsort</code> が等しいと判定された要素どうしをどの順に置くかを決めていません。比較関数が0を返した2つの要素は、元の順のまま残るとも、入れ替わるとも限らないということです。そこで、指す先の値が等しいときも0を返さず、<code>scores</code> の中での位置で前後を決めます。比較関数が0を返すのは同じ要素どうしを比べたときだけになり、並べ終えた結果は1通りに決まります。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        位置を比べるのに添字は要りません。<code>ptrs</code> の要素はどれも同じ配列 <code>scores</code> の要素を指しているので、<code>p &gt; q</code> のような大小比較が使え、その結果は添字の大小と一致します。別々の配列を指すポインタどうしの大小比較は未定義動作ですが、ここではその心配がありません。<code>a</code> が指すのは型が <code>const int*</code> の <code>ptrs</code> の要素なので、<code>const int* const*</code> に変換してから1回たどると、<code>scores</code> の要素を指すポインタが取り出せます。
+      </p>
+      <p>
+        入力例 1 では、値1の <code>scores[1]</code> と <code>scores[3]</code> が位置の順に先頭へ並び、値2の <code>scores[0]</code> と <code>scores[2]</code> が続くので <code>1 3 0 2</code> になります。入力例 2 はすべての値が等しく、位置だけで並ぶので元の <code>0 1 2</code> のままです。値どうしを <code>(*p &gt; *q) - (*p &lt; *q)</code> で比べているのは、差 <code>*p - *q</code> を返すと、値の差が <code>int</code> に収まらないときに符号が壊れるからです。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

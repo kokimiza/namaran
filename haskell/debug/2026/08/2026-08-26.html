@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="長さnの文字列をすべて作る再帰関数が空リストしか返さない原因を直すドリル。長さ0の文字列は空文字列の1個で、基底ケースを[]にすると、どの長さでも組み合わせが作られない。">
+<title>長さ0の並びは1個</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-08-26">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-08-26" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-08-26",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-08-26",
+      "datePublished": "2026-08-26",
+      "dateModified": "2026-08-26",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "長さ0の並びは1個" },
+      "keywords": "base-case, recursion, list-comprehension, cartesian-product",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "長さnの文字列をすべて作る再帰関数が空リストしか返さない原因を直すドリル。長さ0の文字列は空文字列の1個で、基底ケースを[]にすると、どの長さでも組み合わせが作られない。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-08-26">C23</a>
+  <a href="/cpp/debug/2026-08-26">C++26</a>
+  <a href="/rust/debug/2026-08-26">Rust 2024</a>
+  <a href="/haskell/debug/2026-08-26" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/debug/2026-08-26">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-08-26">READ</a>
+  <a href="/haskell/write/2026-08-26">WRITE</a>
+  <a href="/haskell/debug/2026-08-26" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="長さ0の並びは1個"
+  data-tags="base-case recursion list-comprehension cartesian-product"
+  data-concepts="基底ケース, 空の直積, リスト内包表記, 長さ0の列, base case, empty product, replicateM"
+  data-level="hedgehog"
+>
+  <h2>2026-08-26</h2>
+  <div class="code-frame">
+    <p class="code-filename">Words.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="fn">wordsOf</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> [a] <span class="op">-&gt;</span> [[a]]</span>
+<span class="code-line"><span class="fn">wordsOf</span> <span class="nu">0</span> _ = []</span>
+<span class="code-line"><span class="fn">wordsOf</span> n xs = [x : w | x <span class="op">&lt;-</span> xs, w <span class="op">&lt;-</span> rest]</span>
+<span class="code-line"> <span class="kw">where</span></span>
+<span class="code-line">  rest = wordsOf (n - <span class="nu">1</span>) xs</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()</span>
+<span class="code-line"><span class="fn">main</span> = print (wordsOf <span class="nu">2</span> <span class="st">"ab"</span>)</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    文字の候補 <code>xs</code> を使って作れる長さ <code>n</code> の文字列をすべて返すつもりの <code>wordsOf</code> です。<code>wordsOf 2 "ab"</code> は <code>["aa","ab","ba","bb"]</code> になるはずが、いまは <code>[]</code> が返ります。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del"><span class="fn">wordsOf</span> <span class="nu">0</span> _ = []</span>
+<span class="code-line"><span class="fn">wordsOf</span> n xs = [x : w | x <span class="op">&lt;-</span> xs, w <span class="op">&lt;-</span> rest]</span>
+<span class="code-line"> <span class="kw">where</span></span>
+<span class="code-line">  rest = wordsOf (n - <span class="nu">1</span>) xs</span>
+</code></pre>
+      <p>
+        <code>wordsOf 1 "ab"</code> は、<code>rest</code> の要素 <code>w</code> ごとに、その前に <code>x</code> を付けたものを並べます。<code>rest</code> は <code>wordsOf 0 "ab"</code> で、いまは空リストです。<code>w &lt;-</code> で取り出せる要素が1つも無いので、<code>x</code> を何にしても文字列は作られず、<code>wordsOf 1 "ab"</code> も <code>[]</code> になります。<code>wordsOf 2 "ab"</code> はこの空リストを <code>rest</code> にするので、同じ理由で <code>[]</code> です。基底ケースが空なので、どの <code>n</code> でも結果は空になります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins"><span class="fn">wordsOf</span> <span class="nu">0</span> _ = [<span class="chg">[]]</span></span>
+<span class="code-line"><span class="fn">wordsOf</span> n xs = [x : w | x <span class="op">&lt;-</span> xs, w <span class="op">&lt;-</span> rest]</span>
+<span class="code-line"> <span class="kw">where</span></span>
+<span class="code-line">  rest = wordsOf (n - <span class="nu">1</span>) xs</span>
+</code></pre>
+      <p>
+        長さ0の文字列は、空文字列のちょうど1つです。基底ケースを、空文字列1つだけを持つ <code>[[]]</code> にすると、<code>wordsOf 1 "ab"</code> では <code>w</code> がその空文字列になり、<code>"a"</code> と <code>"b"</code> が作られます。それを <code>rest</code> にした <code>wordsOf 2 "ab"</code> は、各 <code>x</code> と各 <code>w</code> を組み合わせて <code>["aa","ab","ba","bb"]</code> を返します。
+      </p>
+      <p>
+        候補が k 文字なら、長さ n の文字列は k の n 乗個あります。n = 0 のとき k の0乗は1なので、結果の個数で考えても基底ケースは1要素のリストです。標準の <code>replicateM 0 xs</code> も <code>[[]]</code> を返します。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
