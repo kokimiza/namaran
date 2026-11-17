@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Vec&lt;String&gt; から最も長い文字列を取り除き、その String を呼び出し側へ返すRustのドリル。添字で参照した要素はムーブできないので、Vec から所有権ごと取り出す。">
+<title>いちばん長い文字列を取り出す</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-11-17">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-17" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-11-17",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-11-17",
+      "datePublished": "2026-11-17",
+      "dateModified": "2026-11-17",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "いちばん長い文字列を取り出す" },
+      "keywords": "ownership, borrow, vector, string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "Vec<String> から最も長い文字列を取り除き、その String を呼び出し側へ返すRustのドリル。添字で参照した要素はムーブできないので、Vec から所有権ごと取り出す。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-17">C23</a>
+  <a href="/cpp/write/2026-11-17">C++26</a>
+  <a href="/rust/write/2026-11-17" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-11-17">Haskell 2010</a>
+  <a href="/zig/write/2026-11-17">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-17">READ</a>
+  <a href="/rust/write/2026-11-17" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-11-17">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="いちばん長い文字列を取り出す"
+  data-tags="ownership borrow vector string"
+  data-concepts="所有権, ムーブ, 可変参照, Vec::remove, 要素を取り出す, ownership, move out of index, mutable reference"
+  data-level="hedgehog"
+>
+  <h2>2026-11-17</h2>
+  <div class="code-frame">
+    <p class="code-filename">take_longest.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">take_longest</span>(</span>
+<span class="code-line">    v: &amp;<span class="kw">mut</span> <span class="ty">Vec</span>&lt;<span class="ty">String</span>&gt;,</span>
+<span class="code-line">) -&gt; <span class="ty">Option</span>&lt;<span class="ty">String</span>&gt; {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>v</code> の中で最も長い文字列を <code>v</code> から取り除き、<code>Some</code> に包んで返す <code>take_longest</code> を書いてください。長さはバイト数で比べ、最も長いものが複数あれば最も前にあるものを取り出します。残りの要素の順番は変えません。<code>v</code> が空なら <code>None</code> を返します。例では、入力に呼び出す前の <code>v</code> を書き、出力に戻り値と呼び出したあとの <code>v</code> を並べます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>["ab", "cde", "f", "xyz"]</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>Some("cde") ["ab", "f", "xyz"]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>["solo"]</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>Some("solo") []</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>[]</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>None []</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">take_longest</span>(</span>
+<span class="code-line">    v: &amp;<span class="kw">mut</span> <span class="ty">Vec</span>&lt;<span class="ty">String</span>&gt;,</span>
+<span class="code-line">) -&gt; <span class="ty">Option</span>&lt;<span class="ty">String</span>&gt; {</span>
+<span class="code-line ins">    <span class="kw">let</span> i = (<span class="nu">0</span>..v.<span class="fn">len</span>())</span>
+<span class="code-line ins">        .<span class="fn">rev</span>()</span>
+<span class="code-line ins">        .<span class="fn">max_by_key</span>(|&amp;i| v[i].<span class="fn">len</span>())?;</span>
+<span class="code-line ins">    <span class="fn">Some</span>(v.<span class="fn">remove</span>(i))</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        返したいのは <code>v</code> の中にある <code>String</code> そのもので、その所有権は <code>v</code> が持っています。<code>v</code> は <code>&amp;mut</code> で借りているだけなので、<code>Some(v[i])</code> と書いて添字の先から値をムーブすることはできず、コンパイルエラーになります。<code>Vec::remove(i)</code> は i 番目の要素を <code>Vec</code> から外し、後ろの要素を1つずつ前へ詰めたうえで、外した要素を所有権ごと返します。<code>v</code> には穴が残らず、取り出した <code>String</code> は呼び出し側のものになります。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        取り出す位置は、添字の範囲 <code>0..v.len()</code> から長さが最大のものを選んで決めます。<code>max_by_key</code> は最大のものが複数あると最後のものを返すので、<code>rev()</code> で後ろから並べ、最も前にある添字が最後に来るようにしています。入力例 1 では <code>"cde"</code> と <code>"xyz"</code> がどちらも3バイトで、前にある添字1が選ばれます。<code>v</code> が空なら <code>max_by_key</code> が <code>None</code> を返し、<code>?</code> がそのまま <code>None</code> を返すので、入力例 3 のように何も取り出しません。順番を気にしないなら、最後の要素を穴へ移す <code>swap_remove</code> を使うと詰める手間が省けます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

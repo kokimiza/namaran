@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="省略できる通知のコールバックを ?*const fn で持つ構造体を、null かどうか確かめずに .? で呼んでしまうZigのドリル。通知先を登録しなかったジョブで、Debug ビルドは panic して止まる。">
+<title>登録されていない通知先</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/debug/2026-11-17">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / DEBUG", "item": "https://namaran.jocarium.productions/zig/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-17" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / DEBUG — 2026-11-17",
+      "url": "https://namaran.jocarium.productions/zig/debug/2026-11-17",
+      "datePublished": "2026-11-17",
+      "dateModified": "2026-11-17",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "登録されていない通知先" },
+      "keywords": "function-pointer, optional, null-pointer, struct",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "省略できる通知のコールバックを ?*const fn で持つ構造体を、null かどうか確かめずに .? で呼んでしまうZigのドリル。通知先を登録しなかったジョブで、Debug ビルドは panic して止まる。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-17">C23</a>
+  <a href="/cpp/debug/2026-11-17">C++26</a>
+  <a href="/rust/debug/2026-11-17">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-17">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-17" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-17">READ</a>
+  <a href="/zig/write/2026-11-17">WRITE</a>
+  <a href="/zig/debug/2026-11-17" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="登録されていない通知先"
+  data-tags="function-pointer optional null-pointer struct"
+  data-concepts="関数ポインタ, コールバック, オプショナル型, null, .? による取り出し, デフォルト値, function pointer, optional callback, null unwrap, illegal behavior"
+  data-level="hedgehog"
+>
+  <h2>2026-11-17</h2>
+  <div class="code-frame">
+    <p class="code-filename">jobs.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">const</span> <span class="ty">Job</span> = <span class="kw">struct</span> {</span>
+<span class="code-line">    id: <span class="ty">u32</span>,</span>
+<span class="code-line">    notify: ?*<span class="kw">const</span> <span class="kw">fn</span> (<span class="ty">u32</span>) <span class="ty">void</span> = <span class="nu">null</span>,</span>
+<span class="code-line">};</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">log</span>(id: <span class="ty">u32</span>) <span class="ty">void</span> {</span>
+<span class="code-line">    std.debug.<span class="fn">print</span>(<span class="st">"done {d}\n"</span>, .{id});</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>() <span class="ty">void</span> {</span>
+<span class="code-line">    <span class="kw">const</span> jobs = [_]<span class="ty">Job</span>{</span>
+<span class="code-line">        .{ .id = <span class="nu">1</span>, .notify = &amp;log },</span>
+<span class="code-line">        .{ .id = <span class="nu">2</span> },</span>
+<span class="code-line">    };</span>
+<span class="code-line">    <span class="kw">for</span> (jobs) |job| job.notify.?(job.id);</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    各ジョブには、終わったことを知らせる関数 <code>notify</code> を登録でき、登録したジョブだけにその関数を呼ぶつもりのプログラムです。<code>main</code> は <code>log</code> を登録したジョブ1と、何も登録していないジョブ2を順に処理するので、標準エラー出力に <code>done 1</code> とだけ出して正常に終わるはずですが、いまは <code>done 1</code> を出したあと <code>attempt to use null value</code> という panic で止まります。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del"><span class="kw">const</span> <span class="ty">Job</span> = <span class="kw">struct</span> {</span>
+<span class="code-line del">    id: <span class="ty">u32</span>,</span>
+<span class="code-line del">    notify: ?*<span class="kw">const</span> <span class="kw">fn</span> (<span class="ty">u32</span>) <span class="ty">void</span> = <span class="nu">null</span>,</span>
+<span class="code-line del">}<span class="chg">;</span></span>
+<span class="code-line del"></span>
+<span class="code-line del">    <span class="kw">for</span> (jobs) |job| job.notify.?(job.id);</span>
+</code></pre>
+      <p>
+        <code>notify</code> の型 <code>?*const fn (u32) void</code> は、関数ポインタか <code>null</code> のどちらかを持つオプショナル型（optional）です。既定値が <code>= null</code> なので、ジョブ2のように <code>.notify</code> を書かずに作ると <code>null</code> が入ります。<code>.?</code> は「この値は <code>null</code> ではない」と決めつけて中身の関数ポインタを取り出す書き方で、<code>null</code> に使うと illegal behavior になります。
+      </p>
+      <p>
+        ジョブ1では <code>notify</code> に <code>&amp;log</code> が入っているので、<code>log(1)</code> が呼ばれて <code>done 1</code> が出ます。ジョブ2では <code>job.notify.?</code> が <code>null</code> を取り出そうとします。Debug ビルドはここに安全検査を入れているので、関数を呼ぶ前に <code>attempt to use null value</code> の panic で止まります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins">    <span class="kw">for</span> (jobs) |job| {</span>
+<span class="code-line ins">        <span class="kw">if</span> (job.notify) |f| <span class="fn">f</span>(job.id);</span>
+<span class="code-line ins">    }</span>
+</code></pre>
+      <p>
+        <code>if (job.notify) |f|</code> は、<code>notify</code> が <code>null</code> でないときだけ中身の関数ポインタを <code>f</code> に取り出して本体を実行し、<code>null</code> なら何もしません。ジョブ1では <code>f(1)</code> が <code>done 1</code> を出し、ジョブ2では呼び出しそのものが飛ばされるので、プログラムは正常に終わります。<code>.?</code> は、<code>null</code> になりえないことがほかの理由で分かっている値にだけ使います。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/debug">Today</a></li>
+    <li><a href="/zig/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

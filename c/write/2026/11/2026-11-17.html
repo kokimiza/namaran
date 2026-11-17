@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="文字列の中で最も多く現れるバイトの値を、256個の枠を持つ配列で数えて返すCのドリル。UTF-8の文字のように128以上のバイトを含む文字列でも、配列の添字が負にならないように数える。">
+<title>いちばん多いバイト</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-11-17">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-17" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-11-17",
+      "url": "https://namaran.jocarium.productions/c/write/2026-11-17",
+      "datePublished": "2026-11-17",
+      "dateModified": "2026-11-17",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "いちばん多いバイト" },
+      "keywords": "array, signed-unsigned, utf-8, type-conversion",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "文字列の中で最も多く現れるバイトの値を、256個の枠を持つ配列で数えて返すCのドリル。UTF-8の文字のように128以上のバイトを含む文字列でも、配列の添字が負にならないように数える。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-17" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-11-17">C++26</a>
+  <a href="/rust/write/2026-11-17">Rust 2024</a>
+  <a href="/haskell/write/2026-11-17">Haskell 2010</a>
+  <a href="/zig/write/2026-11-17">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-17">READ</a>
+  <a href="/c/write/2026-11-17" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-11-17">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="いちばん多いバイト"
+  data-tags="array signed-unsigned utf-8 type-conversion"
+  data-concepts="出現回数, 度数表, バイトの頻度, unsigned char への変換, char の符号, byte frequency, histogram, signedness of char"
+  data-level="peacock"
+>
+  <h2>2026-11-17</h2>
+  <div class="code-frame">
+    <p class="code-filename">most_frequent.c</p>
+    <pre class="code"><code><span class="code-line"><span class="ty">unsigned</span> <span class="ty">char</span> <span class="fn">most_frequent</span>(<span class="kw">const</span> <span class="ty">char</span>* s) {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    文字列 <code>s</code> の中で最も多く現れるバイトの値を返す <code>most_frequent</code> を書いてください。バイトの値は 0 から 255 の整数として扱い、最も多いバイトが複数あるときは値の小さいほうを返します。<code>s</code> が空文字列なら 0 を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>most_frequent("banana")</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>97</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>most_frequent("\xc3\xa9t\xc3\xa9")</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>169</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>most_frequent("")</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="ty">unsigned</span> <span class="ty">char</span> <span class="fn">most_frequent</span>(<span class="kw">const</span> <span class="ty">char</span>* s) {</span>
+<span class="code-line ins">    <span class="ty">int</span> counts[<span class="nu">256</span>] = {<span class="nu">0</span>};</span>
+<span class="code-line ins">    <span class="kw">for</span> (; *s; s++)</span>
+<span class="code-line ins">        counts[(<span class="ty">unsigned</span> <span class="ty">char</span>)*s]++;</span>
+<span class="code-line ins">    <span class="ty">int</span> best = <span class="nu">0</span>;</span>
+<span class="code-line ins">    <span class="kw">for</span> (<span class="ty">int</span> c = <span class="nu">1</span>; c &lt; <span class="nu">256</span>; c++)</span>
+<span class="code-line ins">        <span class="kw">if</span> (counts[c] &gt; counts[best])</span>
+<span class="code-line ins">            best = c;</span>
+<span class="code-line ins">    <span class="kw">return</span> best;</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        バイトの値は 256 通りしかないので、キーを探す表は要らず、値そのものを添字にした <code>int counts[256]</code> がそのまま「値から個数を引く表」になります。ただし、文字をそのまま添字にはできません。<code>char</code> が符号付きか符号なしかは処理系が決め、符号付きの処理系では 128 以上のバイトが負の値として読まれます。<code>counts[*s]</code> と書くと、入力例 2 の先頭のバイト <code>0xc3</code> は -61 になり、配列の外を書き換えてしまいます。<code>(unsigned char)*s</code> と変換してから添字にすれば、どの処理系でも 0 から 255 に収まります。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        数え終えたら、<code>best</code> を 0 から始め、1 から 255 までを小さい順に見て、個数が <code>best</code> より真に多いときだけ置き換えます。同じ個数では置き換えないので、最も多いバイトが複数あれば値の小さいほうが残ります。入力例 2 は「été」の UTF-8 表現で、<code>0xc3</code>（195）と <code>0xa9</code>（169）が2回ずつ、<code>t</code> が1回現れ、小さいほうの 169 が返ります。空文字列ではどの個数も 0 のままなので、置き換えは一度も起きず、0 が返ります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

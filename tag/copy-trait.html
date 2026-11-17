@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「Copyトレイト」を扱ったNamaranのコーディングドリル8問。&amp;mut &amp;str、文字列スライスを進める、共有参照は Copy、split_at、カーソル、advance a string slice。">
+<meta name="description" content="「Copyトレイト」を扱ったNamaranのコーディングドリル9問。借用規則、可変参照、エイリアス、同じ要素への2つの参照、合計の不変条件、borrow checker。">
 <title>Copyトレイト</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/copy-trait">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>Copyトレイト</h2>
 
   <p class="lede">
-    「Copyトレイト」を扱った8問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「Copyトレイト」を扱った9問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/debug/2026-11-17">Rust / DEBUG · 2026-11-17</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">送金で増える残高の合計</span> <span class="past-concepts">借用規則, 可変参照, エイリアス, 同じ要素への2つの参照, 合計の不変条件, borrow checker, mutable aliasing, invariant, Copy</span></li>
     <li><a href="/rust/write/2026-11-13">Rust / WRITE · 2026-11-13</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">&amp;mut &amp;strで先頭を切る</span> <span class="past-concepts">&amp;mut &amp;str, 文字列スライスを進める, 共有参照は Copy, split_at, カーソル, advance a string slice, shared reference is Copy</span></li>
     <li><a href="/rust/debug/2026-11-07">Rust / DEBUG · 2026-11-07</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">進まない乱数生成器</span> <span class="past-concepts">プロパティベーステスト, Copyトレイト, selfの値渡し, &amp;mut self, クロージャのキャプチャ, 乱数生成器, property-based testing, Copy trait, method receiver, random number generator</span></li>
     <li><a href="/rust/read/2026-10-25">Rust / READ · 2026-10-25</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">moveで写した版番号</span> <span class="past-concepts">楽観的ロック, 版番号の比較, move クロージャ, Copy 型の捕捉, FnMut の状態, optimistic locking, move closure, version check</span></li>

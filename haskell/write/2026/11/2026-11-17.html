@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="述語と関数を引数で受け取り、述語が真になるまで値に関数を適用して、適用した回数と最後の値を組で返すHaskellのドリル。再帰呼び出しが返した組をほどき、回数だけを1増やして組み直す。">
+<title>条件を満たすまで適用して数える</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-11-17">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-17" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-11-17",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-11-17",
+      "datePublished": "2026-11-17",
+      "dateModified": "2026-11-17",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "条件を満たすまで適用して数える" },
+      "keywords": "higher-order, recursion, tuple, pattern-matching",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "述語と関数を引数で受け取り、述語が真になるまで値に関数を適用して、適用した回数と最後の値を組で返すHaskellのドリル。再帰呼び出しが返した組をほどき、回数だけを1増やして組み直す。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-17">C23</a>
+  <a href="/cpp/write/2026-11-17">C++26</a>
+  <a href="/rust/write/2026-11-17">Rust 2024</a>
+  <a href="/haskell/write/2026-11-17" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/write/2026-11-17">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-17">READ</a>
+  <a href="/haskell/write/2026-11-17" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-11-17">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="条件を満たすまで適用して数える"
+  data-tags="higher-order recursion tuple pattern-matching"
+  data-concepts="高階関数, 関数を引数に取る, 組を返す関数, 再帰, where, until, higher-order function, returning a tuple, recursion"
+  data-level="bison"
+>
+  <h2>2026-11-17</h2>
+  <div class="code-frame">
+    <p class="code-filename">ApplyUntil.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="fn">applyUntil</span></span>
+<span class="code-line">  <span class="op">::</span> (a <span class="op">-&gt;</span> <span class="ty">Bool</span>) <span class="op">-&gt;</span> (a <span class="op">-&gt;</span> a) <span class="op">-&gt;</span> a <span class="op">-&gt;</span> (<span class="ty">Int</span>, a)</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    値 <code>x</code> に関数 <code>f</code> を繰り返し適用し、述語 <code>p</code> を満たす値になったところで止めて、<code>f</code> を適用した回数と、そのときの値の組を返す <code>applyUntil</code> を書いてください。<code>x</code> がはじめから <code>p</code> を満たすなら、<code>f</code> は一度も適用せず <code>(0, x)</code> を返します。適用を繰り返せば、いつかは必ず <code>p</code> を満たす値になるものとします。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>applyUntil (&gt; 100) (* 2) 3</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>(6,192)</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>applyUntil even (+ 1) 4</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>(0,4)</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>applyUntil ((&lt; 3) . length) (drop 1) "abcde"</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>(3,"de")</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="fn">applyUntil</span></span>
+<span class="code-line">  <span class="op">::</span> (a <span class="op">-&gt;</span> <span class="ty">Bool</span>) <span class="op">-&gt;</span> (a <span class="op">-&gt;</span> a) <span class="op">-&gt;</span> a <span class="op">-&gt;</span> (<span class="ty">Int</span>, a)</span>
+<span class="code-line ins"><span class="fn">applyUntil</span> p f x</span>
+<span class="code-line ins">  | p x = (<span class="nu">0</span>, x)</span>
+<span class="code-line ins">  | otherwise = (n + <span class="nu">1</span>, y)</span>
+<span class="code-line ins"> <span class="kw">where</span></span>
+<span class="code-line ins">  (n, y) = applyUntil p f (f x)</span>
+</code></pre>
+      </div>
+      <p>
+        <code>p x</code> を、<code>f</code> を適用する前に調べます。満たしていればそこで止まり、回数 0 と <code>x</code> をそのまま返します。入力例 2 の 4 ははじめから偶数なので <code>(0,4)</code> です。先に <code>f</code> を適用してから調べる形で書くと、4 は 5 になり、さらに 6 になって <code>(2,6)</code> を返してしまいます。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        満たしていなければ、<code>f x</code> から先の残りを同じ <code>applyUntil</code> に任せます。戻ってくるのは「<code>f x</code> から数えた回数」と「最後の値」の組なので、<code>where</code> のパターン <code>(n, y)</code> で組をほどき、回数にはいま適用した1回を足し、値は <code>y</code> のまま返します。入力例 1 では 3 から 6、12、24、48、96、192 と6回適用したところで 100 を超え、内側の呼び出しから順に 0、1、…、6 と数えながら組が戻ってきます。<code>where</code> の束縛は使われたときに初めて評価されるので、<code>p x</code> が真の場合には再帰呼び出しは起きません。
+      </p>
+      <p>
+        値の型は型変数 <code>a</code> で決めていないので、入力例 3 のように文字列にも使えます。<code>"abcde"</code> から先頭を1文字ずつ落とし、長さが3未満になる <code>"de"</code> まで3回適用します。回数を数えなくてよければ、標準の <code>until p f x</code> が最後の値だけを返します。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="原点のまわりの点を、x軸の正の向きから反時計回りに測った角度の順に、浮動小数点数を使わず外積の符号だけで並べるC++のドリル。外積の比較は180度を超えると循環するので、円を半分に切ってから比べる。">
+<title>外積だけで一周を並べる</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-11-17">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-17" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-11-17",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-11-17",
+      "datePublished": "2026-11-17",
+      "dateModified": "2026-11-17",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "外積だけで一周を並べる" },
+      "keywords": "cross-product, sorting, strict-weak-ordering, computational-geometry",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "原点のまわりの点を、x軸の正の向きから反時計回りに測った角度の順に、浮動小数点数を使わず外積の符号だけで並べるC++のドリル。外積の比較は180度を超えると循環するので、円を半分に切ってから比べる。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-17">C23</a>
+  <a href="/cpp/write/2026-11-17" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-11-17">Rust 2024</a>
+  <a href="/haskell/write/2026-11-17">Haskell 2010</a>
+  <a href="/zig/write/2026-11-17">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-17">READ</a>
+  <a href="/cpp/write/2026-11-17" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-11-17">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="外積だけで一周を並べる"
+  data-tags="cross-product sorting strict-weak-ordering computational-geometry"
+  data-concepts="偏角ソート, 外積, 角度の順に並べる, 比較関数, 狭義の弱順序, sort by angle, polar angle sort, cross product, comparator"
+  data-level="whale"
+>
+  <h2>2026-11-17</h2>
+  <div class="code-frame">
+    <p class="code-filename">sort_by_angle.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">struct</span> <span class="ty">P</span> {</span>
+<span class="code-line">    <span class="ty">long</span> <span class="ty">long</span> x, y;</span>
+<span class="code-line">};</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">void</span> <span class="fn">sort_by_angle</span>(std::<span class="ty">vector</span>&lt;<span class="ty">P</span>&gt;&amp; ps) {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    原点と異なる整数座標の点を並べた <code>ps</code> を、x 軸の正の向きから反時計回りに測った角度の小さい順に並べ替える <code>sort_by_angle</code> を書いてください。角度は 0 度以上 360 度未満で測り、x 軸の正の向きにある点の角度は 0 度です。原点から見て同じ向きにある点が2つ以上含まれることはありません。座標の絶対値は 10<sup>9</sup> 以下で、向きのわずかな違いも区別できるように、浮動小数点数は使わず整数の計算だけで比べてください。<code>ps</code> の要素が1つ以下なら何もしません。例では、呼び出す前と後の <code>ps</code> の中身を <code>{x, y}</code> の並びで書きます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>{{0, -1}, {-1, 0}, {0, 1}, {1, 0}}</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>{{1, 0}, {0, 1}, {-1, 0}, {0, -1}}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>{{-3, -1}, {2, 5}, {1, -1}, {-4, 2}, {3, 0}}</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>{{3, 0}, {2, 5}, {-4, 2}, {-3, -1}, {1, -1}}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>{{1000000000, 999999999}, {999999999, 999999998}}</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>{{999999999, 999999998}, {1000000000, 999999999}}</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="kw">struct</span> <span class="ty">P</span> {</span>
+<span class="code-line">    <span class="ty">long</span> <span class="ty">long</span> x, y;</span>
+<span class="code-line">};</span>
+<span class="code-line"></span>
+<span class="code-line ins"><span class="ty">bool</span> <span class="fn">upper</span>(<span class="ty">P</span> p) {</span>
+<span class="code-line ins">    <span class="kw">return</span> p.y &gt; <span class="nu">0</span> || (p.y == <span class="nu">0</span> &amp;&amp; p.x &gt; <span class="nu">0</span>);</span>
+<span class="code-line ins">}</span>
+<span class="code-line ins"></span>
+<span class="code-line"><span class="ty">void</span> <span class="fn">sort_by_angle</span>(std::<span class="ty">vector</span>&lt;<span class="ty">P</span>&gt;&amp; ps) {</span>
+<span class="code-line ins">    std::ranges::<span class="fn">sort</span>(ps, [](<span class="ty">P</span> a, <span class="ty">P</span> b) {</span>
+<span class="code-line ins">        <span class="kw">if</span> (<span class="fn">upper</span>(a) != <span class="fn">upper</span>(b))</span>
+<span class="code-line ins">            <span class="kw">return</span> <span class="fn">upper</span>(a);</span>
+<span class="code-line ins">        <span class="kw">return</span> a.x * b.y - a.y * b.x &gt; <span class="nu">0</span>;</span>
+<span class="code-line ins">    });</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        原点から見た向きは、外積<sup class="fn-ref">1</sup> <code>a.x * b.y - a.y * b.x</code> の符号で比べられます。正なら <code>b</code> は <code>a</code> から反時計回りに 180 度未満だけ回った側に、負なら時計回りの側にあります。ところが、この符号をそのまま「<code>a</code> が先」の判定にすると、一周にわたっては並び順になりません。(1, 0)、(-1, 1)、(-1, -1) の3点では、どの隣り合う2点の外積も正になり、1つ目は2つ目より先、2つ目は3つ目より先、3つ目は1つ目より先、と順序が循環します。<code>std::ranges::sort</code> は、比較関数が「先」を矛盾なく決めること（狭義の弱順序<sup class="fn-ref">2</sup>）を要求するので、循環する比較を渡すと結果は保証されません。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        循環が起きるのは、外積が「180 度未満の回転でどちら側か」しか答えないのに、点が一周にわたって散らばっているからです。そこで円を、角度が 0 度以上 180 度未満の半分と、180 度以上 360 度未満の半分に切ります。<code>upper</code> は前の半分にある点で真になり、y 座標が正の点のほかに、x 軸の正の向きの点（角度 0 度）も含めます。x 軸の負の向きの点（180 度）は後ろの半分です。半分が違う2点は前の半分の点を先にし、同じ半分にある2点は向きの差が 180 度未満なので、外積の符号で前後が矛盾なく決まります。入力例 1 では (1, 0) と (0, 1) が前の半分、(-1, 0) と (0, -1) が後ろの半分に分かれます。
+      </p>
+      <p>
+        座標の絶対値が 10<sup>9</sup> 以下なら、外積の各項は 10<sup>18</sup> 以下、差は 2 × 10<sup>18</sup> 以下で、<code>long long</code> の最大値（約 9.2 × 10<sup>18</sup>）に収まります。入力例 3 の2点は、外積が 10<sup>9</sup> × 999999998 − 999999999 × 999999999 = −1 で、2つ目が1つ目より時計回りの側にあるので先に来ます。2点の角度の差は 10<sup>−18</sup> ラジアン程度で、<code>double</code> で角度を計算すると同じ値になり、区別できません。
+      </p>
+      <ol class="footnotes">
+        <li>ここでの外積（cross product）は、平面のベクトル (a, b) と (c, d) に対する a × d − b × c のことです。2つのベクトルが作る平行四辺形の面積に、2つ目が1つ目の反時計回りの側にあれば正、時計回りの側にあれば負の符号を付けた値になります。</li>
+        <li>狭義の弱順序（strict weak ordering）は、比較関数に求められる条件です。a が b より先なら b は a より先ではなく、a が b より先で b が c より先なら a は c より先、などを満たす必要があります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
