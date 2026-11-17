@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="UTF-8の先頭バイトから、その文字が何バイトで表されるかを返す seq_len をRustで書くドリル。続きのバイトと、どの形にも当たらないバイトは None にして、不正な先頭を検出する。">
+<title>先頭バイトから長さを知る</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-11-18">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-18" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-11-18",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-11-18",
+      "datePublished": "2026-11-18",
+      "dateModified": "2026-11-18",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "先頭バイトから長さを知る" },
+      "keywords": "utf-8, bit-operation, pattern-matching, optional",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "UTF-8の先頭バイトから、その文字が何バイトで表されるかを返す seq_len をRustで書くドリル。続きのバイトと、どの形にも当たらないバイトは None にして、不正な先頭を検出する。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-18">C23</a>
+  <a href="/cpp/write/2026-11-18">C++26</a>
+  <a href="/rust/write/2026-11-18" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-11-18">Haskell 2010</a>
+  <a href="/zig/write/2026-11-18">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-18">READ</a>
+  <a href="/rust/write/2026-11-18" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-11-18">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="先頭バイトから長さを知る"
+  data-tags="utf-8 bit-operation pattern-matching optional"
+  data-concepts="UTF-8, 先頭バイト, 継続バイト, バイト列の長さ, leading_ones, leading byte, continuation byte, UTF-8 validation"
+  data-level="peacock"
+>
+  <h2>2026-11-18</h2>
+  <div class="code-frame">
+    <p class="code-filename">seq_len.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">seq_len</span>(lead: <span class="ty">u8</span>) -&gt; <span class="ty">Option</span>&lt;<span class="ty">usize</span>&gt; {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    UTF-8 では、1文字を表すバイト列の長さが先頭バイトの上位ビットで決まります。先頭バイトが <code>0xxxxxxx</code> なら1バイト、<code>110xxxxx</code> なら2バイト、<code>1110xxxx</code> なら3バイト、<code>11110xxx</code> なら4バイトです。<code>10xxxxxx</code> は2バイト目以降に置く続きのバイトで、先頭には来ません。先頭バイト <code>lead</code> から、その文字のバイト数を返す <code>seq_len</code> を書いてください。<code>lead</code> が続きのバイトのときと、<code>11111xxx</code> のようにどの形にも当たらないときは <code>None</code> を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>seq_len(b'A')</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>Some(1)</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>seq_len(0xE3)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>Some(3)</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>seq_len(0x81)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>None</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">seq_len</span>(lead: <span class="ty">u8</span>) -&gt; <span class="ty">Option</span>&lt;<span class="ty">usize</span>&gt; {</span>
+<span class="code-line ins">    <span class="kw">match</span> lead.<span class="fn">leading_ones</span>() {</span>
+<span class="code-line ins">        <span class="nu">0</span> =&gt; <span class="fn">Some</span>(<span class="nu">1</span>),</span>
+<span class="code-line ins">        n @ <span class="nu">2</span>..=<span class="nu">4</span> =&gt; <span class="fn">Some</span>(n <span class="kw">as</span> <span class="ty">usize</span>),</span>
+<span class="code-line ins">        _ =&gt; <span class="ty">None</span>,</span>
+<span class="code-line ins">    }</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        4つの形を並べると、上位に続く1の個数がそのままバイト数になっていることが分かります。<code>110xxxxx</code> は1が2個で2バイト、<code>11110xxx</code> は1が4個で4バイトです。参考実装は、上位から続く1の個数を返す <code>u8::leading_ones</code> でこの個数を数え、<code>match</code> で振り分けます。掲載したのは参考実装で、唯一の正解ではありません。<code>0x00..=0x7F</code> のようなバイトの範囲を腕に並べても書けます。
+      </p>
+      <p>
+        この規則には例外が2つあります。1が0個の <code>0xxxxxxx</code> は ASCII の1バイト文字なので、0 を <code>Some(1)</code> に読み替えます。1がちょうど1個の <code>10xxxxxx</code> は続きのバイトなので、個数をそのまま返して <code>Some(1)</code> にしてはいけません。<code>n @ 2..=4</code> は2から4の個数だけを受け、残りの1個と5個以上は最後の腕で <code>None</code> になります。入力例 2 の <code>0xE3</code> は <code>11100011</code> で1が3個なので <code>Some(3)</code>、入力例 3 の <code>0x81</code> は <code>10000001</code> で1が1個なので <code>None</code> です。<code>leading_ones</code> は <code>u32</code> を返すので、<code>Some</code> に入れる前に <code>usize</code> に変換します。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

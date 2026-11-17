@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="2つのスレッドが std::vector&lt;bool&gt; の別々の要素にフラグを立てるだけのC++のドリル。書き込む要素が重ならなくても、vector&lt;bool&gt; では隣の要素と同じ語を読み書きするのでデータ競合になります。">
+<title>別々の要素を立てる2スレッド</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-11-18">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-18" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-11-18",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-11-18",
+      "datePublished": "2026-11-18",
+      "dateModified": "2026-11-18",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "別々の要素を立てる2スレッド" },
+      "keywords": "vector-bool, data-race, thread",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "2つのスレッドが std::vector<bool> の別々の要素にフラグを立てるだけのC++のドリル。書き込む要素が重ならなくても、vector<bool> では隣の要素と同じ語を読み書きするのでデータ競合になります。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-18">C23</a>
+  <a href="/cpp/debug/2026-11-18" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-11-18">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-18">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-18">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-18">READ</a>
+  <a href="/cpp/write/2026-11-18">WRITE</a>
+  <a href="/cpp/debug/2026-11-18" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="別々の要素を立てる2スレッド"
+  data-tags="vector-bool data-race thread"
+  data-concepts="vector&lt;bool&gt;, データ競合, スレッド, メモリ位置, ビットの読み書き, data race, memory location, std::jthread, ThreadSanitizer"
+  data-level="peacock"
+>
+  <h2>2026-11-18</h2>
+  <div class="code-frame">
+    <p class="code-filename">flags.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;algorithm&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;print&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;thread&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;vector&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    std::<span class="ty">vector</span>&lt;<span class="ty">bool</span>&gt; <span class="fn">done</span>(<span class="nu">8</span>);</span>
+<span class="code-line">    std::<span class="ty">jthread</span> <span class="fn">t</span>([&amp;] {</span>
+<span class="code-line">        <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; <span class="nu">8</span>; i += <span class="nu">2</span>)</span>
+<span class="code-line">            done[i] = <span class="nu">true</span>;</span>
+<span class="code-line">    });</span>
+<span class="code-line">    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">1</span>; i &lt; <span class="nu">8</span>; i += <span class="nu">2</span>)</span>
+<span class="code-line">        done[i] = <span class="nu">true</span>;</span>
+<span class="code-line">    t.<span class="fn">join</span>();</span>
+<span class="code-line">    <span class="kw">auto</span> n = std::ranges::<span class="fn">count</span>(done, <span class="nu">true</span>);</span>
+<span class="code-line">    std::<span class="fn">println</span>(<span class="st">"{}"</span>, n);</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    8個の作業の完了フラグ <code>done</code> のうち、偶数番目をワーカースレッドが、奇数番目を <code>main</code> のスレッドが立て、最後に立ったフラグの数を出すプログラムです。2つのスレッドは別々の要素にしか書き込まないので、いつでも <code>8</code> と出るつもりでした。ところが <code>-fsanitize=thread</code> を付けてビルドして実行すると、ThreadSanitizer が <code>WARNING: ThreadSanitizer: data race</code> を報告します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del">    std::<span class="ty">vector</span>&lt;<span class="chg"><span class="ty">bool</span></span>&gt; <span class="fn">done</span>(<span class="nu">8</span>);</span>
+</code></pre>
+      <p>
+        標準ライブラリのコンテナは、別々のスレッドが別々の要素を書き換えてもデータ競合にならないことを保証しています。ただし、この保証には <code>std::vector&lt;bool&gt;</code> だけが含まれていません。<sup class="fn-ref">1</sup> <code>std::vector&lt;bool&gt;</code> は要素を1ビットずつ語に詰めて持つので、<code>done</code> の8要素は同じ1つの語に入っています。
+      </p>
+      <p>
+        ビットだけを書くことはできないので、<code>done[i] = true</code> は、語全体を読み、そのビットを1にした値を語全体に書き戻します。2つのスレッドが同じ語をこうして読み書きするのは、同じメモリ位置へのデータ競合で、未定義動作です。実際に起こりうるのは、片方のスレッドが古い語を読んでいるあいだに相手がビットを立て、その語を書き戻して相手のビットを消してしまうことで、そのときは <code>8</code> より小さい数が出ます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins">    std::<span class="ty">vector</span>&lt;<span class="chg"><span class="ty">char</span></span>&gt; <span class="fn">done</span>(<span class="nu">8</span>);</span>
+</code></pre>
+      <p>
+        <code>std::vector&lt;char&gt;</code> の要素は1つずつが別のオブジェクトで、別々のメモリ位置を占めます。それぞれのスレッドは自分が書く要素のバイトだけを書き換えるので、相手のフラグを読み書きすることがなくなります。<code>std::ranges::count(done, true)</code> は、<code>char</code> の要素を <code>true</code> を整数にした 1 と比べるので、この行は直さずに済みます。
+      </p>
+      <ol class="footnotes">
+        <li>規格はコンテナの要件の中で、<code>vector&lt;bool&gt;</code> を除いて、同じコンテナの異なる要素の内容を同時に書き換えてよいと定めています。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="バックスラッシュでエスケープされていない最初のカンマを探す fieldEnd が、エスケープを読み飛ばすときに1文字多く進んでカンマを見落とすZigのドリル。while の継続式は continue のときにも実行される。">
+<title>continueでも進む継続式</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/debug/2026-11-18">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / DEBUG", "item": "https://namaran.jocarium.productions/zig/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-18" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / DEBUG — 2026-11-18",
+      "url": "https://namaran.jocarium.productions/zig/debug/2026-11-18",
+      "datePublished": "2026-11-18",
+      "dateModified": "2026-11-18",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "continueでも進む継続式" },
+      "keywords": "loop, continue-break, off-by-one, parsing",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "バックスラッシュでエスケープされていない最初のカンマを探す fieldEnd が、エスケープを読み飛ばすときに1文字多く進んでカンマを見落とすZigのドリル。while の継続式は continue のときにも実行される。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-18">C23</a>
+  <a href="/cpp/debug/2026-11-18">C++26</a>
+  <a href="/rust/debug/2026-11-18">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-18">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-18" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-18">READ</a>
+  <a href="/zig/write/2026-11-18">WRITE</a>
+  <a href="/zig/debug/2026-11-18" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="continueでも進む継続式"
+  data-tags="loop continue-break off-by-one parsing"
+  data-concepts="whileの継続式, continue, エスケープ文字, 読み飛ばし, continue expression, while loop, escape sequence, off-by-one"
+  data-level="bison"
+>
+  <h2>2026-11-18</h2>
+  <div class="code-frame">
+    <p class="code-filename">field_end.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">fieldEnd</span>(s: []<span class="kw">const</span> <span class="ty">u8</span>) ?<span class="ty">usize</span> {</span>
+<span class="code-line">    <span class="kw">var</span> i: <span class="ty">usize</span> = <span class="nu">0</span>;</span>
+<span class="code-line">    <span class="kw">while</span> (i &lt; s.len) : (i += <span class="nu">1</span>) {</span>
+<span class="code-line">        <span class="kw">if</span> (s[i] == <span class="st">'\\'</span>) {</span>
+<span class="code-line">            i += <span class="nu">2</span>;</span>
+<span class="code-line">            <span class="kw">continue</span>;</span>
+<span class="code-line">        }</span>
+<span class="code-line">        <span class="kw">if</span> (s[i] == <span class="st">','</span>) <span class="kw">return</span> i;</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="kw">return</span> <span class="nu">null</span>;</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>() <span class="ty">void</span> {</span>
+<span class="code-line">    <span class="kw">const</span> end = <span class="fn">fieldEnd</span>(<span class="st">"x\\\\,y"</span>);</span>
+<span class="code-line">    std.debug.<span class="fn">print</span>(<span class="st">"{?d}\n"</span>, .{end});</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    文字列 <code>s</code> の中で、エスケープされていない最初のカンマの位置を返す <code>fieldEnd</code> です。バックスラッシュは直後の1文字をエスケープし、そのようなカンマが無ければ <code>null</code> を返します。<code>"x\\\\,y"</code> は <code>x</code>、<code>\</code>、<code>\</code>、<code>,</code>、<code>y</code> の5文字で、1つ目の <code>\</code> が2つ目の <code>\</code> をエスケープするので、標準エラー出力に <code>3</code> と出るはずが、いまは <code>null</code> と出ます。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line"><span class="kw">while</span> (i &lt; s.len) : (i += <span class="nu">1</span>) {</span>
+<span class="code-line">    <span class="kw">if</span> (s[i] == <span class="st">'\\'</span>) {</span>
+<span class="code-line del">        i += <span class="chg"><span class="nu">2</span></span>;</span>
+<span class="code-line">        <span class="kw">continue</span>;</span>
+<span class="code-line">    }</span>
+</code></pre>
+      <p>
+        <code>while</code> の <code>: (i += 1)</code> は継続式（continue expression）で、本体の終わりに届いたときだけでなく、<code>continue</code> で次の繰り返しへ進むときにも、条件を調べる前に実行されます。エスケープを見つけた枝は <code>i += 2</code> で2つ進み、<code>continue</code> の継続式でさらに1つ進むので、バックスラッシュから数えて3文字先へ飛びます。飛ばしたいのは、バックスラッシュとエスケープされる1文字の2文字だけです。
+      </p>
+      <p>
+        <code>"x\\\\,y"</code> では、<code>i = 1</code> のバックスラッシュで <code>i</code> が 3 になり、継続式で 4 になります。位置 3 のカンマは調べられずに飛ばされ、位置 4 の <code>y</code> を調べたあと <code>i</code> は 5 になって条件 <code>i &lt; s.len</code> が偽になり、ループが終わって <code>null</code> が返ります。範囲外の添字を使う前に条件で止まるので、panic もしません。<code>"a\\,b,c"</code> のように、エスケープの直後のカンマを飛ばしてもまだ後ろにカンマがある入力では正しい値が返るので、この欠陥はエスケープの直後に区切りが来たときにしか表に出ません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line"><span class="kw">while</span> (i &lt; s.len) : (i += <span class="nu">1</span>) {</span>
+<span class="code-line">    <span class="kw">if</span> (s[i] == <span class="st">'\\'</span>) {</span>
+<span class="code-line ins">        i += <span class="chg"><span class="nu">1</span></span>;</span>
+<span class="code-line">        <span class="kw">continue</span>;</span>
+<span class="code-line">    }</span>
+</code></pre>
+      <p>
+        枝の中ではエスケープされる1文字の分だけ進め、バックスラッシュの分は継続式に任せます。合わせて2文字進むので、<code>"x\\\\,y"</code> では <code>i</code> が 1 から 3 へ進み、位置 3 のカンマで 3 が返ります。文字列の最後がバックスラッシュのときは <code>i</code> が長さを1つ超えますが、条件 <code>i &lt; s.len</code> が偽になってループを抜けるので、範囲外を読むことはありません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/debug">Today</a></li>
+    <li><a href="/zig/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「ビット演算」を扱ったNamaranのコーディングドリル59問。代理オブジェクト、プロキシクラス、vector&lt;bool&gt;::reference、変換演算子、コピー代入演算子、参照メンバ。">
+<meta name="description" content="「ビット演算」を扱ったNamaranのコーディングドリル62問。UTF-8、先頭バイト、継続バイト、バイト列の長さ、leading_ones、leading byte。">
 <title>ビット演算</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/bit-operation">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>ビット演算</h2>
 
   <p class="lede">
-    「ビット演算」を扱った59問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「ビット演算」を扱った62問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/write/2026-11-18">Rust / WRITE · 2026-11-18</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">先頭バイトから長さを知る</span> <span class="past-concepts">UTF-8, 先頭バイト, 継続バイト, バイト列の長さ, leading_ones, leading byte, continuation byte, UTF-8 validation</span></li>
+    <li><a href="/rust/debug/2026-11-18">Rust / DEBUG · 2026-11-18</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">u8のまま左シフト</span> <span class="past-concepts">UTF-8 のデコード, 左シフト, 型の幅, 上位ビットの切り捨て, as u32, u32::from, shift overflow, decode utf-8</span></li>
+    <li><a href="/cpp/write/2026-11-18">C++ / WRITE · 2026-11-18</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">語に詰めたビットを立てる</span> <span class="past-concepts">ビット列, ビットマスク, vector&lt;bool&gt; の内部表現, ビットを立てる, ビットを下ろす, bit array, bitset, set bit, clear bit</span></li>
     <li><a href="/cpp/write/2026-11-16">C++ / WRITE · 2026-11-16</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">ビットを指す代理を返す</span> <span class="past-concepts">代理オブジェクト, プロキシクラス, vector&lt;bool&gt;::reference, 変換演算子, コピー代入演算子, 参照メンバ, proxy object, conversion operator, bit packing</span></li>
     <li><a href="/c/read/2026-11-16">C / READ · 2026-11-16</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">ビットを交互に並べる</span> <span class="past-concepts">Morton順序, Z順序曲線, ビットのインターリーブ, シフト演算, Morton code, Z-order curve, bit interleaving</span></li>
     <li><a href="/c/debug/2026-11-16">C / DEBUG · 2026-11-16</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">隙間を越える繰り上がり</span> <span class="past-concepts">Morton順序, Z順序曲線, 繰り上がり, ビットマスク, インターリーブしたビットの加算, Morton code, carry propagation, dilated integer</span></li>

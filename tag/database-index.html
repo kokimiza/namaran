@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「インデックス」を扱ったNamaranのコーディングドリル3問。複合インデックス、等号条件と範囲条件、列の順序、BTreeSet::range、composite index、equality then range。">
+<meta name="description" content="「インデックス」を扱ったNamaranのコーディングドリル6問。複合キー、辞書式順序、二分探索、lower_bound、複合インデックス、composite key。">
 <title>インデックス</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/database-index">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>インデックス</h2>
 
   <p class="lede">
-    「インデックス」を扱った3問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「インデックス」を扱った6問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/c/write/2026-11-18">C / WRITE · 2026-11-18</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">2列のキーで下限を探す</span> <span class="past-concepts">複合キー, 辞書式順序, 二分探索, lower_bound, 複合インデックス, composite key, lexicographic order, binary search</span></li>
+    <li><a href="/c/read/2026-11-18">C / READ · 2026-11-18</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">2列目で打ち切る走査</span> <span class="past-concepts">複合インデックス, 列の順序, 早期打ち切り, ソート済み配列, composite index, column order, early exit, lexicographic order</span></li>
+    <li><a href="/c/debug/2026-11-18">C / DEBUG · 2026-11-18</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">||でつないだ比較関数</span> <span class="past-concepts">比較関数, bsearch, 論理和の値, 複合キー, 辞書式順序, comparator, logical or, composite key</span></li>
     <li><a href="/rust/write/2026-09-01">Rust / WRITE · 2026-09-01</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">利用者ごとの時刻の範囲</span> <span class="past-concepts">複合インデックス, 等号条件と範囲条件, 列の順序, BTreeSet::range, composite index, equality then range, range scan</span></li>
     <li><a href="/rust/read/2026-09-01">Rust / READ · 2026-09-01</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">範囲の先の列は絞れない</span> <span class="past-concepts">複合インデックス, 列の順序, 辞書式順序, BTreeSet::range, composite index, column order, lexicographic order</span></li>
     <li><a href="/rust/debug/2026-09-01">Rust / DEBUG · 2026-09-01</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">先頭の列を飛ばした検索</span> <span class="past-concepts">複合インデックス, 先頭の列の省略, 辞書式順序, BTreeSet::range, composite index, leftmost prefix, lexicographic order</span></li>

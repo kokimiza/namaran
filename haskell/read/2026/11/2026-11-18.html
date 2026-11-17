@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="(行数, 列数) の組の並びを分割点ごとに2つに割り、左右の費用と分けた位置の費用の和の最小を再帰で求めるHaskellのドリル。どの分割点を選ぶかで、費用は9倍違う。">
+<title>分け方で変わる掛け算の費用</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-11-18">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-18" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-11-18",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-11-18",
+      "datePublished": "2026-11-18",
+      "dateModified": "2026-11-18",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "分け方で変わる掛け算の費用" },
+      "keywords": "interval-dp, recursion, list-comprehension",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "(行数, 列数) の組の並びを分割点ごとに2つに割り、左右の費用と分けた位置の費用の和の最小を再帰で求めるHaskellのドリル。どの分割点を選ぶかで、費用は9倍違う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-18">C23</a>
+  <a href="/cpp/read/2026-11-18">C++26</a>
+  <a href="/rust/read/2026-11-18">Rust 2024</a>
+  <a href="/haskell/read/2026-11-18" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/read/2026-11-18">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-18" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-11-18">WRITE</a>
+  <a href="/haskell/debug/2026-11-18">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="分け方で変わる掛け算の費用"
+  data-tags="interval-dp recursion list-comprehension"
+  data-concepts="区間DP, 分割点, 最小コスト, 行列の連鎖積, interval dp, matrix chain multiplication, optimal split"
+  data-level="peacock"
+>
+  <h2>2026-11-18</h2>
+  <div class="code-frame">
+    <p class="code-filename">Chain.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="fn">cost</span> <span class="op">::</span> [(<span class="ty">Int</span>, <span class="ty">Int</span>)] <span class="op">-&gt;</span> <span class="ty">Int</span></span>
+<span class="code-line"><span class="fn">cost</span> [] = <span class="nu">0</span></span>
+<span class="code-line"><span class="fn">cost</span> [_] = <span class="nu">0</span></span>
+<span class="code-line"><span class="fn">cost</span> ms@((p, _) : _) =</span>
+<span class="code-line">  minimum</span>
+<span class="code-line">    [ cost l + cost r + p * q * s</span>
+<span class="code-line">    | k <span class="op">&lt;-</span> [<span class="nu">1</span> .. length ms - <span class="nu">1</span>]</span>
+<span class="code-line">    , <span class="kw">let</span> (l, r) = splitAt k ms</span>
+<span class="code-line">          q = snd (last l)</span>
+<span class="code-line">    ]</span>
+<span class="code-line"> <span class="kw">where</span></span>
+<span class="code-line">  s = snd (last ms)</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()</span>
+<span class="code-line"><span class="fn">main</span> = print (cost [(<span class="nu">9</span>, <span class="nu">1</span>), (<span class="nu">1</span>, <span class="nu">9</span>), (<span class="nu">9</span>, <span class="nu">1</span>)])</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>18
+</samp></pre>
+      </div>
+      <p>
+        <code>cost</code> は、並び <code>ms</code> を <code>splitAt k</code> で左右に分ける分け方をすべて試し、その中で最小の値を返します。値は、左右それぞれの <code>cost</code> に、<code>p * q * s</code> を足したものです。<code>p</code> は並び全体の先頭の組の1つ目、<code>q</code> は左側の最後の組の2つ目、<code>s</code> は並び全体の最後の組の2つ目です。要素が1つの並びは分けられないので 0 です。<sup class="fn-ref">1</sup>
+      </p>
+      <p>
+        <code>[(9, 1), (1, 9), (9, 1)]</code> の分け方は2通りあります。<code>k = 1</code> では左が <code>[(9, 1)]</code> で 0、右の <code>[(1, 9), (9, 1)]</code> は 1 * 9 * 1 = 9 です。分けた位置の費用は、<code>p = 9</code>、<code>q = 1</code>、<code>s = 1</code> で 9 なので、合計は 18 になります。<code>k = 2</code> では左の <code>[(9, 1), (1, 9)]</code> が 9 * 1 * 9 = 81、右が 0 で、分けた位置の費用は <code>q = 9</code> から 9 * 9 * 1 = 81 となり、合計は 162 です。<code>minimum</code> は小さいほうの 18 を選びます。
+      </p>
+      <p>
+        左から順に1つずつまとめる分け方だけを思い浮かべると、162 と答えてしまいます。<code>q</code> は左側の最後の組から取るので、分ける位置によって 1 にも 9 にもなり、それが外側の掛け算の大きさを決めます。リスト内包表記が <code>k</code> のすべての値を試しているのは、この差がどの分け方で小さくなるかを、実際に比べないと決められないからです。
+      </p>
+      <ol class="footnotes">
+        <li>組 <code>(p, q)</code> を p 行 q 列の行列と読むと、<code>cost</code> は行列を左から並んだ順に掛けるときの、数どうしの掛け算の最小回数です。p 行 q 列と q 行 s 列の行列の積には、p * q * s 回の掛け算が要ります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「制御の流れ」を扱ったNamaranのコーディングドリル20問。setjmp、longjmp、非局所脱出、エラー処理、setjmpの戻り値、non-local jump。">
+<meta name="description" content="「制御の流れ」を扱ったNamaranのコーディングドリル21問。ラベル付きcontinue、ラベルなしbreak、入れ子のループ、空のスライス、labeled continue、labeled loop。">
 <title>制御の流れ</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/control-flow">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>制御の流れ</h2>
 
   <p class="lede">
-    「制御の流れ」を扱った20問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「制御の流れ」を扱った21問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/read/2026-11-18">Zig / READ · 2026-11-18</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">ラベルの有無と空の行</span> <span class="past-concepts">ラベル付きcontinue, ラベルなしbreak, 入れ子のループ, 空のスライス, labeled continue, labeled loop, nested loop, break</span></li>
     <li><a href="/c/write/2026-11-15">C / WRITE · 2026-11-15</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">longjmpの受け皿を作る</span> <span class="past-concepts">setjmp, longjmp, 非局所脱出, エラー処理, setjmpの戻り値, non-local jump, error recovery</span></li>
     <li><a href="/c/read/2026-11-15">C / READ · 2026-11-15</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">longjmpは値を戻さない</span> <span class="past-concepts">setjmp, longjmp, volatile, 非局所脱出, setjmpの戻り値, non-local jump, jmp_buf</span></li>
     <li><a href="/c/read/2026-09-30">C / READ · 2026-09-30</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">exitと後始末の順番</span> <span class="past-concepts">atexit, exit, 後始末の関数, 終了処理の順序, mainからのreturn, exit handler, atexit order, LIFO</span></li>

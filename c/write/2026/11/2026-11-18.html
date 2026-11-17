@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="(year, day) の順に並んだ構造体の配列から、指定した (year, day) 以上になる最初の位置を二分探索で返す lower をCで書くドリル。2列のキーは1列目で比べ、等しいときだけ2列目で比べる。">
+<title>2列のキーで下限を探す</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-11-18">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-18" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-11-18",
+      "url": "https://namaran.jocarium.productions/c/write/2026-11-18",
+      "datePublished": "2026-11-18",
+      "dateModified": "2026-11-18",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "2列のキーで下限を探す" },
+      "keywords": "binary-search, database-index, comparison, struct",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "(year, day) の順に並んだ構造体の配列から、指定した (year, day) 以上になる最初の位置を二分探索で返す lower をCで書くドリル。2列のキーは1列目で比べ、等しいときだけ2列目で比べる。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-18" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-11-18">C++26</a>
+  <a href="/rust/write/2026-11-18">Rust 2024</a>
+  <a href="/haskell/write/2026-11-18">Haskell 2010</a>
+  <a href="/zig/write/2026-11-18">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-18">READ</a>
+  <a href="/c/write/2026-11-18" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-11-18">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="2列のキーで下限を探す"
+  data-tags="binary-search database-index comparison struct"
+  data-concepts="複合キー, 辞書式順序, 二分探索, lower_bound, 複合インデックス, composite key, lexicographic order, binary search"
+  data-level="peacock"
+>
+  <h2>2026-11-18</h2>
+  <div class="code-frame">
+    <p class="code-filename">lower_bound.c</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">struct</span> <span class="ty">entry</span> {</span>
+<span class="code-line">    <span class="ty">int</span> year, day;</span>
+<span class="code-line">};</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">size_t</span> <span class="fn">lower</span>(<span class="kw">const</span> <span class="kw">struct</span> <span class="ty">entry</span>* t,</span>
+<span class="code-line">             <span class="ty">size_t</span> n,</span>
+<span class="code-line">             <span class="ty">int</span> year,</span>
+<span class="code-line">             <span class="ty">int</span> day) {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    配列 <code>t</code> の <code>n</code> 行は、<code>year</code> の昇順に並び、<code>year</code> が同じ行どうしは <code>day</code> の昇順に並んでいます。この順序で引数の (<code>year</code>, <code>day</code>) より前に来ない最初の行の添字を返す <code>lower</code> を書いてください。行 <code>e</code> が (<code>year</code>, <code>day</code>) より前に来るのは、<code>e-&gt;year</code> が <code>year</code> より小さいときと、<code>e-&gt;year</code> が <code>year</code> と等しく <code>e-&gt;day</code> が <code>day</code> より小さいときです。そのような行が無ければ <code>n</code> を返します。比べる回数は、<code>n</code> が2倍になっても1回ほどしか増えないようにしてください。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>lower((struct entry[]){{2024, 9}, {2025, 3}, {2025, 8}}, 3, 2025, 5)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>2</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>lower((struct entry[]){{2024, 9}, {2025, 3}, {2025, 8}}, 3, 2025, 3)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>1</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>lower((struct entry[]){{2024, 9}, {2025, 3}}, 2, 2026, 1)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>2</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="kw">struct</span> <span class="ty">entry</span> {</span>
+<span class="code-line">    <span class="ty">int</span> year, day;</span>
+<span class="code-line">};</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">size_t</span> <span class="fn">lower</span>(<span class="kw">const</span> <span class="kw">struct</span> <span class="ty">entry</span>* t,</span>
+<span class="code-line">             <span class="ty">size_t</span> n,</span>
+<span class="code-line">             <span class="ty">int</span> year,</span>
+<span class="code-line">             <span class="ty">int</span> day) {</span>
+<span class="code-line ins">    <span class="ty">size_t</span> lo = <span class="nu">0</span>, hi = n;</span>
+<span class="code-line ins">    <span class="kw">while</span> (lo &lt; hi) {</span>
+<span class="code-line ins">        <span class="ty">size_t</span> mid = lo + (hi - lo) / <span class="nu">2</span>;</span>
+<span class="code-line ins">        <span class="kw">const</span> <span class="kw">struct</span> <span class="ty">entry</span>* e = &amp;t[mid];</span>
+<span class="code-line ins">        <span class="kw">if</span> (e-&gt;year &lt; year ||</span>
+<span class="code-line ins">            (e-&gt;year == year &amp;&amp;</span>
+<span class="code-line ins">             e-&gt;day &lt; day))</span>
+<span class="code-line ins">            lo = mid + <span class="nu">1</span>;</span>
+<span class="code-line ins">        <span class="kw">else</span></span>
+<span class="code-line ins">            hi = mid;</span>
+<span class="code-line ins">    }</span>
+<span class="code-line ins">    <span class="kw">return</span> lo;</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        参考実装は、答えが入りうる範囲を半開区間 [<code>lo</code>, <code>hi</code>) で持ち、真ん中の行 <code>e</code> を調べるたびに範囲を半分にします。<code>e</code> が探す値より前に来るなら、答えは <code>e</code> より後ろにあるので <code>lo</code> を <code>mid + 1</code> に進めます。そうでなければ <code>e</code> 自身が答えの候補なので、<code>hi</code> を <code>mid</code> まで縮めます。範囲が空になったときの <code>lo</code> が答えです。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        ふつうの二分探索と違うのは、「前に来る」の判定だけです。<code>day</code> を比べるのは <code>year</code> が等しいときに限られます。<code>year</code> が小さい行は <code>day</code> がいくつでも前に来るので、入力例 1 の <code>{2024, 9}</code> は、<code>day</code> の 9 が 5 より大きくても前に来ます。2列を「<code>e-&gt;year &lt; year || e-&gt;day &lt; day</code>」のように別々に比べると、この行の扱いを誤ります。
+      </p>
+      <p>
+        入力例 1 では <code>{2025, 3}</code> までが (2025, 5) より前に来るので 2 を返します。入力例 2 では <code>{2025, 3}</code> が探す値と等しく、前に来ない最初の行なので 1 です。入力例 3 はすべての行が前に来るので、<code>lo</code> が <code>n</code> の 2 まで進みます。<code>mid</code> を <code>(lo + hi) / 2</code> ではなく <code>lo + (hi - lo) / 2</code> で求めているのは、<code>lo + hi</code> が <code>size_t</code> の範囲を超えないようにするためです。データベースの複合インデックスも同じ順序で並んでいるので、1列目を等号で決め、2列目を範囲で絞る検索は、この下限から始まる連続した範囲を読むだけで済みます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

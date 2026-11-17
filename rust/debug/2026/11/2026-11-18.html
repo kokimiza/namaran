@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="UTF-8の2バイトの並びを char に戻す decode2 が、u8 のまま左シフトしたせいで上位ビットを失い、π を À にしてしまうRustのドリル。シフトは型を広げてから行います。">
+<title>u8のまま左シフト</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-11-18">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-18" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-11-18",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-11-18",
+      "datePublished": "2026-11-18",
+      "dateModified": "2026-11-18",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "u8のまま左シフト" },
+      "keywords": "utf-8, bit-operation, type-conversion",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "UTF-8の2バイトの並びを char に戻す decode2 が、u8 のまま左シフトしたせいで上位ビットを失い、π を À にしてしまうRustのドリル。シフトは型を広げてから行います。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-18">C23</a>
+  <a href="/cpp/debug/2026-11-18">C++26</a>
+  <a href="/rust/debug/2026-11-18" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-18">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-18">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-18">READ</a>
+  <a href="/rust/write/2026-11-18">WRITE</a>
+  <a href="/rust/debug/2026-11-18" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="u8のまま左シフト"
+  data-tags="utf-8 bit-operation type-conversion"
+  data-concepts="UTF-8 のデコード, 左シフト, 型の幅, 上位ビットの切り捨て, as u32, u32::from, shift overflow, decode utf-8"
+  data-level="hedgehog"
+>
+  <h2>2026-11-18</h2>
+  <div class="code-frame">
+    <p class="code-filename">decode2.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">decode2</span>(b0: <span class="ty">u8</span>, b1: <span class="ty">u8</span>) -&gt; <span class="ty">char</span> {</span>
+<span class="code-line">    <span class="kw">let</span> hi = ((b0 &amp; <span class="nu">0x1F</span>) &lt;&lt; <span class="nu">6</span>) <span class="kw">as</span> <span class="ty">u32</span>;</span>
+<span class="code-line">    <span class="kw">let</span> lo = (b1 &amp; <span class="nu">0x3F</span>) <span class="kw">as</span> <span class="ty">u32</span>;</span>
+<span class="code-line">    <span class="ty">char</span>::<span class="fn">from_u32</span>(hi | lo).<span class="fn">unwrap</span>()</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="kw">for</span> s <span class="kw">in</span> [<span class="st">"é"</span>, <span class="st">"π"</span>] {</span>
+<span class="code-line">        <span class="kw">let</span> b = s.<span class="fn">as_bytes</span>();</span>
+<span class="code-line">        <span class="mc">print!</span>(<span class="st">"{}"</span>, <span class="fn">decode2</span>(b[<span class="nu">0</span>], b[<span class="nu">1</span>]));</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="mc">println!</span>();</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    UTF-8 で2バイトになる文字を、その2バイトから <code>char</code> に戻す <code>decode2</code> です。2バイトの文字は、1バイト目の下位5ビットと2バイト目の下位6ビットを、この順につなげた11ビットが符号位置になります。<code>"é"</code> と <code>"π"</code> を戻して並べるので <code>éπ</code> と出るはずが、いまは <code>éÀ</code> と出ます。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del"><span class="kw">let</span> hi = <span class="chg">(</span>(b0 &amp; <span class="nu">0x1F</span>) &lt;&lt; <span class="nu">6</span><span class="chg">) <span class="kw">as</span> <span class="ty">u32</span></span>;</span>
+</code></pre>
+      <p>
+        <code>b0 &amp; 0x1F</code> は <code>u8</code> なので、続く <code>&lt;&lt; 6</code> も <code>u8</code> の8ビットの中で計算されます。8ビットからはみ出した上位のビットはここで捨てられ、そのあとで <code>as u32</code> にしても戻りません。シフトする量が型の幅より小さいので、Rust はこれをオーバーフローとして扱わず、デバッグビルドでも panic しません。
+      </p>
+      <p>
+        <code>"π"</code> は <code>0xCF 0x80</code> です。<code>0xCF &amp; 0x1F</code> は <code>0x0F</code> で、6ビットずらすと本来は <code>0x3C0</code> ですが、<code>u8</code> に残るのは下位8ビットの <code>0xC0</code> だけです。2バイト目の下位6ビットは0なので、符号位置は U+00C0 の <code>À</code> になります。<code>"é"</code> の1バイト目 <code>0xC3</code> は下位5ビットが <code>0x03</code> で、ずらしても <code>0xC0</code> と8ビットに収まるため、正しく戻ります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins"><span class="kw">let</span> hi = <span class="chg"><span class="ty">u32</span>::<span class="fn">from</span></span>(b0 &amp; <span class="nu">0x1F</span>) &lt;&lt; <span class="nu">6</span>;</span>
+</code></pre>
+      <p>
+        <code>u32::from</code> で先に <code>u32</code> に広げてからずらせば、シフトは32ビットの中で計算され、11ビットの符号位置のどのビットも落ちません。<code>π</code> では <code>0x3C0</code> がそのまま残り、U+03C0 の <code>π</code> に戻ります。<code>as u32</code> で広げてもよいのですが、<code>(b0 &amp; 0x1F) as u32 &lt;&lt; 6</code> と書くと <code>u32&lt;&lt;</code> がジェネリクスの始まりと読まれてコンパイルエラーになるので、括弧で囲む必要があります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

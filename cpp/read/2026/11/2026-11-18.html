@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="std::vector&lt;bool&gt; の要素を auto と bool でそれぞれ受け取ってから元の要素を書き換え、2つの変数を出力するC++のドリル。auto で受けると、値ではなくビットを指すプロキシオブジェクトが入ります。">
+<title>autoで受けたビット</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-11-18">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-18" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-11-18",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-11-18",
+      "datePublished": "2026-11-18",
+      "dateModified": "2026-11-18",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "autoで受けたビット" },
+      "keywords": "vector-bool, type-deduction, reference",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "std::vector<bool> の要素を auto と bool でそれぞれ受け取ってから元の要素を書き換え、2つの変数を出力するC++のドリル。auto で受けると、値ではなくビットを指すプロキシオブジェクトが入ります。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-18">C23</a>
+  <a href="/cpp/read/2026-11-18" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-11-18">Rust 2024</a>
+  <a href="/haskell/read/2026-11-18">Haskell 2010</a>
+  <a href="/zig/read/2026-11-18">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-18" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-11-18">WRITE</a>
+  <a href="/cpp/debug/2026-11-18">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="autoで受けたビット"
+  data-tags="vector-bool type-deduction reference"
+  data-concepts="vector&lt;bool&gt;, プロキシオブジェクト, auto の型推論, std::vector&lt;bool&gt;::reference, proxy object, auto deduction"
+  data-level="peacock"
+>
+  <h2>2026-11-18</h2>
+  <div class="code-frame">
+    <p class="code-filename">bool_proxy.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;vector&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    std::<span class="ty">vector</span>&lt;<span class="ty">bool</span>&gt; v{<span class="nu">true</span>, <span class="nu">true</span>};</span>
+<span class="code-line">    <span class="kw">auto</span> a = v[<span class="nu">0</span>];</span>
+<span class="code-line">    <span class="ty">bool</span> b = v[<span class="nu">1</span>];</span>
+<span class="code-line">    v[<span class="nu">0</span>] = <span class="nu">false</span>;</span>
+<span class="code-line">    v[<span class="nu">1</span>] = <span class="nu">false</span>;</span>
+<span class="code-line">    std::cout &lt;&lt; a &lt;&lt; <span class="st">' '</span> &lt;&lt; b &lt;&lt; <span class="st">'\n'</span>;</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>0 1
+</samp></pre>
+      </div>
+      <p>
+        <code>std::vector&lt;bool&gt;</code> は、要素を1ビットずつ詰めて持つように特殊化されています。ビットにはアドレスが無いので、<code>v[0]</code> は <code>bool&amp;</code> を返せず、代わりに <code>std::vector&lt;bool&gt;::reference</code> という小さなオブジェクトを返します。このオブジェクトは、どの語のどのビットかを覚えていて、読むとそのビットの値を、代入するとそのビットへの書き込みをします。
+      </p>
+      <p>
+        <code>auto a = v[0];</code> の <code>auto</code> は、この <code>reference</code> 型に推論されます。<code>a</code> は <code>v[0]</code> のビットを指したままなので、あとで <code>v[0] = false;</code> とすると、<code>a</code> を読んだ値も <code>false</code> になります。<code>bool b = v[1];</code> は型を <code>bool</code> と書いているので、<code>reference</code> がその時点の値 <code>true</code> に変換されて <code>b</code> に入ります。そのため <code>v[1]</code> を書き換えても <code>b</code> は変わりません。<code>std::cout</code> は <code>bool</code> を <code>0</code> と <code>1</code> で出すので、出力は <code>0 1</code> です。
+      </p>
+      <p>
+        <code>std::vector&lt;int&gt;</code> なら <code>auto a = v[0];</code> は値のコピーになるので、同じ形で読むと <code>1 1</code> と答えてしまいます。<code>auto</code> が参照を外すのは、<code>operator[]</code> が本物の参照を返すときに限られます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

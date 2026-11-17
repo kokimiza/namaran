@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="入れ子の for の内側で、ラベル付きの continue :outer とラベルなしの break を使い分けて行を選ぶZigのドリル。どちらがどのループに効くかと、空の行で内側のループが1回も回らないことを組み合わせて出力を決める。">
+<title>ラベルの有無と空の行</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/read/2026-11-18">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / READ", "item": "https://namaran.jocarium.productions/zig/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-18" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / READ — 2026-11-18",
+      "url": "https://namaran.jocarium.productions/zig/read/2026-11-18",
+      "datePublished": "2026-11-18",
+      "dateModified": "2026-11-18",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "ラベルの有無と空の行" },
+      "keywords": "loop, continue-break, control-flow, string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "入れ子の for の内側で、ラベル付きの continue :outer とラベルなしの break を使い分けて行を選ぶZigのドリル。どちらがどのループに効くかと、空の行で内側のループが1回も回らないことを組み合わせて出力を決める。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-18">C23</a>
+  <a href="/cpp/read/2026-11-18">C++26</a>
+  <a href="/rust/read/2026-11-18">Rust 2024</a>
+  <a href="/haskell/read/2026-11-18">Haskell 2010</a>
+  <a href="/zig/read/2026-11-18" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-18" class="active" aria-current="page">READ</a>
+  <a href="/zig/write/2026-11-18">WRITE</a>
+  <a href="/zig/debug/2026-11-18">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="ラベルの有無と空の行"
+  data-tags="loop continue-break control-flow string"
+  data-concepts="ラベル付きcontinue, ラベルなしbreak, 入れ子のループ, 空のスライス, labeled continue, labeled loop, nested loop, break"
+  data-level="bison"
+>
+  <h2>2026-11-18</h2>
+  <div class="code-frame">
+    <p class="code-filename">skip_rows.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);</span>
+<span class="code-line"><span class="kw">const</span> rows = [_][]<span class="kw">const</span> <span class="ty">u8</span>{ <span class="st">"a #"</span>, <span class="st">"#"</span>, <span class="st">""</span> };</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {</span>
+<span class="code-line">    <span class="kw">var</span> buf: [<span class="nu">64</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line">    <span class="kw">const</span> stdout = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>();</span>
+<span class="code-line">    <span class="kw">var</span> w = stdout.<span class="fn">writer</span>(init.io, &amp;buf);</span>
+<span class="code-line">    <span class="kw">const</span> out = &amp;w.interface;</span>
+<span class="code-line">    <span class="lt">outer</span>: <span class="kw">for</span> (rows) |row| {</span>
+<span class="code-line">        <span class="kw">for</span> (row) |c| {</span>
+<span class="code-line">            <span class="kw">if</span> (c == <span class="st">'#'</span>) <span class="kw">continue</span> <span class="lt">:outer</span>;</span>
+<span class="code-line">            <span class="kw">if</span> (c == <span class="st">' '</span>) <span class="kw">break</span>;</span>
+<span class="code-line">        }</span>
+<span class="code-line">        <span class="kw">try</span> out.<span class="fn">print</span>(<span class="st">"[{s}]"</span>, .{row});</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="kw">try</span> out.<span class="fn">print</span>(<span class="st">"\n"</span>, .{});</span>
+<span class="code-line">    <span class="kw">try</span> out.<span class="fn">flush</span>();</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>[a #][]
+</samp></pre>
+      </div>
+      <p>
+        ラベルの無い <code>break</code> と <code>continue</code> は、それを囲む一番内側のループに効きます。外側のループに効かせるには、ループに <code>outer:</code> のようなラベルを付け、<code>continue :outer</code> のようにラベルを指定します。このコードでは、<code>continue :outer</code> は外側の <code>for</code> の次の行へ進み、<code>break</code> は内側の <code>for (row)</code> だけを抜けます。
+      </p>
+      <p>
+        1行目の <code>"a #"</code> では、<code>'a'</code> はどちらの条件にも当たらず、次の空白で <code>break</code> します。抜けるのは内側のループだけなので、外側のループの本体はその下の <code>print</code> へ進み、<code>[a #]</code> が出ます。空白の後ろの <code>'#'</code> は調べられません。2行目の <code>"#"</code> では最初の文字で <code>continue :outer</code> が実行され、外側の本体の残りにある <code>print</code> を飛ばして3行目へ進みます。3行目の <code>""</code> は長さが 0 なので、内側のループは1回も回らずに終わり、そのまま <code>print</code> で <code>[]</code> が出ます。
+      </p>
+      <p>
+        <code>break</code> が外側のループまで抜けると読むと、何も出力されないと答えてしまいます。<code>continue :outer</code> を内側のループの <code>continue</code> と同じに読むと、2行目も出力されて <code>[a #][#][]</code> になります。どちらの規則も分かっていても、空の行では内側のループが何もせずに終わることを見落とすと、<code>[a #]</code> と答えることになります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/read">Today</a></li>
+    <li><a href="/zig/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
