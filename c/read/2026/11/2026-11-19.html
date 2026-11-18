@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="atomic_exchange で旗を立ててから初期化する自前の一度きりの初期化を、初期化の途中で同じ関数を呼び直して読むCのドリル。旗は先に立つので、途中の呼び出しは初期化を待たずに値を返す。">
+<title>旗を先に立てる初期化</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-11-19">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-19" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-11-19",
+      "url": "https://namaran.jocarium.productions/c/read/2026-11-19",
+      "datePublished": "2026-11-19",
+      "dateModified": "2026-11-19",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "旗を先に立てる初期化" },
+      "keywords": "atomic, lazy-initialization, reentrancy, static-storage, thread-safety",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "atomic_exchange で旗を立ててから初期化する自前の一度きりの初期化を、初期化の途中で同じ関数を呼び直して読むCのドリル。旗は先に立つので、途中の呼び出しは初期化を待たずに値を返す。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-19" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-11-19">C++26</a>
+  <a href="/rust/read/2026-11-19">Rust 2024</a>
+  <a href="/haskell/read/2026-11-19">Haskell 2010</a>
+  <a href="/zig/read/2026-11-19">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-19" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-11-19">WRITE</a>
+  <a href="/c/debug/2026-11-19">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="旗を先に立てる初期化"
+  data-tags="atomic lazy-initialization reentrancy static-storage thread-safety"
+  data-concepts="一度きりの初期化, atomic_exchange, 再入, 静的変数のゼロ初期化, call_once, one-time initialization, reentrant call"
+  data-level="bison"
+>
+  <h2>2026-11-19</h2>
+  <div class="code-frame">
+    <p class="code-filename">lazy_base.c</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stdatomic.h&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">static</span> <span class="ty">int</span> <span class="fn">get</span>(<span class="ty">void</span>) {</span>
+<span class="code-line">    <span class="kw">static</span> atomic_bool started;</span>
+<span class="code-line">    <span class="kw">static</span> <span class="ty">int</span> base;</span>
+<span class="code-line">    <span class="kw">if</span> (!<span class="fn">atomic_exchange</span>(&amp;started, <span class="nu">true</span>)) {</span>
+<span class="code-line">        <span class="fn">printf</span>(<span class="st">"init %d\n"</span>, <span class="fn">get</span>());</span>
+<span class="code-line">        base = <span class="nu">10</span>;</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="kw">return</span> base;</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {</span>
+<span class="code-line">    <span class="fn">printf</span>(<span class="st">"%d\n"</span>, <span class="fn">get</span>());</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>init 0
+10
+</samp></pre>
+      </div>
+      <p>
+        <code>atomic_exchange</code> は、新しい値を書き込み、書き込む前の値を返します。この2つは1つの操作として行われるので、複数のスレッドが同時に呼んでも <code>false</code> を受け取るのは1回だけです。<code>get</code> はこの性質を使って、初期化する役を1人に絞っています。ただし旗が立つのは初期化を始める時点で、終えた時点ではありません。
+      </p>
+      <p>
+        <code>main</code> からの1回目の呼び出しでは、<code>started</code> は静的変数なので最初は <code>false</code> です。<code>atomic_exchange</code> は <code>false</code> を返して旗を <code>true</code> にし、<code>if</code> の中へ進みます。<code>printf</code> が何かを書く前に、引数の <code>get()</code> が評価されます。この2回目の呼び出しでは <code>atomic_exchange</code> が <code>true</code> を返すので <code>if</code> を飛ばし、その時点の <code>base</code> を返します。<code>base</code> もまだ一度も代入されていない静的変数なので 0 です。こうして先に <code>init 0</code> が出て、そのあと <code>base</code> が 10 になり、1回目の呼び出しが 10 を返して <code>main</code> が <code>10</code> を出します。
+      </p>
+      <p>
+        旗を「初期化が済んだ」印と読むと、2回目の呼び出しも <code>if</code> に入ると考え、再帰が止まらないと答えることになります。<code>call_once</code> のように、ほかの呼び出しは初期化が終わるまで待つと考えると <code>init 10</code> と答えますが、この自前の仕組みには待つ処理がありません。2回目の呼び出しは、別のスレッドが初期化の途中に <code>get</code> を呼んだ場合と同じ立場にあり、そのスレッドも 0 を受け取ります。<code>call_once</code> は、ほかの呼び出しを初期化の完了まで待たせることで、これを防いでいます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

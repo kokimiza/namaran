@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="長さ1バイトと中身からなる記録を並べたログから、完全な記録だけを取り出すRustのドリル。書き込みの途中で障害が起きると最後の記録が途中で切れるので、split_at_checked で足りない記録を見つけて読むのをやめる。">
+<title>途中で切れたログの末尾</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-11-19">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-19" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-11-19",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-11-19",
+      "datePublished": "2026-11-19",
+      "dateModified": "2026-11-19",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "途中で切れたログの末尾" },
+      "keywords": "write-ahead-log, slice, parsing, panic",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "長さ1バイトと中身からなる記録を並べたログから、完全な記録だけを取り出すRustのドリル。書き込みの途中で障害が起きると最後の記録が途中で切れるので、split_at_checked で足りない記録を見つけて読むのをやめる。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-19">C23</a>
+  <a href="/cpp/write/2026-11-19">C++26</a>
+  <a href="/rust/write/2026-11-19" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-11-19">Haskell 2010</a>
+  <a href="/zig/write/2026-11-19">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-19">READ</a>
+  <a href="/rust/write/2026-11-19" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-11-19">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="途中で切れたログの末尾"
+  data-tags="write-ahead-log slice parsing panic"
+  data-concepts="WAL, 障害回復, 途中で切れた記録, スライスの分割, torn write, crash recovery, split_at_checked"
+  data-level="peacock"
+>
+  <h2>2026-11-19</h2>
+  <div class="code-frame">
+    <p class="code-filename">records.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">records</span>(log: &amp;[<span class="ty">u8</span>]) -&gt; <span class="ty">Vec</span>&lt;&amp;[<span class="ty">u8</span>]&gt; {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    ログ <code>log</code> は記録を順に並べたバイト列で、1つの記録は長さ <code>n</code> を表す1バイトと、それに続く <code>n</code> バイトの中身からなります。記録の中身を先頭から順に並べて返す <code>records</code> を書いてください。ログは追記の途中で障害が起きたものかもしれず、最後の記録は中身が <code>n</code> バイトに足りないことがあります。そのときは、それより前の完全な記録だけを返します。<code>log</code> が空なら空の <code>Vec</code> を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>records(&amp;[2, 7, 7, 1, 9])</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>[[7, 7], [9]]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>records(&amp;[1, 5, 3, 8])</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>[[5]]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>records(&amp;[])</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>[]</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">records</span>(log: &amp;[<span class="ty">u8</span>]) -&gt; <span class="ty">Vec</span>&lt;&amp;[<span class="ty">u8</span>]&gt; {</span>
+<span class="code-line ins">    <span class="kw">let</span> <span class="kw">mut</span> out = <span class="ty">Vec</span>::<span class="fn">new</span>();</span>
+<span class="code-line ins">    <span class="kw">let</span> <span class="kw">mut</span> rest = log;</span>
+<span class="code-line ins">    <span class="kw">while</span> <span class="kw">let</span> <span class="fn">Some</span>((&amp;n, tail)) =</span>
+<span class="code-line ins">        rest.<span class="fn">split_first</span>()</span>
+<span class="code-line ins">    {</span>
+<span class="code-line ins">        <span class="kw">let</span> <span class="fn">Some</span>((rec, next)) = tail</span>
+<span class="code-line ins">            .<span class="fn">split_at_checked</span>(n <span class="kw">as</span> <span class="ty">usize</span>)</span>
+<span class="code-line ins">        <span class="kw">else</span> {</span>
+<span class="code-line ins">            <span class="kw">break</span>;</span>
+<span class="code-line ins">        };</span>
+<span class="code-line ins">        out.<span class="fn">push</span>(rec);</span>
+<span class="code-line ins">        rest = next;</span>
+<span class="code-line ins">    }</span>
+<span class="code-line ins">    out</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        参考実装は、まだ読んでいない部分 <code>rest</code> の先頭から長さの1バイトを <code>split_first</code> で取り出し、残り <code>tail</code> を <code>split_at_checked</code> で中身とその後ろに分けます。<code>split_at_checked</code> は、<code>tail</code> が <code>n</code> バイトに足りなければ panic せずに <code>None</code> を返すので、<code>let ... else</code> でそこを途中で切れた記録とみなし、ループを抜けます。<code>tail.split_at(n as usize)</code> や <code>&amp;tail[..n as usize]</code> と書くと、障害のあとに残った正常な記録を読み出す前に、復元そのものが panic で止まります。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        入力例 1 では、長さ 2 の記録 <code>[7, 7]</code> と長さ 1 の記録 <code>[9]</code> を取り出したところで <code>rest</code> が空になり、<code>split_first</code> が <code>None</code> を返してループが終わります。入力例 2 では2つ目の記録が長さ 3 を名乗っているのに、残りは <code>[8]</code> の1バイトしかないので、<code>[[5]]</code> を返します。空のログでは最初の <code>split_first</code> が <code>None</code> です。取り出した中身は <code>log</code> を指すスライスのままで、コピーはしません。戻り値の <code>Vec&lt;&amp;[u8]&gt;</code> の寿命は、ライフタイム省略の規則で引数 <code>log</code> と結び付いています。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

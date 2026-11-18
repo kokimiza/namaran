@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="コミットされたトランザクションの更新だけを WAL から復元するはずのRustのドリル。障害で書きかけのまま残ったトランザクションの記録が、再起動後に始まった次のトランザクションのコミットに巻き込まれて復活する。">
+<title>障害で残った書きかけ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-11-19">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-19" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-11-19",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-11-19",
+      "datePublished": "2026-11-19",
+      "dateModified": "2026-11-19",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "障害で残った書きかけ" },
+      "keywords": "write-ahead-log, transaction, durability, pattern-matching",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "コミットされたトランザクションの更新だけを WAL から復元するはずのRustのドリル。障害で書きかけのまま残ったトランザクションの記録が、再起動後に始まった次のトランザクションのコミットに巻き込まれて復活する。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-19">C23</a>
+  <a href="/cpp/debug/2026-11-19">C++26</a>
+  <a href="/rust/debug/2026-11-19" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-19">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-19">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-19">READ</a>
+  <a href="/rust/write/2026-11-19">WRITE</a>
+  <a href="/rust/debug/2026-11-19" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="障害で残った書きかけ"
+  data-tags="write-ahead-log transaction durability pattern-matching"
+  data-concepts="WAL, トランザクション, コミット, 障害回復, 書きかけのトランザクション, crash recovery, uncommitted transaction"
+  data-level="bison"
+>
+  <h2>2026-11-19</h2>
+  <div class="code-frame">
+    <p class="code-filename">replay.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="kw">let</span> log = <span class="st">"begin a=1 begin b=2 commit"</span>;</span>
+<span class="code-line">    <span class="kw">let</span> <span class="kw">mut</span> db = <span class="ty">Vec</span>::<span class="fn">new</span>();</span>
+<span class="code-line">    <span class="kw">let</span> <span class="kw">mut</span> tx = <span class="ty">Vec</span>::<span class="fn">new</span>();</span>
+<span class="code-line">    <span class="kw">for</span> rec <span class="kw">in</span> log.<span class="fn">split</span>(<span class="st">' '</span>) {</span>
+<span class="code-line">        <span class="kw">match</span> rec {</span>
+<span class="code-line">            <span class="st">"begin"</span> =&gt; {}</span>
+<span class="code-line">            <span class="st">"commit"</span> =&gt; db.<span class="fn">append</span>(&amp;<span class="kw">mut</span> tx),</span>
+<span class="code-line">            set =&gt; tx.<span class="fn">push</span>(set),</span>
+<span class="code-line">        }</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="mc">println!</span>(<span class="st">"{db:?}"</span>);</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    書き込みのログ <code>log</code> を先頭から読み直し、コミットまで済んだトランザクションの更新だけを <code>db</code> に復元するつもりのプログラムです。ログは <code>begin</code> でトランザクションを始め、<code>キー=値</code> の更新を並べ、<code>commit</code> で確定します。この <code>log</code> は、<code>a=1</code> を書いたところでプロセスが落ち、再起動後のトランザクションが <code>b=2</code> をコミットしたものです。<code>["b=2"]</code> と出るはずが、いまは <code>["a=1", "b=2"]</code> と出て、コミットされていない <code>a=1</code> が復元されています。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line"><span class="kw">match</span> rec {</span>
+<span class="code-line del">    <span class="st">"begin"</span> =&gt; <span class="chg">{}</span></span>
+<span class="code-line">    <span class="st">"commit"</span> =&gt; db.<span class="fn">append</span>(&amp;<span class="kw">mut</span> tx),</span>
+<span class="code-line">    set =&gt; tx.<span class="fn">push</span>(set),</span>
+<span class="code-line">}</span>
+</code></pre>
+      <p>
+        <code>tx</code> は、いま読んでいるトランザクションの更新を <code>commit</code> まで溜めておく場所です。コミット済みのトランザクションなら、<code>commit</code> の腕の <code>append</code> が <code>tx</code> の中身をすべて <code>db</code> へ移し、<code>tx</code> は空に戻ります。ところが障害で途切れたトランザクションには <code>commit</code> が来ないので、<code>a=1</code> は <code>tx</code> に残ったままです。ログは再起動後も同じファイルに続けて書かれるので、次の <code>begin</code> が来ますが、<code>begin</code> の腕は何もしません。続く <code>b=2</code> が <code>a=1</code> の後ろに積まれ、<code>commit</code> で2つまとめて <code>db</code> に移ります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line"><span class="kw">match</span> rec {</span>
+<span class="code-line ins">    <span class="st">"begin"</span> =&gt; <span class="chg">tx.<span class="fn">clear</span>(),</span></span>
+<span class="code-line">    <span class="st">"commit"</span> =&gt; db.<span class="fn">append</span>(&amp;<span class="kw">mut</span> tx),</span>
+<span class="code-line">    set =&gt; tx.<span class="fn">push</span>(set),</span>
+<span class="code-line">}</span>
+</code></pre>
+      <p>
+        <code>begin</code> は新しいトランザクションの始まりなので、その時点で <code>tx</code> に残っている更新は、コミットされずに終わったトランザクションのものです。<code>begin</code> で <code>tx.clear()</code> すれば、それを捨ててから次のトランザクションを読み始められます。コミットされた直後の <code>begin</code> では <code>tx</code> はもう空なので、捨てるものはありません。ログの末尾が書きかけで終わった場合は、最後の更新が <code>tx</code> に残ったままループが終わり、<code>db</code> には入りません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

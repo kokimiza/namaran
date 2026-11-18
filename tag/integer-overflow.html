@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「整数オーバーフロー」を扱ったNamaranのコーディングドリル33問。inline for、ループの展開、タプル、ラッピング加算、+%、整数の型。">
+<meta name="description" content="「整数オーバーフロー」を扱ったNamaranのコーディングドリル34問。符号付き整数のオーバーフロー、篩、最小素因数、未定義動作、signed integer overflow、sieve。">
 <title>整数オーバーフロー</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/integer-overflow">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>整数オーバーフロー</h2>
 
   <p class="lede">
-    「整数オーバーフロー」を扱った33問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「整数オーバーフロー」を扱った34問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/cpp/debug/2026-11-19">C++ / DEBUG · 2026-11-19</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">10万までの篩が落ちる</span> <span class="past-concepts">符号付き整数のオーバーフロー, 篩, 最小素因数, 未定義動作, signed integer overflow, sieve, smallest prime factor</span></li>
     <li><a href="/zig/read/2026-11-16">Zig / READ · 2026-11-16</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">要素ごとに型が違うループ</span> <span class="past-concepts">inline for, ループの展開, タプル, ラッピング加算, +%, 整数の型, comptime, loop unrolling, wrapping addition, anonymous tuple</span></li>
     <li><a href="/zig/debug/2026-11-13">Zig / DEBUG · 2026-11-13</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">要素の型で合計する</span> <span class="past-concepts">@TypeOf, anytype, 合計のオーバーフロー, u8, 平均, illegal behavior, integer overflow, accumulator type</span></li>
     <li><a href="/zig/debug/2026-11-11">Zig / DEBUG · 2026-11-11</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">個数の型が1ビット足りない</span> <span class="past-concepts">comptime, IntFittingRange, 型を返す関数, 整数のオーバーフロー, 2の累乗, illegal behavior, integer overflow, off-by-one</span></li>

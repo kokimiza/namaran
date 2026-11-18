@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「アトミック操作」を扱ったNamaranのコーディングドリル13問。口座間の送金、atomicModifyIORef'、確認と更新を不可分に、Data.Map、check-then-act、atomic transfer。">
+<meta name="description" content="「アトミック操作」を扱ったNamaranのコーディングドリル14問。一度きりの初期化、atomic_exchange、再入、静的変数のゼロ初期化、call_once、one-time initialization。">
 <title>アトミック操作</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/atomic">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>アトミック操作</h2>
 
   <p class="lede">
-    「アトミック操作」を扱った13問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「アトミック操作」を扱った14問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/c/read/2026-11-19">C / READ · 2026-11-19</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">旗を先に立てる初期化</span> <span class="past-concepts">一度きりの初期化, atomic_exchange, 再入, 静的変数のゼロ初期化, call_once, one-time initialization, reentrant call</span></li>
     <li><a href="/haskell/write/2026-11-03">Haskell / WRITE · 2026-11-03</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">2つの口座を1度に更新</span> <span class="past-concepts">口座間の送金, atomicModifyIORef', 確認と更新を不可分に, Data.Map, check-then-act, atomic transfer</span></li>
     <li><a href="/haskell/debug/2026-11-03">Haskell / DEBUG · 2026-11-03</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">戻す側が消す取り置き</span> <span class="past-concepts">modifyIORef', atomicModifyIORef', 更新の消失, 在庫の取り置きと返却, lost update, non-atomic read-modify-write</span></li>
     <li><a href="/cpp/write/2026-10-26">C++ / WRITE · 2026-10-26</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">版番号つきの値の更新</span> <span class="past-concepts">ABA問題, 版番号, タグ付きCAS, compare_exchange_strong, ABA problem, version counter</span></li>

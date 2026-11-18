@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="ファイルから読んだポート番号を std.fmt.parseInt で数値にするZigのドリル。ファイルの中身は改行で終わり、parseInt は前後の空白や改行を読み飛ばさないので error.InvalidCharacter で失敗する。">
+<title>ファイル末尾の改行</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/debug/2026-11-19">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / DEBUG", "item": "https://namaran.jocarium.productions/zig/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-19" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / DEBUG — 2026-11-19",
+      "url": "https://namaran.jocarium.productions/zig/debug/2026-11-19",
+      "datePublished": "2026-11-19",
+      "dateModified": "2026-11-19",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "ファイル末尾の改行" },
+      "keywords": "parsing, line-ending, error-handling, string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "ファイルから読んだポート番号を std.fmt.parseInt で数値にするZigのドリル。ファイルの中身は改行で終わり、parseInt は前後の空白や改行を読み飛ばさないので error.InvalidCharacter で失敗する。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-19">C23</a>
+  <a href="/cpp/debug/2026-11-19">C++26</a>
+  <a href="/rust/debug/2026-11-19">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-19">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-19" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-19">READ</a>
+  <a href="/zig/write/2026-11-19">WRITE</a>
+  <a href="/zig/debug/2026-11-19" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="ファイル末尾の改行"
+  data-tags="parsing line-ending error-handling string"
+  data-concepts="std.fmt.parseInt, InvalidCharacter, 末尾の改行, trimEnd, 設定ファイル, trailing newline, error union"
+  data-level="hedgehog"
+>
+  <h2>2026-11-19</h2>
+  <div class="code-frame">
+    <p class="code-filename">port.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">parsePort</span>(text: []<span class="kw">const</span> <span class="ty">u8</span>) !<span class="ty">u16</span> {</span>
+<span class="code-line">    <span class="kw">return</span> std.fmt.<span class="fn">parseInt</span>(<span class="ty">u16</span>, text, <span class="nu">10</span>);</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {</span>
+<span class="code-line">    <span class="kw">var</span> buf: [<span class="nu">64</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line">    <span class="kw">const</span> stdout = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>();</span>
+<span class="code-line">    <span class="kw">var</span> w = stdout.<span class="fn">writer</span>(init.io, &amp;buf);</span>
+<span class="code-line">    <span class="kw">const</span> out = &amp;w.interface;</span>
+<span class="code-line">    <span class="kw">const</span> port = <span class="kw">try</span> <span class="fn">parsePort</span>(<span class="st">"8080\n"</span>);</span>
+<span class="code-line">    <span class="kw">try</span> out.<span class="fn">print</span>(<span class="st">"{d}\n"</span>, .{port});</span>
+<span class="code-line">    <span class="kw">try</span> out.<span class="fn">flush</span>();</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    設定ファイル port.txt の中身からポート番号を読み、標準出力に出すつもりのプログラムです。<code>parsePort</code> に渡している <code>"8080\n"</code> は、port.txt を丸ごと読んだ中身の代わりです。<code>8080</code> と出るはずが、いまは標準出力に何も出ず、標準エラーに <code>error: InvalidCharacter</code> とエラーの経路を出して終了します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">parsePort</span>(text: []<span class="kw">const</span> <span class="ty">u8</span>) !<span class="ty">u16</span> {</span>
+<span class="code-line del">    <span class="kw">return</span> std.fmt.<span class="fn">parseInt</span>(<span class="chg"><span class="ty">u16</span>, text, <span class="nu">10</span>);</span></span>
+<span class="code-line">}</span>
+</code></pre>
+      <p>
+        テキストファイルは最後の行も改行で終わるのがふつうなので、port.txt を丸ごと読むと <code>"8080\n"</code> の5バイトになります。<code>std.fmt.parseInt</code> は先頭の <code>+</code> や <code>-</code> と <code>_</code> のほかは数字しか受け付けず、前後の空白や改行も読み飛ばしません。4桁を読んだあとの <code>'\n'</code> が数字ではないので <code>error.InvalidCharacter</code> を返し、<code>main</code> の <code>try</code> がそれをそのまま返して、<code>print</code> に着く前にプログラムが終わります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">parsePort</span>(text: []<span class="kw">const</span> <span class="ty">u8</span>) !<span class="ty">u16</span> {</span>
+<span class="code-line ins">    <span class="kw">return</span> std.fmt.<span class="fn">parseInt</span>(</span>
+<span class="code-line ins">        <span class="ty">u16</span>,</span>
+<span class="code-line ins">        std.mem.<span class="fn">trimEnd</span>(<span class="ty">u8</span>, text, <span class="st">"\r\n"</span>),</span>
+<span class="code-line ins">        <span class="nu">10</span>,</span>
+<span class="code-line ins">    );</span>
+<span class="code-line">}</span>
+</code></pre>
+      <p>
+        <code>std.mem.trimEnd(u8, text, "\r\n")</code> は、<code>text</code> の末尾から <code>'\r'</code> と <code>'\n'</code> を取り除いたスライスを返します。<code>parseInt</code> に渡るのは <code>"8080"</code> になり、8080 を返します。<code>'\r'</code> も取り除くので、改行が <code>"\r\n"</code> のファイルでも同じように読めます。数字の途中に紛れ込んだ文字は取り除かないので、壊れた設定はこれまでどおり <code>error.InvalidCharacter</code> で止まります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/debug">Today</a></li>
+    <li><a href="/zig/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

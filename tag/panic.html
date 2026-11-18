@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「パニック」を扱ったNamaranのコーディングドリル17問。@alignCast、@ptrCast、アラインメント、align(1)、incorrect alignment、ポインタの型変換。">
+<meta name="description" content="「パニック」を扱ったNamaranのコーディングドリル18問。WAL、障害回復、途中で切れた記録、スライスの分割、torn write、crash recovery。">
 <title>パニック</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/panic">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>パニック</h2>
 
   <p class="lede">
-    「パニック」を扱った17問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「パニック」を扱った18問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/write/2026-11-19">Rust / WRITE · 2026-11-19</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">途中で切れたログの末尾</span> <span class="past-concepts">WAL, 障害回復, 途中で切れた記録, スライスの分割, torn write, crash recovery, split_at_checked</span></li>
     <li><a href="/zig/debug/2026-11-15">Zig / DEBUG · 2026-11-15</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">1バイトずれたu32を読む</span> <span class="past-concepts">@alignCast, @ptrCast, アラインメント, align(1), incorrect alignment, ポインタの型変換, unaligned read, pointer alignment</span></li>
     <li><a href="/zig/debug/2026-11-13">Zig / DEBUG · 2026-11-13</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">要素の型で合計する</span> <span class="past-concepts">@TypeOf, anytype, 合計のオーバーフロー, u8, 平均, illegal behavior, integer overflow, accumulator type</span></li>
     <li><a href="/rust/debug/2026-11-10">Rust / DEBUG · 2026-11-10</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">1文字目だけ残す</span> <span class="past-concepts">文字列スライス, バイト位置, 文字境界, UTF-8, char_indices, chars, メールアドレスのマスキング, char boundary, string slicing</span></li>

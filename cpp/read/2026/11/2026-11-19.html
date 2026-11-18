@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="最小素因数の表を作るつもりの篩から、書き込む前に空きかどうかを確かめる条件が抜けたC++のドリル。i * i から始める内側のループと、後から書いた値が残る上書きが組み合わさって、表に何が残るか。">
+<title>確かめずに書く篩</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-11-19">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-19" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-11-19",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-11-19",
+      "datePublished": "2026-11-19",
+      "dateModified": "2026-11-19",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "確かめずに書く篩" },
+      "keywords": "sieve-of-eratosthenes, prime-factorization, loop, vector",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "最小素因数の表を作るつもりの篩から、書き込む前に空きかどうかを確かめる条件が抜けたC++のドリル。i * i から始める内側のループと、後から書いた値が残る上書きが組み合わさって、表に何が残るか。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-19">C23</a>
+  <a href="/cpp/read/2026-11-19" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-11-19">Rust 2024</a>
+  <a href="/haskell/read/2026-11-19">Haskell 2010</a>
+  <a href="/zig/read/2026-11-19">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-19" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-11-19">WRITE</a>
+  <a href="/cpp/debug/2026-11-19">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="確かめずに書く篩"
+  data-tags="sieve-of-eratosthenes prime-factorization loop vector"
+  data-concepts="最小素因数, 篩, エラトステネスの篩, 上書き, smallest prime factor, sieve, prime factorization"
+  data-level="bison"
+>
+  <h2>2026-11-19</h2>
+  <div class="code-frame">
+    <p class="code-filename">spf_table.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;vector&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt; <span class="fn">spf</span>(<span class="nu">16</span>);</span>
+<span class="code-line">    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">2</span>; i &lt; <span class="nu">16</span>; ++i)</span>
+<span class="code-line">        <span class="kw">if</span> (spf[i] == <span class="nu">0</span>)</span>
+<span class="code-line">            <span class="kw">for</span> (<span class="ty">int</span> j = i * i; j &lt; <span class="nu">16</span>;</span>
+<span class="code-line">                 j += i)</span>
+<span class="code-line">                spf[j] = i;</span>
+<span class="code-line">    <span class="kw">for</span> (<span class="ty">int</span> x : {<span class="nu">15</span>, <span class="nu">12</span>, <span class="nu">7</span>})</span>
+<span class="code-line">        std::cout &lt;&lt; spf[x] &lt;&lt; <span class="st">' '</span>;</span>
+<span class="code-line">    std::cout &lt;&lt; <span class="st">'\n'</span>;</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>3 3 0 
+</samp></pre>
+      </div>
+      <p>
+        外側のループは、<code>spf[i]</code> がまだ 0 の <code>i</code> だけを素数として扱い、その倍数に <code>i</code> を書き込みます。書き込む前に空いているかを確かめないので、1つの要素に何度も書き込まれ、最後に書いた値が残ります。内側のループは <code>i * i</code> から始まり、素数 <code>i</code> 自身には何も書きません。この3つの規則が同時に効くので、<code>spf[x]</code> に残るのは「2乗が <code>x</code> 以下になる <code>x</code> の素因数のうち最大のもの」で、そういう素因数がなければ 0 です。
+      </p>
+      <p>
+        このコードの値で確かめます。<code>12</code> には、<code>i = 2</code> のループが 4, 6, …, 12 と進んで 2 を書き、そのあと <code>i = 3</code> のループが 9, 12, 15 と進んで 3 で上書きします。<code>15</code> にも <code>i = 3</code> のループが 3 を書きますが、15 のもう1つの素因数 5 のループは 25 から始まるので、16 未満には何も書きません。<code>7</code> は偶数でも 3 の倍数でもなく、7 自身のループは 49 から始まるので、誰も書き込まずに 0 のまま残ります。こうして <code>3 3 0 </code> が出ます。書き込みが重なっても、<code>spf[i] == 0</code> で素数を見分ける判定は崩れません。合成数 <code>i</code> には2乗が <code>i</code> 以下の素因数が必ずあり、そのループが <code>i</code> に着く前に書き込んでいるからです。
+      </p>
+      <p>
+        表には最小の素因数が入ると思って読むと <code>3 2 0</code> になり、素数には自分自身が入ると思えば最後が <code>7</code> になります。上書きで最大の素因数が残ることには気付いても、内側のループが <code>i * i</code> から始まることを忘れると、<code>15</code> に 5 が入ると考えて <code>5 3 0</code> と答えます。最小の素因数の表にするには、<code>spf[j] == 0</code> のときだけ書き込み、素数 <code>i</code> には <code>spf[i] = i</code> と自分を入れます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

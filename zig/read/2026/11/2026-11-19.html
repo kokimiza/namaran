@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="0 から 999 までの整数について、std.fmt.count で {x} と {d} の書式の長さを比べ、等しいものを数えるZigのドリル。1000回を追わずに、桁数が変わる境目だけを見て数える。">
+<title>16進と10進の桁数</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/read/2026-11-19">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / READ", "item": "https://namaran.jocarium.productions/zig/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-19" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / READ — 2026-11-19",
+      "url": "https://namaran.jocarium.productions/zig/read/2026-11-19",
+      "datePublished": "2026-11-19",
+      "dateModified": "2026-11-19",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "16進と10進の桁数" },
+      "keywords": "format-string, radix-conversion, loop, builtin-function",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "0 から 999 までの整数について、std.fmt.count で {x} と {d} の書式の長さを比べ、等しいものを数えるZigのドリル。1000回を追わずに、桁数が変わる境目だけを見て数える。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-19">C23</a>
+  <a href="/cpp/read/2026-11-19">C++26</a>
+  <a href="/rust/read/2026-11-19">Rust 2024</a>
+  <a href="/haskell/read/2026-11-19">Haskell 2010</a>
+  <a href="/zig/read/2026-11-19" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-19" class="active" aria-current="page">READ</a>
+  <a href="/zig/write/2026-11-19">WRITE</a>
+  <a href="/zig/debug/2026-11-19">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="16進と10進の桁数"
+  data-tags="format-string radix-conversion loop builtin-function"
+  data-concepts="std.fmt.count, 書式指定, 16進数, 10進数, 桁数, format specifier, hexadecimal, digit count"
+  data-level="whale"
+>
+  <h2>2026-11-19</h2>
+  <div class="code-frame">
+    <p class="code-filename">same_width.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);</span>
+<span class="code-line"><span class="kw">const</span> count = std.fmt.count;</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {</span>
+<span class="code-line">    <span class="kw">var</span> buf: [<span class="nu">64</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line">    <span class="kw">const</span> stdout = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>();</span>
+<span class="code-line">    <span class="kw">var</span> w = stdout.<span class="fn">writer</span>(init.io, &amp;buf);</span>
+<span class="code-line">    <span class="kw">const</span> out = &amp;w.interface;</span>
+<span class="code-line">    <span class="kw">var</span> n: <span class="ty">u32</span> = <span class="nu">0</span>;</span>
+<span class="code-line">    <span class="kw">for</span> (<span class="nu">0</span>..<span class="nu">1000</span>) |i| {</span>
+<span class="code-line">        <span class="kw">const</span> hex = <span class="fn">count</span>(<span class="st">"{x}"</span>, .{i});</span>
+<span class="code-line">        <span class="kw">const</span> dec = <span class="fn">count</span>(<span class="st">"{d}"</span>, .{i});</span>
+<span class="code-line">        <span class="kw">if</span> (hex == dec) n += <span class="nu">1</span>;</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="kw">try</span> out.<span class="fn">print</span>(<span class="st">"{d}\n"</span>, .{n});</span>
+<span class="code-line">    <span class="kw">try</span> out.<span class="fn">flush</span>();</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>838
+</samp></pre>
+      </div>
+      <p>
+        <code>std.fmt.count</code> は、書式と引数から作られる文字列のバイト数を、どこにも書き出さずに返します。<code>{x}</code> は小文字の16進数を <code>0x</code> も先頭の 0 も付けずに書き、<code>{d}</code> は10進数を書くので、<code>hex == dec</code> は「16進で書いた桁数と10進で書いた桁数が等しい」という条件です。0 はどちらでも <code>0</code> の1文字です。
+      </p>
+      <p>
+        1000回を1つずつ追う必要はありません。桁数が変わるのは、10進では 10 と 100、16進では 16 と 256 のところだけで、そのあいだでは両方の桁数が一定です。この4つの境目で 0〜999 を区切ると、0〜9 は両方1桁で 10 個、10〜15 は16進では <code>a</code>〜<code>f</code> の1桁なのに10進は2桁、16〜99 は両方2桁で 84 個、100〜255 は16進では <code>ff</code> までの2桁なのに10進は3桁、256〜999 は両方3桁で 744 個です。等しい区間を足すと 10 + 84 + 744 = 838 になります。16進が4桁になるのは 4096 からで、この範囲には入りません。
+      </p>
+      <p>
+        16 は 10 より大きいので、16進の桁数が10進より多くなることはありません。食い違うのは、10進が先に桁を増やし、16進がまだ追い付いていない 10〜15 と 100〜255 だけです。この2つの区間を見落とすと 1000 と答え、1桁どうしの 0〜9 しか一致しないと考えると 10 と答えることになります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/read">Today</a></li>
+    <li><a href="/zig/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

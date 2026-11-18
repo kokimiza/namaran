@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="バックスラッシュを必要なときだけ \\ にする、短さを優先したエスケープが、行末のバックスラッシュで改行を失うHaskellのドリル。バックスラッシュを二重にするかどうかを、元の次の文字ではなく、エスケープしたあとの次の文字で決める必要がある。">
+<title>必要なときだけの\\</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-11-19">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-19" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-11-19",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-11-19",
+      "datePublished": "2026-11-19",
+      "dateModified": "2026-11-19",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "必要なときだけの\\\\" },
+      "keywords": "string-escaping, pattern-matching, invariant, string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "バックスラッシュを必要なときだけ \\\\ にする、短さを優先したエスケープが、行末のバックスラッシュで改行を失うHaskellのドリル。バックスラッシュを二重にするかどうかを、元の次の文字ではなく、エスケープしたあとの次の文字で決める必要がある。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-19">C23</a>
+  <a href="/cpp/debug/2026-11-19">C++26</a>
+  <a href="/rust/debug/2026-11-19">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-19" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-19">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-19">READ</a>
+  <a href="/haskell/write/2026-11-19">WRITE</a>
+  <a href="/haskell/debug/2026-11-19" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="必要なときだけの\\"
+  data-tags="string-escaping pattern-matching invariant string"
+  data-concepts="エスケープ, アンエスケープ, 往復, 曖昧さ, 行継続, escape, unescape, round trip, ambiguity"
+  data-level="whale"
+>
+  <h2>2026-11-19</h2>
+  <div class="code-frame">
+    <p class="code-filename">Continuation.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="fn">escape</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">String</span></span>
+<span class="code-line"><span class="fn">escape</span> (<span class="st">'\\'</span> : s@(c : _))</span>
+<span class="code-line">  | c `elem` <span class="st">"\\n"</span> = <span class="st">'\\'</span> : <span class="st">'\\'</span> : escape s</span>
+<span class="code-line"><span class="fn">escape</span> (<span class="st">'\n'</span> : s) = <span class="st">'\\'</span> : <span class="st">'n'</span> : escape s</span>
+<span class="code-line"><span class="fn">escape</span> (c : s) = c : escape s</span>
+<span class="code-line"><span class="fn">escape</span> [] = []</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">unescape</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">String</span></span>
+<span class="code-line"><span class="fn">unescape</span> (<span class="st">'\\'</span> : <span class="st">'n'</span> : s) = <span class="st">'\n'</span> : unescape s</span>
+<span class="code-line"><span class="fn">unescape</span> (<span class="st">'\\'</span> : <span class="st">'\\'</span> : s) =</span>
+<span class="code-line">  <span class="st">'\\'</span> : unescape s</span>
+<span class="code-line"><span class="fn">unescape</span> (c : s) = c : unescape s</span>
+<span class="code-line"><span class="fn">unescape</span> [] = []</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()</span>
+<span class="code-line"><span class="fn">main</span> = print (unescape (escape <span class="st">"ls \\\n-l"</span>))</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    改行を <code>\n</code> の2文字にするエスケープ <code>escape</code> と、それを元に戻す <code>unescape</code> です。出力を短く保つため、<code>escape</code> はバックスラッシュを、そのままでは読み違えられるときだけ <code>\\</code> の2文字にします。<code>unescape (escape s)</code> はどの <code>s</code> でも <code>s</code> に戻るはずです。行末のバックスラッシュで次の行へ続けるシェルのコマンド <code>"ls \\\n-l"</code>(Haskell の文字列リテラルで書いています)では、<code>"ls \\\n-l"</code> と出るはずが、いまは <code>"ls \\n-l"</code> と出て、改行が <code>n</code> に変わっています。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line"><span class="fn">escape</span> (<span class="st">'\\'</span> : s@(c : _))</span>
+<span class="code-line del">  | c `elem` <span class="st">"\\n"</span> = <span class="st">'\\'</span> : <span class="st">'\\'</span> : escape s</span>
+</code></pre>
+      <p>
+        <code>unescape</code> がバックスラッシュの意味を決めるときに見るのは、<code>escape</code> が書き出したあとの次の文字です。ところが <code>escape</code> は、バックスラッシュを二重にするかどうかを、エスケープする前の次の文字 <code>c</code> で決めています。2つが食い違うのは、<code>c</code> が改行のときです。改行はバックスラッシュと <code>n</code> の2文字になるので、バックスラッシュが二重にならないまま改行の前に残ると、出力はバックスラッシュ2つと <code>n</code> になります。これはエスケープしたバックスラッシュ1つと、ふつうの文字 <code>n</code> を並べたものと同じ並びです。
+      </p>
+      <p>
+        例の <code>"ls \\\n-l"</code> では、バックスラッシュの次が改行なので、<code>c `elem` "\\n"</code>(バックスラッシュか <code>n</code> か)は偽になり、バックスラッシュは1つのまま出ます。続く改行が <code>\n</code> になり、<code>escape</code> の結果は <code>ls </code>、バックスラッシュ2つ、<code>n-l</code> です。<code>unescape</code> は先頭の2つのバックスラッシュを組にして1つに戻し、残った <code>n</code> をそのまま残すので、改行の代わりに <code>n</code> が入った <code>"ls \\n-l"</code> が返ります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line"><span class="fn">escape</span> (<span class="st">'\\'</span> : s@(c : _))</span>
+<span class="code-line ins">  | c `elem` <span class="st">"\</span><span class="chg"><span class="st">\n</span></span><span class="st">\n"</span> = <span class="st">'\\'</span> : <span class="st">'\\'</span> : escape s</span>
+</code></pre>
+      <p>
+        バックスラッシュを二重にしなければならないのは、出力でその直後に来る文字がバックスラッシュか <code>n</code> のときです。出力の次の文字は、元の次の文字がバックスラッシュか改行ならバックスラッシュ、<code>n</code> なら <code>n</code> なので、調べる文字の集まりに改行を加えて、バックスラッシュ、<code>n</code>、改行の3つにします。それ以外の文字が続くバックスラッシュと、文字列の最後のバックスラッシュは、出力でも後ろにバックスラッシュも <code>n</code> も来ないので、<code>unescape</code> の最初の2つの節に当たらず、1文字のまま戻ります。<sup class="fn-ref">1</sup>
+      </p>
+      <ol class="footnotes">
+        <li>バックスラッシュを無条件に <code>\\</code> にしても往復は保たれますが、出力は長くなります。問題の <code>escape</code> は短さを選んでいるので、その方針のまま直しました。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

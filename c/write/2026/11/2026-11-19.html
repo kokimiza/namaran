@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="三角数の表を最初の呼び出しで一度だけ作り、どのスレッドにも作り終えた表を返す関数を call_once で書くCのドリル。引数も戻り値も持たないコールバックから、結果をどこに置くか。">
+<title>一度だけ作る三角数の表</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-11-19">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-19" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-11-19",
+      "url": "https://namaran.jocarium.productions/c/write/2026-11-19",
+      "datePublished": "2026-11-19",
+      "dateModified": "2026-11-19",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "一度だけ作る三角数の表" },
+      "keywords": "lazy-initialization, thread-safety, static-storage, function-pointer",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "三角数の表を最初の呼び出しで一度だけ作り、どのスレッドにも作り終えた表を返す関数を call_once で書くCのドリル。引数も戻り値も持たないコールバックから、結果をどこに置くか。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-19" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-11-19">C++26</a>
+  <a href="/rust/write/2026-11-19">Rust 2024</a>
+  <a href="/haskell/write/2026-11-19">Haskell 2010</a>
+  <a href="/zig/write/2026-11-19">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-19">READ</a>
+  <a href="/c/write/2026-11-19" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-11-19">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="一度だけ作る三角数の表"
+  data-tags="lazy-initialization thread-safety static-storage function-pointer"
+  data-concepts="一度きりの初期化, call_once, once_flag, 遅延初期化, スレッド安全, one-time initialization, lazy table"
+  data-level="peacock"
+>
+  <h2>2026-11-19</h2>
+  <div class="code-frame">
+    <p class="code-filename">triangles.c</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">const</span> <span class="ty">int</span>* <span class="fn">triangles</span>(<span class="ty">void</span>) {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    0 から 9 までの <code>n</code> について、1 から <code>n</code> までの和を <code>n</code> 番目に並べた <code>int</code> の表を作り、その先頭を返す <code>triangles</code> を書いてください。表を作るのは最初に呼ばれたときの1回だけで、2回目以降は同じ表を返します。複数のスレッドが同時に呼んでも表は1回しか作らず、どのスレッドも作り終えた表を受け取るように、<code>&lt;threads.h&gt;</code> の <code>call_once</code> を使ってください。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>triangles()[4]</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>10</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>triangles()[0]</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>triangles() == triangles()</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>1</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line ins"><span class="pp">#include</span> <span class="st">&lt;threads.h&gt;</span></span>
+<span class="code-line ins"></span>
+<span class="code-line ins"><span class="kw">static</span> once_flag once = <span class="nu">ONCE_FLAG_INIT</span>;</span>
+<span class="code-line ins"><span class="kw">static</span> <span class="ty">int</span> table[<span class="nu">10</span>];</span>
+<span class="code-line ins"></span>
+<span class="code-line ins"><span class="kw">static</span> <span class="ty">void</span> <span class="fn">fill</span>(<span class="ty">void</span>) {</span>
+<span class="code-line ins">    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">1</span>; i &lt; <span class="nu">10</span>; i++)</span>
+<span class="code-line ins">        table[i] = table[i - <span class="nu">1</span>] + i;</span>
+<span class="code-line ins">}</span>
+<span class="code-line ins"></span>
+<span class="code-line"><span class="kw">const</span> <span class="ty">int</span>* <span class="fn">triangles</span>(<span class="ty">void</span>) {</span>
+<span class="code-line ins">    <span class="fn">call_once</span>(&amp;once, fill);</span>
+<span class="code-line ins">    <span class="kw">return</span> table;</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        <code>call_once</code> に渡せるのは <code>void (*)(void)</code> の関数だけです。引数を受け取れず値も返せないので、作った表をコールバックから呼び出し元へ渡す道は、両方から見える変数しかありません。参考実装は表 <code>table</code> と旗 <code>once</code> をファイルスコープの静的変数に置き、<code>fill</code> が <code>table</code> を埋め、<code>triangles</code> は <code>call_once</code> のあとで <code>table</code> の先頭を返します。静的変数はプログラムの終わりまで生きているので、そのポインタを返してもぶら下がりません。<code>once</code> は <code>ONCE_FLAG_INIT</code> で初期化しておく決まりです。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        <code>fill</code> は <code>table[0]</code> に何も書きませんが、静的変数は 0 で始まるので入力例 2 は 0 になり、<code>table[i]</code> はひとつ前の和に <code>i</code> を足して作るので、入力例 1 の <code>table[4]</code> は 0 + 1 + 2 + 3 + 4 = 10 です。2回目以降の呼び出しでは <code>call_once</code> が <code>fill</code> を呼ばずに戻り、毎回同じ <code>table</code> を返すので、入力例 3 は 1 になります。2つのスレッドが同時に初めて呼んだときは、片方が <code>fill</code> を実行し、もう片方は <code>fill</code> が戻るまで <code>call_once</code> の中で待ちます。そのため、埋まりかけの表を受け取るスレッドはありません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

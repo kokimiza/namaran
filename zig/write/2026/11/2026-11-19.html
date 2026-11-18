@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="連続する整数の10進表記を区切りなしでつないだ文字列から、最初の数を取り出すZigのドリル。先頭の数の桁数を仮に決めて std.fmt.parseInt で読み、続く数を std.fmt.bufPrint で書き出して照合する。">
+<title>連番をつないだ文字列の先頭</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/write/2026-11-19">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / WRITE", "item": "https://namaran.jocarium.productions/zig/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-19" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / WRITE — 2026-11-19",
+      "url": "https://namaran.jocarium.productions/zig/write/2026-11-19",
+      "datePublished": "2026-11-19",
+      "dateModified": "2026-11-19",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "連番をつないだ文字列の先頭" },
+      "keywords": "parsing, format-string, string, slice",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "連続する整数の10進表記を区切りなしでつないだ文字列から、最初の数を取り出すZigのドリル。先頭の数の桁数を仮に決めて std.fmt.parseInt で読み、続く数を std.fmt.bufPrint で書き出して照合する。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-19">C23</a>
+  <a href="/cpp/write/2026-11-19">C++26</a>
+  <a href="/rust/write/2026-11-19">Rust 2024</a>
+  <a href="/haskell/write/2026-11-19">Haskell 2010</a>
+  <a href="/zig/write/2026-11-19" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-19">READ</a>
+  <a href="/zig/write/2026-11-19" class="active" aria-current="page">WRITE</a>
+  <a href="/zig/debug/2026-11-19">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="連番をつないだ文字列の先頭"
+  data-tags="parsing format-string string slice"
+  data-concepts="std.fmt.parseInt, std.fmt.bufPrint, 書式と解析の往復, 連番, 先頭の0, round trip, consecutive integers"
+  data-level="whale"
+>
+  <h2>2026-11-19</h2>
+  <div class="code-frame">
+    <p class="code-filename">run_start.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">start</span>(s: []<span class="kw">const</span> <span class="ty">u8</span>) ?<span class="ty">u64</span> {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>s</code> は数字だけからなる文字列です。<code>s</code> が、0 以上の整数 <code>k</code> から始まる連続した2個以上の整数 <code>k</code>, <code>k + 1</code>, <code>k + 2</code>, … を、先頭に余分な 0 を付けない10進表記で区切りなしにつないだものなら <code>k</code> を返し、どんな <code>k</code> でもそうならないなら <code>null</code> を返す <code>start</code> を書いてください。そのような <code>k</code> が複数あるときは、桁数がいちばん少ないものを返します。<code>s</code> の長さは 20 文字以下とします。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>start("9101112")</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>9</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>start("99100")</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>99</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>start("0102")</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>null</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line ins"><span class="kw">fn</span> <span class="fn">matches</span>(s: []<span class="kw">const</span> <span class="ty">u8</span>, k: <span class="ty">u64</span>) <span class="ty">bool</span> {</span>
+<span class="code-line ins">    <span class="kw">var</span> buf: [<span class="nu">20</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line ins">    <span class="kw">var</span> rest = s;</span>
+<span class="code-line ins">    <span class="kw">var</span> n = k;</span>
+<span class="code-line ins">    <span class="kw">while</span> (rest.len &gt; <span class="nu">0</span>) : (n += <span class="nu">1</span>) {</span>
+<span class="code-line ins">        <span class="kw">const</span> t = std.fmt.<span class="fn">bufPrint</span>(</span>
+<span class="code-line ins">            &amp;buf,</span>
+<span class="code-line ins">            <span class="st">"{d}"</span>,</span>
+<span class="code-line ins">            .{n},</span>
+<span class="code-line ins">        ) <span class="kw">catch</span> <span class="kw">return</span> <span class="nu">false</span>;</span>
+<span class="code-line ins">        <span class="kw">if</span> (!std.mem.<span class="fn">startsWith</span>(<span class="ty">u8</span>, rest, t))</span>
+<span class="code-line ins">            <span class="kw">return</span> <span class="nu">false</span>;</span>
+<span class="code-line ins">        rest = rest[t.len..];</span>
+<span class="code-line ins">    }</span>
+<span class="code-line ins">    <span class="kw">return</span> <span class="nu">true</span>;</span>
+<span class="code-line ins">}</span>
+<span class="code-line ins"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">start</span>(s: []<span class="kw">const</span> <span class="ty">u8</span>) ?<span class="ty">u64</span> {</span>
+<span class="code-line ins">    <span class="kw">for</span> (<span class="nu">1</span>..s.len) |len| {</span>
+<span class="code-line ins">        <span class="kw">const</span> k = std.fmt.<span class="fn">parseInt</span>(</span>
+<span class="code-line ins">            <span class="ty">u64</span>,</span>
+<span class="code-line ins">            s[<span class="nu">0</span>..len],</span>
+<span class="code-line ins">            <span class="nu">10</span>,</span>
+<span class="code-line ins">        ) <span class="kw">catch</span> <span class="kw">continue</span>;</span>
+<span class="code-line ins">        <span class="kw">if</span> (<span class="fn">matches</span>(s, k)) <span class="kw">return</span> k;</span>
+<span class="code-line ins">    }</span>
+<span class="code-line ins">    <span class="kw">return</span> <span class="nu">null</span>;</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        <code>s</code> を先頭から数に切り分けようとしても、数の桁数は 9 から 10、99 から 100 のように途中で増えるので、どこで切ればよいかは <code>s</code> だけからは決まりません。ところが最初の数 <code>k</code> さえ決まれば、続く数は <code>k + 1</code>, <code>k + 2</code>, … と決まり、その10進表記も決まります。参考実装はこの向きで解きます。<code>start</code> が最初の数の桁数 <code>len</code> を短いほうから順に仮に決め、<code>s[0..len]</code> を <code>std.fmt.parseInt</code> で <code>k</code> に読み、<code>matches</code> が <code>k</code> から順に <code>std.fmt.bufPrint</code> で書き出した文字列を <code>s</code> の先頭から照合していきます。<code>len</code> を <code>s.len</code> 未満に限っているので、最初の数のあとに少なくとも1個の数が続きます。<code>bufPrint</code> の書き出し先は、<code>u64</code> の最大値の20桁が入る大きさです。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        入力例 1 では、<code>len</code> が 1 のとき <code>k</code> = 9 で、<code>9</code>、<code>10</code>、<code>11</code>、<code>12</code> と書き出した文字列が <code>s</code> を残らず覆うので 9 を返します。入力例 2 は <code>len</code> が 1 の <code>9</code> では次の <code>10</code> が合わず、<code>len</code> が 2 の <code>99</code> で <code>100</code> まで合います。入力例 3 が <code>null</code> になるのは、照合を書き出した側の文字列で行っているからです。<code>s[0..2]</code> の <code>"01"</code> も <code>parseInt</code> は 1 と読みますが、1 を書き出すと <code>"1"</code> で、<code>s</code> の先頭の <code>"0"</code> と合いません。<code>parseInt</code> で読み進めて「次の数が1大きいか」だけを確かめる書き方だと、<code>01</code> と <code>02</code> を受け入れて 1 を返してしまいます。読むのと書くのは対になる処理ですが、先頭の 0 のように、読むときには捨てられて書くときには作られない情報があるので、照合は書き出した表記どうしで行います。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/write">Today</a></li>
+    <li><a href="/zig/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

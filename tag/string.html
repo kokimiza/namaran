@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「文字列」を扱ったNamaranのコーディングドリル122問。ラベル付きcontinue、ラベルなしbreak、入れ子のループ、空のスライス、labeled continue、labeled loop。">
+<meta name="description" content="「文字列」を扱ったNamaranのコーディングドリル127問。std.fmt.parseInt、std.fmt.bufPrint、書式と解析の往復、連番、先頭の0、round trip。">
 <title>文字列</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/string">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,15 @@
   <h2>文字列</h2>
 
   <p class="lede">
-    「文字列」を扱った122問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「文字列」を扱った127問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/write/2026-11-19">Zig / WRITE · 2026-11-19</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">連番をつないだ文字列の先頭</span> <span class="past-concepts">std.fmt.parseInt, std.fmt.bufPrint, 書式と解析の往復, 連番, 先頭の0, round trip, consecutive integers</span></li>
+    <li><a href="/zig/debug/2026-11-19">Zig / DEBUG · 2026-11-19</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">ファイル末尾の改行</span> <span class="past-concepts">std.fmt.parseInt, InvalidCharacter, 末尾の改行, trimEnd, 設定ファイル, trailing newline, error union</span></li>
+    <li><a href="/haskell/write/2026-11-19">Haskell / WRITE · 2026-11-19</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">エスケープの逆変換</span> <span class="past-concepts">エスケープ, アンエスケープ, パターンマッチ, 文字列リテラル, escape sequence, unescape, round trip</span></li>
+    <li><a href="/haskell/read/2026-11-19">Haskell / READ · 2026-11-19</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">パスをprintする</span> <span class="past-concepts">show, print, putStrLn, 文字列リテラル, エスケープ, Show型クラス, string literal escape</span></li>
+    <li><a href="/haskell/debug/2026-11-19">Haskell / DEBUG · 2026-11-19</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">必要なときだけの\\</span> <span class="past-concepts">エスケープ, アンエスケープ, 往復, 曖昧さ, 行継続, escape, unescape, round trip, ambiguity</span></li>
     <li><a href="/zig/read/2026-11-18">Zig / READ · 2026-11-18</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">ラベルの有無と空の行</span> <span class="past-concepts">ラベル付きcontinue, ラベルなしbreak, 入れ子のループ, 空のスライス, labeled continue, labeled loop, nested loop, break</span></li>
     <li><a href="/rust/read/2026-11-18">Rust / READ · 2026-11-18</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">バイトごとのas char</span> <span class="past-concepts">UTF-8, 文字化け, as char, 符号位置, Latin-1, mojibake, code point, byte to char</span></li>
     <li><a href="/rust/write/2026-11-17">Rust / WRITE · 2026-11-17</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">いちばん長い文字列を取り出す</span> <span class="past-concepts">所有権, ムーブ, 可変参照, Vec::remove, 要素を取り出す, ownership, move out of index, mutable reference</span></li>
