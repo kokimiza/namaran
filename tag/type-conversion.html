@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「型変換」を扱ったNamaranのコーディングドリル30問。UTF-8、文字化け、as char、符号位置、Latin-1、mojibake。">
+<meta name="description" content="「型変換」を扱ったNamaranのコーディングドリル31問。四捨五入、0への切り捨て、static_cast、負の数の丸め、std::round、truncation toward zero。">
 <title>型変換</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/type-conversion">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>型変換</h2>
 
   <p class="lede">
-    「型変換」を扱った30問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「型変換」を扱った31問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/cpp/debug/2026-11-20">C++ / DEBUG · 2026-11-20</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">0.5を足して切り捨て</span> <span class="past-concepts">四捨五入, 0への切り捨て, static_cast, 負の数の丸め, std::round, truncation toward zero</span></li>
     <li><a href="/rust/read/2026-11-18">Rust / READ · 2026-11-18</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">バイトごとのas char</span> <span class="past-concepts">UTF-8, 文字化け, as char, 符号位置, Latin-1, mojibake, code point, byte to char</span></li>
     <li><a href="/rust/debug/2026-11-18">Rust / DEBUG · 2026-11-18</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">u8のまま左シフト</span> <span class="past-concepts">UTF-8 のデコード, 左シフト, 型の幅, 上位ビットの切り捨て, as u32, u32::from, shift overflow, decode utf-8</span></li>
     <li><a href="/c/write/2026-11-17">C / WRITE · 2026-11-17</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">いちばん多いバイト</span> <span class="past-concepts">出現回数, 度数表, バイトの頻度, unsigned char への変換, char の符号, byte frequency, histogram, signedness of char</span></li>

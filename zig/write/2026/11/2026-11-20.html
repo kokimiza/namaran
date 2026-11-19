@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="型 T を受け取り、T のフィールドを2つ持つ構造体型を返す関数を書き、その構造体に2つを入れ替えた値を返すメソッドを持たせます。2026-11-20のZig WRITE。">
+<title>型を返す関数のPair</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/write/2026-11-20">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / WRITE", "item": "https://namaran.jocarium.productions/zig/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-20" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / WRITE — 2026-11-20",
+      "url": "https://namaran.jocarium.productions/zig/write/2026-11-20",
+      "datePublished": "2026-11-20",
+      "dateModified": "2026-11-20",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "型を返す関数のPair" },
+      "keywords": "generic-programming, struct, comptime, namespace",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "型 T を受け取り、T のフィールドを2つ持つ構造体型を返す関数を書き、その構造体に2つを入れ替えた値を返すメソッドを持たせます。2026-11-20のZig WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-20">C23</a>
+  <a href="/cpp/write/2026-11-20">C++26</a>
+  <a href="/rust/write/2026-11-20">Rust 2024</a>
+  <a href="/haskell/write/2026-11-20">Haskell 2010</a>
+  <a href="/zig/write/2026-11-20" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-20">READ</a>
+  <a href="/zig/write/2026-11-20" class="active" aria-current="page">WRITE</a>
+  <a href="/zig/debug/2026-11-20">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="型を返す関数のPair"
+  data-tags="generic-programming struct comptime namespace"
+  data-concepts="ジェネリック型, 型を返す関数, @This, 無名構造体, メソッド, generic struct, type function"
+  data-level="hedgehog"
+>
+  <h2>2026-11-20</h2>
+  <div class="code-frame">
+    <p class="code-filename">pair.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">Pair</span>(<span class="kw">comptime</span> <span class="ty">T</span>: <span class="ty">type</span>) <span class="ty">type</span> {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    型 <code>T</code> を受け取り、<code>T</code> 型のフィールド <code>a</code> と <code>b</code> を持つ構造体の型を返す <code>Pair</code> を書いてください。その構造体には、<code>a</code> と <code>b</code> を入れ替えた新しい値を返すメソッド <code>swapped</code> を持たせ、<code>p.swapped()</code> と呼べるようにします。<code>p</code> 自身は変えません。<code>a</code> と <code>b</code> が等しければ、<code>p</code> と同じ値が返ります。例では、入力に <code>p</code> の値を、出力に <code>p.swapped()</code> の値を書きます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>Pair(u8){ .a = 1, .b = 2 }</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>Pair(u8){ .a = 2, .b = 1 }</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>Pair(bool){ .a = true, .b = false }</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>Pair(bool){ .a = false, .b = true }</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>Pair(i32){ .a = -5, .b = -5 }</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>Pair(i32){ .a = -5, .b = -5 }</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">Pair</span>(<span class="kw">comptime</span> <span class="ty">T</span>: <span class="ty">type</span>) <span class="ty">type</span> {</span>
+<span class="code-line ins">    <span class="kw">return</span> <span class="kw">struct</span> {</span>
+<span class="code-line ins">        <span class="kw">const</span> <span class="ty">Self</span> = <span class="mc">@This</span>();</span>
+<span class="code-line ins">        a: <span class="ty">T</span>,</span>
+<span class="code-line ins">        b: <span class="ty">T</span>,</span>
+<span class="code-line ins"></span>
+<span class="code-line ins">        <span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">swapped</span>(self: <span class="ty">Self</span>) <span class="ty">Self</span> {</span>
+<span class="code-line ins">            <span class="kw">return</span> .{</span>
+<span class="code-line ins">                .a = self.b,</span>
+<span class="code-line ins">                .b = self.a,</span>
+<span class="code-line ins">            };</span>
+<span class="code-line ins">        }</span>
+<span class="code-line ins">    };</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        Zig では型も値なので、<code>comptime</code> の引数で型を受け取り、<code>type</code> を返す関数がそのまま総称型になります。<code>Pair</code> が返すのは名前の無い構造体で、中で自分の型を書く方法は <code>@This()</code> しかありません。参考実装はそれを <code>Self</code> という名前の定数に置き、メソッドの引数と戻り値の型に使っています。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        構造体の中で宣言した関数は、第1引数がその構造体の型なら <code>p.swapped()</code> と書いて呼べ、<code>Pair(u8).swapped(p)</code> と同じ意味になります。<code>swapped</code> は <code>self</code> を値で受け取り、<code>.{ .a = self.b, .b = self.a }</code> で新しい値を作って返すので、<code>p</code> は変わりません。入力例 3 のように <code>a</code> と <code>b</code> が等しければ、入れ替えても同じ値です。同じ引数での <code>Pair(u8)</code> の呼び出しはコンパイル時に1回だけ評価されるので、何度書いても同じ型を指し、例の <code>Pair(u8){ … }</code> どうしは比べられます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/write">Today</a></li>
+    <li><a href="/zig/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

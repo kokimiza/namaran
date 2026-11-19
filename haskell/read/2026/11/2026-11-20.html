@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="メモリに入る件数ずつ並べた列を2本ずつ併合していくとき、全体が1本になるまでに何周かかるかを、件数を変えて数えます。2026-11-20のHaskell READ。">
+<title>併合を何周するか</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-11-20">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-20" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-11-20",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-11-20",
+      "datePublished": "2026-11-20",
+      "dateModified": "2026-11-20",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "併合を何周するか" },
+      "keywords": "external-sort, merge-sort, recursion",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "メモリに入る件数ずつ並べた列を2本ずつ併合していくとき、全体が1本になるまでに何周かかるかを、件数を変えて数えます。2026-11-20のHaskell READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-20">C23</a>
+  <a href="/cpp/read/2026-11-20">C++26</a>
+  <a href="/rust/read/2026-11-20">Rust 2024</a>
+  <a href="/haskell/read/2026-11-20" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/read/2026-11-20">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-20" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-11-20">WRITE</a>
+  <a href="/haskell/debug/2026-11-20">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="併合を何周するか"
+  data-tags="external-sort merge-sort recursion"
+  data-concepts="外部ソート, ラン, 2本ずつの併合, 併合のパス数, external sorting, merge pass, sorted run"
+  data-level="hedgehog"
+>
+  <h2>2026-11-20</h2>
+  <div class="code-frame">
+    <p class="code-filename">MergePasses.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="fn">runs</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Int</span></span>
+<span class="code-line"><span class="fn">runs</span> m n = (n + m - <span class="nu">1</span>) `div` m</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">passes</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Int</span></span>
+<span class="code-line"><span class="fn">passes</span> r</span>
+<span class="code-line">  | r &lt;= <span class="nu">1</span> = <span class="nu">0</span></span>
+<span class="code-line">  | otherwise = <span class="nu">1</span> + passes ((r + <span class="nu">1</span>) `div` <span class="nu">2</span>)</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()</span>
+<span class="code-line"><span class="fn">main</span> =</span>
+<span class="code-line">  print</span>
+<span class="code-line">    [ passes (runs <span class="nu">100</span> n)</span>
+<span class="code-line">    | n <span class="op">&lt;-</span> [<span class="nu">100</span>, <span class="nu">300</span>, <span class="nu">500</span>, <span class="nu">1000</span>]</span>
+<span class="code-line">    ]</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>[0,2,3,4]
+</samp></pre>
+      </div>
+      <p>
+        <code>runs m n</code> は <code>n</code> 件を <code>m</code> 件ずつに切ったときの本数で、<code>(n + m - 1) `div` m</code> は割り切れないときに端数の1本を数える切り上げです。メモリに 100 件しか入らないなら、100、300、500、1000 件のデータは 1、3、5、10 本の並べ済みの列になります。
+      </p>
+      <p>
+        <code>passes r</code> は、<code>r</code> 本の列を2本ずつ併合する周回を、1本になるまで数えます。1周で2本が1本になり、余った1本はそのまま次の周へ残るので、本数は <code>(r + 1) `div` 2</code> の切り上げで減ります。3本は 2、1 と減って2周、5本は 3、2、1 で3周、10本は 5、3、2、1 で4周です。1本しかなければ併合は要らず、0周になります。
+      </p>
+      <p>
+        端数を切り捨てて <code>r `div` 2</code> と考えると、3本は1周で1本になったことになり、余った列が併合から抜け落ちます。5本も 2、1 と減って2周と数えることになりますが、実際には余りの1本を次の周へ持ち越すので、3周かかります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

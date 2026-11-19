@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="整数どうしの割り算の商を、浮動小数点数を使わずに最も近い整数へ丸め、ちょうど真ん中なら偶数を選ぶ関数を書きます。2026-11-20のC++ WRITE。">
+<title>割り算を偶数に丸める</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-11-20">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-20" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-11-20",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-11-20",
+      "datePublished": "2026-11-20",
+      "dateModified": "2026-11-20",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "割り算を偶数に丸める" },
+      "keywords": "rounding, division",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "整数どうしの割り算の商を、浮動小数点数を使わずに最も近い整数へ丸め、ちょうど真ん中なら偶数を選ぶ関数を書きます。2026-11-20のC++ WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-20">C23</a>
+  <a href="/cpp/write/2026-11-20" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-11-20">Rust 2024</a>
+  <a href="/haskell/write/2026-11-20">Haskell 2010</a>
+  <a href="/zig/write/2026-11-20">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-20">READ</a>
+  <a href="/cpp/write/2026-11-20" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-11-20">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="割り算を偶数に丸める"
+  data-tags="rounding division"
+  data-concepts="偶数への丸め, 銀行家の丸め, 整数除算, 剰余, round half to even, banker's rounding, integer division"
+  data-level="hedgehog"
+>
+  <h2>2026-11-20</h2>
+  <div class="code-frame">
+    <p class="code-filename">divide_even.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="ty">long</span> <span class="ty">long</span> <span class="fn">divide_even</span>(<span class="ty">long</span> <span class="ty">long</span> a,</span>
+<span class="code-line">                      <span class="ty">long</span> <span class="ty">long</span> b) {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>a</code> を <code>b</code> で割った値に最も近い整数を返す <code>divide_even</code> を書いてください。割った値が隣り合う2つの整数のちょうど真ん中にあるときは、そのうち偶数のほうを返します。<code>a</code> は 0 以上、<code>b</code> は 1 以上で、浮動小数点数は使いません。<code>a</code> が 0 なら 0 です。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>divide_even(7, 2)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>4</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>divide_even(5, 2)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>2</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>divide_even(8, 3)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>3</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="ty">long</span> <span class="ty">long</span> <span class="fn">divide_even</span>(<span class="ty">long</span> <span class="ty">long</span> a,</span>
+<span class="code-line">                      <span class="ty">long</span> <span class="ty">long</span> b) {</span>
+<span class="code-line ins">    <span class="ty">long</span> <span class="ty">long</span> q = a / b;</span>
+<span class="code-line ins">    <span class="ty">long</span> <span class="ty">long</span> r = a % b;</span>
+<span class="code-line ins">    <span class="kw">if</span> (<span class="nu">2</span> * r &gt; b ||</span>
+<span class="code-line ins">        (<span class="nu">2</span> * r == b &amp;&amp; q % <span class="nu">2</span> == <span class="nu">1</span>))</span>
+<span class="code-line ins">        ++q;</span>
+<span class="code-line ins">    <span class="kw">return</span> q;</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        整数の割り算で得た商 <code>q</code> は切り捨てた値で、本当の値との差は <code>r / b</code> です。この差が半分より大きいかどうかは、両辺に <code>2 * b</code> を掛けた <code>2 * r &gt; b</code> で、整数のまま比べられます。大きければ上の整数のほうが近いので <code>q</code> を1増やし、<code>2 * r == b</code> ならちょうど真ん中なので、<code>q</code> が奇数のときだけ増やして偶数に寄せます。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        入力例 1 の 7 ÷ 2 は <code>q = 3</code>、<code>r = 1</code> で、<code>2 * r == b</code> の真ん中にあたり、3 は奇数なので 4 を返します。入力例 2 の 5 ÷ 2 も真ん中ですが、<code>q = 2</code> がすでに偶数なのでそのまま 2 です。入力例 3 の 8 ÷ 3 は <code>r = 2</code> で <code>2 * r = 4 &gt; 3</code> なので、2.67 に近い 3 になります。<code>a</code> が 0 なら <code>q</code> も <code>r</code> も 0 で、どの条件も成り立たず 0 を返します。真ん中を常に上へ寄せる四捨五入と違い、偶数への丸めは上下に寄せる回数がおよそ半々になるので、多くの値を丸めて足しても誤差が片方へたまりにくくなります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

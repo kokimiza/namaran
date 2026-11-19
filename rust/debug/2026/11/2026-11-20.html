@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="末尾を基準値にする分割で、境界の添字を交換の前に進めてしまい、基準値を置く場所がずれるバグを直します。2026-11-20のRust DEBUG。">
+<title>一つずれた境界</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-11-20">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-20" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-11-20",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-11-20",
+      "datePublished": "2026-11-20",
+      "dateModified": "2026-11-20",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "一つずれた境界" },
+      "keywords": "quicksort, lomuto-partition, off-by-one, invariant",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "末尾を基準値にする分割で、境界の添字を交換の前に進めてしまい、基準値を置く場所がずれるバグを直します。2026-11-20のRust DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-20">C23</a>
+  <a href="/cpp/debug/2026-11-20">C++26</a>
+  <a href="/rust/debug/2026-11-20" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-20">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-20">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-20">READ</a>
+  <a href="/rust/write/2026-11-20">WRITE</a>
+  <a href="/rust/debug/2026-11-20" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="一つずれた境界"
+  data-tags="quicksort lomuto-partition off-by-one invariant"
+  data-concepts="Lomuto分割, クイックソート, オフバイワン, 境界の添字, Lomuto partition scheme, off-by-one"
+  data-level="hedgehog"
+>
+  <h2>2026-11-20</h2>
+  <div class="code-frame">
+    <p class="code-filename">partition.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">partition</span>(v: &amp;<span class="kw">mut</span> [<span class="ty">i32</span>]) -&gt; <span class="ty">usize</span> {</span>
+<span class="code-line">    <span class="kw">let</span> hi = v.<span class="fn">len</span>() - <span class="nu">1</span>;</span>
+<span class="code-line">    <span class="kw">let</span> <span class="kw">mut</span> i = <span class="nu">0</span>;</span>
+<span class="code-line">    <span class="kw">for</span> j <span class="kw">in</span> <span class="nu">0</span>..hi {</span>
+<span class="code-line">        <span class="kw">if</span> v[j] &lt;= v[hi] {</span>
+<span class="code-line">            i += <span class="nu">1</span>;</span>
+<span class="code-line">            v.<span class="fn">swap</span>(i, j);</span>
+<span class="code-line">        }</span>
+<span class="code-line">    }</span>
+<span class="code-line">    v.<span class="fn">swap</span>(i, hi);</span>
+<span class="code-line">    i</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="kw">let</span> <span class="kw">mut</span> v = [<span class="nu">3</span>, <span class="nu">1</span>, <span class="nu">2</span>];</span>
+<span class="code-line">    <span class="kw">let</span> p = <span class="fn">partition</span>(&amp;<span class="kw">mut</span> v);</span>
+<span class="code-line">    <span class="mc">println!</span>(<span class="st">"{v:?} {p}"</span>);</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    末尾の値を基準値にして、基準値以下の値をスライスの前へ集め、その直後に基準値を置いて、基準値の位置を返す <code>partition</code> です。<code>[3, 1, 2]</code> を渡すと <code>[1, 2, 3] 1</code> と表示されるはずが、いまは <code>[3, 2, 1] 1</code> と表示されます。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line">    <span class="kw">let</span> <span class="kw">mut</span> i = <span class="nu">0</span>;</span>
+<span class="code-line">    <span class="kw">for</span> j <span class="kw">in</span> <span class="nu">0</span>..hi {</span>
+<span class="code-line">        <span class="kw">if</span> v[j] &lt;= v[hi] {</span>
+<span class="code-line">            i += <span class="nu">1</span>;</span>
+<span class="code-line del">            v.<span class="fn">swap</span>(i, j);</span>
+<span class="code-line">        }</span>
+<span class="code-line">    }</span>
+<span class="code-line">    v.<span class="fn">swap</span>(i, hi);</span>
+</code></pre>
+      <p>
+        <code>i</code> を 0 から始めるなら、<code>i</code> は「次に基準値以下の値を置く場所」で、<code>v[..i]</code> にそこまでの基準値以下の値が並びます。ところがこのコードは交換の前に <code>i</code> を増やすので、見つけた値は <code>v[i]</code> ではなく1つ先の <code>v[i + 1]</code> に置かれ、<code>v[0]</code> には誰も置かれません。
+      </p>
+      <p>
+        <code>[3, 1, 2]</code> では、基準値 2 以下の 1 が <code>j = 1</code> で見つかり、<code>i</code> が 1 になってから自分自身と交換されます。ループのあとの <code>v.swap(i, hi)</code> は、その 1 が入っている <code>v[1]</code> と基準値を入れ替えるので、集めた 1 が末尾へ追い出されて <code>[3, 2, 1]</code> になります。返す 1 の位置には基準値がありますが、左に 3 が、右に 1 が残っています。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line">    <span class="kw">let</span> <span class="kw">mut</span> i = <span class="nu">0</span>;</span>
+<span class="code-line">    <span class="kw">for</span> j <span class="kw">in</span> <span class="nu">0</span>..hi {</span>
+<span class="code-line">        <span class="kw">if</span> v[j] &lt;= v[hi] {</span>
+<span class="code-line ins">            v.<span class="fn">swap</span>(i, j);</span>
+<span class="code-line">            i += <span class="nu">1</span>;</span>
+<span class="code-line">        }</span>
+<span class="code-line">    }</span>
+<span class="code-line">    v.<span class="fn">swap</span>(i, hi);</span>
+</code></pre>
+      <p>
+        交換してから <code>i</code> を増やせば、見つけた値は <code>v[i]</code> に入り、<code>v[..i]</code> は常に基準値以下の値だけになります。ループが終わったとき <code>v[i]</code> は基準値より大きい値か基準値自身なので、そこへ基準値を移しても集めた値は動きません。<code>[3, 1, 2]</code> では 1 が <code>v[0]</code> に入って <code>i = 1</code> になり、<code>v.swap(1, 2)</code> で <code>[1, 2, 3]</code> になります。
+      </p>
+      <p>
+        増やしてから交換する書き方は、<code>i</code> を「最後に置いた場所」と読み、−1 から始める書き方の名残です<sup class="fn-ref">1</sup>。<code>usize</code> は −1 を持てないので開始を 0 に変えるなら、<code>i</code> の意味も「次に置く場所」に変わり、増やす順と最後の交換の位置をそれに合わせる必要があります。
+      </p>
+      <ol class="footnotes">
+        <li>よく知られた教科書の擬似コードは <code>i = lo − 1</code> から始め、増やしてから交換し、最後に <code>i + 1</code> と基準値を入れ替えて <code>i + 1</code> を返します。そのまま Rust に写すと、<code>lo</code> が 0 のとき <code>0 - 1</code> の計算がデバッグビルドでは panic します。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

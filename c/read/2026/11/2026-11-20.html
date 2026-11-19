@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="2回ずつ自分を呼ぶ再帰関数で、呼び出しの総数と、コールスタックが一番深くなったときの深さを数えます。2026-11-20のC READ。">
+<title>呼び出し回数と深さ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-11-20">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-20" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-11-20",
+      "url": "https://namaran.jocarium.productions/c/read/2026-11-20",
+      "datePublished": "2026-11-20",
+      "dateModified": "2026-11-20",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "呼び出し回数と深さ" },
+      "keywords": "recursion, call-stack",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "2回ずつ自分を呼ぶ再帰関数で、呼び出しの総数と、コールスタックが一番深くなったときの深さを数えます。2026-11-20のC READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-20" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-11-20">C++26</a>
+  <a href="/rust/read/2026-11-20">Rust 2024</a>
+  <a href="/haskell/read/2026-11-20">Haskell 2010</a>
+  <a href="/zig/read/2026-11-20">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-20" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-11-20">WRITE</a>
+  <a href="/c/debug/2026-11-20">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="呼び出し回数と深さ"
+  data-tags="recursion call-stack"
+  data-concepts="再帰, コールスタック, 呼び出しの深さ, 再帰呼び出しの回数, recursion depth, call stack"
+  data-level="hedgehog"
+>
+  <h2>2026-11-20</h2>
+  <div class="code-frame">
+    <p class="code-filename">stack_depth.c</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">static</span> <span class="ty">int</span> depth, deepest;</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">static</span> <span class="ty">int</span> <span class="fn">visit</span>(<span class="ty">int</span> n) {</span>
+<span class="code-line">    <span class="kw">if</span> (++depth &gt; deepest)</span>
+<span class="code-line">        deepest = depth;</span>
+<span class="code-line">    <span class="ty">int</span> calls = <span class="nu">1</span>;</span>
+<span class="code-line">    <span class="kw">if</span> (n &gt; <span class="nu">0</span>)</span>
+<span class="code-line">        calls += <span class="fn">visit</span>(n - <span class="nu">1</span>) + <span class="fn">visit</span>(n - <span class="nu">1</span>);</span>
+<span class="code-line">    depth--;</span>
+<span class="code-line">    <span class="kw">return</span> calls;</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {</span>
+<span class="code-line">    <span class="ty">int</span> calls = <span class="fn">visit</span>(<span class="nu">3</span>);</span>
+<span class="code-line">    <span class="fn">printf</span>(<span class="st">"%d %d\n"</span>, calls, deepest);</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>15 4
+</samp></pre>
+      </div>
+      <p>
+        <code>visit(n)</code> は <code>n</code> が 0 より大きいとき <code>visit(n - 1)</code> を2回呼ぶので、呼び出しの数は段ごとに倍になります。<code>visit(3)</code> が1回、<code>visit(2)</code> が2回、<code>visit(1)</code> が4回、<code>visit(0)</code> が8回で、合わせて 15 回です。<code>calls</code> は自動変数なので、呼び出しごとに別の <code>calls</code> が1から始まり、子が返した数を足して自分の親へ返します。<code>main</code> が受け取るのは、この 15 です。
+      </p>
+      <p>
+        <code>depth</code> は関数に入ったときに1増え、戻る直前に1減ります。そのため <code>depth</code> はいまコールスタックに積まれている <code>visit</code> のフレームの数と一致し、<code>deepest</code> にはその最大値が残ります。1回目の <code>visit(n - 1)</code> が戻るまでに、その中で増えた <code>depth</code> はすべて減っているので、2回目の <code>visit(n - 1)</code> も同じ深さから始まります。スタックに同時に積まれるのは <code>visit(3)</code> から <code>visit(0)</code> までの一本の連なりだけで、深さは 4 にしかなりません。
+      </p>
+      <p>
+        呼び出しのたびにフレームが積まれたまま残ると考えると、深さも 15 と答えることになります。フレームは関数から戻った時点で取り除かれるので、深さは呼び出しの総数ではなく、再帰が一番深く潜った段の数で決まります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

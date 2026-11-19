@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="データを決まった件数ずつ切って並べるとき、空のリストを止める場合を書き忘れ、空の列を果てしなく作り続けるバグを直します。2026-11-20のHaskell DEBUG。">
+<title>尽きないラン</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-11-20">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-20" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-11-20",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-11-20",
+      "datePublished": "2026-11-20",
+      "dateModified": "2026-11-20",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "尽きないラン" },
+      "keywords": "external-sort, base-case, infinite-list",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "データを決まった件数ずつ切って並べるとき、空のリストを止める場合を書き忘れ、空の列を果てしなく作り続けるバグを直します。2026-11-20のHaskell DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-20">C23</a>
+  <a href="/cpp/debug/2026-11-20">C++26</a>
+  <a href="/rust/debug/2026-11-20">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-20" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-20">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-20">READ</a>
+  <a href="/haskell/write/2026-11-20">WRITE</a>
+  <a href="/haskell/debug/2026-11-20" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="尽きないラン"
+  data-tags="external-sort base-case infinite-list"
+  data-concepts="外部ソート, ラン生成, splitAt, 基底ケース, 無限リスト, external sorting, base case"
+  data-level="peacock"
+>
+  <h2>2026-11-20</h2>
+  <div class="code-frame">
+    <p class="code-filename">Runs.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">import</span> <span class="ty">Data.List</span> (sort)</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">chunks</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> [a] <span class="op">-&gt;</span> [[a]]</span>
+<span class="code-line"><span class="fn">chunks</span> m xs = a : chunks m b</span>
+<span class="code-line"> <span class="kw">where</span></span>
+<span class="code-line">  (a, b) = splitAt m xs</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">runs</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> [[<span class="ty">Int</span>]]</span>
+<span class="code-line"><span class="fn">runs</span> m = map sort . chunks m</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()</span>
+<span class="code-line"><span class="fn">main</span> = print (runs <span class="nu">3</span> [<span class="nu">5</span>, <span class="nu">1</span>, <span class="nu">4</span>, <span class="nu">2</span>, <span class="nu">8</span>, <span class="nu">3</span>, <span class="nu">7</span>])</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    データを <code>m</code> 件ずつに切り、それぞれを昇順に並べたリストを返す <code>runs</code> です。<code>runs 3 [5, 1, 4, 2, 8, 3, 7]</code> を表示すると <code>[[1,4,5],[2,3,8],[7]]</code> になるはずが、いまは <code>[[1,4,5],[2,3,8],[7],[],[],[],…</code> と空のリストを表示し続け、止まりません。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line"><span class="fn">chunks</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> [a] <span class="op">-&gt;</span> [[a]]</span>
+<span class="code-line"><span class="fn">chunks</span> m xs = a : chunks m b</span>
+<span class="code-line"> <span class="kw">where</span></span>
+<span class="code-line">  (a, b) = splitAt m xs</span>
+</code></pre>
+      <p>
+        <code>splitAt</code> は、リストが短くても空でも失敗しません。<code>splitAt 3 []</code> は <code>([], [])</code> を返すので、<code>[7]</code> を切り出したあとの <code>chunks 3 []</code> は <code>[]</code> を1つ出してから、また <code>chunks 3 []</code> を呼びます。<code>xs</code> がそれ以上短くならないので、再帰はどこにも着地しません。
+      </p>
+      <p>
+        それでも最初の3つが表示されるのは、<code>chunks</code> がリストを先頭から1つずつ作り、<code>map sort</code> と <code>print</code> も先頭から順に使うからです。<code>chunks</code> は切り出した列を空になるまで出し続けるので、表示も終わりません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line"><span class="fn">chunks</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> [a] <span class="op">-&gt;</span> [[a]]</span>
+<span class="code-line ins"><span class="fn">chunks</span> _ [] = []</span>
+<span class="code-line"><span class="fn">chunks</span> m xs = a : chunks m b</span>
+<span class="code-line"> <span class="kw">where</span></span>
+<span class="code-line">  (a, b) = splitAt m xs</span>
+</code></pre>
+      <p>
+        空のリストを受け取ったときは列を作らずに <code>[]</code> を返す式を、もとの式より前に置きます。<code>[7]</code> を切り出した残りは <code>[]</code> なので、そこで再帰が止まり、リストが閉じます。
+      </p>
+      <p>
+        入力の件数が <code>m</code> で割り切れるときも、最後に残るのは <code>[]</code> なので同じ式で止まり、空の列は1つも作られません。入力そのものが空なら、結果も空のリストです。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

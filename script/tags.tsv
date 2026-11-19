@@ -103,6 +103,7 @@ database-index	インデックス
 date-time	日付と時刻
 de-bruijn-index	De Bruijnインデックス
 deadlock	デッドロック
+decl-literal	宣言リテラル
 decompression-bomb	zip爆弾
 deduplication	重複除去
 deep-copy	深いコピー
@@ -149,6 +150,7 @@ exhaustiveness	網羅性
 existential-type	存在型
 exponentiation-by-squaring	繰り返し二乗法
 expression	式と値
+external-sort	外部ソート
 factory	ファクトリ
 false-sharing	偽共有
 fenwick-tree	Fenwick木
@@ -188,6 +190,7 @@ hash-table	ハッシュ表
 heap	ヒープ
 higher-order	高階関数
 higher-ranked-trait-bound	高階トレイト境界
+hoare-partition	Hoare分割
 huffman-coding	ハフマン符号
 hyperloglog	HyperLogLog
 idempotency	冪等性
@@ -247,6 +250,7 @@ list-comprehension	リスト内包表記
 list-initialization	リスト初期化
 list-monad	リストモナド
 locale	ロケール
+lomuto-partition	Lomuto分割
 longest-common-subsequence	最長共通部分列
 longest-increasing-subsequence	最長増加部分列
 loop	ループ
