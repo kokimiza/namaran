@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="途中に0のバイトを含むレコードのチェックサムを、strlenで数えた長さで計算したため、破損を見逃すバグを直します。2026-11-21のC DEBUG。">
+<title>0のバイトで止まる和</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-11-21">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-21" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-11-21",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-11-21",
+      "datePublished": "2026-11-21",
+      "dateModified": "2026-11-21",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "0のバイトで止まる和" },
+      "keywords": "checksum, null-terminated-string, string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "途中に0のバイトを含むレコードのチェックサムを、strlenで数えた長さで計算したため、破損を見逃すバグを直します。2026-11-21のC DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-21" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-11-21">C++26</a>
+  <a href="/rust/debug/2026-11-21">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-21">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-21">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-21">READ</a>
+  <a href="/c/write/2026-11-21">WRITE</a>
+  <a href="/c/debug/2026-11-21" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="0のバイトで止まる和"
+  data-tags="checksum null-terminated-string string"
+  data-concepts="strlen, ヌル終端, バイナリデータの長さ, チェックサム, null-terminated string, binary data"
+  data-level="hedgehog"
+>
+  <h2>2026-11-21</h2>
+  <div class="code-frame">
+    <p class="code-filename">record_sum.c</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;string.h&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">static</span> <span class="ty">unsigned</span> <span class="fn">checksum</span>(<span class="kw">const</span> <span class="ty">char</span>* data) {</span>
+<span class="code-line">    <span class="ty">unsigned</span> sum = <span class="nu">0</span>;</span>
+<span class="code-line">    <span class="kw">for</span> (<span class="ty">size_t</span> i = <span class="nu">0</span>; i &lt; <span class="fn">strlen</span>(data); i++)</span>
+<span class="code-line">        sum += (<span class="ty">unsigned</span> <span class="ty">char</span>)data[i];</span>
+<span class="code-line">    <span class="kw">return</span> sum;</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {</span>
+<span class="code-line">    <span class="ty">char</span> sent[] = {<span class="nu">16</span>, <span class="nu">0</span>, <span class="nu">32</span>, <span class="nu">48</span>};</span>
+<span class="code-line">    <span class="ty">char</span> got[] = {<span class="nu">16</span>, <span class="nu">0</span>, <span class="nu">33</span>, <span class="nu">48</span>};</span>
+<span class="code-line">    <span class="fn">printf</span>(<span class="st">"%u\n"</span>, <span class="fn">checksum</span>(sent));</span>
+<span class="code-line">    <span class="fn">printf</span>(<span class="st">"%u\n"</span>, <span class="fn">checksum</span>(got));</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    4バイトのレコードの全バイトを足したチェックサムを表示し、送ったレコード <code>sent</code> と受け取ったレコード <code>got</code> の値を比べて破損に気付くためのコードです。<code>got</code> は3バイト目が 32 から 33 に化けています。いまは <code>16</code> と <code>16</code> が表示されて、2つの値が一致してしまいます。本来は <code>96</code> と <code>97</code> が表示されるはずです。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del"><span class="kw">static</span> <span class="ty">unsigned</span> <span class="fn">checksum</span>(<span class="kw">const</span> <span class="ty">char</span>* data<span class="chg">) {</span></span>
+<span class="code-line">    <span class="ty">unsigned</span> sum = <span class="nu">0</span>;</span>
+<span class="code-line del">    <span class="kw">for</span> (<span class="ty">size_t</span> i = <span class="nu">0</span>; i &lt; <span class="chg"><span class="fn">strlen</span>(data)</span>; i++)</span>
+<span class="code-line">        sum += (<span class="ty">unsigned</span> <span class="ty">char</span>)data[i];</span>
+<span class="code-line">    <span class="kw">return</span> sum;</span>
+<span class="code-line">}</span>
+</code></pre>
+      <p>
+        <code>strlen</code> は、先頭から値が 0 のバイトを探し、その手前までのバイト数を返します。文字列なら 0 は終わりの印ですが、レコードはただのバイトの並びで、<code>{16, 0, 32, 48}</code> の2バイト目の 0 は中身の一部です。<code>strlen(data)</code> はここで止まって 1 を返すので、ループは先頭の 16 だけを足して終わります。
+      </p>
+      <p>
+        3バイト目の破損は足されないまま、<code>sent</code> も <code>got</code> も 16 になり、化けたレコードが正しいものとして通ってしまいます。0 のバイトより後ろがどう壊れても、このチェックサムは変わりません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins"><span class="kw">static</span> <span class="ty">unsigned</span> <span class="fn">checksum</span>(<span class="kw">const</span> <span class="ty">char</span>* data<span class="chg">,</span></span>
+<span class="code-line ins">                         <span class="ty">size_t</span> n) {</span>
+<span class="code-line">    <span class="ty">unsigned</span> sum = <span class="nu">0</span>;</span>
+<span class="code-line ins">    <span class="kw">for</span> (<span class="ty">size_t</span> i = <span class="nu">0</span>; i &lt; <span class="chg">n</span>; i++)</span>
+<span class="code-line">        sum += (<span class="ty">unsigned</span> <span class="ty">char</span>)data[i];</span>
+<span class="code-line">    <span class="kw">return</span> sum;</span>
+<span class="code-line">}</span>
+</code></pre>
+      <p>
+        バイトの並びは、中身を見ても長さが分からないので、長さを呼び出し側から受け取ります。<code>main</code> では <code>checksum(sent, sizeof sent)</code> のように配列の大きさを渡します。<code>sent</code> と <code>got</code> は配列そのものなので、<code>sizeof</code> は4を返します。4バイトすべてが足され、<code>sent</code> は 16 + 0 + 32 + 48 = 96、<code>got</code> は 97 になって、破損が値の違いとして現れます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

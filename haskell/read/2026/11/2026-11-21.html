@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="^と$だけを特別に扱う小さな正規表現マッチャで、^の無いパターンがtailsで全ての開始位置を試すとき、空の末尾まで試すことを読みます。2026-11-21のHaskell READ。">
+<title>どこから始めてもよい照合</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-11-21">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-21" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-11-21",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-11-21",
+      "datePublished": "2026-11-21",
+      "dateModified": "2026-11-21",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "どこから始めてもよい照合" },
+      "keywords": "regular-expression, recursion, list, pattern-matching",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "^と$だけを特別に扱う小さな正規表現マッチャで、^の無いパターンがtailsで全ての開始位置を試すとき、空の末尾まで試すことを読みます。2026-11-21のHaskell READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-21">C23</a>
+  <a href="/cpp/read/2026-11-21">C++26</a>
+  <a href="/rust/read/2026-11-21">Rust 2024</a>
+  <a href="/haskell/read/2026-11-21" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/read/2026-11-21">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-21" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-11-21">WRITE</a>
+  <a href="/haskell/debug/2026-11-21">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="どこから始めてもよい照合"
+  data-tags="regular-expression recursion list pattern-matching"
+  data-concepts="正規表現マッチャ, アンカー, tails, 空リスト, 末尾の空文字列, regex anchor, regular expression matcher"
+  data-level="peacock"
+>
+  <h2>2026-11-21</h2>
+  <div class="code-frame">
+    <p class="code-filename">Anchors.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">import</span> <span class="ty">Data.List</span> (tails)</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">match</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">Bool</span></span>
+<span class="code-line"><span class="fn">match</span> (<span class="st">'^'</span> : re) s = here re s</span>
+<span class="code-line"><span class="fn">match</span> re s = any (here re) (tails s)</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">here</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">Bool</span></span>
+<span class="code-line"><span class="fn">here</span> <span class="st">""</span> _ = <span class="ty">True</span></span>
+<span class="code-line"><span class="fn">here</span> <span class="st">"$"</span> s = null s</span>
+<span class="code-line"><span class="fn">here</span> (c : re) (x : xs) = c == x &amp;&amp; here re xs</span>
+<span class="code-line"><span class="fn">here</span> _ _ = <span class="ty">False</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()</span>
+<span class="code-line"><span class="fn">main</span> = print [match re <span class="st">"ab"</span> | re <span class="op">&lt;-</span> res]</span>
+<span class="code-line"> <span class="kw">where</span></span>
+<span class="code-line">  res = [<span class="st">"b$"</span>, <span class="st">"$"</span>, <span class="st">"^$"</span>]</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>[True,True,False]
+</samp></pre>
+      </div>
+      <p>
+        <code>match</code> は、パターンが <code>^</code> で始まれば文字列の先頭だけで <code>here</code> を試し、そうでなければ <code>tails s</code> が返す全ての位置で試します。<code>tails "ab"</code> は <code>["ab", "b", ""]</code> で、最後に空文字列が入ります。<code>here</code> は、パターンを使い切れば成功し、パターンが <code>"$"</code> だけになったら、残りの文字列が空かどうかで決まります。
+      </p>
+      <p>
+        <code>"b$"</code> は、<code>"ab"</code> の位置では <code>'b'</code> と <code>'a'</code> が合わずに失敗し、<code>"b"</code> の位置では <code>'b'</code> が合って、残りの <code>""</code> に対して <code>"$"</code> が成功します。<code>"$"</code> は、<code>"ab"</code> と <code>"b"</code> の位置では残りが空でないので失敗しますが、<code>tails</code> が最後に返す <code>""</code> の位置で成功します。<code>"^$"</code> は先頭の <code>"ab"</code> だけで <code>here "$" "ab"</code> を試すので、<code>False</code> です。
+      </p>
+      <p>
+        <code>tails "ab"</code> を <code>["ab", "b"]</code> の2つと読むと、<code>"$"</code> はどの位置でも残りが空にならず、<code>[True,False,False]</code> と答えることになります。<code>"b$"</code> が成功するのは <code>"b"</code> を読み終えた位置で残りが空になるからで、パターンが <code>"$"</code> だけなら、何も読まずに空になる位置が要ります。<code>tails</code> の最後の <code>""</code> が、その位置にあたります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

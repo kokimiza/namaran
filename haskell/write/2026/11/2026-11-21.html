@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="文字とc*だけからなる正規表現が、文字列全体に合うかどうかを返す関数を、パターンを先頭から読む再帰で書きます。2026-11-21のHaskell WRITE。">
+<title>星で0回以上を照合する</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-11-21">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-21" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-11-21",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-11-21",
+      "datePublished": "2026-11-21",
+      "dateModified": "2026-11-21",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "星で0回以上を照合する" },
+      "keywords": "regular-expression, recursion, backtracking, pattern-matching",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "文字とc*だけからなる正規表現が、文字列全体に合うかどうかを返す関数を、パターンを先頭から読む再帰で書きます。2026-11-21のHaskell WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-21">C23</a>
+  <a href="/cpp/write/2026-11-21">C++26</a>
+  <a href="/rust/write/2026-11-21">Rust 2024</a>
+  <a href="/haskell/write/2026-11-21" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/write/2026-11-21">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-21">READ</a>
+  <a href="/haskell/write/2026-11-21" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-11-21">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="星で0回以上を照合する"
+  data-tags="regular-expression recursion backtracking pattern-matching"
+  data-concepts="正規表現マッチャ, クリーネ閉包, 0回以上の繰り返し, 再帰, バックトラック, regular expression, star"
+  data-level="hedgehog"
+>
+  <h2>2026-11-21</h2>
+  <div class="code-frame">
+    <p class="code-filename">StarMatch.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="fn">whole</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">Bool</span></span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    パターン <code>re</code> が文字列 <code>s</code> 全体に合えば <code>True</code> を返す <code>whole</code> を書いてください。<code>re</code> は普通の文字と <code>*</code> だけからなり、<code>c*</code> は直前の文字 <code>c</code> を0回以上繰り返したものに合います。<code>*</code> がパターンの先頭に来たり、2つ続いたりすることはありません。<code>re</code> と <code>s</code> がどちらも空なら <code>True</code> です。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>whole "a*b" "aaab"</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>True</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>whole "a*b" "b"</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>True</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>whole "ab*" "abbc"</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>False</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="fn">whole</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">Bool</span></span>
+<span class="code-line ins"><span class="fn">whole</span> p@(c : <span class="st">'*'</span> : re) s =</span>
+<span class="code-line ins">  whole re s || <span class="kw">case</span> s <span class="kw">of</span></span>
+<span class="code-line ins">    x : xs <span class="op">-&gt;</span> x == c &amp;&amp; whole p xs</span>
+<span class="code-line ins">    [] <span class="op">-&gt;</span> <span class="ty">False</span></span>
+<span class="code-line ins"><span class="fn">whole</span> (c : re) (x : xs)</span>
+<span class="code-line ins">  | c == x = whole re xs</span>
+<span class="code-line ins"><span class="fn">whole</span> re s = null re &amp;&amp; null s</span>
+</code></pre>
+      </div>
+      <p>
+        パターンを先頭から読み、形ごとに節を分けます。2文字目が <code>*</code> なら、<code>c*</code> を0回で済ませて残りのパターン <code>re</code> を同じ <code>s</code> に合わせるか、<code>s</code> の先頭が <code>c</code> なら1文字食べて、<code>c*</code> を付けたままのパターン <code>p</code> で続きを合わせるか、のどちらかが成り立てば合います。<code>*</code> の付かない文字は、<code>s</code> の先頭と同じなら両方を1文字ずつ進めます。残りの節に来るのは、パターンか文字列のどちらかが尽きたか、文字が合わなかったときで、両方が空のときだけ <code>True</code> です。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        <code>*</code> の節は、普通の文字の節より前に置きます。節は上から順に試されるので、逆にすると <code>'a'</code> と <code>'*'</code> を普通の文字として読んでしまいます。入力例1の <code>whole "a*b" "aaab"</code> では、<code>a*</code> が <code>'a'</code> を1つずつ食べるたびに、0回で済ませて <code>"b"</code> を合わせる道も試し、3つ食べたところで <code>"b"</code> と <code>"b"</code> が合います。入力例2の <code>"b"</code> では、<code>a*</code> を0回で済ませる側がすぐに成功します。入力例3は、<code>b*</code> が <code>"bb"</code> まで食べても <code>'c'</code> が残り、パターンだけが尽きるので <code>False</code> です。<code>||</code> は左が <code>True</code> なら右を評価しないので、見つかった時点で残りの試し方は捨てられます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

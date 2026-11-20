@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="正規表現の.を処理する節がdrop 1で1文字進むため、入力が尽きたあとでも.が合ってしまうバグを直します。2026-11-21のHaskell DEBUG。">
+<title>入力が尽きても合うドット</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-11-21">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-21" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-11-21",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-11-21",
+      "datePublished": "2026-11-21",
+      "dateModified": "2026-11-21",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "入力が尽きても合うドット" },
+      "keywords": "regular-expression, pattern-matching, recursion, boundary",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "正規表現の.を処理する節がdrop 1で1文字進むため、入力が尽きたあとでも.が合ってしまうバグを直します。2026-11-21のHaskell DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-21">C23</a>
+  <a href="/cpp/debug/2026-11-21">C++26</a>
+  <a href="/rust/debug/2026-11-21">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-21" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-21">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-21">READ</a>
+  <a href="/haskell/write/2026-11-21">WRITE</a>
+  <a href="/haskell/debug/2026-11-21" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="入力が尽きても合うドット"
+  data-tags="regular-expression pattern-matching recursion boundary"
+  data-concepts="正規表現マッチャ, drop, 空リスト, パターンマッチ, ドット, regular expression, drop on empty list"
+  data-level="hedgehog"
+>
+  <h2>2026-11-21</h2>
+  <div class="code-frame">
+    <p class="code-filename">DotMatch.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="fn">prefix</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">Bool</span></span>
+<span class="code-line"><span class="fn">prefix</span> <span class="st">""</span> _ = <span class="ty">True</span></span>
+<span class="code-line"><span class="fn">prefix</span> (<span class="st">'.'</span> : re) s = prefix re (drop <span class="nu">1</span> s)</span>
+<span class="code-line"><span class="fn">prefix</span> (c : re) (x : xs)</span>
+<span class="code-line">  | c == x = prefix re xs</span>
+<span class="code-line"><span class="fn">prefix</span> _ _ = <span class="ty">False</span></span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    文字列 <code>s</code> の先頭からパターン <code>re</code> を合わせ、<code>re</code> を最後まで使い切れたら <code>True</code> を返す <code>prefix</code> です。<code>re</code> は普通の文字と、どれか1文字に合う <code>.</code> からなります。<code>prefix "ab." "ab"</code> は、<code>.</code> に合う3文字目が無いので <code>False</code> になるはずが、いまは <code>True</code> を返します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del"><span class="fn">prefix</span> (<span class="st">'.'</span> : re) <span class="chg">s</span> = prefix re <span class="chg">(drop <span class="nu">1</span> s)</span></span>
+</code></pre>
+      <p>
+        <code>drop 1</code> は、リストが空なら何も捨てずに空リストを返し、失敗しません。<code>prefix "ab." "ab"</code> では、<code>'a'</code> と <code>'b'</code> が合ったところで、パターンは <code>"."</code>、文字列は <code>""</code> になります。<code>.</code> の節は文字列の形を問わずに選ばれ、<code>drop 1 ""</code> が <code>""</code> を返すので、<code>prefix "" ""</code> に進んで <code>True</code> になります。
+      </p>
+      <p>
+        <code>.</code> は1文字を読んで初めて合うものですが、この節は、読む文字が無くても合ったことにしています。パターンの末尾に <code>.</code> がいくつあっても、文字列が尽きたあとは全部素通りします。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins"><span class="fn">prefix</span> (<span class="st">'.'</span> : re) <span class="chg">(_ : xs)</span> = prefix re <span class="chg">xs</span></span>
+</code></pre>
+      <p>
+        文字列の側を <code>(_ : xs)</code> というパターンにすると、この節が選ばれるのは、少なくとも1文字残っているときだけになります。文字列が空なら、この節にも次の普通の文字の節にも合わず、最後の <code>prefix _ _ = False</code> に落ちます。<code>prefix "ab." "ab"</code> は <code>False</code> になり、<code>prefix "ab." "abc"</code> では <code>.</code> が <code>'c'</code> を読んで <code>True</code> のままです。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

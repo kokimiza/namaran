@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="バイトを足す8ビットのチェックサムと、XORでとるパリティバイトが、2か所の破損をどちらも見逃す様子を、出力から読み取ります。2026-11-21のC READ。">
+<title>和とXORが見逃す破損</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-11-21">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-21" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-11-21",
+      "url": "https://namaran.jocarium.productions/c/read/2026-11-21",
+      "datePublished": "2026-11-21",
+      "dateModified": "2026-11-21",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "和とXORが見逃す破損" },
+      "keywords": "checksum, bit-operation, modular-arithmetic, type-conversion",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "バイトを足す8ビットのチェックサムと、XORでとるパリティバイトが、2か所の破損をどちらも見逃す様子を、出力から読み取ります。2026-11-21のC READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-21" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-11-21">C++26</a>
+  <a href="/rust/read/2026-11-21">Rust 2024</a>
+  <a href="/haskell/read/2026-11-21">Haskell 2010</a>
+  <a href="/zig/read/2026-11-21">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-21" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-11-21">WRITE</a>
+  <a href="/c/debug/2026-11-21">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="和とXORが見逃す破損"
+  data-tags="checksum bit-operation modular-arithmetic type-conversion"
+  data-concepts="チェックサム, パリティバイト, XOR, 256を法とする和, unsigned charの桁あふれ, checksum, parity byte, error detection"
+  data-level="bison"
+>
+  <h2>2026-11-21</h2>
+  <div class="code-frame">
+    <p class="code-filename">two_checks.c</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {</span>
+<span class="code-line">    <span class="ty">unsigned</span> <span class="ty">char</span> msg[<span class="nu">3</span>][<span class="nu">3</span>] = {</span>
+<span class="code-line">        {<span class="nu">0x41</span>, <span class="nu">0x42</span>, <span class="nu">0x43</span>},</span>
+<span class="code-line">        {<span class="nu">0xc1</span>, <span class="nu">0xc2</span>, <span class="nu">0x43</span>},</span>
+<span class="code-line">        {<span class="nu">0x40</span>, <span class="nu">0x43</span>, <span class="nu">0x43</span>},</span>
+<span class="code-line">    };</span>
+<span class="code-line">    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; <span class="nu">3</span>; i++) {</span>
+<span class="code-line">        <span class="ty">unsigned</span> <span class="ty">char</span> sum = <span class="nu">0</span>, x = <span class="nu">0</span>;</span>
+<span class="code-line">        <span class="kw">for</span> (<span class="ty">int</span> j = <span class="nu">0</span>; j &lt; <span class="nu">3</span>; j++) {</span>
+<span class="code-line">            sum += msg[i][j];</span>
+<span class="code-line">            x ^= msg[i][j];</span>
+<span class="code-line">        }</span>
+<span class="code-line">        <span class="fn">printf</span>(<span class="st">"%02x %02x\n"</span>, sum, x);</span>
+<span class="code-line">    }</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>c6 40
+c6 40
+c6 40
+</samp></pre>
+      </div>
+      <p>
+        1行目から計算します。<code>sum += msg[i][j]</code> は、<code>sum</code> と <code>msg[i][j]</code> を <code>int</code> に昇格してから足し、結果を <code>unsigned char</code> の <code>sum</code> に戻します。符号なしの型に入りきらない値を入れると、256 で割った余りになります。0x41 + 0x42 + 0x43 は 0xc6 で、まだ 256 未満です。<code>x</code> のほうは 0x41 ^ 0x42 が 0x03、それと 0x43 の XOR が 0x40 です。
+      </p>
+      <p>
+        2行目は、1行目の先頭2バイトの最上位ビット（0x80）を立てたものです。整数として足すと 0xc1 + 0xc2 + 0x43 = 0x1c6 で、1行目より 0x80 の2倍、つまり 256 だけ多くなります。<code>sum</code> に残るのは 256 で割った余りなので、1行目と同じ 0xc6 です。XOR は、各ビットの位置ごとに 1 の個数が奇数か偶数かを表します。同じ位置のビットが2バイトで反転すると、1 の個数は2つ増えるか2つ減るか1つずつ入れ替わるだけで、偶奇は変わりません。<code>x</code> も 0x40 のままです。
+      </p>
+      <p>
+        3行目は、0x41 の最下位ビットが 1 から 0 に、0x42 の最下位ビットが 0 から 1 に変わったものです。和は 1 減って 1 増えるので変わりません。XOR は、2行目と同じく同じ位置のビットが2回反転しただけなので変わりません。3行とも <code>c6 40</code> になり、どちらの検査も2か所の破損を見逃します。
+      </p>
+      <p>
+        <code>sum</code> を整数のように読むと、2行目の和を <code>1c6</code> と答えます。<code>unsigned char</code> に戻す代入があるので、0x80 が2回加わった変化は消えます。XOR を「どこかのバイトが変われば値も変わる」と読むと、2行目と3行目の <code>x</code> に別の値を探すことになります。和は値の大きさしか見ず、XOR はビットごとの偶奇しか見ません。大きさが打ち消し合う破損や、同じ位置のビットが偶数回反転する破損は、どちらにも見えません。CRC は、どの位置のビットが変わったかによって余りへの効き方が変わるように作られています。同じ3行を8ビットの CRC で計算すると、3行とも違う値になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

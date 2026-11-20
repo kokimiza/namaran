@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「パターンマッチ」を扱ったNamaranのコーディングドリル59問。WAL、トランザクション、コミット、障害回復、書きかけのトランザクション、crash recovery。">
+<meta name="description" content="「パターンマッチ」を扱ったNamaranのコーディングドリル62問。正規表現マッチャ、クリーネ閉包、0回以上の繰り返し、再帰、バックトラック、regular expression。">
 <title>パターンマッチ</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/pattern-matching">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>パターンマッチ</h2>
 
   <p class="lede">
-    「パターンマッチ」を扱った59問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「パターンマッチ」を扱った62問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/haskell/write/2026-11-21">Haskell / WRITE · 2026-11-21</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">星で0回以上を照合する</span> <span class="past-concepts">正規表現マッチャ, クリーネ閉包, 0回以上の繰り返し, 再帰, バックトラック, regular expression, star</span></li>
+    <li><a href="/haskell/read/2026-11-21">Haskell / READ · 2026-11-21</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">どこから始めてもよい照合</span> <span class="past-concepts">正規表現マッチャ, アンカー, tails, 空リスト, 末尾の空文字列, regex anchor, regular expression matcher</span></li>
+    <li><a href="/haskell/debug/2026-11-21">Haskell / DEBUG · 2026-11-21</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">入力が尽きても合うドット</span> <span class="past-concepts">正規表現マッチャ, drop, 空リスト, パターンマッチ, ドット, regular expression, drop on empty list</span></li>
     <li><a href="/rust/debug/2026-11-19">Rust / DEBUG · 2026-11-19</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">障害で残った書きかけ</span> <span class="past-concepts">WAL, トランザクション, コミット, 障害回復, 書きかけのトランザクション, crash recovery, uncommitted transaction</span></li>
     <li><a href="/haskell/write/2026-11-19">Haskell / WRITE · 2026-11-19</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">エスケープの逆変換</span> <span class="past-concepts">エスケープ, アンエスケープ, パターンマッチ, 文字列リテラル, escape sequence, unescape, round trip</span></li>
     <li><a href="/haskell/debug/2026-11-19">Haskell / DEBUG · 2026-11-19</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">必要なときだけの\\</span> <span class="past-concepts">エスケープ, アンエスケープ, 往復, 曖昧さ, 行継続, escape, unescape, round trip, ambiguity</span></li>

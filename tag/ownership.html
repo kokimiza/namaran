@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「所有権」を扱ったNamaranのコーディングドリル15問。所有権、ムーブ、可変参照、Vec::remove、要素を取り出す、ownership。">
+<meta name="description" content="「所有権」を扱ったNamaranのコーディングドリル16問。dropの順序、Vecの要素のdrop順、pop、所有権の移動、drop order、Vec::pop。">
 <title>所有権</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/ownership">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>所有権</h2>
 
   <p class="lede">
-    「所有権」を扱った15問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「所有権」を扱った16問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/write/2026-11-21">Rust / WRITE · 2026-11-21</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">後ろから順に捨てる</span> <span class="past-concepts">dropの順序, Vecの要素のdrop順, pop, 所有権の移動, drop order, Vec::pop</span></li>
     <li><a href="/rust/write/2026-11-17">Rust / WRITE · 2026-11-17</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">いちばん長い文字列を取り出す</span> <span class="past-concepts">所有権, ムーブ, 可変参照, Vec::remove, 要素を取り出す, ownership, move out of index, mutable reference</span></li>
     <li><a href="/rust/read/2026-11-17">Rust / READ · 2026-11-17</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">渡した先で伸びる文字列</span> <span class="past-concepts">所有権, ムーブ, clone, 値渡し, 戻り値で所有権を返す, ownership, move, clone, pass by value</span></li>
     <li><a href="/zig/write/2026-11-10">Zig / WRITE · 2026-11-10</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">2つ確保して渡す</span> <span class="past-concepts">std.mem.Allocator, errdefer, 確保の失敗, 所有権の受け渡し, dupe, checkAllAllocationFailures, caller owns memory, allocation failure</span></li>

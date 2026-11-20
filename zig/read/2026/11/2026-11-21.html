@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Zig 0.17の@roundと@truncで-2.5を整数の型に変換すると、それぞれどちらの整数になるかを読みます。@intFromFloatは@truncと同じです。2026-11-21のZig READ。">
+<title>負の半端を整数にする</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/read/2026-11-21">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / READ", "item": "https://namaran.jocarium.productions/zig/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-21" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / READ — 2026-11-21",
+      "url": "https://namaran.jocarium.productions/zig/read/2026-11-21",
+      "datePublished": "2026-11-21",
+      "dateModified": "2026-11-21",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "負の半端を整数にする" },
+      "keywords": "rounding, type-conversion, floating-point, builtin-function",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "Zig 0.17の@roundと@truncで-2.5を整数の型に変換すると、それぞれどちらの整数になるかを読みます。@intFromFloatは@truncと同じです。2026-11-21のZig READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-21">C23</a>
+  <a href="/cpp/read/2026-11-21">C++26</a>
+  <a href="/rust/read/2026-11-21">Rust 2024</a>
+  <a href="/haskell/read/2026-11-21">Haskell 2010</a>
+  <a href="/zig/read/2026-11-21" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-21" class="active" aria-current="page">READ</a>
+  <a href="/zig/write/2026-11-21">WRITE</a>
+  <a href="/zig/debug/2026-11-21">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="負の半端を整数にする"
+  data-tags="rounding type-conversion floating-point builtin-function"
+  data-concepts="@round, @trunc, @intFromFloat, 四捨五入, 切り捨て, 0から遠い方への丸め, round half away from zero, float to int"
+  data-level="hedgehog"
+>
+  <h2>2026-11-21</h2>
+  <div class="code-frame">
+    <p class="code-filename">round_trunc.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {</span>
+<span class="code-line">    <span class="kw">var</span> buf: [<span class="nu">64</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line">    <span class="kw">const</span> stdout = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>();</span>
+<span class="code-line">    <span class="kw">var</span> w = stdout.<span class="fn">writer</span>(init.io, &amp;buf);</span>
+<span class="code-line">    <span class="kw">const</span> out = &amp;w.interface;</span>
+<span class="code-line">    <span class="kw">const</span> x: <span class="ty">f64</span> = -<span class="nu">2.5</span>;</span>
+<span class="code-line">    <span class="kw">const</span> r: <span class="ty">i32</span> = <span class="mc">@round</span>(x);</span>
+<span class="code-line">    <span class="kw">const</span> t: <span class="ty">i32</span> = <span class="mc">@trunc</span>(x);</span>
+<span class="code-line">    <span class="kw">try</span> out.<span class="fn">print</span>(<span class="st">"{d} {d}\n"</span>, .{ r, t });</span>
+<span class="code-line">    <span class="kw">try</span> out.<span class="fn">flush</span>();</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>-3 -2
+</samp></pre>
+      </div>
+      <p>
+        <code>@round</code> は、最も近い整数に丸めます。-2.5 は -3 と -2 のちょうど真ん中にあり、このときは 0 から遠い方の -3 を選びます。<code>@trunc</code> は 0 の方へ丸めるので、小数部を捨てた -2 になります。どちらも、受け取る側の型（langref の result type）が整数なら、丸めた結果の整数部をその型の値にして返します。<code>r</code> と <code>t</code> は <code>i32</code> と宣言してあるので、-3 と -2 がそのまま入ります。
+      </p>
+      <p>
+        真ん中の値を偶数の方へ丸める規則で読むと <code>@round</code> は -2 に、「0.5 を足して切り捨てる」と読むと -2.5 + 0.5 = -2 で、これも -2 になります。<code>@trunc</code> を小さい方への切り捨てと読むと -3 です。負の数では、0 の方へ丸めることと小さい方へ丸めることが分かれます。0.17 では <code>@intFromFloat</code> は非推奨で、<code>@trunc</code> を整数の型で受けるのと同じ意味です。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/read">Today</a></li>
+    <li><a href="/zig/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

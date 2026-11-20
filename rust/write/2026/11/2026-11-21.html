@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Vecを受け取り、要素を最後のものから順にdropする関数を書きます。何もしなければ要素は先頭から捨てられます。2026-11-21のRust WRITE。">
+<title>後ろから順に捨てる</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-11-21">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-21" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-11-21",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-11-21",
+      "datePublished": "2026-11-21",
+      "dateModified": "2026-11-21",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "後ろから順に捨てる" },
+      "keywords": "drop-scope, vector, ownership",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "Vecを受け取り、要素を最後のものから順にdropする関数を書きます。何もしなければ要素は先頭から捨てられます。2026-11-21のRust WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-21">C23</a>
+  <a href="/cpp/write/2026-11-21">C++26</a>
+  <a href="/rust/write/2026-11-21" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-11-21">Haskell 2010</a>
+  <a href="/zig/write/2026-11-21">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-21">READ</a>
+  <a href="/rust/write/2026-11-21" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-11-21">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="後ろから順に捨てる"
+  data-tags="drop-scope vector ownership"
+  data-concepts="dropの順序, Vecの要素のdrop順, pop, 所有権の移動, drop order, Vec::pop"
+  data-level="hedgehog"
+>
+  <h2>2026-11-21</h2>
+  <div class="code-frame">
+    <p class="code-filename">drop_rev.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">drop_rev</span>&lt;<span class="ty">T</span>&gt;(v: <span class="ty">Vec</span>&lt;<span class="ty">T</span>&gt;) {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>Vec</code> を受け取り、その要素を最後のものから先頭へ向かって1つずつ drop する <code>drop_rev</code> を書いてください。要素が無ければ何もしません。例では、要素の型を、drop されるときに自分の番号を改行なしで表示する <code>N</code> とします。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>drop_rev(vec![N(1), N(2), N(3)])</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>321</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>drop_rev(vec![N(7)])</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>7</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>drop_rev(Vec::&lt;N&gt;::new())</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code></code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">drop_rev</span>&lt;<span class="ty">T</span>&gt;(v: <span class="ty">Vec</span>&lt;<span class="ty">T</span>&gt;) {</span>
+<span class="code-line ins">    <span class="kw">for</span> x <span class="kw">in</span> v.<span class="fn">into_iter</span>().<span class="fn">rev</span>() {</span>
+<span class="code-line ins">        <span class="fn">drop</span>(x);</span>
+<span class="code-line ins">    }</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        <code>Vec</code> を何もせずに捨てると、要素は先頭から順に drop されます。逆の順にするには、要素を後ろから1つずつ取り出し、取り出したものをその場で捨てます。<code>into_iter()</code> は <code>v</code> を消費して要素を所有権ごと返すイテレータで、<code>rev()</code> を付けると後ろから返します。ループ変数 <code>x</code> は1周ごとに要素を1つ所有し、<code>drop(x)</code> がそれを捨ててから次の要素を取り出します。掲載したのは参考実装で、唯一の正解ではありません。<code>let mut v = v;</code> として <code>while let Some(x) = v.pop()</code> で取り出しても同じ順になります。
+      </p>
+      <p>
+        <code>drop(x)</code> を書かずに本体を空にしても、<code>x</code> は1周の終わりでスコープを抜けて drop されるので、結果は変わりません。<code>drop</code> を書くのは、ここで捨てていることを読む人に見せるためです。入力例1では <code>N(3)</code>、<code>N(2)</code>、<code>N(1)</code> の順に捨てられて <code>321</code> と表示されます。入力例3の空の <code>Vec</code> では、ループが1回も回りません。要素の型を <code>T</code> のままにしておけるのは、要素を取り出して捨てるだけで、中身には触れないからです。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

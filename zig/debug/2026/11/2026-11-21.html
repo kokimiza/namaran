@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="1フレームの秒数からfpsを整数で返す関数が、0の確認より先に1/0の無限大を整数に変換して、illegal behaviorのpanicで止まるバグを直します。2026-11-21のZig DEBUG。">
+<title>変換のあとの0の確認</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/debug/2026-11-21">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / DEBUG", "item": "https://namaran.jocarium.productions/zig/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-21" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / DEBUG — 2026-11-21",
+      "url": "https://namaran.jocarium.productions/zig/debug/2026-11-21",
+      "datePublished": "2026-11-21",
+      "dateModified": "2026-11-21",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "変換のあとの0の確認" },
+      "keywords": "floating-point, type-conversion, division, builtin-function",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "1フレームの秒数からfpsを整数で返す関数が、0の確認より先に1/0の無限大を整数に変換して、illegal behaviorのpanicで止まるバグを直します。2026-11-21のZig DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-21">C23</a>
+  <a href="/cpp/debug/2026-11-21">C++26</a>
+  <a href="/rust/debug/2026-11-21">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-21">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-21" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-21">READ</a>
+  <a href="/zig/write/2026-11-21">WRITE</a>
+  <a href="/zig/debug/2026-11-21" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="変換のあとの0の確認"
+  data-tags="floating-point type-conversion division builtin-function"
+  data-concepts="@round, @intFromFloat, 無限大, inf, illegal behavior, 0除算, float division by zero, out of bounds"
+  data-level="peacock"
+>
+  <h2>2026-11-21</h2>
+  <div class="code-frame">
+    <p class="code-filename">fps.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">fps</span>(dt: <span class="ty">f64</span>) <span class="ty">u32</span> {</span>
+<span class="code-line">    <span class="kw">const</span> rate: <span class="ty">u32</span> = <span class="mc">@round</span>(<span class="nu">1</span> / dt);</span>
+<span class="code-line">    <span class="kw">if</span> (dt == <span class="nu">0</span>) <span class="kw">return</span> <span class="nu">0</span>;</span>
+<span class="code-line">    <span class="kw">return</span> rate;</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    1フレームにかかった秒数 <code>dt</code> から、1秒あたりのフレーム数を最も近い整数で返す <code>fps</code> です。まだ時間を測れていない最初のフレームでは <code>dt</code> が 0 で、そのときは 0 を返すつもりです。<code>fps(0.25)</code> は <code>4</code> を返しますが、<code>fps(0)</code> は <code>0</code> を返すはずが、いまは <code>integer part of floating point value out of bounds</code> というメッセージで panic します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line">    <span class="kw">const</span> rate: <span class="ty">u32</span> = <span class="mc">@round</span>(<span class="nu">1</span> / dt);</span>
+<span class="code-line del">    <span class="kw">if</span> (dt == <span class="nu">0</span>) <span class="kw">return</span> <span class="nu">0</span>;</span>
+</code></pre>
+      <p>
+        <code>dt</code> は <code>f64</code> なので、<code>1 / dt</code> は浮動小数点数の割り算です。浮動小数点数を 0 で割ってもエラーにはならず、<code>1 / 0</code> は正の無限大になります。ここまでは何も起きませんが、<code>rate</code> の型が <code>u32</code> なので、<code>@round</code> はその結果を整数に変換します。無限大は <code>u32</code> のどの値にも収まりません。範囲外の値を整数にすると、langref が illegal behavior と呼ぶものになり、Debug ビルドでは安全検査がそこで panic します。
+      </p>
+      <p>
+        0 を確かめる <code>if</code> はその次の行にあり、変換が済んでからでは間に合いません。<code>fps(0.25)</code> では <code>1 / 0.25</code> が 4.0 で、<code>u32</code> に収まるので問題が見えません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins">    <span class="kw">if</span> (dt == <span class="nu">0</span>) <span class="kw">return</span> <span class="nu">0</span>;</span>
+<span class="code-line">    <span class="kw">const</span> rate: <span class="ty">u32</span> = <span class="mc">@round</span>(<span class="nu">1</span> / dt);</span>
+</code></pre>
+      <p>
+        <code>dt</code> が 0 かどうかを、割り算と変換より前に確かめます。<code>dt</code> が 0 なら無限大を作る前に 0 を返すので、範囲外の値を整数にすることはなくなります。<code>fps(0.25)</code> は今までどおり 4 を返します。止まるのは割り算ではなく整数への変換なので、確かめる <code>if</code> は変換より前にあることが条件です。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/debug">Today</a></li>
+    <li><a href="/zig/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

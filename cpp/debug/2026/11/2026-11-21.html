@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="std::filesystemで項目を再帰的に数える関数が、親を指すシンボリックリンクの先へも降りてしまい、例外で止まるバグを直します。2026-11-21のC++ DEBUG。">
+<title>リンクの先まで降りる数え方</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-11-21">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-21" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-11-21",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-11-21",
+      "datePublished": "2026-11-21",
+      "dateModified": "2026-11-21",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "リンクの先まで降りる数え方" },
+      "keywords": "symbolic-link, file-system, recursion, infinite-loop",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "std::filesystemで項目を再帰的に数える関数が、親を指すシンボリックリンクの先へも降りてしまい、例外で止まるバグを直します。2026-11-21のC++ DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-21">C23</a>
+  <a href="/cpp/debug/2026-11-21" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-11-21">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-21">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-21">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-21">READ</a>
+  <a href="/cpp/write/2026-11-21">WRITE</a>
+  <a href="/cpp/debug/2026-11-21" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="リンクの先まで降りる数え方"
+  data-tags="symbolic-link file-system recursion infinite-loop"
+  data-concepts="is_directory, is_symlink, symlink_status, シンボリックリンクの循環, directory_iterator, ELOOP, symlink loop"
+  data-level="hedgehog"
+>
+  <h2>2026-11-21</h2>
+  <div class="code-frame">
+    <p class="code-filename">count_entries.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;filesystem&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span></span>
+<span class="code-line"><span class="kw">namespace</span> <span class="ty">fs</span> = std::filesystem;</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">count</span>(<span class="kw">const</span> fs::path&amp; dir) {</span>
+<span class="code-line">    <span class="ty">int</span> n = <span class="nu">0</span>;</span>
+<span class="code-line">    <span class="kw">for</span> (<span class="kw">auto</span>&amp; e :</span>
+<span class="code-line">         fs::<span class="fn">directory_iterator</span>(dir)) {</span>
+<span class="code-line">        n += <span class="nu">1</span>;</span>
+<span class="code-line">        <span class="kw">if</span> (e.<span class="fn">is_directory</span>())</span>
+<span class="code-line">            n += <span class="fn">count</span>(e.<span class="fn">path</span>());</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="kw">return</span> n;</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    ディレクトリの下にある項目（ファイル、ディレクトリ、シンボリックリンク）を、下の階層まで含めて数える <code>count</code> です。カレントディレクトリにディレクトリ <code>a</code> があり、<code>a</code> の中にディレクトリ <code>b</code> と、<code>..</code> を指すシンボリックリンク <code>up</code> があるとき、<code>count(".")</code> を呼びます。いまは値を返さず、<code>std::filesystem::filesystem_error</code> が投げられて異常終了します（Linux でのメッセージは <code>Too many levels of symbolic links</code>）。本来は <code>3</code> を返すはずです。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line">        n += <span class="nu">1</span>;</span>
+<span class="code-line del">        <span class="kw">if</span> (e.<span class="fn">is_directory</span>()<span class="chg">)</span></span>
+<span class="code-line">            n += <span class="fn">count</span>(e.<span class="fn">path</span>());</span>
+</code></pre>
+      <p>
+        <code>directory_entry::is_directory()</code> は、項目がシンボリックリンクならリンクの先を調べます。<code>a/up</code> は <code>..</code>、つまりカレントディレクトリを指すので、<code>is_directory()</code> は真になり、<code>count("./a/up")</code> が呼ばれます。その中にはまた <code>a</code> があり、<code>./a/up/a/up</code>、<code>./a/up/a/up/a/up</code> と同じ木を際限なくたどり直します。
+      </p>
+      <p>
+        OS は、1つのパスを解決するあいだにたどるシンボリックリンクの数に上限を設けています（Linux では40）。パスに <code>up</code> が積み重なってこの上限を超えると、項目の状態を調べる呼び出しが失敗し、<code>filesystem_error</code> が投げられます。誰も捕まえないので、プログラムはそこで終了します。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line">        n += <span class="nu">1</span>;</span>
+<span class="code-line ins">        <span class="kw">if</span> (e.<span class="fn">is_directory</span>() <span class="chg">&amp;&amp;</span></span>
+<span class="code-line ins">            !e.<span class="fn">is_symlink</span>())</span>
+<span class="code-line">            n += <span class="fn">count</span>(e.<span class="fn">path</span>());</span>
+</code></pre>
+      <p>
+        <code>is_symlink()</code> は、リンクの先ではなく項目そのものを調べます。ディレクトリでもリンクなら中へ降りないようにすると、<code>a/up</code> は1つの項目として数えられるだけになります。数えるのは <code>a</code>、<code>a/b</code>、<code>a/up</code> の3つで、<code>count(".")</code> は <code>3</code> を返します。リンクを経由しないかぎり、ディレクトリの木は親へ戻れないので、この再帰は必ず止まります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

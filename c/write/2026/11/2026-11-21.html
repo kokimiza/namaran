@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="生成多項式0x07のCRC-8を、1バイトずつXORで重ねて1ビットずつ左へずらす形で書きます。2026-11-21のC WRITE。">
+<title>CRC-8をビットごとに</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-11-21">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-21" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-11-21",
+      "url": "https://namaran.jocarium.productions/c/write/2026-11-21",
+      "datePublished": "2026-11-21",
+      "dateModified": "2026-11-21",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "CRC-8をビットごとに" },
+      "keywords": "checksum, bit-operation, hash-function",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "生成多項式0x07のCRC-8を、1バイトずつXORで重ねて1ビットずつ左へずらす形で書きます。2026-11-21のC WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-21" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-11-21">C++26</a>
+  <a href="/rust/write/2026-11-21">Rust 2024</a>
+  <a href="/haskell/write/2026-11-21">Haskell 2010</a>
+  <a href="/zig/write/2026-11-21">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-21">READ</a>
+  <a href="/c/write/2026-11-21" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-11-21">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="CRC-8をビットごとに"
+  data-tags="checksum bit-operation hash-function"
+  data-concepts="CRC, CRC-8, 巡回冗長検査, 誤り検出, cyclic redundancy check, error detection"
+  data-level="hedgehog"
+>
+  <h2>2026-11-21</h2>
+  <div class="code-frame">
+    <p class="code-filename">crc8.c</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stddef.h&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">unsigned</span> <span class="ty">char</span> <span class="fn">crc8</span>(<span class="kw">const</span> <span class="ty">unsigned</span> <span class="ty">char</span>* p,</span>
+<span class="code-line">                   <span class="ty">size_t</span> n) {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>p</code> から <code>n</code> バイトの8ビット CRC を返す <code>crc8</code> を書いてください。生成多項式は 0x07（x<sup>8</sup> + x<sup>2</sup> + x + 1 から x<sup>8</sup> の項を除いた係数を、上の次数から1ビットずつ並べたもの）、初期値は 0 で、ビットの並びの反転も最後の XOR もしません。各バイトは最上位ビットから処理します。<code>n</code> が 0 のときは初期値の 0 を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>crc8((const unsigned char*)"123456789", 9)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>0xF4</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>crc8((const unsigned char*)"A", 1)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>0xC0</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>crc8(NULL, 0)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>0x00</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="ty">unsigned</span> <span class="ty">char</span> <span class="fn">crc8</span>(<span class="kw">const</span> <span class="ty">unsigned</span> <span class="ty">char</span>* p,</span>
+<span class="code-line">                   <span class="ty">size_t</span> n) {</span>
+<span class="code-line ins">    <span class="ty">unsigned</span> <span class="ty">char</span> crc = <span class="nu">0</span>;</span>
+<span class="code-line ins">    <span class="kw">for</span> (<span class="ty">size_t</span> i = <span class="nu">0</span>; i &lt; n; i++) {</span>
+<span class="code-line ins">        crc ^= p[i];</span>
+<span class="code-line ins">        <span class="kw">for</span> (<span class="ty">int</span> k = <span class="nu">0</span>; k &lt; <span class="nu">8</span>; k++) {</span>
+<span class="code-line ins">            <span class="kw">if</span> (crc &amp; <span class="nu">0x80</span>)</span>
+<span class="code-line ins">                crc = (crc &lt;&lt; <span class="nu">1</span>) ^ <span class="nu">0x07</span>;</span>
+<span class="code-line ins">            <span class="kw">else</span></span>
+<span class="code-line ins">                crc &lt;&lt;= <span class="nu">1</span>;</span>
+<span class="code-line ins">        }</span>
+<span class="code-line ins">    }</span>
+<span class="code-line ins">    <span class="kw">return</span> crc;</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        CRC は、データのビット列を多項式の係数とみなし、生成多項式<sup class="fn-ref">1</sup>で割った余りです。係数の足し算と引き算は繰り上がりのない XOR で行うので、割り算の「引く」は生成多項式との XOR になります。参考実装は、この筆算を1ビットずつ進めます。<code>crc</code> に次のバイトを XOR で重ね、8回、1ビットずつ左へずらします。ずらす前の最上位ビットが 1 なら、そのビットは x<sup>8</sup> の位に出て、生成多項式の x<sup>8</sup> の項で割れることになります。そこで、残りの係数 0x07 を XOR で引きます。掲載したのは参考実装で、唯一の正解ではありません。256通りのバイトについて結果をあらかじめ表にしておき、1バイトを1回の表引きで済ませる書き方もよく使われます。
+      </p>
+      <p>
+        <code>crc &lt;&lt; 1</code> は <code>int</code> に昇格してから計算されるので、x<sup>8</sup> の位に出たビットは 0x100 として値に残ります。<code>unsigned char</code> の <code>crc</code> に代入すると 256 で割った余りになり、このビットは消えます。生成多項式から x<sup>8</sup> を除いた 0x07 を XOR すればよいのはこのためです。入力例2の <code>"A"</code> は 0x41 で、1回目のシフトで 0x82 になります。2回目は最上位ビットが 1 なので、0x04 と 0x07 の XOR で 0x03 になり、残りの6回は最上位ビットが 0 のままずれるだけで、0xC0 が残ります。<code>n</code> が 0 なら外側のループは1回も回らず、初期値の 0 がそのまま返ります。
+      </p>
+      <ol class="footnotes">
+        <li>生成多項式（せいせいたこうしき、generator polynomial）は、CRC の計算で割る数にあたる、係数が 0 か 1 の多項式です。どれを選ぶかで、見逃さずに検出できる破損の種類が変わります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
