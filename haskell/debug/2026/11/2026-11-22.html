@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="ミリとセンチを構築子で区別した長さの型で、derivingで導出したOrdを使って長いほうを選んだため、単位を無視した比較になる誤りを直します。2026-11-22のHaskell DEBUG。">
+<title>導出したOrdは単位を見ない</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-11-22">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-22" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-11-22",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-11-22",
+      "datePublished": "2026-11-22",
+      "dateModified": "2026-11-22",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "導出したOrdは単位を見ない" },
+      "keywords": "deriving, algebraic-data-type, comparison",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "ミリとセンチを構築子で区別した長さの型で、derivingで導出したOrdを使って長いほうを選んだため、単位を無視した比較になる誤りを直します。2026-11-22のHaskell DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-22">C23</a>
+  <a href="/cpp/debug/2026-11-22">C++26</a>
+  <a href="/rust/debug/2026-11-22">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-22" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-22">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-22">READ</a>
+  <a href="/haskell/write/2026-11-22">WRITE</a>
+  <a href="/haskell/debug/2026-11-22" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="導出したOrdは単位を見ない"
+  data-tags="deriving algebraic-data-type comparison"
+  data-concepts="deriving Ord, 構築子の順序, 単位付きの長さ, ミリとセンチの比較, derived Ord, constructor order"
+  data-level="hedgehog"
+>
+  <h2>2026-11-22</h2>
+  <div class="code-frame">
+    <p class="code-filename">Longer.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">data</span> <span class="ty">Len</span> = <span class="ty">Mm</span> <span class="ty">Int</span> | <span class="ty">Cm</span> <span class="ty">Int</span></span>
+<span class="code-line">  <span class="kw">deriving</span> (<span class="ty">Eq</span>, <span class="ty">Ord</span>, <span class="ty">Show</span>)</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">toMm</span> <span class="op">::</span> <span class="ty">Len</span> <span class="op">-&gt;</span> <span class="ty">Int</span></span>
+<span class="code-line"><span class="fn">toMm</span> (<span class="ty">Mm</span> x) = x</span>
+<span class="code-line"><span class="fn">toMm</span> (<span class="ty">Cm</span> x) = x * <span class="nu">10</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">longer</span> <span class="op">::</span> <span class="ty">Len</span> <span class="op">-&gt;</span> <span class="ty">Len</span> <span class="op">-&gt;</span> <span class="ty">Len</span></span>
+<span class="code-line"><span class="fn">longer</span> a b</span>
+<span class="code-line">  | a &gt;= b = a</span>
+<span class="code-line">  | otherwise = b</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()</span>
+<span class="code-line"><span class="fn">main</span> = print (toMm (longer (<span class="ty">Mm</span> <span class="nu">50</span>) (<span class="ty">Cm</span> <span class="nu">3</span>)))</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    ミリメートルかセンチメートルで表した2つの長さのうち、長いほうを返すつもりの <code>longer</code> です。<code>longer (Mm 50) (Cm 3)</code> は 50mm のほうを返し、ミリメートルに直した <code>50</code> を出力するはずが、いまは 3cm のほうを返して <code>30</code> を出力します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line"><span class="fn">longer</span> a b</span>
+<span class="code-line del">  | a &gt;= b = a</span>
+<span class="code-line">  | otherwise = b</span>
+</code></pre>
+      <p>
+        <code>a &gt;= b</code> が使っている <code>Ord</code> は、<code>deriving</code> で導出したものです。導出した <code>Ord</code> は、まず構築子を宣言した順に比べ、構築子が同じときだけ中の値を比べます。<code>Len</code> では <code>Mm</code> が <code>Cm</code> より先に宣言されているので、<code>Mm</code> の値は中身が何であっても <code>Cm</code> の値より小さくなります。
+      </p>
+      <p>
+        <code>Mm 50 &gt;= Cm 3</code> は、構築子の順だけで <code>False</code> に決まり、<code>otherwise</code> の側の <code>Cm 3</code> が返ります。これを <code>toMm</code> で直した 30 が出力されます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line"><span class="fn">longer</span> a b</span>
+<span class="code-line ins">  | <span class="chg">toMm</span> a &gt;= <span class="chg">toMm</span> b = a</span>
+<span class="code-line">  | otherwise = b</span>
+</code></pre>
+      <p>
+        両方を <code>toMm</code> でミリメートルの <code>Int</code> にそろえてから比べます。<code>Mm 50</code> は 50、<code>Cm 3</code> は 30 なので、<code>50 &gt;= 30</code> が成り立ち、<code>Mm 50</code> が返ります。導出した <code>Ord</code> は構築子が持つ単位の意味を知らないので、単位の違う値を比べるときは、同じ単位に直した値で比べる必要があります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

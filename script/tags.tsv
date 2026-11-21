@@ -460,6 +460,7 @@ type-deduction	型推論
 type-defaulting	デフォルティング
 type-erasure	型消去
 type-punning	型の読み替え
+type-synonym	型シノニム
 typeclass	型クラス
 typeclass-law	型クラスの法則
 undefined-behavior	未定義動作

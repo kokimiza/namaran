@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「メモリ管理」を扱ったNamaranのコーディングドリル14問。std.mem.Allocator、errdefer、確保の失敗、所有権の受け渡し、dupe、checkAllAllocationFailures。">
+<meta name="description" content="「メモリ管理」を扱ったNamaranのコーディングドリル15問。std.testing.allocator、メモリリーク、解放し忘れ、defer、gpa.dupe、memory leak detection。">
 <title>メモリ管理</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/memory-management">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>メモリ管理</h2>
 
   <p class="lede">
-    「メモリ管理」を扱った14問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「メモリ管理」を扱った15問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/debug/2026-11-22">Zig / DEBUG · 2026-11-22</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">テストが見つける解放漏れ</span> <span class="past-concepts">std.testing.allocator, メモリリーク, 解放し忘れ, defer, gpa.dupe, memory leak detection, zig test</span></li>
     <li><a href="/zig/write/2026-11-10">Zig / WRITE · 2026-11-10</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">2つ確保して渡す</span> <span class="past-concepts">std.mem.Allocator, errdefer, 確保の失敗, 所有権の受け渡し, dupe, checkAllAllocationFailures, caller owns memory, allocation failure</span></li>
     <li><a href="/zig/read/2026-11-10">Zig / READ · 2026-11-10</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">コピーした割り当て器</span> <span class="past-concepts">FixedBufferAllocator, std.mem.Allocator, アロケータのコピー, 確保位置, 領域の重なり, allocator interface, copied allocator state, aliasing</span></li>
     <li><a href="/zig/debug/2026-11-10">Zig / DEBUG · 2026-11-10</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">アリーナで作って返す</span> <span class="past-concepts">ArenaAllocator, std.mem.Allocator, 一時領域, 解放済みの領域, 所有権, defer arena.deinit, use after free, temporary allocation</span></li>

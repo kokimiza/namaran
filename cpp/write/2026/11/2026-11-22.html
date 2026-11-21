@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="kの倍数を除いた正の整数を小さい順に並べたとき、n番目の数を1つずつ数えずに整数の割り算1回で求めるnth_non_multipleを書きます。2026-11-22のC++ WRITE。">
+<title>倍数を飛ばしたn番目</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-11-22">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-22" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-11-22",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-11-22",
+      "datePublished": "2026-11-22",
+      "dateModified": "2026-11-22",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "倍数を飛ばしたn番目" },
+      "keywords": "division, integer-arithmetic, off-by-one",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "kの倍数を除いた正の整数を小さい順に並べたとき、n番目の数を1つずつ数えずに整数の割り算1回で求めるnth_non_multipleを書きます。2026-11-22のC++ WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-22">C23</a>
+  <a href="/cpp/write/2026-11-22" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-11-22">Rust 2024</a>
+  <a href="/haskell/write/2026-11-22">Haskell 2010</a>
+  <a href="/zig/write/2026-11-22">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-22">READ</a>
+  <a href="/cpp/write/2026-11-22" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-11-22">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="倍数を飛ばしたn番目"
+  data-tags="division integer-arithmetic off-by-one"
+  data-concepts="倍数を除いた数列, n番目の数, 整数除算, 商と余り, nth number not divisible by k, integer division"
+  data-level="whale"
+>
+  <h2>2026-11-22</h2>
+  <div class="code-frame">
+    <p class="code-filename">skip_multiples.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="ty">long</span> <span class="ty">long</span> <span class="fn">nth_non_multiple</span>(<span class="ty">long</span> <span class="ty">long</span> n,</span>
+<span class="code-line">                           <span class="ty">long</span> <span class="ty">long</span> k) {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>k</code> の倍数でない正の整数を小さい順に並べたとき、<code>n</code> 番目（1番目から数えます）の数を返す <code>nth_non_multiple</code> を書いてください。<code>k</code> は 2 以上、<code>n</code> は 1 以上です。<code>n</code> は 10<sup>18</sup> まで来るので、整数を1つずつ調べて数える方法では終わりません。答えは <code>long long</code> に収まります。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>nth_non_multiple(5, 3)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>7</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>nth_non_multiple(10, 10)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>11</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>nth_non_multiple(1000000000000000000, 7)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>1166666666666666666</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="ty">long</span> <span class="ty">long</span> <span class="fn">nth_non_multiple</span>(<span class="ty">long</span> <span class="ty">long</span> n,</span>
+<span class="code-line">                           <span class="ty">long</span> <span class="ty">long</span> k) {</span>
+<span class="code-line ins">    <span class="kw">return</span> n + (n - <span class="nu">1</span>) / (k - <span class="nu">1</span>);</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        数えるものを、残る数から飛ばされる数へ替えると、割り算1回で済みます。正の整数を1から <code>k</code> 個ずつの組に区切ると、どの組も <code>k - 1</code> 個の残る数のあとに倍数が1つ来る同じ形です。<code>n</code> 番目の残る数より前にある倍数の個数がわかれば、答えは <code>n</code> にその個数を足した数になります。<code>n</code> 番目の数の前で完全に終わっている組は、残る数を <code>k - 1</code> 個ずつ使い切った組なので、その数は <code>(n - 1) / (k - 1)</code> です。組が1つ終わるごとに倍数が1つ飛ばされるので、答えは <code>n + (n - 1) / (k - 1)</code> になります。
+      </p>
+      <p>
+        <code>n - 1</code> で割るのは、組の最後の数を正しく扱うためです。<code>n / (k - 1)</code> にすると、<code>n</code> が <code>k - 1</code> で割り切れるとき、まだ飛ばしていない倍数を1つ多く数えます。<code>k = 3</code> なら残る数は 1, 2, 4, 5, 7, … で、2番目は 2 ですが、<code>n / (k - 1)</code> では 2 + 1 で 3 になります。入力例1では 5 + 4 / 2 で 7、入力例2では 10 + 9 / 9 で 11 です。入力例3は 10<sup>18</sup> + (10<sup>18</sup> - 1) / 6 で、答えは 2 × 10<sup>18</sup> 以下なので <code>long long</code> に収まります。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>x</code> 以下に残る数の個数は <code>x - x / k</code> で数えられるので、この個数が <code>n</code> 以上になる最小の <code>x</code> を二分探索で探しても答えが出ます。<code>n * k / (k - 1)</code> のように比で求めようとすると、<code>n * k</code> が <code>long long</code> の範囲を超え、切り捨ての位置もずれます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="newtypeで別の型にしたMetersとFeetについて、メートルの長さにフィートの長さを足してメートルで返すaddFeetを、中身の取り出しと単位の換算を書いて作ります。2026-11-22のHaskell WRITE。">
+<title>フィートをメートルに足す</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-11-22">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-22" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-11-22",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-11-22",
+      "datePublished": "2026-11-22",
+      "dateModified": "2026-11-22",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "フィートをメートルに足す" },
+      "keywords": "newtype, pattern-matching, floating-point",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "newtypeで別の型にしたMetersとFeetについて、メートルの長さにフィートの長さを足してメートルで返すaddFeetを、中身の取り出しと単位の換算を書いて作ります。2026-11-22のHaskell WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-22">C23</a>
+  <a href="/cpp/write/2026-11-22">C++26</a>
+  <a href="/rust/write/2026-11-22">Rust 2024</a>
+  <a href="/haskell/write/2026-11-22" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/write/2026-11-22">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-22">READ</a>
+  <a href="/haskell/write/2026-11-22" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-11-22">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="フィートをメートルに足す"
+  data-tags="newtype pattern-matching floating-point"
+  data-concepts="newtype, 単位を型で区別, 構築子のパターンマッチ, メートルとフィート, unit conversion, newtype wrapper"
+  data-level="hedgehog"
+>
+  <h2>2026-11-22</h2>
+  <div class="code-frame">
+    <p class="code-filename">Length.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">newtype</span> <span class="ty">Meters</span> = <span class="ty">Meters</span> <span class="ty">Double</span></span>
+<span class="code-line">  <span class="kw">deriving</span> (<span class="ty">Show</span>)</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">newtype</span> <span class="ty">Feet</span> = <span class="ty">Feet</span> <span class="ty">Double</span></span>
+<span class="code-line">  <span class="kw">deriving</span> (<span class="ty">Show</span>)</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">addFeet</span> <span class="op">::</span> <span class="ty">Meters</span> <span class="op">-&gt;</span> <span class="ty">Feet</span> <span class="op">-&gt;</span> <span class="ty">Meters</span></span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    メートルで表した長さに、フィートで表した長さを足し、結果をメートルで返す <code>addFeet</code> を書いてください。1 フィートは 0.3048 メートルです。フィートの長さが 0 のときは、メートルの長さがそのまま返ります。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>addFeet (Meters 1) (Feet 10)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>Meters 4.048</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>addFeet (Meters 2.5) (Feet 0)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>Meters 2.5</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>addFeet (Meters 0) (Feet 1)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>Meters 0.3048</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="fn">addFeet</span> <span class="op">::</span> <span class="ty">Meters</span> <span class="op">-&gt;</span> <span class="ty">Feet</span> <span class="op">-&gt;</span> <span class="ty">Meters</span></span>
+<span class="code-line ins"><span class="fn">addFeet</span> (<span class="ty">Meters</span> m) (<span class="ty">Feet</span> f) =</span>
+<span class="code-line ins">  <span class="ty">Meters</span> (m + f * <span class="nu">0.3048</span>)</span>
+</code></pre>
+      </div>
+      <p>
+        <code>Meters</code> と <code>Feet</code> は、中身がどちらも <code>Double</code> でも互いに別の型で、<code>Double</code> とも別の型です。<code>Num</code> のインスタンスも無いので、<code>Meters</code> の値どうしを <code>+</code> で足すことすらできません。そこで引数の側で <code>Meters m</code> と <code>Feet f</code> というパターンに当てて、中の <code>Double</code> を <code>m</code> と <code>f</code> に取り出します。フィートの値を 0.3048 倍してメートルにそろえてから足し、最後に <code>Meters</code> 構築子で包み直して返します。掲載したのは参考実装で、唯一の正解ではありません。フィートからメートルへの換算を <code>toMeters :: Feet -&gt; Meters</code> として分けておく書き方もあります。
+      </p>
+      <p>
+        包み直しを忘れて <code>m + f * 0.3048</code> をそのまま返すと、型は <code>Double</code> になり、宣言した <code>Meters</code> と合わずにコンパイルエラーになります。換算を忘れて <code>m + f</code> と書いても、<code>m</code> と <code>f</code> はどちらも <code>Double</code> なので型検査は通ってしまいます。型が守ってくれるのは包みを開ける前と閉じたあとで、開けた中身の計算は自分で単位をそろえる必要があります。入力例1は 1 + 10 × 0.3048 で 4.048、入力例2はフィートが 0 なので 2.5 のままです。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

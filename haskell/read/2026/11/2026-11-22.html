@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="typeで付けたCelsiusとFahrenheitという別名が、同じDoubleとして扱われ、摂氏から華氏への変換を2回かけてもコンパイルが通ってしまう様子を読みます。2026-11-22のHaskell READ。">
+<title>別名の型は混ざる</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-11-22">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-22" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-11-22",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-11-22",
+      "datePublished": "2026-11-22",
+      "dateModified": "2026-11-22",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "別名の型は混ざる" },
+      "keywords": "type-synonym, newtype, floating-point",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "typeで付けたCelsiusとFahrenheitという別名が、同じDoubleとして扱われ、摂氏から華氏への変換を2回かけてもコンパイルが通ってしまう様子を読みます。2026-11-22のHaskell READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-22">C23</a>
+  <a href="/cpp/read/2026-11-22">C++26</a>
+  <a href="/rust/read/2026-11-22">Rust 2024</a>
+  <a href="/haskell/read/2026-11-22" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/read/2026-11-22">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-22" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-11-22">WRITE</a>
+  <a href="/haskell/debug/2026-11-22">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="別名の型は混ざる"
+  data-tags="type-synonym newtype floating-point"
+  data-concepts="型シノニム, type宣言, 型の別名, 単位の取り違え, newtypeとの違い, type synonym, type alias"
+  data-level="hedgehog"
+>
+  <h2>2026-11-22</h2>
+  <div class="code-frame">
+    <p class="code-filename">Temperature.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">type</span> <span class="ty">Celsius</span> = <span class="ty">Double</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">type</span> <span class="ty">Fahrenheit</span> = <span class="ty">Double</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">toF</span> <span class="op">::</span> <span class="ty">Celsius</span> <span class="op">-&gt;</span> <span class="ty">Fahrenheit</span></span>
+<span class="code-line"><span class="fn">toF</span> c = c * <span class="nu">9</span> / <span class="nu">5</span> + <span class="nu">32</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()</span>
+<span class="code-line"><span class="fn">main</span> = print (toF (toF <span class="nu">10</span>))</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>122.0
+</samp></pre>
+      </div>
+      <p>
+        <code>type</code> 宣言は、既存の型に別の名前を付けるだけで、新しい型は作りません。<code>Celsius</code> も <code>Fahrenheit</code> も <code>Double</code> そのもので、<code>toF</code> の型は型検査の上では <code>Double -&gt; Double</code> と同じです。<code>toF 10</code> が返す <code>Fahrenheit</code> の値を、もう一度 <code>Celsius</code> を受け取る <code>toF</code> に渡しても、型は一致しているのでコンパイルが通ります。
+      </p>
+      <p>
+        内側の <code>toF 10</code> は 10 * 9 / 5 + 32 で 50.0、外側はその 50.0 を摂氏とみなして 50 * 9 / 5 + 32 で 122.0 を返します。<code>print</code> は <code>Double</code> の <code>show</code> で表示するので、出力は <code>122.0</code> です。
+      </p>
+      <p>
+        型に単位の名前が付いているので、華氏を摂氏の引数に渡せばコンパイルエラーになると読むと、答えを誤ります。単位ごとに別の型として区別させたいなら、<code>newtype Celsius = Celsius Double</code> のように、構築子を持つ新しい型を宣言する必要があります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

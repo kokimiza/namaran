@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="葉だけが入った配列のセグメント木に、親の節点の最小値を下から埋めるbuildを書きます。節点kの子が2kと2k+1になる配列の並べ方と、埋める順番を確かめます。2026-11-22のC WRITE。">
+<title>葉から親を組み立てる</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-11-22">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-22" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-11-22",
+      "url": "https://namaran.jocarium.productions/c/write/2026-11-22",
+      "datePublished": "2026-11-22",
+      "dateModified": "2026-11-22",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "葉から親を組み立てる" },
+      "keywords": "segment-tree, array, loop",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "葉だけが入った配列のセグメント木に、親の節点の最小値を下から埋めるbuildを書きます。節点kの子が2kと2k+1になる配列の並べ方と、埋める順番を確かめます。2026-11-22のC WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-22" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-11-22">C++26</a>
+  <a href="/rust/write/2026-11-22">Rust 2024</a>
+  <a href="/haskell/write/2026-11-22">Haskell 2010</a>
+  <a href="/zig/write/2026-11-22">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-22">READ</a>
+  <a href="/c/write/2026-11-22" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-11-22">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="葉から親を組み立てる"
+  data-tags="segment-tree array loop"
+  data-concepts="セグメント木, 構築, 区間最小値, 配列で表す二分木, segment tree build, range minimum"
+  data-level="hedgehog"
+>
+  <h2>2026-11-22</h2>
+  <div class="code-frame">
+    <p class="code-filename">build.c</p>
+    <pre class="code"><code><span class="code-line"><span class="ty">void</span> <span class="fn">build</span>(<span class="ty">int</span>* t, <span class="ty">int</span> n) {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    配列 <code>t</code> の <code>t[n]</code> から <code>t[2 * n - 1]</code> に、<code>n</code> 個の値が入っています。節点 <code>k</code> の子を <code>2 * k</code> と <code>2 * k + 1</code> とし、<code>t[n]</code> 以降を葉とする木だと考えて、<code>t[1]</code> から <code>t[n - 1]</code> のそれぞれに、その節点の2つの子の小さいほうの値を入れる <code>build</code> を書いてください。<code>t[0]</code> は使いません。<code>n</code> が 1 のときは、埋める節点がありません。例では、<code>build</code> を呼ぶ前と後の <code>t</code> の中身を <code>t[0]</code> から順に書きます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>{0, 0, 0, 0, 7, 3, 9, 1}, n = 4</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>{0, 1, 3, 1, 7, 3, 9, 1}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>{0, 0, 0, 4, 6, 2}, n = 3</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>{0, 2, 2, 4, 6, 2}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>{0, 5}, n = 1</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>{0, 5}</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="ty">void</span> <span class="fn">build</span>(<span class="ty">int</span>* t, <span class="ty">int</span> n) {</span>
+<span class="code-line ins">    <span class="kw">for</span> (<span class="ty">int</span> k = n - <span class="nu">1</span>; k &gt;= <span class="nu">1</span>; k--) {</span>
+<span class="code-line ins">        <span class="ty">int</span> l = t[<span class="nu">2</span> * k], r = t[<span class="nu">2</span> * k + <span class="nu">1</span>];</span>
+<span class="code-line ins">        t[k] = l &lt; r ? l : r;</span>
+<span class="code-line ins">    }</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        節点 <code>k</code> の値は、子の <code>t[2 * k]</code> と <code>t[2 * k + 1]</code> が決まっていないと計算できません。子の番号は親より必ず大きいので、<code>k</code> を <code>n - 1</code> から 1 へ向かって小さくしながら埋めれば、どの節点に来たときも2つの子はもう埋まっています。<code>k</code> を 1 から増やす向きに回すと、<code>t[1]</code> を計算する時点で <code>t[2]</code> と <code>t[3]</code> はまだ 0 で、根に 0 が入ります。掲載したのは参考実装で、唯一の正解ではありません。子2つの小さいほうを返す関数を別に用意してもかまいません。
+      </p>
+      <p>
+        入力例2の <code>n = 3</code> では、葉が <code>t[3]</code> から <code>t[5]</code> です。<code>k = 2</code> で <code>t[4]</code> と <code>t[5]</code> の小さいほうの 2 が入り、続く <code>k = 1</code> では <code>t[2]</code> の 2 と <code>t[3]</code> の 4 を比べて 2 が入ります。<code>t[3]</code> は葉のまま根の子になっていて、<code>n</code> が2の累乗でなくても、根には全体の最小値が入ります。<code>n</code> が 1 のときはループが1回も回らず、葉の <code>t[1]</code> はそのまま残ります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

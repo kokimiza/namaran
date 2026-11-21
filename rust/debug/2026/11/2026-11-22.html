@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="u32の範囲で境目を探す二分探索が、中点を(lo + hi) / 2で求めたために足し算があふれてpanicする誤りを直します。2026-11-22のRust DEBUG。">
+<title>中点の足し算があふれる</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-11-22">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-22" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-11-22",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-11-22",
+      "datePublished": "2026-11-22",
+      "dateModified": "2026-11-22",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "中点の足し算があふれる" },
+      "keywords": "binary-search, integer-overflow, panic",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "u32の範囲で境目を探す二分探索が、中点を(lo + hi) / 2で求めたために足し算があふれてpanicする誤りを直します。2026-11-22のRust DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-22">C23</a>
+  <a href="/cpp/debug/2026-11-22">C++26</a>
+  <a href="/rust/debug/2026-11-22" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-22">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-22">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-22">READ</a>
+  <a href="/rust/write/2026-11-22">WRITE</a>
+  <a href="/rust/debug/2026-11-22" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="中点の足し算があふれる"
+  data-tags="binary-search integer-overflow panic"
+  data-concepts="二分探索, 中点, (lo + hi) / 2, オーバーフロー, lo + (hi - lo) / 2, binary search midpoint overflow, attempt to add with overflow"
+  data-level="hedgehog"
+>
+  <h2>2026-11-22</h2>
+  <div class="code-frame">
+    <p class="code-filename">first_late.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="kw">let</span> late = |t: <span class="ty">u32</span>| t &gt;= <span class="nu">3_000_000_000</span>;</span>
+<span class="code-line">    <span class="kw">let</span> (<span class="kw">mut</span> lo, <span class="kw">mut</span> hi) = (<span class="nu">0</span>, <span class="ty">u32</span>::<span class="nu">MAX</span>);</span>
+<span class="code-line">    <span class="kw">while</span> lo &lt; hi {</span>
+<span class="code-line">        <span class="kw">let</span> mid = (lo + hi) / <span class="nu">2</span>;</span>
+<span class="code-line">        <span class="kw">if</span> <span class="fn">late</span>(mid) {</span>
+<span class="code-line">            hi = mid;</span>
+<span class="code-line">        } <span class="kw">else</span> {</span>
+<span class="code-line">            lo = mid + <span class="nu">1</span>;</span>
+<span class="code-line">        }</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="mc">println!</span>(<span class="st">"{lo}"</span>);</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>u32</code> の時刻のうち、<code>late</code> が <code>true</code> になる最初の時刻を二分探索で探して出力するつもりのプログラムです。<code>3000000000</code> を出力するはずが、いまは Debug ビルドで <code>attempt to add with overflow</code> というメッセージを出して panic し、何も出力しません。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del">        <span class="kw">let</span> mid = <span class="chg">(</span>lo + hi) / <span class="nu">2</span>;</span>
+</code></pre>
+      <p>
+        1回目の <code>mid</code> は (0 + 4294967295) / 2 で 2147483647 です。この時刻では <code>late</code> が <code>false</code> なので、<code>lo</code> は 2147483648 に進みます。2回目の <code>lo + hi</code> は 2147483648 + 4294967295 で、<code>u32::MAX</code> の 4294967295 を超えます。Rust の Debug ビルドは整数のオーバーフローを検査しているので、この足し算で panic します。
+      </p>
+      <p>
+        中点そのものは <code>lo</code> と <code>hi</code> の間にあり、<code>u32</code> に必ず収まります。あふれるのは途中の和だけで、<code>lo</code> と <code>hi</code> がどちらも型の最大値の半分を超えると起きます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins">        <span class="kw">let</span> mid = lo + <span class="chg">(</span>hi <span class="chg">- lo</span>) / <span class="nu">2</span>;</span>
+</code></pre>
+      <p>
+        区間の幅 <code>hi - lo</code> を先に求め、その半分を <code>lo</code> に足します。ループの中では <code>lo &lt; hi</code> なので引き算は 0 より小さくならず、<code>lo + (hi - lo) / 2</code> は <code>hi</code> を超えないので、どの途中の値も <code>u32</code> に収まります。値は <code>(lo + hi) / 2</code> を数学的に計算したものと同じで、探索の進み方は変わりません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

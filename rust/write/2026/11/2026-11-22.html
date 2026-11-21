@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="u32のすべての値を対象に、条件を初めて満たす値を二分探索で探し、どの値も満たさないときはNoneを返すfirst_trueを書きます。2026-11-22のRust WRITE。">
+<title>u32全体の二分探索</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-11-22">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-22" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-11-22",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-11-22",
+      "datePublished": "2026-11-22",
+      "dateModified": "2026-11-22",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "u32全体の二分探索" },
+      "keywords": "binary-search, half-open-interval, type-conversion, integer-overflow",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "u32のすべての値を対象に、条件を初めて満たす値を二分探索で探し、どの値も満たさないときはNoneを返すfirst_trueを書きます。2026-11-22のRust WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-22">C23</a>
+  <a href="/cpp/write/2026-11-22">C++26</a>
+  <a href="/rust/write/2026-11-22" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-11-22">Haskell 2010</a>
+  <a href="/zig/write/2026-11-22">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-22">READ</a>
+  <a href="/rust/write/2026-11-22" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-11-22">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="u32全体の二分探索"
+  data-tags="binary-search half-open-interval type-conversion integer-overflow"
+  data-concepts="二分探索, 半開区間, u32の全範囲, 見つからないとき, 2^32, try_from, binary search over the whole domain, Option"
+  data-level="bison"
+>
+  <h2>2026-11-22</h2>
+  <div class="code-frame">
+    <p class="code-filename">first_true.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">first_true</span>(</span>
+<span class="code-line">    f: <span class="kw">impl</span> <span class="fn">Fn</span>(<span class="ty">u32</span>) -&gt; <span class="ty">bool</span>,</span>
+<span class="code-line">) -&gt; <span class="ty">Option</span>&lt;<span class="ty">u32</span>&gt; {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>f</code> は、ある値より小さい <code>u32</code> にはすべて <code>false</code> を、それ以上の <code>u32</code> にはすべて <code>true</code> を返す関数です。<code>u32</code> のすべての値（0 から <code>u32::MAX</code> まで）のうち、<code>f</code> が <code>true</code> を返す最小の値を <code>Some</code> で返す <code>first_true</code> を二分探索で書いてください。どの値でも <code>false</code> なら <code>None</code> を返します。出力例は <code>{:?}</code> で表示したものです。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>first_true(|x| x &gt;= 10)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>Some(10)</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>first_true(|x| x == u32::MAX)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>Some(4294967295)</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>first_true(|_| false)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>None</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">first_true</span>(</span>
+<span class="code-line">    f: <span class="kw">impl</span> <span class="fn">Fn</span>(<span class="ty">u32</span>) -&gt; <span class="ty">bool</span>,</span>
+<span class="code-line">) -&gt; <span class="ty">Option</span>&lt;<span class="ty">u32</span>&gt; {</span>
+<span class="code-line ins">    <span class="kw">let</span> <span class="kw">mut</span> lo: <span class="ty">u64</span> = <span class="nu">0</span>;</span>
+<span class="code-line ins">    <span class="kw">let</span> <span class="kw">mut</span> hi: <span class="ty">u64</span> = <span class="nu">1</span> &lt;&lt; <span class="nu">32</span>;</span>
+<span class="code-line ins">    <span class="kw">while</span> lo &lt; hi {</span>
+<span class="code-line ins">        <span class="kw">let</span> mid = (lo + hi) / <span class="nu">2</span>;</span>
+<span class="code-line ins">        <span class="kw">if</span> <span class="fn">f</span>(mid <span class="kw">as</span> <span class="ty">u32</span>) {</span>
+<span class="code-line ins">            hi = mid;</span>
+<span class="code-line ins">        } <span class="kw">else</span> {</span>
+<span class="code-line ins">            lo = mid + <span class="nu">1</span>;</span>
+<span class="code-line ins">        }</span>
+<span class="code-line ins">    }</span>
+<span class="code-line ins">    <span class="ty">u32</span>::<span class="fn">try_from</span>(lo).<span class="fn">ok</span>()</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        探す区間を <code>lo</code> 以上 <code>hi</code> 未満で持つと、<code>lo</code> と <code>hi</code> が等しくなったところが答えの位置です。この位置は 0 から <code>u32::MAX</code> までの 2<sup>32</sup> 通りに、「どの値も <code>false</code>」を表す 2<sup>32</sup> を加えた 2<sup>32</sup> + 1 通りあり、<code>u32</code> には収まりません。そこで <code>lo</code> と <code>hi</code> を <code>u64</code> にし、<code>hi</code> を 2<sup>32</sup> から始めます。ループを抜けた <code>lo</code> が 2<sup>32</sup> なら <code>u32::try_from</code> が失敗して <code>None</code> になり、それ以外は <code>Some</code> に入ります。<code>mid</code> は <code>hi</code> より小さいので、<code>mid as u32</code> で値が変わることはありません。
+      </p>
+      <p>
+        <code>u32</code> のまま書こうとすると、規則どうしがぶつかります。<code>hi</code> を <code>u32::MAX</code> から始めると、<code>u32::MAX</code> だけが調べられずに、入力例2が <code>None</code> になります。区間を <code>lo</code> 以上 <code>hi</code> 以下の閉区間にして <code>hi = mid - 1</code> と縮めると、<code>mid</code> が 0 のときに <code>u32</code> の引き算がオーバーフローします。中点を <code>(lo + hi) / 2</code> で求めると、<code>lo</code> と <code>hi</code> が大きいときに足し算がオーバーフローします。<code>u64</code> にすれば、<code>lo + hi</code> も 2<sup>33</sup> 未満に収まります。
+      </p>
+      <p>
+        掲載したのは参考実装で、唯一の正解ではありません。<code>u32</code> のまま、先に <code>f(u32::MAX)</code> を調べて <code>false</code> なら <code>None</code> を返し、そのあとは答えが必ずある閉区間で探す書き方もあります。入力例3では、<code>lo</code> が <code>mid + 1</code> で進み続けて 2<sup>32</sup> で止まり、<code>None</code> が返ります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

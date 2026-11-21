@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="回文かどうかを調べるisPalindromeが、作業用に複製したバッファを解放し忘れ、std.testing.allocatorにリークとして見つかってテストが失敗する誤りを直します。2026-11-22のZig DEBUG。">
+<title>テストが見つける解放漏れ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/debug/2026-11-22">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / DEBUG", "item": "https://namaran.jocarium.productions/zig/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-22" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / DEBUG — 2026-11-22",
+      "url": "https://namaran.jocarium.productions/zig/debug/2026-11-22",
+      "datePublished": "2026-11-22",
+      "dateModified": "2026-11-22",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "テストが見つける解放漏れ" },
+      "keywords": "testing, memory-management, defer",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "回文かどうかを調べるisPalindromeが、作業用に複製したバッファを解放し忘れ、std.testing.allocatorにリークとして見つかってテストが失敗する誤りを直します。2026-11-22のZig DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-22">C23</a>
+  <a href="/cpp/debug/2026-11-22">C++26</a>
+  <a href="/rust/debug/2026-11-22">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-22">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-22" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-22">READ</a>
+  <a href="/zig/write/2026-11-22">WRITE</a>
+  <a href="/zig/debug/2026-11-22" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="テストが見つける解放漏れ"
+  data-tags="testing memory-management defer"
+  data-concepts="std.testing.allocator, メモリリーク, 解放し忘れ, defer, gpa.dupe, memory leak detection, zig test"
+  data-level="hedgehog"
+>
+  <h2>2026-11-22</h2>
+  <div class="code-frame">
+    <p class="code-filename">palindrome.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);</span>
+<span class="code-line"><span class="kw">const</span> testing = std.testing;</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">isPalindrome</span>(</span>
+<span class="code-line">    gpa: std.mem.<span class="ty">Allocator</span>,</span>
+<span class="code-line">    s: []<span class="kw">const</span> <span class="ty">u8</span>,</span>
+<span class="code-line">) !<span class="ty">bool</span> {</span>
+<span class="code-line">    <span class="kw">const</span> rev = <span class="kw">try</span> gpa.<span class="fn">dupe</span>(<span class="ty">u8</span>, s);</span>
+<span class="code-line">    std.mem.<span class="fn">reverse</span>(<span class="ty">u8</span>, rev);</span>
+<span class="code-line">    <span class="kw">return</span> std.mem.<span class="fn">eql</span>(<span class="ty">u8</span>, rev, s);</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">test</span> <span class="st">"isPalindrome"</span> {</span>
+<span class="code-line">    <span class="kw">const</span> gpa = testing.allocator;</span>
+<span class="code-line">    <span class="kw">const</span> r = <span class="kw">try</span> <span class="fn">isPalindrome</span>(gpa, <span class="st">"noon"</span>);</span>
+<span class="code-line">    <span class="kw">try</span> testing.<span class="fn">expect</span>(r);</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>s</code> を前から読んでも後ろから読んでも同じかを返すつもりの <code>isPalindrome</code> と、そのテストです。<code>zig test palindrome.zig</code> は <code>All 1 tests passed.</code> だけを出して成功するはずが、いまは同じ行のあとに <code>1 tests leaked memory.</code> を出し、終了コード 1 で失敗します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line">    <span class="kw">const</span> rev = <span class="kw">try</span> gpa.<span class="fn">dupe</span>(<span class="ty">u8</span>, s);</span>
+<span class="code-line">    std.mem.<span class="fn">reverse</span>(<span class="ty">u8</span>, rev);</span>
+<span class="code-line">    <span class="kw">return</span> std.mem.<span class="fn">eql</span>(<span class="ty">u8</span>, rev, s);</span>
+</code></pre>
+      <p>
+        <code>gpa.dupe</code> は、<code>s</code> と同じ長さのメモリを <code>gpa</code> から確保して中身を写し、そのスライスを返します。<code>rev</code> は裏返して比べるための作業用で、関数を抜けたらもう使いませんが、<code>gpa.free</code> を呼ぶ行がありません。<code>"noon"</code> の4バイトは、確保されたまま誰も指さなくなります。
+      </p>
+      <p>
+        判定の結果は正しいので、<code>expect</code> は通ります。テストに渡した <code>std.testing.allocator</code> は、テストが終わった時点で解放されていない確保を数え、残っていればリークとして報告し、テストを失敗にします。表示が成功と失敗の両方に見えるのはこのためです。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line">    <span class="kw">const</span> rev = <span class="kw">try</span> gpa.<span class="fn">dupe</span>(<span class="ty">u8</span>, s);</span>
+<span class="code-line ins">    <span class="kw">defer</span> gpa.<span class="fn">free</span>(rev);</span>
+<span class="code-line">    std.mem.<span class="fn">reverse</span>(<span class="ty">u8</span>, rev);</span>
+<span class="code-line">    <span class="kw">return</span> std.mem.<span class="fn">eql</span>(<span class="ty">u8</span>, rev, s);</span>
+</code></pre>
+      <p>
+        確保した直後に <code>defer gpa.free(rev);</code> を置きます。<code>defer</code> の式は、関数がどの <code>return</code> から抜けるときにも、戻り値を計算したあとで実行されます。<code>std.mem.eql</code> が <code>rev</code> を読み終えてから解放されるので、比べている最中にメモリがなくなることもありません。テストの終わりに残る確保がなくなり、<code>std.testing.allocator</code> はリークを報告しなくなります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/debug">Today</a></li>
+    <li><a href="/zig/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
