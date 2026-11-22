@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「型の読み替え」を扱ったNamaranのコーディングドリル5問。@ptrCast、ポインタの型変換、型の読み替え、アラインメント、align、要素の大きさ。">
+<meta name="description" content="「型の読み替え」を扱ったNamaranのコーディングドリル8問。@alignCast、@ptrCast、アラインメント、4の倍数のアドレス、バイト列を u32 の並びとして見る、pointer alignment。">
 <title>型の読み替え</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/type-punning">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>型の読み替え</h2>
 
   <p class="lede">
-    「型の読み替え」を扱った5問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「型の読み替え」を扱った8問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/write/2026-11-23">Zig / WRITE · 2026-11-23</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">揃った位置から読むu32</span> <span class="past-concepts">@alignCast, @ptrCast, アラインメント, 4の倍数のアドレス, バイト列を u32 の並びとして見る, pointer alignment, slice cast, aligned view</span></li>
+    <li><a href="/zig/read/2026-11-23">Zig / READ · 2026-11-23</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">同じバイトを2次元で見る</span> <span class="past-concepts">@ptrCast, ポインタの型変換, 同じメモリを別の型で見る, 2次元配列の並び, pointer cast, reinterpret memory, row-major</span></li>
+    <li><a href="/zig/debug/2026-11-23">Zig / DEBUG · 2026-11-23</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">半分しか足されないバイト</span> <span class="past-concepts">@ptrCast, 多要素ポインタ, スライスの長さは要素数, バイト数への換算, u16 をバイト列として読む, many-item pointer, slice length, sliceAsBytes</span></li>
     <li><a href="/zig/read/2026-11-15">Zig / READ · 2026-11-15</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">u32として入れ替える</span> <span class="past-concepts">@ptrCast, ポインタの型変換, 型の読み替え, アラインメント, align, 要素の大きさ, pointer cast, type punning</span></li>
     <li><a href="/zig/debug/2026-11-15">Zig / DEBUG · 2026-11-15</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">1バイトずれたu32を読む</span> <span class="past-concepts">@alignCast, @ptrCast, アラインメント, align(1), incorrect alignment, ポインタの型変換, unaligned read, pointer alignment</span></li>
     <li><a href="/c/write/2026-10-05">C / WRITE · 2026-10-05</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">floatのビット列を取り出す</span> <span class="past-concepts">memcpyによる型の読み替え, 厳密な別名規則, floatのビット表現, IEEE 754, type punning with memcpy, strict aliasing</span></li>

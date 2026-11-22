@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="lo 以上 hi 以下のすべての整数で、関数ポインタで渡された性質 p が成り立つかを返す for_all を書きます。範囲が空のときの答えも決めます。2026-11-23のC WRITE。">
+<title>全部の入力で成り立つか</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-11-23">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-23" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-11-23",
+      "url": "https://namaran.jocarium.productions/c/write/2026-11-23",
+      "datePublished": "2026-11-23",
+      "dateModified": "2026-11-23",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "全部の入力で成り立つか" },
+      "keywords": "property-based-testing, function-pointer, vacuous-truth",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "lo 以上 hi 以下のすべての整数で、関数ポインタで渡された性質 p が成り立つかを返す for_all を書きます。範囲が空のときの答えも決めます。2026-11-23のC WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-23" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-11-23">C++26</a>
+  <a href="/rust/write/2026-11-23">Rust 2024</a>
+  <a href="/haskell/write/2026-11-23">Haskell 2010</a>
+  <a href="/zig/write/2026-11-23">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-23">READ</a>
+  <a href="/c/write/2026-11-23" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-11-23">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="全部の入力で成り立つか"
+  data-tags="property-based-testing function-pointer vacuous-truth"
+  data-concepts="全称の性質, 範囲内のすべての整数, 関数ポインタ, 空の範囲, for all, predicate, property check, function pointer"
+  data-level="hedgehog"
+>
+  <h2>2026-11-23</h2>
+  <div class="code-frame">
+    <p class="code-filename">for_all.c</p>
+    <pre class="code"><code><span class="code-line"><span class="ty">bool</span> <span class="fn">for_all</span>(<span class="ty">int</span> lo,</span>
+<span class="code-line">             <span class="ty">int</span> hi,</span>
+<span class="code-line">             <span class="ty">bool</span> (*p)(<span class="ty">int</span>)) {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>lo</code> 以上 <code>hi</code> 以下のすべての整数 <code>x</code> で <code>p(x)</code> が真なら <code>true</code>、1つでも偽になる <code>x</code> があれば <code>false</code> を返す <code>for_all</code> を書いてください。<code>lo</code> が <code>hi</code> より大きく、調べる整数が1つも無いときは <code>true</code> を返します。例の <code>is_pos</code> は、引数が正のときに真を返す関数です。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>for_all(1, 10, is_pos)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>true</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>for_all(-1, 1, is_pos)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>false</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>for_all(5, 4, is_pos)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>true</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="ty">bool</span> <span class="fn">for_all</span>(<span class="ty">int</span> lo,</span>
+<span class="code-line">             <span class="ty">int</span> hi,</span>
+<span class="code-line">             <span class="ty">bool</span> (*p)(<span class="ty">int</span>)) {</span>
+<span class="code-line ins">    <span class="kw">for</span> (<span class="ty">long</span> <span class="ty">long</span> x = lo; x &lt;= hi; x++) {</span>
+<span class="code-line ins">        <span class="kw">if</span> (!<span class="fn">p</span>((<span class="ty">int</span>)x)) {</span>
+<span class="code-line ins">            <span class="kw">return</span> <span class="nu">false</span>;</span>
+<span class="code-line ins">        }</span>
+<span class="code-line ins">    }</span>
+<span class="code-line ins">    <span class="kw">return</span> <span class="nu">true</span>;</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        引数の <code>bool (*p)(int)</code> は、<code>int</code> を受け取って <code>bool</code> を返す関数へのポインタです。呼び出すときは普通の関数と同じく <code>p(x)</code> と書けます。範囲の整数を小さい順に試し、偽を返す <code>x</code> が見つかった時点で <code>false</code> を返します。最後まで見つからなければ <code>true</code> です。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        入力例2では、最初の -1 で <code>is_pos</code> が偽を返すので、0 と 1 を調べずに <code>false</code> になります。入力例3は <code>lo</code> が <code>hi</code> より大きいので、ループ本体が一度も実行されず、そのまま <code>true</code> を返します。反例が1つも無いことが「すべてで成り立つ」ことなので、調べる整数が無い範囲は成り立つ側に入ります。ループ変数を <code>long long</code> にしたのは、<code>hi</code> が <code>INT_MAX</code> のときに <code>x++</code> が <code>int</code> の範囲を越えないようにするためです。<code>int</code> のままだと、<code>INT_MAX</code> を調べたあとの <code>x++</code> が未定義動作になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

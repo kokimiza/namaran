@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="符号なし整数を2進表記の文字列にする binary を再帰で書きます。0 を渡したときも &quot;0&quot; を返すように、基底ケースをどこに置くかを決めます。2026-11-23のC++ WRITE。">
+<title>0を表す2進表記</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-11-23">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-23" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-11-23",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-11-23",
+      "datePublished": "2026-11-23",
+      "dateModified": "2026-11-23",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "0を表す2進表記" },
+      "keywords": "recursion, base-case, radix-conversion, string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "符号なし整数を2進表記の文字列にする binary を再帰で書きます。0 を渡したときも \"0\" を返すように、基底ケースをどこに置くかを決めます。2026-11-23のC++ WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-23">C23</a>
+  <a href="/cpp/write/2026-11-23" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-11-23">Rust 2024</a>
+  <a href="/haskell/write/2026-11-23">Haskell 2010</a>
+  <a href="/zig/write/2026-11-23">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-23">READ</a>
+  <a href="/cpp/write/2026-11-23" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-11-23">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="0を表す2進表記"
+  data-tags="recursion base-case radix-conversion string"
+  data-concepts="再帰で2進数の文字列, 基底ケースの選び方, 0 のときの出力, binary representation, base case, radix conversion"
+  data-level="peacock"
+>
+  <h2>2026-11-23</h2>
+  <div class="code-frame">
+    <p class="code-filename">binary.cpp</p>
+    <pre class="code"><code><span class="code-line">std::<span class="ty">string</span> <span class="fn">binary</span>(<span class="ty">unsigned</span> n) {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>n</code> を2進数で表した文字列を返す <code>binary</code> を、ループを使わずに再帰で書いてください。先頭に余分な <code>0</code> を付けず、<code>n</code> が 0 のときは <code>"0"</code> を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>binary(6)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>"110"</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>binary(0)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>"0"</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>binary(1)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>"1"</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line">std::<span class="ty">string</span> <span class="fn">binary</span>(<span class="ty">unsigned</span> n) {</span>
+<span class="code-line ins">    <span class="kw">if</span> (n &lt; <span class="nu">2</span>) {</span>
+<span class="code-line ins">        <span class="kw">return</span> std::<span class="fn">to_string</span>(n);</span>
+<span class="code-line ins">    }</span>
+<span class="code-line ins">    <span class="kw">return</span> <span class="fn">binary</span>(n / <span class="nu">2</span>) +</span>
+<span class="code-line ins">        std::<span class="fn">to_string</span>(n % <span class="nu">2</span>);</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        <code>n</code> の2進表記は、<code>n / 2</code> の2進表記の後ろに、最下位の桁 <code>n % 2</code> を1文字付けたものです。再帰の段はこの関係をそのまま書き、<code>binary(n / 2)</code> の結果に <code>std::to_string(n % 2)</code> を連結します。残るのは、どこで再帰を止めるかです。参考実装は <code>n</code> が 0 か 1 の、1桁で書ける数を基底ケースにして、その数字をそのまま返します。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        <code>n == 0</code> で止める形にすると、基底ケースが返す文字列で困ります。<code>""</code> を返せば <code>binary(6)</code> は <code>"110"</code> になりますが、<code>binary(0)</code> が空文字列になります。<code>"0"</code> を返せば <code>binary(0)</code> は正しくなる代わりに、6 は 3、1、0 とたどって最後に <code>"0"</code> を拾い、<code>"0110"</code> になります。0 は「これ以上割れない最後の一歩」と「入力そのものとしての 0」の2つの役を持つので、1つの返り値では両方を満たせません。1桁の数を基底ケースにすれば、再帰はいつも 0 か 1 に着いて先頭の桁を1つだけ返し、余分な <code>0</code> は付きません。入力例1は 6、3、1 とたどり、<code>"1"</code> に <code>"1"</code> と <code>"0"</code> が付いて <code>"110"</code> になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

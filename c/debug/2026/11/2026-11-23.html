@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="0 から 255 までのすべての unsigned char で、上下4ビットを2回入れ替えると元に戻ることを確かめるつもりのループが、終わらなくなる誤りを直します。2026-11-23のC DEBUG。">
+<title>255で終わらないループ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-11-23">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-23" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-11-23",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-11-23",
+      "datePublished": "2026-11-23",
+      "dateModified": "2026-11-23",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "255で終わらないループ" },
+      "keywords": "loop, infinite-loop, integer-promotion, property-based-testing",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "0 から 255 までのすべての unsigned char で、上下4ビットを2回入れ替えると元に戻ることを確かめるつもりのループが、終わらなくなる誤りを直します。2026-11-23のC DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-23" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-11-23">C++26</a>
+  <a href="/rust/debug/2026-11-23">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-23">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-23">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-23">READ</a>
+  <a href="/c/write/2026-11-23">WRITE</a>
+  <a href="/c/debug/2026-11-23" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="255で終わらないループ"
+  data-tags="loop infinite-loop integer-promotion property-based-testing"
+  data-concepts="unsigned char の範囲, 全数検査, 無限ループ, ループ条件が常に真, exhaustive test, unsigned char overflow, infinite loop"
+  data-level="hedgehog"
+>
+  <h2>2026-11-23</h2>
+  <div class="code-frame">
+    <p class="code-filename">nibbles.c</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">unsigned</span> <span class="ty">char</span> <span class="fn">swap_nibbles</span>(<span class="ty">unsigned</span> <span class="ty">char</span> x) {</span>
+<span class="code-line">    <span class="kw">return</span> (<span class="ty">unsigned</span> <span class="ty">char</span>)(x &lt;&lt; <span class="nu">4</span> | x &gt;&gt; <span class="nu">4</span>);</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {</span>
+<span class="code-line">    <span class="kw">for</span> (<span class="ty">unsigned</span> <span class="ty">char</span> x = <span class="nu">0</span>; x &lt;= <span class="nu">255</span>;</span>
+<span class="code-line">         x++) {</span>
+<span class="code-line">        <span class="kw">if</span> (<span class="fn">swap_nibbles</span>(<span class="fn">swap_nibbles</span>(x)) !=</span>
+<span class="code-line">            x) {</span>
+<span class="code-line">            <span class="fn">printf</span>(<span class="st">"fail: %d\n"</span>, x);</span>
+<span class="code-line">            <span class="kw">return</span> <span class="nu">1</span>;</span>
+<span class="code-line">        }</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="fn">puts</span>(<span class="st">"ok"</span>);</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    0 から 255 までのすべての <code>unsigned char</code> について、上下4ビットを入れ替える <code>swap_nibbles</code> を2回かけると元の値に戻ることを確かめるプログラムです。引数も入力も無く、そのまま実行します。本来は 256 通りを調べ終えて <code>ok</code> を出して終わるはずが、いまは何も出力しないまま終わりません。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del">    <span class="kw">for</span> (<span class="chg"><span class="ty">unsigned</span> <span class="ty">char</span></span> x = <span class="nu">0</span>; x &lt;= <span class="nu">255</span>;</span>
+<span class="code-line del">         x++) {</span>
+</code></pre>
+      <p>
+        <code>unsigned char</code> で表せるのは 0 から 255 までです。<code>x</code> が 255 のとき <code>x++</code> を実行すると、足した結果の 256 は表せないので、256 で割った余りの 0 に戻ります。比較の前に <code>x</code> は <code>int</code> に変換されますが、値は 0 から 255 のどれかなので、<code>x &lt;= 255</code> はいつも真になり、ループを抜ける機会がありません。性質はすべての値で成り立つので <code>fail</code> も出ず、<code>puts("ok")</code> には届かないまま回り続けます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins">    <span class="kw">for</span> (<span class="chg"><span class="ty">int</span></span> x = <span class="nu">0</span>; x &lt;= <span class="nu">255</span>; <span class="chg">x++) {</span></span>
+</code></pre>
+      <p>
+        ループ変数を <code>int</code> にすると、<code>x</code> は 255 の次に 256 になれます。256 で <code>x &lt;= 255</code> が偽になり、ループは 256 回で終わって <code>ok</code> を出します。<code>swap_nibbles</code> には <code>int</code> から <code>unsigned char</code> へ変換して渡されますが、<code>x</code> は 0 から 255 までしか取らないので値は変わりません。全部の値を順に試すループでは、ループ変数の型に、最後の値の次の値まで入る必要があります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

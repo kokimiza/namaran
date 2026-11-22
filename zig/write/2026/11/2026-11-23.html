@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="任意の位置から始まる []u8 の中で、アドレスが4の倍数になる位置からの部分を、同じメモリを指す []u32 として返す alignedWords を書きます。@alignCast と @ptrCast を組み合わせ、余るバイトの扱いも決めます。2026-11-23のZig WRITE。">
+<title>揃った位置から読むu32</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/write/2026-11-23">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / WRITE", "item": "https://namaran.jocarium.productions/zig/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-23" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / WRITE — 2026-11-23",
+      "url": "https://namaran.jocarium.productions/zig/write/2026-11-23",
+      "datePublished": "2026-11-23",
+      "dateModified": "2026-11-23",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "揃った位置から読むu32" },
+      "keywords": "alignment, pointer, slice, type-punning",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "任意の位置から始まる []u8 の中で、アドレスが4の倍数になる位置からの部分を、同じメモリを指す []u32 として返す alignedWords を書きます。@alignCast と @ptrCast を組み合わせ、余るバイトの扱いも決めます。2026-11-23のZig WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-23">C23</a>
+  <a href="/cpp/write/2026-11-23">C++26</a>
+  <a href="/rust/write/2026-11-23">Rust 2024</a>
+  <a href="/haskell/write/2026-11-23">Haskell 2010</a>
+  <a href="/zig/write/2026-11-23" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-23">READ</a>
+  <a href="/zig/write/2026-11-23" class="active" aria-current="page">WRITE</a>
+  <a href="/zig/debug/2026-11-23">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="揃った位置から読むu32"
+  data-tags="alignment pointer slice type-punning"
+  data-concepts="@alignCast, @ptrCast, アラインメント, 4の倍数のアドレス, バイト列を u32 の並びとして見る, pointer alignment, slice cast, aligned view"
+  data-level="bison"
+>
+  <h2>2026-11-23</h2>
+  <div class="code-frame">
+    <p class="code-filename">aligned_words.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">alignedWords</span>(buf: []<span class="ty">u8</span>) []<span class="ty">u32</span> {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>buf</code> の中で、アドレスが4の倍数になる最初の位置から始まり、<code>u32</code> が丸ごと収まるだけ並ぶ部分を、<code>buf</code> と同じメモリを指す <code>[]u32</code> として返す <code>alignedWords</code> を書いてください。後ろに残る4バイト未満の端は含めません。<code>u32</code> が1つも収まらないときは空のスライスを返します。例では <code>buf</code> を <code>var buf: [12]u8 align(4)</code> で宣言した配列とし、返り値を、先頭の要素が <code>buf</code> の先頭から何バイト先にあるかと要素数の組 <code>{開始, 要素数}</code> で書きます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>alignedWords(buf[0..])</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>{0, 3}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>alignedWords(buf[1..])</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>{4, 2}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>alignedWords(buf[1..3]).len</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">alignedWords</span>(buf: []<span class="ty">u8</span>) []<span class="ty">u32</span> {</span>
+<span class="code-line ins">    <span class="kw">const</span> addr = <span class="mc">@intFromPtr</span>(buf.ptr);</span>
+<span class="code-line ins">    <span class="kw">const</span> skip = (<span class="nu">4</span> - addr % <span class="nu">4</span>) % <span class="nu">4</span>;</span>
+<span class="code-line ins">    <span class="kw">if</span> (skip &gt; buf.len) <span class="kw">return</span> &amp;.{};</span>
+<span class="code-line ins">    <span class="kw">const</span> n = (buf.len - skip) / <span class="nu">4</span>;</span>
+<span class="code-line ins">    <span class="kw">const</span> bytes = buf[skip..][<span class="nu">0</span> .. n * <span class="nu">4</span>];</span>
+<span class="code-line ins">    <span class="kw">return</span> <span class="mc">@ptrCast</span>(<span class="mc">@alignCast</span>(bytes));</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        値を置けるアドレスが何の倍数でなければならないかを、アラインメント(alignment)と呼びます。<code>[]u8</code> のアラインメントは1で、要素のアドレスについて何も約束していません。<code>u32</code> のアラインメントは4なので<sup class="fn-ref">1</sup>、<code>[]u32</code> は4の倍数のアドレスを要求します。<code>@ptrCast</code> はアラインメントを上げられないので、それだけでは <code>[]u8</code> を <code>[]u32</code> にできず、コンパイルエラーになります。アラインメントを上げるのは <code>@alignCast</code> の役目です。ただし <code>@alignCast</code> はアドレスを動かしません。4の倍数だと型に書き込むだけで、実行時に本当にそうかを確かめ、違えば illegal behavior として止まります。そこで、先に揃った位置まで進めてから渡します。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        参考実装は、<code>buf.ptr</code> のアドレスを <code>@intFromPtr</code> で整数にし、次の4の倍数までのバイト数 <code>skip</code> を <code>(4 - addr % 4) % 4</code> で求めます。<code>skip</code> が長さを超える短いスライスは、揃った位置にすら届かないので空のスライスを返します。残りから4バイト単位で取れる <code>n * 4</code> バイトだけを切り出せば、長さも4の倍数になります。<code>@alignCast</code> でアラインメントを4に上げたスライスを <code>@ptrCast</code> に渡すと、スライスの長さはバイト数から <code>u32</code> の個数に換算され、<code>n</code> になります。入力例2の <code>buf[1..]</code> は11バイトで、アドレスは4の倍数より1大きいので <code>skip</code> は 3 です。<code>buf</code> の先頭から4バイト先に残る8バイトが <code>u32</code> 2つになり、<code>{4, 2}</code> です。入力例3の <code>buf[1..3]</code> は2バイトしかなく、<code>skip</code> の 3 に届かないので空になります。
+      </p>
+      <ol class="footnotes">
+        <li><code>u32</code> のアラインメントは、x86-64 や AArch64 など広く使われるターゲットで4です。どのターゲットでも、<code>@alignOf(u32)</code> で確かめられます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/write">Today</a></li>
+    <li><a href="/zig/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

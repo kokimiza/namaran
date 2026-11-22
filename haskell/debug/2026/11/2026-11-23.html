@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="改行区切りの名簿に名前が載っているかを調べる allowed が、Windows 形式の改行(\r\n)で書かれた名簿では載っている名前まで見つけられない誤りを直します。2026-11-23のHaskell DEBUG。">
+<title>CRLFの名簿に載らない</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-11-23">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-23" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-11-23",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-11-23",
+      "datePublished": "2026-11-23",
+      "dateModified": "2026-11-23",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "CRLFの名簿に載らない" },
+      "keywords": "string, line-ending, list",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "改行区切りの名簿に名前が載っているかを調べる allowed が、Windows 形式の改行(\\r\\n)で書かれた名簿では載っている名前まで見つけられない誤りを直します。2026-11-23のHaskell DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-23">C23</a>
+  <a href="/cpp/debug/2026-11-23">C++26</a>
+  <a href="/rust/debug/2026-11-23">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-23" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-23">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-23">READ</a>
+  <a href="/haskell/write/2026-11-23">WRITE</a>
+  <a href="/haskell/debug/2026-11-23" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="CRLFの名簿に載らない"
+  data-tags="string line-ending list"
+  data-concepts="lines と CR, Windows の改行, CRLF, 行末に残る \r, carriage return, line ending, elem"
+  data-level="hedgehog"
+>
+  <h2>2026-11-23</h2>
+  <div class="code-frame">
+    <p class="code-filename">Allow.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="fn">allowed</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">Bool</span></span>
+<span class="code-line"><span class="fn">allowed</span> list user = user `elem` lines list</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()</span>
+<span class="code-line"><span class="fn">main</span> = print (allowed <span class="st">"ann\r\nbob\r\n"</span> <span class="st">"bob"</span>)</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>allowed list user</code> は、1行に1人ずつ名前を書いた名簿 <code>list</code> に <code>user</code> が載っているかを返すつもりの関数です。<code>main</code> は Windows で保存した、改行が <code>"\r\n"</code> の名簿 <code>"ann\r\nbob\r\n"</code> から <code>"bob"</code> を探します。本来は <code>True</code> を出すはずが、いまは <code>False</code> を出します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del"><span class="fn">allowed</span> list user = <span class="chg">user `elem` lines list</span></span>
+</code></pre>
+      <p>
+<code>lines</code> が行を分けるのは <code>'\n'</code> の位置だけで、<code>'\r'</code> は普通の文字として行の中に残ります。<code>lines "ann\r\nbob\r\n"</code> は <code>["ann\r","bob\r"]</code> です。<code>elem</code> は文字列を1文字ずつ比べるので、<code>"bob"</code> は末尾に <code>'\r'</code> の付いた <code>"bob\r"</code> と等しくならず、名簿に載っている名前が見つからないまま <code>False</code> が返ります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins"><span class="fn">allowed</span> list user =</span>
+<span class="code-line ins">  user `elem` lines (filter (/= <span class="st">'\r'</span>) list)</span>
+</code></pre>
+      <p>
+        <code>lines</code> に渡す前に <code>filter (/= '\r')</code> で <code>'\r'</code> を取り除けば、<code>"ann\r\nbob\r\n"</code> は <code>"ann\nbob\n"</code> になり、<code>lines</code> の結果は <code>["ann","bob"]</code> です。<code>"bob"</code> がそのまま見つかって <code>True</code> になり、改行が <code>"\n"</code> だけの名簿では何も変わりません。名前の中に <code>'\r'</code> が入ることは無いので、行の途中の <code>'\r'</code> まで消しても困りません<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li>GHC で <code>readFile</code> や <code>getContents</code> を使う場合、Windows 上では既定で <code>"\r\n"</code> が <code>"\n"</code> に変換されて読み込まれます。Linux や macOS では変換されないので、Windows で作ったファイルをほかの環境で読むと、このバグが表に出ます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

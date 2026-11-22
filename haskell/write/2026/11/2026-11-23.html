@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="文字 c を区切りとして文字列を欄に分ける splitOn を書きます。intercalate [c] でつなぎ直すと元に戻り、空の欄や末尾の区切りも失わず、無限の文字列からも欄を先頭から順に返します。2026-11-23のHaskell WRITE。">
+<title>区切りで分けて戻せる形</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-11-23">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-23" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-11-23",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-11-23",
+      "datePublished": "2026-11-23",
+      "dateModified": "2026-11-23",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "区切りで分けて戻せる形" },
+      "keywords": "string, list, recursion, laziness, csv",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "文字 c を区切りとして文字列を欄に分ける splitOn を書きます。intercalate [c] でつなぎ直すと元に戻り、空の欄や末尾の区切りも失わず、無限の文字列からも欄を先頭から順に返します。2026-11-23のHaskell WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-23">C23</a>
+  <a href="/cpp/write/2026-11-23">C++26</a>
+  <a href="/rust/write/2026-11-23">Rust 2024</a>
+  <a href="/haskell/write/2026-11-23" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/write/2026-11-23">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-23">READ</a>
+  <a href="/haskell/write/2026-11-23" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-11-23">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="区切りで分けて戻せる形"
+  data-tags="string list recursion laziness csv"
+  data-concepts="区切り文字で分割, 空の欄, 末尾の区切り, intercalate で元に戻る, 無限リスト, split on delimiter, empty field, lazy split"
+  data-level="bison"
+>
+  <h2>2026-11-23</h2>
+  <div class="code-frame">
+    <p class="code-filename">SplitOn.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="fn">splitOn</span> <span class="op">::</span> <span class="ty">Char</span> <span class="op">-&gt;</span> <span class="ty">String</span> <span class="op">-&gt;</span> [<span class="ty">String</span>]</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    文字 <code>c</code> を区切りとして、文字列を区切りの間の欄に分けたリストを返す <code>splitOn</code> を書いてください。区切りが k 個あれば欄はいつも k + 1 個で、<code>intercalate [c]</code> でつなぎ直すと元の文字列に戻ります。空文字列は空の欄が1つです。終わりの無い文字列を渡しても、欄を先頭から順に取り出せるようにします。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>splitOn ',' "a,,b,"</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>["a","","b",""]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>splitOn ',' ""</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>[""]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>take 3 (splitOn ',' (cycle "ab,"))</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>["ab","ab","ab"]</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="fn">splitOn</span> <span class="op">::</span> <span class="ty">Char</span> <span class="op">-&gt;</span> <span class="ty">String</span> <span class="op">-&gt;</span> [<span class="ty">String</span>]</span>
+<span class="code-line ins"><span class="fn">splitOn</span> c s = <span class="kw">case</span> break (== c) s <span class="kw">of</span></span>
+<span class="code-line ins">  (field, []) <span class="op">-&gt;</span> [field]</span>
+<span class="code-line ins">  (field, _ : rest) <span class="op">-&gt;</span> field : splitOn c rest</span>
+</code></pre>
+      </div>
+      <p>
+        <code>break (== c) s</code> は、<code>s</code> を最初の <code>c</code> の手前で2つに分けます。前半が1つ目の欄で、後半は <code>c</code> から始まるか、<code>c</code> が無ければ空です。後半が空なら、その欄が最後の欄なので <code>[field]</code> を返します。後半が <code>c</code> で始まっていれば、その区切りを捨て、残りを分けた結果の前に <code>field</code> を付けます。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        再帰を止める条件は「入力が空になったとき」ではなく「区切りがもう無いとき」です。入力例1の最後の <code>,</code> を捨てると残りは <code>""</code> ですが、そこにも空の欄が1つあり、<code>break</code> が <code>("", "")</code> を返すので <code>[""]</code> が付きます。入力例2も同じ理由で <code>[""]</code> になります。<code>splitOn c [] = []</code> を基底ケースに足すと、この2つの空の欄が消え、<code>intercalate</code> で元に戻らなくなります。入力例3では、<code>break</code> は最初の <code>,</code> を見つけた時点で <code>("ab", ",ab,...")</code> を返し、<code>field :</code> の後ろの再帰は <code>take</code> が次の欄を求めるまで評価されません。欄を蓄積用の引数にためて最後に <code>reverse</code> する書き方では、入力の終わりに着くまで何も返せないので、無限の文字列から欄を取り出せません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

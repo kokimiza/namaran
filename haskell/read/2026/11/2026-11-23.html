@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="文字列を lines で行に分けて unlines でつなぎ直したとき、空文字列・改行で終わる文字列・改行だけの文字列がそれぞれ何になるかを読みます。2026-11-23のHaskell READ。">
+<title>行に分けてつなぎ直す</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-11-23">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-23" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-11-23",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-11-23",
+      "datePublished": "2026-11-23",
+      "dateModified": "2026-11-23",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "行に分けてつなぎ直す" },
+      "keywords": "list, string, line-ending",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "文字列を lines で行に分けて unlines でつなぎ直したとき、空文字列・改行で終わる文字列・改行だけの文字列がそれぞれ何になるかを読みます。2026-11-23のHaskell READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-23">C23</a>
+  <a href="/cpp/read/2026-11-23">C++26</a>
+  <a href="/rust/read/2026-11-23">Rust 2024</a>
+  <a href="/haskell/read/2026-11-23" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/read/2026-11-23">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-23" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-11-23">WRITE</a>
+  <a href="/haskell/debug/2026-11-23">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="行に分けてつなぎ直す"
+  data-tags="list string line-ending"
+  data-concepts="lines と unlines, 往復しない, 末尾の改行, 行の終端, round trip, trailing newline, line terminator"
+  data-level="bison"
+>
+  <h2>2026-11-23</h2>
+  <div class="code-frame">
+    <p class="code-filename">RoundTrip.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()</span>
+<span class="code-line"><span class="fn">main</span> =</span>
+<span class="code-line">  mapM_</span>
+<span class="code-line">    (print . unlines . lines)</span>
+<span class="code-line">    [<span class="st">""</span>, <span class="st">"a"</span>, <span class="st">"a\n"</span>, <span class="st">"\n\n"</span>]</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>""
+"a\n"
+"a\n"
+"\n\n"
+</samp></pre>
+      </div>
+      <p>
+        <code>lines</code> は <code>'\n'</code> を、行と行の間の区切りではなく、行の終わりの印として読みます。最後の <code>'\n'</code> の後ろに文字が無ければ、そこに空の行は作りません。<code>lines "a\n"</code> は <code>["a"]</code>、<code>lines "\n\n"</code> は空の行が2つの <code>["",""]</code>、<code>lines ""</code> は行が1つも無い <code>[]</code> です。<code>unlines</code> も同じ見方で、行の間ではなく、どの行の後ろにも <code>'\n'</code> を1つずつ付けます。
+      </p>
+      <p>
+        この2つの規則で4つの入力を追います。<code>""</code> は <code>[]</code> を経て <code>""</code> に戻ります。<code>"a\n"</code> は <code>["a"]</code> から <code>"a\n"</code> に、<code>"\n\n"</code> は <code>["",""]</code> から <code>"\n\n"</code> に戻ります。元に戻らないのは改行で終わっていない <code>"a"</code> だけで、<code>["a"]</code> に分けたあと、<code>unlines</code> が最後の行にも <code>'\n'</code> を付けるので <code>"a\n"</code> になります。<code>print</code> は文字列を <code>show</code> した形で出すので、改行は <code>\n</code> と表示されます。
+      </p>
+      <p>
+        片方の規則だけを区切りとして読むと、答えがずれます。<code>lines</code> を区切りで分ける関数だと思うと、<code>""</code> は <code>[""]</code> に、<code>"a\n"</code> は <code>["a",""]</code> になり、<code>unlines</code> が改行を足して <code>"\n"</code>、<code>"a\n"</code>、<code>"a\n\n"</code>、<code>"\n\n\n"</code> と答えます。<code>unlines</code> を <code>'\n'</code> で行をつなぐだけの関数だと思うと、<code>""</code>、<code>"a"</code>、<code>"a"</code>、<code>"\n"</code> です。両方を区切りだと思えば、往復でいつも元に戻ると考えて、入力をそのまま答えることになります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
