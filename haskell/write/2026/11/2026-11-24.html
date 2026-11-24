@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="整数の重みのリストから、先頭からの重みの和を全体の和で割った累積確率のリストを返す cumProbs を、Int から Double への変換に気を付けて書きます。2026-11-24のHaskell WRITE。">
+<title>整数の重みを累積確率に</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-11-24">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-24" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-11-24",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-11-24",
+      "datePublished": "2026-11-24",
+      "dateModified": "2026-11-24",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "整数の重みを累積確率に" },
+      "keywords": "prefix-sum, type-conversion, typeclass, floating-point",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "整数の重みのリストから、先頭からの重みの和を全体の和で割った累積確率のリストを返す cumProbs を、Int から Double への変換に気を付けて書きます。2026-11-24のHaskell WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-24">C23</a>
+  <a href="/cpp/write/2026-11-24">C++26</a>
+  <a href="/rust/write/2026-11-24">Rust 2024</a>
+  <a href="/haskell/write/2026-11-24" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/write/2026-11-24">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-24">READ</a>
+  <a href="/haskell/write/2026-11-24" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-11-24">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="整数の重みを累積確率に"
+  data-tags="prefix-sum type-conversion typeclass floating-point"
+  data-concepts="累積確率, fromIntegral, Int と Double の変換, 累積和, scanl1, cumulative probability, numeric conversion, running total"
+  data-level="hedgehog"
+>
+  <h2>2026-11-24</h2>
+  <div class="code-frame">
+    <p class="code-filename">CumProbs.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="fn">cumProbs</span> <span class="op">::</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> [<span class="ty">Double</span>]</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    重み付き抽選で使う累積確率を求める <code>cumProbs</code> を書いてください。重みのリストを受け取り、i 番目の要素が「先頭から i 番目までの重みの和を、全部の重みの和で割った値」になるリストを返します。重みは 0 以上で、和は 1 以上とします。空のリストには空のリストを返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>cumProbs [1, 1, 2]</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>[0.25,0.5,1.0]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>cumProbs [3]</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>[1.0]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>cumProbs []</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>[]</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="fn">cumProbs</span> <span class="op">::</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> [<span class="ty">Double</span>]</span>
+<span class="code-line ins"><span class="fn">cumProbs</span> ws =</span>
+<span class="code-line ins">  map</span>
+<span class="code-line ins">    ((/ total) . fromIntegral)</span>
+<span class="code-line ins">    (scanl1 (+) ws)</span>
+<span class="code-line ins"> <span class="kw">where</span></span>
+<span class="code-line ins">  total = fromIntegral (sum ws)</span>
+</code></pre>
+      </div>
+      <p>
+        先頭からの重みの和は <code>scanl1 (+) ws</code> で作れます。<code>[1, 1, 2]</code> なら <code>[1, 2, 4]</code> です。残るのは割り算で、<code>/</code> は <code>Fractional</code> クラスの演算なので、<code>Int</code> のままでは使えません。そこで、それぞれの和と全体の和 <code>total</code> を <code>fromIntegral</code> で <code>Double</code> に変換してから割ります。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        <code>fromIntegral</code> は整数型の値を、文脈が求める数値型に変換する関数です。<code>total</code> は <code>(/ total)</code> に使われ、結果が <code>[Double]</code> と決まっているので、型を書かなくても <code>Double</code> になります。入力例1では <code>[1, 2, 4]</code> をそれぞれ 4 で割って <code>[0.25,0.5,1.0]</code> になり、最後の要素は全体を全体で割るので必ず 1.0 です。入力例3は <code>scanl1</code> が空のリストに空のリストを返すので、<code>total</code> は一度も使われず、0 で割ることも起きません。整数のまま <code>div</code> で割ってから変換すると、和が全体に届かない要素はすべて 0 に切り捨てられます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

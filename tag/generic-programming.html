@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「ジェネリクス」を扱ったNamaranのコーディングドリル10問。ジェネリック型、型を返す関数、@This、無名構造体、メソッド、generic struct。">
+<meta name="description" content="「ジェネリクス」を扱ったNamaranのコーディングドリル13問。comptime T: type、型を引数で渡す、汎用関数、スライスの合計、generic function、type parameter。">
 <title>ジェネリクス</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/generic-programming">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>ジェネリクス</h2>
 
   <p class="lede">
-    「ジェネリクス」を扱った10問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「ジェネリクス」を扱った13問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/write/2026-11-24">Zig / WRITE · 2026-11-24</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">型を引数で受ける合計</span> <span class="past-concepts">comptime T: type, 型を引数で渡す, 汎用関数, スライスの合計, generic function, type parameter, comptime parameter, slice sum</span></li>
+    <li><a href="/zig/read/2026-11-24">Zig / READ · 2026-11-24</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">anytypeが受け取る型</span> <span class="past-concepts">anytype, @TypeOf, @typeName, comptime_int, 整数リテラルの型, 汎用関数, generic function, integer literal type, peer type resolution</span></li>
+    <li><a href="/zig/debug/2026-11-24">Zig / DEBUG · 2026-11-24</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">シャッフルで消える値</span> <span class="past-concepts">anytype, @TypeOf, XOR による交換, 同じ場所との交換, エイリアシング, シャッフル, xor swap, self swap, aliasing, shuffle</span></li>
     <li><a href="/zig/write/2026-11-20">Zig / WRITE · 2026-11-20</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">型を返す関数のPair</span> <span class="past-concepts">ジェネリック型, 型を返す関数, @This, 無名構造体, メソッド, generic struct, type function</span></li>
     <li><a href="/zig/write/2026-11-11">Zig / WRITE · 2026-11-11</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">固定長スタックの型を返す</span> <span class="past-concepts">comptime, 型を返す関数, @This, 固定長スタック, 既定値つきフィールド, generic data structure, type function, optional</span></li>
     <li><a href="/zig/read/2026-11-11">Zig / READ · 2026-11-11</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">同じ引数なら同じ型</span> <span class="past-concepts">comptime, 型を返す関数, container-level variable, コンテナの変数, 同じ型, generic type, type function, memoization</span></li>

@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="anytype で受けたポインタの指す値を XOR で入れ替える汎用の swap を使ったシャッフルで、並べ替えたはずの配列に元に無かった 0 が現れる欠陥を直します。2026-11-24のZig DEBUG。">
+<title>シャッフルで消える値</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/debug/2026-11-24">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / DEBUG", "item": "https://namaran.jocarium.productions/zig/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-24" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / DEBUG — 2026-11-24",
+      "url": "https://namaran.jocarium.productions/zig/debug/2026-11-24",
+      "datePublished": "2026-11-24",
+      "dateModified": "2026-11-24",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "シャッフルで消える値" },
+      "keywords": "generic-programming, swap, aliasing, bit-operation",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "anytype で受けたポインタの指す値を XOR で入れ替える汎用の swap を使ったシャッフルで、並べ替えたはずの配列に元に無かった 0 が現れる欠陥を直します。2026-11-24のZig DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-24">C23</a>
+  <a href="/cpp/debug/2026-11-24">C++26</a>
+  <a href="/rust/debug/2026-11-24">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-24">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-24" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-24">READ</a>
+  <a href="/zig/write/2026-11-24">WRITE</a>
+  <a href="/zig/debug/2026-11-24" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="シャッフルで消える値"
+  data-tags="generic-programming swap aliasing bit-operation"
+  data-concepts="anytype, @TypeOf, XOR による交換, 同じ場所との交換, エイリアシング, シャッフル, xor swap, self swap, aliasing, shuffle"
+  data-level="whale"
+>
+  <h2>2026-11-24</h2>
+  <div class="code-frame">
+    <p class="code-filename">shuffle.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">swap</span>(a: <span class="kw">anytype</span>, b: <span class="mc">@TypeOf</span>(a)) <span class="ty">void</span> {</span>
+<span class="code-line">    a.* ^= b.*;</span>
+<span class="code-line">    b.* ^= a.*;</span>
+<span class="code-line">    a.* ^= b.*;</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {</span>
+<span class="code-line">    <span class="kw">var</span> xs = [_]<span class="ty">u8</span>{ <span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">3</span>, <span class="nu">4</span> };</span>
+<span class="code-line">    <span class="kw">const</span> js = [_]<span class="ty">usize</span>{ <span class="nu">0</span>, <span class="nu">0</span>, <span class="nu">1</span>, <span class="nu">3</span> };</span>
+<span class="code-line">    <span class="kw">for</span> (&amp;xs, js) |*x, j| <span class="fn">swap</span>(x, &amp;xs[j]);</span>
+<span class="code-line">    <span class="kw">var</span> buf: [<span class="nu">64</span>]<span class="ty">u8</span> = <span class="nu">undefined</span>;</span>
+<span class="code-line">    <span class="kw">const</span> stdout = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>();</span>
+<span class="code-line">    <span class="kw">var</span> w = stdout.<span class="fn">writer</span>(init.io, &amp;buf);</span>
+<span class="code-line">    <span class="kw">try</span> w.interface.<span class="fn">print</span>(<span class="st">"{any}\n"</span>, .{xs});</span>
+<span class="code-line">    <span class="kw">try</span> w.interface.<span class="fn">flush</span>();</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    配列 <code>xs</code> をシャッフルするつもりのコードです。i 番目の要素を、0 以上 i 以下の位置 <code>js[i]</code> の要素と入れ替えることを i = 0, 1, 2, 3 の順に行います。<code>js</code> は乱数の代わりに固定した位置の並びです。<code>swap</code> は、同じ型の値を指す2つのポインタを受け取り、指す先の値を入れ替える汎用の関数です。本来は <code>{ 2, 3, 1, 4 }</code> を出力するはずが、いまは <code>{ 2, 3, 0, 0 }</code> を出力し、1 と 4 が消えています。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">swap</span>(a: <span class="kw">anytype</span>, b: <span class="mc">@TypeOf</span>(a)) <span class="ty">void</span> {</span>
+<span class="code-line del">    a.* <span class="chg">^=</span> b.*;</span>
+<span class="code-line del">    b.* <span class="chg">^= a.*</span>;</span>
+<span class="code-line del">    a.* ^= b.*;</span>
+<span class="code-line">}</span>
+</code></pre>
+      <p>
+        入れ替えは値を移すだけなので、元の配列に無い 0 が現れることは、正しい入れ替えでは起きません。0 が出てくる演算は、このコードでは <code>^=</code> だけです。<code>a</code> と <code>b</code> が同じ要素を指していると、1行目の <code>a.* ^= b.*</code> は値を自分自身と XOR することになり、どんな値も 0 になります。残りの2行も 0 どうしの XOR なので、その要素は 0 のまま終わります。<code>js</code> を見ると、i = 0 の <code>js[0]</code> は 0、i = 3 の <code>js[3]</code> は 3 で、この2回は要素を自分自身と入れ替えています。i = 0 で 1 が 0 になり、その 0 が入れ替えで3番目へ移り、i = 3 で 4 が 0 になって、出力は <code>{ 2, 3, 0, 0 }</code> です。
+      </p>
+      <p>
+        自分自身との入れ替えは、シャッフルの側の誤りではありません。i 番目の要素がその場に残る並べ方も起きるべきなので、位置は i を含む 0 以上 i 以下から選ぶ必要があり、<code>j</code> が i に等しい回は必ず出てきます。XOR による入れ替えは2つのポインタが別の場所を指すときだけ正しく、その前提を守れない呼び出し方を、<code>swap</code> の側が受け付けていたことが欠陥です。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">swap</span>(a: <span class="kw">anytype</span>, b: <span class="mc">@TypeOf</span>(a)) <span class="ty">void</span> {</span>
+<span class="code-line ins">    <span class="kw">const</span> t = a.*;</span>
+<span class="code-line ins">    a.* <span class="chg">=</span> b.*;</span>
+<span class="code-line ins">    b.* <span class="chg">= t</span>;</span>
+<span class="code-line">}</span>
+</code></pre>
+      <p>
+        一時変数 <code>t</code> に元の値を写してから入れ替えると、<code>a</code> と <code>b</code> が同じ場所を指していても、<code>a.* = b.*</code> は同じ値の書き直しで、<code>b.* = t</code> も元の値を書き戻すだけになり、値は変わりません。i = 0 と i = 3 の回で何も起きなくなるので、出力は <code>{ 2, 3, 1, 4 }</code> です。<code>^=</code> を使わなくなったことで、この <code>swap</code> は整数以外の型、たとえば構造体や浮動小数点数を指すポインタにも使える汎用の関数になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/debug">Today</a></li>
+    <li><a href="/zig/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

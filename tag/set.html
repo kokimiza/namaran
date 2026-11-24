@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「集合」を扱ったNamaranのコーディングドリル21問。Data.Map、差分の照合、追加と削除と変更、Map.difference、Map.intersectionWith、和集合 積集合 差集合。">
+<meta name="description" content="「集合」を扱ったNamaranのコーディングドリル22問。冪等性キー、HashSet::insert の戻り値、再送、重複の除去、idempotency key、HashSet insert returns bool。">
 <title>集合</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/set">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>集合</h2>
 
   <p class="lede">
-    「集合」を扱った21問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「集合」を扱った22問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/read/2026-11-24">Rust / READ · 2026-11-24</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">再送された請求の合計</span> <span class="past-concepts">冪等性キー, HashSet::insert の戻り値, 再送, 重複の除去, idempotency key, HashSet insert returns bool, retry, deduplication</span></li>
     <li><a href="/haskell/write/2026-11-13">Haskell / WRITE · 2026-11-13</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">新旧の一覧を名前で照合</span> <span class="past-concepts">Data.Map, 差分の照合, 追加と削除と変更, Map.difference, Map.intersectionWith, 和集合 積集合 差集合, reconcile two lists, diff by key</span></li>
     <li><a href="/haskell/read/2026-11-13">Haskell / READ · 2026-11-13</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">\\は1つずつ消す</span> <span class="past-concepts">リストの差, 差集合, Data.List, (\\), 重複のある差, list difference, multiset difference</span></li>
     <li><a href="/haskell/debug/2026-11-13">Haskell / DEBUG · 2026-11-13</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">intersectの重複</span> <span class="past-concepts">Data.List.intersect, リストの共通部分, 積集合, 重複, 引数の順, list intersection, duplicates</span></li>

@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="クライアントが番号を順に振り、応答を受け取ってから次を送るという約束を使って、届いた要求の数に比例してメモリを増やさずに再送を見分ける accept を書きます。2026-11-24のRust WRITE。">
+<title>遅れて届く再送を見分ける</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-11-24">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-24" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-11-24",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-11-24",
+      "datePublished": "2026-11-24",
+      "dateModified": "2026-11-24",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "遅れて届く再送を見分ける" },
+      "keywords": "idempotency, deduplication, retry, hash-table",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "クライアントが番号を順に振り、応答を受け取ってから次を送るという約束を使って、届いた要求の数に比例してメモリを増やさずに再送を見分ける accept を書きます。2026-11-24のRust WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-24">C23</a>
+  <a href="/cpp/write/2026-11-24">C++26</a>
+  <a href="/rust/write/2026-11-24" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-11-24">Haskell 2010</a>
+  <a href="/zig/write/2026-11-24">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-24">READ</a>
+  <a href="/rust/write/2026-11-24" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-11-24">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="遅れて届く再送を見分ける"
+  data-tags="idempotency deduplication retry hash-table"
+  data-concepts="冪等性キー, 再送の検出, シーケンス番号, 重複の除去, 一定のメモリ, idempotency key, sequence number, duplicate request, retransmission"
+  data-level="whale"
+>
+  <h2>2026-11-24</h2>
+  <div class="code-frame">
+    <p class="code-filename">dedup.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">impl</span> <span class="ty">Dedup</span> {</span>
+<span class="code-line">    <span class="kw">fn</span> <span class="fn">accept</span>(</span>
+<span class="code-line">        &amp;<span class="kw">mut</span> <span class="kw">self</span>,</span>
+<span class="code-line">        client: <span class="ty">u32</span>,</span>
+<span class="code-line">        seq: <span class="ty">u64</span>,</span>
+<span class="code-line">    ) -&gt; <span class="ty">bool</span> {</span>
+<span class="code-line">    }</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    サーバーに届く要求を受け付けるかどうかを決める <code>Dedup::accept</code> を、構造体 <code>Dedup</code> のフィールドと合わせて書いてください。各クライアントは自分の要求に 1 から順に番号 <code>seq</code> を振り、番号 n の応答を受け取ってから番号 n+1 を送ります。応答が失われるとクライアントは同じ番号の要求を送り直すので、同じ要求が何度も届くことがあり、遅れた再送が新しい番号の要求より後に届くこともあります。<code>accept(client, seq)</code> は、その <code>(client, seq)</code> が初めて届いたときだけ <code>true</code> を返し、2回目以降は <code>false</code> を返します。1つのクライアントのために使うメモリは、そのクライアントから届いた要求の数に比例して増えてはいけません。例では、空の状態から作った1つの <code>Dedup</code> に順に渡した <code>(client, seq)</code> と、<code>accept</code> が返した値の並びを書きます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>(1, 1) (1, 1) (1, 2)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>[true, false, true]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>(1, 1) (1, 2) (1, 1)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>[true, true, false]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>(1, 1) (2, 1) (2, 1)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>[true, true, false]</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line ins"><span class="kw">use</span> std::collections::<span class="ty">HashMap</span>;</span>
+<span class="code-line ins"></span>
+<span class="code-line ins"><span class="kw">struct</span> <span class="ty">Dedup</span> {</span>
+<span class="code-line ins">    last: <span class="ty">HashMap</span>&lt;<span class="ty">u32</span>, <span class="ty">u64</span>&gt;,</span>
+<span class="code-line ins">}</span>
+<span class="code-line ins"></span>
+<span class="code-line"><span class="kw">impl</span> <span class="ty">Dedup</span> {</span>
+<span class="code-line">    <span class="kw">fn</span> <span class="fn">accept</span>(</span>
+<span class="code-line">        &amp;<span class="kw">mut</span> <span class="kw">self</span>,</span>
+<span class="code-line">        client: <span class="ty">u32</span>,</span>
+<span class="code-line">        seq: <span class="ty">u64</span>,</span>
+<span class="code-line">    ) -&gt; <span class="ty">bool</span> {</span>
+<span class="code-line ins">        <span class="kw">let</span> last = <span class="kw">self</span></span>
+<span class="code-line ins">            .last</span>
+<span class="code-line ins">            .<span class="fn">entry</span>(client)</span>
+<span class="code-line ins">            .<span class="fn">or_insert</span>(<span class="nu">0</span>);</span>
+<span class="code-line ins">        <span class="kw">if</span> seq &gt; *last {</span>
+<span class="code-line ins">            *last = seq;</span>
+<span class="code-line ins">            <span class="nu">true</span></span>
+<span class="code-line ins">        } <span class="kw">else</span> {</span>
+<span class="code-line ins">            <span class="nu">false</span></span>
+<span class="code-line ins">        }</span>
+<span class="code-line">    }</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        届いた <code>(client, seq)</code> をすべて集合に入れれば重複は見分けられますが、集合は要求が届くたびに大きくなります。そこで約束の側から、何を覚えておけば足りるかを考えます。クライアントは番号 n の応答を受け取ってから n+1 を送るので、n+1 が初めて届いた時点で、n はすでに一度届いています。この関係をたどると、あるクライアントから届いた最大の番号が m なら、1 から m までの番号はどれも一度は届いています。
+      </p>
+      <p>
+        そのため、クライアントごとに届いた最大の番号を1つ覚えておけば足ります。<code>seq</code> がそれより大きければ初めての要求なので、最大の番号を更新して <code>true</code> を返します。それ以下なら、その番号はもう届いているので再送で、<code>false</code> を返します。参考実装では、まだ何も届いていないクライアントの最大値を <code>or_insert(0)</code> で 0 とし、番号が 1 から始まることで最初の要求が必ず受け付けられるようにしています。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        入力例2の3つ目は、番号 1 の遅れた再送が番号 2 より後に届いた場面です。最後に届いた番号だけを覚える実装は、ここで 1 を 2 と比べて「違う番号だから新しい」と誤り、<code>true</code> を返します。比べる相手を最大の番号にすると、1 は 2 以下なので再送と分かります。入力例3のように番号はクライアントごとに独立しているので、表のキーはクライアントです。使うメモリはクライアントの数に比例しますが、1つのクライアントの分は何件届いても整数1つのままです。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

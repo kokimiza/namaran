@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「バッファリング」を扱ったNamaranのコーディングドリル18問。std.Io.Writer、buffered、flush、バッファ付き出力、まだ書き出していないバイト、引数の評価順。">
+<meta name="description" content="「バッファリング」を扱ったNamaranのコーディングドリル20問。std::getline、1行ずつ読む、一定のメモリ、最長の行、read line by line、constant memory。">
 <title>バッファリング</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/buffering">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,12 @@
   <h2>バッファリング</h2>
 
   <p class="lede">
-    「バッファリング」を扱った18問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「バッファリング」を扱った20問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/cpp/write/2026-11-24">C++ / WRITE · 2026-11-24</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">1行ずつ読んで最長を測る</span> <span class="past-concepts">std::getline, 1行ずつ読む, 一定のメモリ, 最長の行, read line by line, constant memory, istream</span></li>
+    <li><a href="/cpp/read/2026-11-24">C++ / READ · 2026-11-24</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">最後の半端なチャンク</span> <span class="past-concepts">istream::read, gcount, failbit, 固定長の読み込み, 最後の半端なブロック, chunked read, short read, partial chunk</span></li>
     <li><a href="/zig/read/2026-11-14">Zig / READ · 2026-11-14</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">まだ送っていない分を書く</span> <span class="past-concepts">std.Io.Writer, buffered, flush, バッファ付き出力, まだ書き出していないバイト, 引数の評価順, buffered writer, pending bytes</span></li>
     <li><a href="/zig/write/2026-11-04">Zig / WRITE · 2026-11-04</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">Writerへ16進で書く</span> <span class="past-concepts">std.Io.Writer, インターフェース, 書式指定, 16進数, ゼロ埋め, Writer interface, hex dump, zero padding</span></li>
     <li><a href="/zig/debug/2026-11-04">Zig / DEBUG · 2026-11-04</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">エラーで抜けると消える行</span> <span class="past-concepts">std.Io.Writer, flush, errdefer, tryで抜ける, バッファに残った出力, buffered output, early return, error path</span></li>

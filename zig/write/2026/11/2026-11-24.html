@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="要素の型 T を comptime T: type 引数で受け取り、[]const T の要素の合計を T で返す汎用関数 sum を書きます。整数でも浮動小数点数でも同じ関数で動かします。2026-11-24のZig WRITE。">
+<title>型を引数で受ける合計</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/write/2026-11-24">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / WRITE", "item": "https://namaran.jocarium.productions/zig/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-24" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / WRITE — 2026-11-24",
+      "url": "https://namaran.jocarium.productions/zig/write/2026-11-24",
+      "datePublished": "2026-11-24",
+      "dateModified": "2026-11-24",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "型を引数で受ける合計" },
+      "keywords": "generic-programming, comptime",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "要素の型 T を comptime T: type 引数で受け取り、[]const T の要素の合計を T で返す汎用関数 sum を書きます。整数でも浮動小数点数でも同じ関数で動かします。2026-11-24のZig WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-24">C23</a>
+  <a href="/cpp/write/2026-11-24">C++26</a>
+  <a href="/rust/write/2026-11-24">Rust 2024</a>
+  <a href="/haskell/write/2026-11-24">Haskell 2010</a>
+  <a href="/zig/write/2026-11-24" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-24">READ</a>
+  <a href="/zig/write/2026-11-24" class="active" aria-current="page">WRITE</a>
+  <a href="/zig/debug/2026-11-24">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="型を引数で受ける合計"
+  data-tags="generic-programming comptime"
+  data-concepts="comptime T: type, 型を引数で渡す, 汎用関数, スライスの合計, generic function, type parameter, comptime parameter, slice sum"
+  data-level="hedgehog"
+>
+  <h2>2026-11-24</h2>
+  <div class="code-frame">
+    <p class="code-filename">sum.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">sum</span>(<span class="kw">comptime</span> <span class="ty">T</span>: <span class="ty">type</span>, xs: []<span class="kw">const</span> <span class="ty">T</span>) <span class="ty">T</span> {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    要素の型 <code>T</code> と、<code>T</code> のスライス <code>xs</code> を受け取り、要素の合計を <code>T</code> で返す <code>sum</code> を書いてください。<code>T</code> は整数型か浮動小数点数型で、合計は <code>T</code> の範囲に収まるものとします。<code>xs</code> が空なら 0 を返します。出力例は、返り値を <code>{d}</code> で出力したものです。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>sum(u32, &amp;.{ 1, 2, 3 })</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>6</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>sum(f64, &amp;.{ 0.5, 0.25 })</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>0.75</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>sum(i8, &amp;.{})</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">sum</span>(<span class="kw">comptime</span> <span class="ty">T</span>: <span class="ty">type</span>, xs: []<span class="kw">const</span> <span class="ty">T</span>) <span class="ty">T</span> {</span>
+<span class="code-line ins">    <span class="kw">var</span> total: <span class="ty">T</span> = <span class="nu">0</span>;</span>
+<span class="code-line ins">    <span class="kw">for</span> (xs) |x| total += x;</span>
+<span class="code-line ins">    <span class="kw">return</span> total;</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        <code>comptime T: type</code> の引数は、型そのものをコンパイル時の値として受け取ります。受け取った <code>T</code> はそのあとの引数の型 <code>[]const T</code> や戻り値の型にも書けるので、呼び出すたびに <code>T</code> を当てはめた関数がコンパイルされます。本体では合計を入れる変数を <code>var total: T = 0;</code> と宣言し、要素を順に足して返します。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        入力例1では <code>T</code> が <code>u32</code> になり、<code>xs</code> は <code>[]const u32</code> として 1、2、3 を受け取って 6 を返します。入力例2では同じ本体が <code>f64</code> でコンパイルされ、<code>total</code> の初期値 0 も 0.0 として扱われて 0.75 になります。入力例3は空のスライスでループが一度も回らず、0 がそのまま返ります。<code>xs</code> を <code>anytype</code> で受ける書き方と違い、要素の型を呼び出し側が明示するので、<code>&amp;.{}</code> のように中身から型が分からない空のスライスでも呼び出せます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/write">Today</a></li>
+    <li><a href="/zig/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="計算済みかどうかを -1 で見分けるメモ化で、表を {-1} で初期化したとき、どの要素が -1 になり、どの値が返るかを読みます。2026-11-24のC READ。">
+<title>-1で埋めたつもりの表</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-11-24">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-24" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-11-24",
+      "url": "https://namaran.jocarium.productions/c/read/2026-11-24",
+      "datePublished": "2026-11-24",
+      "dateModified": "2026-11-24",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "-1で埋めたつもりの表" },
+      "keywords": "memoization, aggregate-initialization, sentinel",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "計算済みかどうかを -1 で見分けるメモ化で、表を {-1} で初期化したとき、どの要素が -1 になり、どの値が返るかを読みます。2026-11-24のC READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-24" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-11-24">C++26</a>
+  <a href="/rust/read/2026-11-24">Rust 2024</a>
+  <a href="/haskell/read/2026-11-24">Haskell 2010</a>
+  <a href="/zig/read/2026-11-24">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-24" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-11-24">WRITE</a>
+  <a href="/c/debug/2026-11-24">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="-1で埋めたつもりの表"
+  data-tags="memoization aggregate-initialization sentinel"
+  data-concepts="メモ化, 配列の初期化子, 残りの要素は0, 番兵値, memoization, array initializer, zero initialization, sentinel value"
+  data-level="peacock"
+>
+  <h2>2026-11-24</h2>
+  <div class="code-frame">
+    <p class="code-filename">stairs.c</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">long</span> <span class="ty">long</span> memo[<span class="nu">40</span>] = {-<span class="nu">1</span>};</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">long</span> <span class="ty">long</span> <span class="fn">ways</span>(<span class="ty">int</span> n) {</span>
+<span class="code-line">    <span class="kw">if</span> (memo[n] == -<span class="nu">1</span>) {</span>
+<span class="code-line">        memo[n] = n &lt; <span class="nu">2</span></span>
+<span class="code-line">            ? <span class="nu">1</span></span>
+<span class="code-line">            : <span class="fn">ways</span>(n - <span class="nu">1</span>) + <span class="fn">ways</span>(n - <span class="nu">2</span>);</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="kw">return</span> memo[n];</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {</span>
+<span class="code-line">    <span class="kw">for</span> (<span class="ty">int</span> n = <span class="nu">0</span>; n &lt;= <span class="nu">4</span>; n++) {</span>
+<span class="code-line">        <span class="fn">printf</span>(<span class="st">"%lld\n"</span>, <span class="fn">ways</span>(n));</span>
+<span class="code-line">    }</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>1
+0
+0
+0
+0
+</samp></pre>
+      </div>
+      <p>
+        <code>ways(n)</code> は、1段か2段ずつ上って <code>n</code> 段の階段を上りきる方法の数を求め、計算した値を <code>memo[n]</code> に覚えておく関数です。<code>memo[n]</code> が -1 なら「まだ計算していない」とみなして計算し、それ以外なら覚えた値をそのまま返します。正しく動けば、出力は 1、1、2、3、5 になるはずです。
+      </p>
+      <p>
+        ところが、配列の初期化子 <code>{-1}</code> が -1 にするのは先頭の <code>memo[0]</code> だけです。初期化子に書かれなかった残りの要素は 0 で初期化されるので、<code>memo[1]</code> から <code>memo[39]</code> はすべて 0 から始まります。<code>ways(0)</code> は <code>memo[0]</code> が -1 なので計算し、1 を覚えて返します。<code>ways(1)</code> 以降は <code>memo[n]</code> が 0 で、-1 ではないので計算済みとみなされ、覚えてもいない 0 がそのまま返ります。
+      </p>
+      <p>
+        <code>{-1}</code> を「全要素を -1 にする」と読むと、1、1、2、3、5 と答えることになります。初期化子で全要素を同じ値にできるのは 0 のときだけで、<code>{0}</code> が全要素を 0 にするのも、書かれなかった要素が 0 になる規則のおかげです。-1 で埋めたいなら、使う前にループで代入します。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

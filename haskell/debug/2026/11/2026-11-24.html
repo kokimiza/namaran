@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="0 以上で重みの合計未満の r から、重みの累積和を境目にして項目を選ぶ pick が、ほとんどの r で別の項目を返し、大きい r では何も選べなくなる欠陥を直します。2026-11-24のHaskell DEBUG。">
+<title>隣へずれた抽選の境目</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-11-24">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-24" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-11-24",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-11-24",
+      "datePublished": "2026-11-24",
+      "dateModified": "2026-11-24",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "隣へずれた抽選の境目" },
+      "keywords": "prefix-sum, off-by-one, boundary, list",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "0 以上で重みの合計未満の r から、重みの累積和を境目にして項目を選ぶ pick が、ほとんどの r で別の項目を返し、大きい r では何も選べなくなる欠陥を直します。2026-11-24のHaskell DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-24">C23</a>
+  <a href="/cpp/debug/2026-11-24">C++26</a>
+  <a href="/rust/debug/2026-11-24">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-24" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-24">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-24">READ</a>
+  <a href="/haskell/write/2026-11-24">WRITE</a>
+  <a href="/haskell/debug/2026-11-24" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="隣へずれた抽選の境目"
+  data-tags="prefix-sum off-by-one boundary list"
+  data-concepts="重み付き抽選, 累積和, scanl と scanl1, zip の切り詰め, 境目のずれ, weighted random choice, cumulative sum, scanl vs scanl1, zip truncation"
+  data-level="whale"
+>
+  <h2>2026-11-24</h2>
+  <div class="code-frame">
+    <p class="code-filename">Pick.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="fn">pick</span> <span class="op">::</span> [(<span class="ty">Char</span>, <span class="ty">Int</span>)] <span class="op">-&gt;</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Char</span></span>
+<span class="code-line"><span class="fn">pick</span> items r =</span>
+<span class="code-line">  <span class="kw">case</span> dropWhile ((&lt;= r) . snd) bounds <span class="kw">of</span></span>
+<span class="code-line">    ((c, _) : _) <span class="op">-&gt;</span> c</span>
+<span class="code-line">    [] <span class="op">-&gt;</span> <span class="st">'?'</span></span>
+<span class="code-line"> <span class="kw">where</span></span>
+<span class="code-line">  (cs, ws) = unzip items</span>
+<span class="code-line">  bounds = zip cs (scanl (+) <span class="nu">0</span> ws)</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()</span>
+<span class="code-line"><span class="fn">main</span> = putStrLn (map (pick items) [<span class="nu">0</span> .. <span class="nu">5</span>])</span>
+<span class="code-line"> <span class="kw">where</span></span>
+<span class="code-line">  items = [(<span class="st">'x'</span>, <span class="nu">3</span>), (<span class="st">'y'</span>, <span class="nu">1</span>), (<span class="st">'z'</span>, <span class="nu">2</span>)]</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>pick items r</code> は、0 以上で重みの合計未満の整数 <code>r</code> を受け取り、各項目がその重みと同じ個数の <code>r</code> を受け持つように項目を1つ選ぶつもりの関数です。<code>main</code> は重み 3、1、2 の <code>x</code>、<code>y</code>、<code>z</code> について、<code>r</code> を 0 から 5 まで渡した結果を並べて出力します。本来は <code>xxxyzz</code> を出力するはずが、いまは <code>yyyz??</code> を出力します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del"><span class="fn">bounds</span> = zip cs (<span class="chg">scanl</span> (+) <span class="chg"><span class="nu">0</span></span> ws)</span>
+</code></pre>
+      <p>
+        出力を項目ごとに見ると、<code>y</code> は3回、<code>z</code> は1回選ばれ、残りの2回は何も選ばれていません。この回数は <code>x</code> と <code>y</code> の重みの 3 と 1 で、どの項目も1つ前の項目の受け持ちを引き継ぎ、最後の <code>z</code> の受け持ちは誰のものにもなっていません。項目と境目の組み合わせが1つずれていることになります。
+      </p>
+      <p>
+        <code>scanl (+) 0 ws</code> は先頭に初期値 0 を置くので、重み3つに対して <code>[0, 3, 4, 6]</code> の4要素を返します。<code>zip</code> は短いほうに合わせて余りを黙って捨てるので、<code>bounds</code> は <code>[('x', 0), ('y', 3), ('z', 4)]</code> になり、各項目には自分の上端ではなく、1つ前の項目の上端が付きます。<code>r</code> が 0 から 2 なら最初に <code>r</code> を超える境目は <code>y</code> の 3、<code>r</code> が 3 なら <code>z</code> の 4 で、4 と 5 を超える境目は無いので <code>'?'</code> になります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins"><span class="fn">bounds</span> = zip cs (<span class="chg">scanl1</span> (+) ws)</span>
+</code></pre>
+      <p>
+        <code>scanl1 (+) ws</code> は初期値を置かずに先頭の重みから足し始めるので、<code>[3, 4, 6]</code> と項目と同じ数の境目を返します。<code>bounds</code> は <code>[('x', 3), ('y', 4), ('z', 6)]</code> になり、<code>x</code> は <code>r</code> が 0 から 2、<code>y</code> は 3、<code>z</code> は 4 と 5 を受け持って、出力は <code>xxxyzz</code> になります。<code>r</code> は合計の 6 未満なので、最後の境目 6 を超える <code>r</code> は来ず、<code>'?'</code> も出ません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「EOF」を扱ったNamaranのコーディングドリル7問。fread、戻り値、要素の個数、ファイル位置表示子、部分読み込み、short read。">
+<meta name="description" content="「EOF」を扱ったNamaranのコーディングドリル9問。std::getline、1行ずつ読む、一定のメモリ、最長の行、read line by line、constant memory。">
 <title>EOF</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/end-of-file">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,12 @@
   <h2>EOF</h2>
 
   <p class="lede">
-    「EOF」を扱った7問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「EOF」を扱った9問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/cpp/write/2026-11-24">C++ / WRITE · 2026-11-24</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">1行ずつ読んで最長を測る</span> <span class="past-concepts">std::getline, 1行ずつ読む, 一定のメモリ, 最長の行, read line by line, constant memory, istream</span></li>
+    <li><a href="/cpp/read/2026-11-24">C++ / READ · 2026-11-24</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">最後の半端なチャンク</span> <span class="past-concepts">istream::read, gcount, failbit, 固定長の読み込み, 最後の半端なブロック, chunked read, short read, partial chunk</span></li>
     <li><a href="/c/read/2026-11-01">C / READ · 2026-11-01</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">freadが返す個数</span> <span class="past-concepts">fread, 戻り値, 要素の個数, ファイル位置表示子, 部分読み込み, short read, file position indicator</span></li>
     <li><a href="/c/write/2026-10-08">C / WRITE · 2026-10-08</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">2つのファイルを比べる</span> <span class="past-concepts">getc, EOF, ファイルの比較, cmp, 一定のメモリで読む, compare two files, streaming comparison</span></li>
     <li><a href="/c/read/2026-10-08">C / READ · 2026-10-08</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">4バイトずつ読む行</span> <span class="past-concepts">fgets, 固定長バッファで行を読む, 改行で終わらない最後の行, 行の長さを数える, read lines with a fixed buffer, missing trailing newline</span></li>

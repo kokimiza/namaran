@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="利用者番号と要求番号を format! でつないで冪等性キーにしたため、別の要求が同じキーになって再送と誤判定され、正当な支払いが捨てられる欠陥を直します。2026-11-24のRust DEBUG。">
+<title>つなげたキーの衝突</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-11-24">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-24" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-11-24",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-11-24",
+      "datePublished": "2026-11-24",
+      "dateModified": "2026-11-24",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "つなげたキーの衝突" },
+      "keywords": "idempotency, deduplication, tuple, format-string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "利用者番号と要求番号を format! でつないで冪等性キーにしたため、別の要求が同じキーになって再送と誤判定され、正当な支払いが捨てられる欠陥を直します。2026-11-24のRust DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-24">C23</a>
+  <a href="/cpp/debug/2026-11-24">C++26</a>
+  <a href="/rust/debug/2026-11-24" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-24">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-24">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-24">READ</a>
+  <a href="/rust/write/2026-11-24">WRITE</a>
+  <a href="/rust/debug/2026-11-24" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="つなげたキーの衝突"
+  data-tags="idempotency deduplication tuple format-string"
+  data-concepts="冪等性キー, 区切りのない文字列連結, キーの衝突, 複合キー, タプルをキーにする, idempotency key, key collision, composite key"
+  data-level="hedgehog"
+>
+  <h2>2026-11-24</h2>
+  <div class="code-frame">
+    <p class="code-filename">payments.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">use</span> std::collections::<span class="ty">HashSet</span>;</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="kw">let</span> reqs = [(<span class="nu">1</span>, <span class="nu">23</span>, <span class="nu">500</span>), (<span class="nu">12</span>, <span class="nu">3</span>, <span class="nu">700</span>)];</span>
+<span class="code-line">    <span class="kw">let</span> <span class="kw">mut</span> done = <span class="ty">HashSet</span>::<span class="fn">new</span>();</span>
+<span class="code-line">    <span class="kw">let</span> <span class="kw">mut</span> total = <span class="nu">0</span>;</span>
+<span class="code-line">    <span class="kw">for</span> (user, seq, amount) <span class="kw">in</span> reqs {</span>
+<span class="code-line">        <span class="kw">let</span> key = <span class="mc">format!</span>(<span class="st">"{user}{seq}"</span>);</span>
+<span class="code-line">        <span class="kw">if</span> done.<span class="fn">contains</span>(&amp;key) {</span>
+<span class="code-line">            <span class="kw">continue</span>;</span>
+<span class="code-line">        }</span>
+<span class="code-line">        done.<span class="fn">insert</span>(key);</span>
+<span class="code-line">        total += amount;</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="mc">println!</span>(<span class="st">"{total}"</span>);</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>(利用者番号, 要求番号, 金額)</code> の支払い要求を順に処理し、同じ利用者の同じ要求番号が再送されてきたら二重に処理しないよう飛ばして、処理した金額の合計を出すつもりのコードです。入力は <code>reqs</code> の2件で、利用者 1 の要求 23 と利用者 12 の要求 3 は別々の支払いです。本来は <code>1200</code> を出力するはずが、いまは <code>500</code> を出力します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del"><span class="kw">let</span> key = <span class="chg"><span class="mc">format!</span>(<span class="st">"{</span></span><span class="st">user</span><span class="chg"><span class="st">}{</span></span><span class="st">seq</span><span class="chg"><span class="st">}"</span></span>);</span>
+</code></pre>
+      <p>
+        <code>format!("{user}{seq}")</code> は2つの数を区切りなしで文字列につなぐので、利用者 1 の要求 23 も、利用者 12 の要求 3 も、キーは同じ <code>"123"</code> になります。1件目で <code>"123"</code> が <code>done</code> に入るので、2件目は <code>contains</code> が真になって再送とみなされ、<code>continue</code> で飛ばされます。合計は1件目の 500 だけになり、別人の 700 の支払いは黙って捨てられます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins"><span class="kw">let</span> key = (user<span class="chg">,</span> seq);</span>
+</code></pre>
+      <p>
+        キーを <code>(user, seq)</code> のタプルにすると、2つの値は別々の要素として比べられ、<code>(1, 23)</code> と <code>(12, 3)</code> は等しくなりません。タプルの要素は <code>Eq</code> と <code>Hash</code> を持つ整数なので、そのまま <code>HashSet</code> に入れられます。同じ利用者の同じ要求番号の再送だけが同じキーになり、2件とも処理されて合計は 1200 になります。<code>"{user}:{seq}"</code> のように区切りを入れても、この入力では直りますが、つなぐ値が文字列なら、区切りの文字が値の中に現れたときにまた衝突します。値の組はタプルのまま持つほうが確実です。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

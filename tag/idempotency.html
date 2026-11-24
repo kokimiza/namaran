@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「冪等性」を扱ったNamaranのコーディングドリル6問。WAL、ログ順序番号、LSN、障害回復、冪等性、redo。">
+<meta name="description" content="「冪等性」を扱ったNamaranのコーディングドリル9問。冪等性キー、再送の検出、シーケンス番号、重複の除去、一定のメモリ、idempotency key。">
 <title>冪等性</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/idempotency">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>冪等性</h2>
 
   <p class="lede">
-    「冪等性」を扱った6問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「冪等性」を扱った9問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/write/2026-11-24">Rust / WRITE · 2026-11-24</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">遅れて届く再送を見分ける</span> <span class="past-concepts">冪等性キー, 再送の検出, シーケンス番号, 重複の除去, 一定のメモリ, idempotency key, sequence number, duplicate request, retransmission</span></li>
+    <li><a href="/rust/read/2026-11-24">Rust / READ · 2026-11-24</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">再送された請求の合計</span> <span class="past-concepts">冪等性キー, HashSet::insert の戻り値, 再送, 重複の除去, idempotency key, HashSet insert returns bool, retry, deduplication</span></li>
+    <li><a href="/rust/debug/2026-11-24">Rust / DEBUG · 2026-11-24</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">つなげたキーの衝突</span> <span class="past-concepts">冪等性キー, 区切りのない文字列連結, キーの衝突, 複合キー, タプルをキーにする, idempotency key, key collision, composite key</span></li>
     <li><a href="/rust/read/2026-11-19">Rust / READ · 2026-11-19</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">ページごとのLSN</span> <span class="past-concepts">WAL, ログ順序番号, LSN, 障害回復, 冪等性, redo, crash recovery, log sequence number</span></li>
     <li><a href="/rust/debug/2026-11-09">Rust / DEBUG · 2026-11-09</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">再起動のたびに増える残高</span> <span class="past-concepts">WAL, ログの再生, 再起動, 冪等性, clone, std::mem::take, 借用, write-ahead log, replay, idempotent recovery</span></li>
     <li><a href="/c/write/2026-10-06">C / WRITE · 2026-10-06</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">初めてのキーだけ通す</span> <span class="past-concepts">冪等性キー, 重複リクエストの検出, 二重処理の防止, idempotency key, duplicate request detection</span></li>

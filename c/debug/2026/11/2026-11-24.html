@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="計算した値を関数の中の配列に覚えるメモ化が、呼び出しのたびに新しい配列を作るため効かず、tilings(90) がいつまでも終わらない欠陥を直します。2026-11-24のC DEBUG。">
+<title>呼ぶたびに作り直す表</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-11-24">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-24" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-11-24",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-11-24",
+      "datePublished": "2026-11-24",
+      "dateModified": "2026-11-24",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "呼ぶたびに作り直す表" },
+      "keywords": "memoization, storage-duration, static-storage, recursion",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "計算した値を関数の中の配列に覚えるメモ化が、呼び出しのたびに新しい配列を作るため効かず、tilings(90) がいつまでも終わらない欠陥を直します。2026-11-24のC DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-24" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-11-24">C++26</a>
+  <a href="/rust/debug/2026-11-24">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-24">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-24">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-24">READ</a>
+  <a href="/c/write/2026-11-24">WRITE</a>
+  <a href="/c/debug/2026-11-24" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="呼ぶたびに作り直す表"
+  data-tags="memoization storage-duration static-storage recursion"
+  data-concepts="メモ化, 自動記憶域期間, 静的記憶域期間, static ローカル変数, 指数時間, memoization, automatic storage duration, static local variable"
+  data-level="hedgehog"
+>
+  <h2>2026-11-24</h2>
+  <div class="code-frame">
+    <p class="code-filename">tilings.c</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">long</span> <span class="ty">long</span> <span class="fn">tilings</span>(<span class="ty">int</span> n) {</span>
+<span class="code-line">    <span class="ty">long</span> <span class="ty">long</span> memo[<span class="nu">100</span>] = {<span class="nu">0</span>};</span>
+<span class="code-line">    <span class="kw">if</span> (n &lt; <span class="nu">3</span>) {</span>
+<span class="code-line">        <span class="kw">return</span> <span class="nu">1</span>;</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="kw">if</span> (memo[n] == <span class="nu">0</span>) {</span>
+<span class="code-line">        memo[n] =</span>
+<span class="code-line">            <span class="fn">tilings</span>(n - <span class="nu">1</span>) + <span class="fn">tilings</span>(n - <span class="nu">3</span>);</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="kw">return</span> memo[n];</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {</span>
+<span class="code-line">    <span class="fn">printf</span>(<span class="st">"%lld\n"</span>, <span class="fn">tilings</span>(<span class="nu">90</span>));</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>tilings(n)</code> は、長さ1と長さ3の板を並べて長さ <code>n</code> の床を埋める並べ方の数を、一度求めた値を配列 <code>memo</code> に覚えながら計算するつもりの関数です。<code>main</code> は <code>tilings(90)</code> を出力します。本来は <code>533352837917926</code> を出してすぐ終わるはずが、いまは何も出力しないまま終わりません。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del"><span class="ty">long</span> <span class="ty">long</span> memo[<span class="nu">100</span>] <span class="chg">= {<span class="nu">0</span>}</span>;</span>
+</code></pre>
+      <p>
+        <code>memo</code> は関数の中で宣言した、<code>static</code> の付かない配列です。このような変数は呼び出しのたびに新しく作られ、関数から戻ると消えます。<code>tilings(90)</code> が <code>tilings(89)</code> を呼ぶと、<code>tilings(89)</code> は自分用の新しい <code>memo</code> を 0 で初期化して使い、そこに書いた値は戻った時点で消えます。どの呼び出しから見ても <code>memo[n]</code> はいつも 0 なので、覚えた値が使われることは一度もありません。そのため同じ <code>n</code> を何度も計算し直し、呼び出しの回数は答えの数と同じ 10<sup>14</sup> 以上の規模になって、終わらなくなります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins"><span class="chg"><span class="kw">static</span></span> <span class="ty">long</span> <span class="ty">long</span> memo[<span class="nu">100</span>];</span>
+</code></pre>
+      <p>
+        <code>static</code> を付けると、<code>memo</code> はプログラムの開始から終了まで1つだけ存在する配列になり、すべての呼び出しが同じ表を共有します。初期化子が無くても、<code>static</code> の配列は最初に 0 で初期化されます。一度 <code>memo[n]</code> に書いた値は次の呼び出しでも残るので、各 <code>n</code> を計算するのは1回だけになり、<code>tilings(90)</code> は90回程度の計算で終わります。並べ方の数は 1 以上なので、0 を「まだ計算していない」印に使っても値とぶつかりません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

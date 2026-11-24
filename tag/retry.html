@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「再試行」を扱ったNamaranのコーディングドリル4問。楽観的ロック、版番号、compare_exchange_weak、再試行ループ、ビットの詰め込み、optimistic locking。">
+<meta name="description" content="「再試行」を扱ったNamaranのコーディングドリル6問。冪等性キー、再送の検出、シーケンス番号、重複の除去、一定のメモリ、idempotency key。">
 <title>再試行</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/retry">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,12 @@
   <h2>再試行</h2>
 
   <p class="lede">
-    「再試行」を扱った4問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「再試行」を扱った6問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/write/2026-11-24">Rust / WRITE · 2026-11-24</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">遅れて届く再送を見分ける</span> <span class="past-concepts">冪等性キー, 再送の検出, シーケンス番号, 重複の除去, 一定のメモリ, idempotency key, sequence number, duplicate request, retransmission</span></li>
+    <li><a href="/rust/read/2026-11-24">Rust / READ · 2026-11-24</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">再送された請求の合計</span> <span class="past-concepts">冪等性キー, HashSet::insert の戻り値, 再送, 重複の除去, idempotency key, HashSet insert returns bool, retry, deduplication</span></li>
     <li><a href="/rust/write/2026-10-25">Rust / WRITE · 2026-10-25</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">版と値を1語でCAS</span> <span class="past-concepts">楽観的ロック, 版番号, compare_exchange_weak, 再試行ループ, ビットの詰め込み, optimistic locking, CAS loop, versioned word</span></li>
     <li><a href="/haskell/write/2026-10-10">Haskell / WRITE · 2026-10-10</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">残り時間で区切る</span> <span class="past-concepts">試行ごとのタイムアウト, 全体の期限, 残り時間, 再試行の予算, per-attempt timeout, overall deadline, retry budget</span></li>
     <li><a href="/c/debug/2026-10-06">C / DEBUG · 2026-10-06</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">失敗した決済の再送</span> <span class="past-concepts">冪等性キー, 再送, リトライ, 二重決済の防止, idempotency key, retry after failure</span></li>

@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="大きなファイルを塊ごとに読み、塊の継ぎ目をまたぐ CRLF も数えるために末尾の文字を次の塊へ持ち越すコードが、CRLF を多く数える欠陥を直します。2026-11-24のC++ DEBUG。">
+<title>継ぎ目で二度数える</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-11-24">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-24" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-11-24",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-11-24",
+      "datePublished": "2026-11-24",
+      "dateModified": "2026-11-24",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "継ぎ目で二度数える" },
+      "keywords": "string-search, sliding-window, boundary, off-by-one",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "大きなファイルを塊ごとに読み、塊の継ぎ目をまたぐ CRLF も数えるために末尾の文字を次の塊へ持ち越すコードが、CRLF を多く数える欠陥を直します。2026-11-24のC++ DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-24">C23</a>
+  <a href="/cpp/debug/2026-11-24" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-11-24">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-24">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-24">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-24">READ</a>
+  <a href="/cpp/write/2026-11-24">WRITE</a>
+  <a href="/cpp/debug/2026-11-24" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="継ぎ目で二度数える"
+  data-tags="string-search sliding-window boundary off-by-one"
+  data-concepts="チャンクの継ぎ目, 持ち越す文字数, 二重カウント, CRLF の数え方, chunk boundary, overlap, double counting, streaming search"
+  data-level="whale"
+>
+  <h2>2026-11-24</h2>
+  <div class="code-frame">
+    <p class="code-filename">count_crlf.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;string&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    std::<span class="ty">string</span> tail;</span>
+<span class="code-line">    <span class="ty">int</span> n = <span class="nu">0</span>;</span>
+<span class="code-line">    <span class="kw">for</span> (std::<span class="ty">string</span> c :</span>
+<span class="code-line">         {<span class="st">"a\r\nb\r"</span>, <span class="st">"\nc\r\n"</span>, <span class="st">"d"</span>}) {</span>
+<span class="code-line">        std::<span class="ty">string</span> s = tail + c;</span>
+<span class="code-line">        <span class="kw">for</span> (<span class="kw">auto</span> i = s.<span class="fn">find</span>(<span class="st">"\r\n"</span>);</span>
+<span class="code-line">             i != s.npos;</span>
+<span class="code-line">             i = s.<span class="fn">find</span>(<span class="st">"\r\n"</span>, i + <span class="nu">1</span>)) {</span>
+<span class="code-line">            n++;</span>
+<span class="code-line">        }</span>
+<span class="code-line">        tail = s.<span class="fn">substr</span>(s.<span class="fn">size</span>() - <span class="nu">2</span>);</span>
+<span class="code-line">    }</span>
+<span class="code-line">    std::cout &lt;&lt; n &lt;&lt; <span class="st">'\n'</span>;</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    大きなファイルを塊に分けて読みながら、<code>\r\n</code> の2文字の並びがいくつあるかを数えるつもりのコードです。塊の継ぎ目をまたぐ並びも数えられるよう、前の塊の末尾を <code>tail</code> に残し、次の塊の前につないで探します。ここでは読み込みの代わりに、<code>"a\r\nb\r"</code>、<code>"\nc\r\n"</code>、<code>"d"</code> の3つの塊を順に処理します。つなげると <code>a\r\nb\r\nc\r\nd</code> なので本来は <code>3</code> を出力するはずが、いまは <code>4</code> を出力します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del">tail = s.<span class="fn">substr</span>(s.<span class="fn">size</span>() - <span class="chg"><span class="nu">2</span></span>);</span>
+</code></pre>
+      <p>
+        数え間違いを追うには、ひとつひとつの <code>\r\n</code> が、どの <code>s</code> の中で丸ごと見つかるかを考えます。<code>s</code> は持ち越した <code>tail</code> と新しい塊をつないだものなので、<code>tail</code> の中に丸ごと収まっている並びは、前の <code>s</code> ですでに数えたものを、次の <code>s</code> でもう一度数えることになります。持ち越すのが2文字だと、<code>tail</code> はちょうど <code>\r\n</code> 1つ分の長さなので、塊がちょうど <code>\r\n</code> で終わるとそれが丸ごと持ち越されます。2つ目の塊 <code>\nc\r\n</code> がそうで、末尾の <code>\r\n</code> は2つ目の <code>s</code> で数えられたうえで、3つ目の <code>s</code> <code>\r\nd</code> でもう一度数えられ、合計が 4 になります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins">tail = s.<span class="fn">substr</span>(s.<span class="fn">size</span>() - <span class="chg"><span class="nu">1</span></span>);</span>
+</code></pre>
+      <p>
+        継ぎ目をまたぐ並びは、少なくとも1文字が新しい塊の側にあるので、前の塊から借りる文字は最大で1文字で、探す並びの長さより1つ少ない数で足ります。持ち越しを1文字にすると、<code>tail</code> は短すぎて並びを丸ごと含むことができず、どの並びも、それが最後の文字まで揃う <code>s</code> でちょうど1回だけ数えられます。3つの塊では、1つ目の <code>s</code> が <code>a</code> の後ろ、2つ目が継ぎ目をまたぐものと <code>c</code> の後ろの2つを見つけ、3つ目の <code>s</code> <code>\nd</code> には並びが無いので、合計は 3 です。長さ <code>m</code> の並びを探すなら、持ち越すのは <code>m - 1</code> 文字です。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
