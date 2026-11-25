@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="2つの合同式を同時に満たす整数を、等差数列の候補から探す関数が、[a, m ..] の公差を m と取り違えて条件を満たさない数を返す欠陥を直します。2026-11-25のHaskell DEBUG。">
+<title>公差を取り違えた候補列</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-11-25">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-25" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-11-25",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-11-25",
+      "datePublished": "2026-11-25",
+      "dateModified": "2026-11-25",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "公差を取り違えた候補列" },
+      "keywords": "list, chinese-remainder-theorem, arithmetic-sequence, list-comprehension",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "2つの合同式を同時に満たす整数を、等差数列の候補から探す関数が、[a, m ..] の公差を m と取り違えて条件を満たさない数を返す欠陥を直します。2026-11-25のHaskell DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-25">C23</a>
+  <a href="/cpp/debug/2026-11-25">C++26</a>
+  <a href="/rust/debug/2026-11-25">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-25" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-25">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-25">READ</a>
+  <a href="/haskell/write/2026-11-25">WRITE</a>
+  <a href="/haskell/debug/2026-11-25" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="公差を取り違えた候補列"
+  data-tags="list chinese-remainder-theorem arithmetic-sequence list-comprehension"
+  data-concepts="連立合同式, 等差数列の範囲, enumFromThen, [a, b ..] の公差, arithmetic sequence, list range step, chinese remainder"
+  data-level="hedgehog"
+>
+  <h2>2026-11-25</h2>
+  <div class="code-frame">
+    <p class="code-filename">Solutions.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="fn">solutions</span></span>
+<span class="code-line">  <span class="op">::</span> (<span class="ty">Int</span>, <span class="ty">Int</span>) <span class="op">-&gt;</span> (<span class="ty">Int</span>, <span class="ty">Int</span>) <span class="op">-&gt;</span> [<span class="ty">Int</span>]</span>
+<span class="code-line"><span class="fn">solutions</span> (a, m) (b, n) =</span>
+<span class="code-line">  [x | x <span class="op">&lt;-</span> [a, m ..], x `mod` n == b]</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()</span>
+<span class="code-line"><span class="fn">main</span> = print (take <span class="nu">3</span> xs)</span>
+<span class="code-line"> <span class="kw">where</span></span>
+<span class="code-line">  xs = solutions (<span class="nu">2</span>, <span class="nu">3</span>) (<span class="nu">3</span>, <span class="nu">5</span>)</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>solutions (a, m) (b, n)</code> は、<code>m</code> で割った余りが <code>a</code> で、<code>n</code> で割った余りが <code>b</code> である <code>a</code> 以上の整数を、小さい順に並べるつもりの関数です。3 で割ると 2 余り、5 で割ると 3 余る数の最初の3つを表示すると、本来は <code>[8,23,38]</code> を出力するはずが、いまは <code>[3,8,13]</code> を出力します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del">  [x | x <span class="op">&lt;-</span> [a, m ..], x `mod` n == b]</span>
+</code></pre>
+      <p>
+        <code>[a, m ..]</code> は、<code>a</code> から始まり、最初の2項の差 <code>m - a</code> ずつ増える並びです。<code>(2, 3)</code> では <code>[2, 3 ..]</code> になり、公差は 1 なので、2 以上のすべての整数が候補になります。3 で割った余りが 2 という条件はこの時点で消え、残るのは 5 で割った余りの条件だけなので、3、8、13 が出てきます。3 は3で割り切れ、13 は3で割ると1余るので、どちらも1つ目の条件を満たしません。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins">  [x | x <span class="op">&lt;-</span> [a, <span class="chg">a +</span> m ..], x `mod` n == b]</span>
+</code></pre>
+      <p>
+        2項目を <code>a + m</code> にすると、公差は (<code>a + m</code>) - <code>a</code> = <code>m</code> になり、候補は 2、5、8、11、…… と、3 で割った余りが 2 の数だけになります。その中から 5 で割った余りが 3 のものを残すので、8、23、38 が出力されます。<code>a</code> が 0 のときだけは <code>[a, m ..]</code> と <code>[a, a + m ..]</code> が同じ並びになるので、余りが 0 の条件で試すとこの欠陥は見つかりません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

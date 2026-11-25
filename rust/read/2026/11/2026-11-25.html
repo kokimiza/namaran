@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="夏時間が始まる日の現地時刻を UTC に直す関数を、範囲パターンの match で書いたときに、境目の時刻がどの腕に入るかを読みます。存在しない時刻は None になります。2026-11-25のRust READ。">
+<title>飛ばされる1時間の境目</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-11-25">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / READ", "item": "https://namaran.jocarium.productions/rust/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-25" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / READ — 2026-11-25",
+      "url": "https://namaran.jocarium.productions/rust/read/2026-11-25",
+      "datePublished": "2026-11-25",
+      "dateModified": "2026-11-25",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "飛ばされる1時間の境目" },
+      "keywords": "pattern-matching, half-open-interval, time-zone, optional",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "夏時間が始まる日の現地時刻を UTC に直す関数を、範囲パターンの match で書いたときに、境目の時刻がどの腕に入るかを読みます。存在しない時刻は None になります。2026-11-25のRust READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-25">C23</a>
+  <a href="/cpp/read/2026-11-25">C++26</a>
+  <a href="/rust/read/2026-11-25" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/read/2026-11-25">Haskell 2010</a>
+  <a href="/zig/read/2026-11-25">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-25" class="active" aria-current="page">READ</a>
+  <a href="/rust/write/2026-11-25">WRITE</a>
+  <a href="/rust/debug/2026-11-25">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="飛ばされる1時間の境目"
+  data-tags="pattern-matching half-open-interval time-zone optional"
+  data-concepts="夏時間の開始, 存在しない時刻, 範囲パターン, 終端を含まない範囲, daylight saving time, nonexistent local time, exclusive range pattern"
+  data-level="hedgehog"
+>
+  <h2>2026-11-25</h2>
+  <div class="code-frame">
+    <p class="code-filename">spring_forward.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">to_utc</span>(local: <span class="ty">i32</span>) -&gt; <span class="ty">Option</span>&lt;<span class="ty">i32</span>&gt; {</span>
+<span class="code-line">    <span class="kw">match</span> local {</span>
+<span class="code-line">        ..<span class="nu">120</span> =&gt; <span class="fn">Some</span>(local - <span class="nu">60</span>),</span>
+<span class="code-line">        <span class="nu">120</span>..<span class="nu">180</span> =&gt; <span class="ty">None</span>,</span>
+<span class="code-line">        _ =&gt; <span class="fn">Some</span>(local - <span class="nu">120</span>),</span>
+<span class="code-line">    }</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="kw">let</span> r = [<span class="nu">119</span>, <span class="nu">120</span>, <span class="nu">180</span>].<span class="fn">map</span>(to_utc);</span>
+<span class="code-line">    <span class="mc">println!</span>(<span class="st">"{r:?}"</span>);</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>[Some(59), None, Some(60)]
+</samp></pre>
+      </div>
+      <p>
+        <code>match</code> は腕を上から順に試し、最初に合った腕の式を値にします。範囲パターンの <code>..120</code> は 120 未満のすべての値に、<code>120..180</code> は 120 以上 180 未満の値に合い、どちらも右端の値を含みません。119 は最初の腕に合って <code>Some(59)</code>、120 は2番目の腕に合って <code>None</code> になります。180 は <code>120..180</code> に含まれないので最後の <code>_</code> まで進み、<code>Some(60)</code> です。
+      </p>
+      <p>
+        <code>to_utc</code> は、夏時間が始まる日の現地時刻（0時からの分）を UTC に直す関数として読めます。この地域はふだん UTC より60分進んでおり、現地の 2:00 に時計を 3:00 へ進めて、そこからは120分進んだ時刻になります。2:00 から 2:59 までの現地時刻はこの日には存在しないので、<code>None</code> を返します。現地の 1:59 は UTC の 0:59、3:00 は UTC の 1:00 なので、出力の 59 と 60 は、時計の上では1時間1分離れた2つの時刻が、実際には1分しか離れていないことを表しています。
+      </p>
+      <p>
+        <code>120..180</code> を、右端も含む <code>120..=180</code> と同じように読むと、180 も2番目の腕に入り、<code>[Some(59), None, None]</code> と答えることになります。<code>a..b</code> は <code>for</code> 文や添字の範囲と同じく右端を含まないので、3:00 ちょうどは存在する側に入ります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/read">Today</a></li>
+    <li><a href="/rust/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

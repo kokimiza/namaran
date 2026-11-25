@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="デストラクタで配列を delete[] する構造体を値渡しすると、暗黙のコピーがポインタだけを写し、解放済みの配列を読んだうえで二重解放する欠陥を直します。ルール・オブ・スリーとルール・オブ・ゼロを扱います。2026-11-25のC++ DEBUG。">
+<title>値渡しで二重に解放</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-11-25">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-25" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-11-25",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-11-25",
+      "datePublished": "2026-11-25",
+      "dateModified": "2026-11-25",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "値渡しで二重に解放" },
+      "keywords": "raii, double-free, pass-by-value, destructor, use-after-free",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "デストラクタで配列を delete[] する構造体を値渡しすると、暗黙のコピーがポインタだけを写し、解放済みの配列を読んだうえで二重解放する欠陥を直します。ルール・オブ・スリーとルール・オブ・ゼロを扱います。2026-11-25のC++ DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-25">C23</a>
+  <a href="/cpp/debug/2026-11-25" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-11-25">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-25">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-25">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-25">READ</a>
+  <a href="/cpp/write/2026-11-25">WRITE</a>
+  <a href="/cpp/debug/2026-11-25" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="値渡しで二重に解放"
+  data-tags="raii double-free pass-by-value destructor use-after-free"
+  data-concepts="ルール・オブ・スリー, ルール・オブ・ゼロ, 暗黙のコピーコンストラクタ, 浅いコピー, 二重解放, rule of three, rule of zero, shallow copy, double free"
+  data-level="peacock"
+>
+  <h2>2026-11-25</h2>
+  <div class="code-frame">
+    <p class="code-filename">buf_sum.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;cstdio&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">struct</span> <span class="ty">Buf</span> {</span>
+<span class="code-line">    <span class="ty">int</span>* data = <span class="kw">new</span> <span class="ty">int</span>[<span class="nu">3</span>]{<span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">3</span>};</span>
+<span class="code-line">    ~<span class="fn">Buf</span>() {</span>
+<span class="code-line">        <span class="kw">delete</span>[] data;</span>
+<span class="code-line">    }</span>
+<span class="code-line">};</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">sum</span>(<span class="ty">Buf</span> b) {</span>
+<span class="code-line">    <span class="kw">return</span> b.data[<span class="nu">0</span>] + b.data[<span class="nu">1</span>] + b.data[<span class="nu">2</span>];</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="ty">Buf</span> b;</span>
+<span class="code-line">    std::<span class="fn">printf</span>(<span class="st">"%d\n"</span>, <span class="fn">sum</span>(b));</span>
+<span class="code-line">    std::<span class="fn">printf</span>(<span class="st">"%d\n"</span>, <span class="fn">sum</span>(b));</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>Buf</code> は3つの整数を持ち、コピーしても互いに影響しない値として使うつもりの型で、<code>sum</code> はそのコピーを受け取って合計を返します。<code>main</code> で同じ <code>b</code> の合計を2回表示すると、本来は <code>6</code> を2行出力するはずが、いまは異常終了します。glibc の環境では標準エラーに <code>free(): double free detected in tcache 2</code> と出て止まり、AddressSanitizer を付けてビルドすると、2回目の <code>sum</code> の中で解放済みのメモリを読んだと報告して止まります。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line"><span class="kw">struct</span> <span class="ty">Buf</span> {</span>
+<span class="code-line del">    <span class="ty">int</span><span class="chg">*</span> data <span class="chg">= <span class="kw">new</span> <span class="ty">int</span>[<span class="nu">3</span>]</span>{<span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">3</span>};</span>
+<span class="code-line del">    ~<span class="fn">Buf</span>() {</span>
+<span class="code-line del">        <span class="kw">delete</span>[] data;</span>
+<span class="code-line del">    }</span>
+<span class="code-line">};</span>
+</code></pre>
+      <p>
+        <code>sum</code> は <code>Buf</code> を値で受け取るので、呼ぶたびに <code>b</code> のコピーが作られます。<code>Buf</code> はコピーコンストラクタを書いていないため、コンパイラが用意した暗黙のコピーコンストラクタが使われ、メンバを1つずつ写します。写されるのはポインタ <code>data</code> の値だけで、配列は1つのまま、<code>main</code> の <code>b</code> と引数のコピーが同じ配列を指します。1回目の <code>sum</code> は 6 を返しますが、戻るときに引数のデストラクタがその配列を <code>delete[]</code> します。
+      </p>
+      <p>
+        2回目の <code>sum</code> が受け取るのは、解放済みの配列を指すポインタのコピーです。そこを読むのは未定義動作で、AddressSanitizer はこの読み出しで止めます。止めずに進むと、2回目の引数のデストラクタが同じ配列をもう一度 <code>delete[]</code> し、glibc がこの二重解放を見つけて異常終了させます。デストラクタで資源を解放するのに、コピーの仕方をコンパイラ任せにしたことが原因です。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins"><span class="pp">#include</span> <span class="st">&lt;vector&gt;</span></span>
+<span class="code-line ins"></span>
+<span class="code-line"><span class="kw">struct</span> <span class="ty">Buf</span> {</span>
+<span class="code-line ins">    <span class="chg">std::<span class="ty">vector</span>&lt;</span><span class="ty">int</span><span class="chg">&gt;</span> data{<span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">3</span>};</span>
+<span class="code-line">};</span>
+</code></pre>
+      <p>
+        配列を <code>std::vector</code> に持たせると、<code>Buf</code> の暗黙のコピーコンストラクタは <code>vector</code> のコピーコンストラクタを呼び、要素ごと新しい領域へ写します。解放も <code>vector</code> のデストラクタが自分の領域に対してだけ行うので、<code>Buf</code> にデストラクタを書く必要がなくなります<sup class="fn-ref">1</sup>。引数のコピーが消えても <code>b</code> の配列は残り、<code>6</code> が2行出力されます。暗黙のコピー代入やムーブも同じく要素ごとに正しく働くので、あとから <code>Buf</code> を代入に使っても同じ欠陥は起きません。
+      </p>
+      <ol class="footnotes">
+        <li>デストラクタ、コピーコンストラクタ、コピー代入演算子のどれか1つを自分で書くクラスは、たいてい3つとも書く必要があるという経験則を「ルール・オブ・スリー」、資源の管理は <code>std::vector</code> や <code>std::unique_ptr</code> のような専用のクラスに任せ、自分のクラスではどれも書かないという方針を「ルール・オブ・ゼロ」と呼びます。生のポインタを残して直すなら、配列を写すコピーコンストラクタとコピー代入演算子を書き足すことになります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

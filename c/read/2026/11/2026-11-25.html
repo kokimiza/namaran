@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="bool の変数に ! と ~ を繰り返し使い、bool どうしを足すループで、int への昇格と bool への変換がどう働くかを読みます。2026-11-25のC READ。">
+<title>~で反転しないbool</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-11-25">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-25" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-11-25",
+      "url": "https://namaran.jocarium.productions/c/read/2026-11-25",
+      "datePublished": "2026-11-25",
+      "dateModified": "2026-11-25",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "~で反転しないbool" },
+      "keywords": "implicit-conversion, integer-promotion, bit-operation",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "bool の変数に ! と ~ を繰り返し使い、bool どうしを足すループで、int への昇格と bool への変換がどう働くかを読みます。2026-11-25のC READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-25" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-11-25">C++26</a>
+  <a href="/rust/read/2026-11-25">Rust 2024</a>
+  <a href="/haskell/read/2026-11-25">Haskell 2010</a>
+  <a href="/zig/read/2026-11-25">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-25" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-11-25">WRITE</a>
+  <a href="/c/debug/2026-11-25">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="~で反転しないbool"
+  data-tags="implicit-conversion integer-promotion bit-operation"
+  data-concepts="boolの反転, ビット反転演算子, 整数昇格, boolへの変換, bool同士の足し算, bool toggle, bitwise not on bool, integer promotion, conversion to bool"
+  data-level="bison"
+>
+  <h2>2026-11-25</h2>
+  <div class="code-frame">
+    <p class="code-filename">toggle.c</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {</span>
+<span class="code-line">    <span class="ty">bool</span> a = <span class="nu">false</span>;</span>
+<span class="code-line">    <span class="ty">bool</span> b = <span class="nu">false</span>;</span>
+<span class="code-line">    <span class="ty">int</span> n = <span class="nu">0</span>;</span>
+<span class="code-line">    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">0</span>; i &lt; <span class="nu">3</span>; i++) {</span>
+<span class="code-line">        a = !a;</span>
+<span class="code-line">        b = ~b;</span>
+<span class="code-line">        n += a + b;</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="fn">printf</span>(<span class="st">"%d %d %d\n"</span>, a, b, n);</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>1 1 5
+</samp></pre>
+      </div>
+      <p>
+        <code>bool</code> の値は、演算に使われる前に <code>int</code> へ昇格し、<code>false</code> は 0、<code>true</code> は 1 になります。<code>!a</code> は 0 と比べた結果を 0 か 1 で返すので、<code>a = !a</code> を繰り返すと <code>a</code> は true、false、true と入れ替わります。一方の <code>~b</code> は、昇格した <code>int</code> のビットをすべて反転します。<code>b</code> が false なら <code>~0</code> で -1、true なら <code>~1</code> で -2 で、どちらも 0 ではありません。<code>int</code> を <code>bool</code> に代入すると 0 だけが false、それ以外はすべて true になるので、<code>b = ~b</code> のあとの <code>b</code> は毎回 true です。
+      </p>
+      <p>
+        <code>n</code> には <code>a + b</code> を足します。<code>bool</code> どうしの <code>+</code> も昇格した <code>int</code> の足し算なので、両方 true なら 2 です。1回目は a も b も true で 2、2回目は a が false、b が true で 1、3回目はまた両方 true で 2 を足し、<code>n</code> は 5 になります。最後の <code>a</code> と <code>b</code> はどちらも true で、<code>printf</code> には 1 として渡ります。
+      </p>
+      <p>
+        <code>~b</code> を <code>!b</code> と同じ反転と読むと、<code>b</code> も <code>a</code> と同じく true、false、true と変わり、<code>n</code> は 2 + 0 + 2 で <code>1 1 4</code> と答えることになります。<code>~</code> の働きは分かっていても、<code>a + b</code> の結果が <code>bool</code> のように 1 で止まると考えると、<code>n</code> は 1 + 1 + 1 で <code>1 1 3</code> です。<code>~</code> が昇格した <code>int</code> に働くことと、<code>+</code> の結果も <code>int</code> のまま残ることの両方を使って、初めて 5 になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="整数の範囲を表す構造体に、与えた値を含むように範囲を広げるメソッドを書きます。フィールドを書き換えるために、self をポインタで受け取ります。2026-11-25のZig WRITE。">
+<title>範囲を広げるメソッド</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/write/2026-11-25">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / WRITE", "item": "https://namaran.jocarium.productions/zig/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-25" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / WRITE — 2026-11-25",
+      "url": "https://namaran.jocarium.productions/zig/write/2026-11-25",
+      "datePublished": "2026-11-25",
+      "dateModified": "2026-11-25",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "範囲を広げるメソッド" },
+      "keywords": "struct, pointer, mutability, builtin-function",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "整数の範囲を表す構造体に、与えた値を含むように範囲を広げるメソッドを書きます。フィールドを書き換えるために、self をポインタで受け取ります。2026-11-25のZig WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-25">C23</a>
+  <a href="/cpp/write/2026-11-25">C++26</a>
+  <a href="/rust/write/2026-11-25">Rust 2024</a>
+  <a href="/haskell/write/2026-11-25">Haskell 2010</a>
+  <a href="/zig/write/2026-11-25" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-25">READ</a>
+  <a href="/zig/write/2026-11-25" class="active" aria-current="page">WRITE</a>
+  <a href="/zig/debug/2026-11-25">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="範囲を広げるメソッド"
+  data-tags="struct pointer mutability builtin-function"
+  data-concepts="構造体のメソッド, selfをポインタで受ける, フィールドの書き換え, @min と @max, struct method, self pointer, mutate fields"
+  data-level="hedgehog"
+>
+  <h2>2026-11-25</h2>
+  <div class="code-frame">
+    <p class="code-filename">range.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">const</span> <span class="ty">Range</span> = <span class="kw">struct</span> {</span>
+<span class="code-line">    lo: <span class="ty">i32</span>,</span>
+<span class="code-line">    hi: <span class="ty">i32</span>,</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="kw">fn</span> <span class="fn">include</span>(self: *<span class="ty">Range</span>, x: <span class="ty">i32</span>) <span class="ty">void</span> {</span>
+<span class="code-line">    }</span>
+<span class="code-line">};</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>Range</code> は <code>lo</code> 以上 <code>hi</code> 以下の整数の範囲を表す構造体で、<code>lo</code> は <code>hi</code> 以下です。<code>x</code> が範囲に入るように、範囲を必要な分だけ広げるメソッド <code>include</code> を書いてください。<code>x</code> がすでに範囲に入っているときは何も変えません。例では、<code>var r: Range = .{ .lo = 2, .hi = 5 };</code> に対して入力例の呼び出しをしたあとの <code>r</code> を、<code>{any}</code> で表示した形で書きます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>r.include(9)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>.{ .lo = 2, .hi = 9 }</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>r.include(-1)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>.{ .lo = -1, .hi = 5 }</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>r.include(5)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>.{ .lo = 2, .hi = 5 }</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="kw">const</span> <span class="ty">Range</span> = <span class="kw">struct</span> {</span>
+<span class="code-line">    lo: <span class="ty">i32</span>,</span>
+<span class="code-line">    hi: <span class="ty">i32</span>,</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="kw">fn</span> <span class="fn">include</span>(self: *<span class="ty">Range</span>, x: <span class="ty">i32</span>) <span class="ty">void</span> {</span>
+<span class="code-line ins">        self.lo = <span class="mc">@min</span>(self.lo, x);</span>
+<span class="code-line ins">        self.hi = <span class="mc">@max</span>(self.hi, x);</span>
+<span class="code-line">    }</span>
+<span class="code-line">};</span>
+</code></pre>
+      </div>
+      <p>
+        <code>include</code> は最初の引数 <code>self</code> を 呼び出し元の <code>Range</code> を指すポインタ <code>*Range</code> で受け取ります。<code>r.include(9)</code> と書くと <code>r</code> のアドレスが <code>self</code> に渡るので、<code>self.lo</code> と <code>self.hi</code> への代入は <code>r</code> のフィールドを書き換えます。ポインタでもフィールドは <code>self.lo</code> と書け、<code>self.*.lo</code> と参照を外す必要はありません。新しい <code>lo</code> は元の <code>lo</code> と <code>x</code> の小さいほう、新しい <code>hi</code> は大きいほうで、組み込み関数 <code>@min</code> と <code>@max</code> がそれを返します。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        入力例1では 9 が <code>hi</code> の 5 より大きいので <code>hi</code> だけが 9 になり、入力例2では -1 が <code>lo</code> の 2 より小さいので <code>lo</code> だけが -1 になります。入力例3の 5 は範囲の端にあり、<code>@max(5, 5)</code> は 5 なので何も変わりません。<code>self</code> を <code>self: Range</code> と値で受け取ると、Zig の引数は書き換えられないので <code>self.lo = ...</code> がコンパイルエラーになります。範囲の外の値を渡しても <code>lo</code> が <code>hi</code> を超えることは無いので、<code>lo</code> は <code>hi</code> 以下という条件も保たれます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/write">Today</a></li>
+    <li><a href="/zig/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

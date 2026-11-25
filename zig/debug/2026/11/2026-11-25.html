@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="配列から取り出した構造体を var に入れてメソッドを呼んだのに、配列の中の値が変わらない欠陥を直します。値のコピー、メソッド呼び出しで自動で取られるアドレス、変更しない var を許さない規則が絡みます。2026-11-25のZig DEBUG。">
+<title>取り出した選手に加点</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/debug/2026-11-25">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / DEBUG", "item": "https://namaran.jocarium.productions/zig/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-25" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / DEBUG — 2026-11-25",
+      "url": "https://namaran.jocarium.productions/zig/debug/2026-11-25",
+      "datePublished": "2026-11-25",
+      "dateModified": "2026-11-25",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "取り出した選手に加点" },
+      "keywords": "struct, pass-by-value, pointer, mutability",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "配列から取り出した構造体を var に入れてメソッドを呼んだのに、配列の中の値が変わらない欠陥を直します。値のコピー、メソッド呼び出しで自動で取られるアドレス、変更しない var を許さない規則が絡みます。2026-11-25のZig DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-25">C23</a>
+  <a href="/cpp/debug/2026-11-25">C++26</a>
+  <a href="/rust/debug/2026-11-25">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-25">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-25" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-25">READ</a>
+  <a href="/zig/write/2026-11-25">WRITE</a>
+  <a href="/zig/debug/2026-11-25" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="取り出した選手に加点"
+  data-tags="struct pass-by-value pointer mutability"
+  data-concepts="構造体のコピー, メソッド呼び出しとアドレス, 配列の要素へのポインタ, local variable is never mutated, struct copy, method receiver pointer, element pointer"
+  data-level="bison"
+>
+  <h2>2026-11-25</h2>
+  <div class="code-frame">
+    <p class="code-filename">team.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">const</span> <span class="ty">Player</span> = <span class="kw">struct</span> {</span>
+<span class="code-line">    score: <span class="ty">u32</span> = <span class="nu">0</span>,</span>
+<span class="code-line">    <span class="kw">fn</span> <span class="fn">addPoint</span>(self: *<span class="ty">Player</span>) <span class="ty">void</span> {</span>
+<span class="code-line">        self.score += <span class="nu">1</span>;</span>
+<span class="code-line">    }</span>
+<span class="code-line">};</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {</span>
+<span class="code-line">    <span class="kw">const</span> team = [_]<span class="ty">Player</span>{ .{}, .{} };</span>
+<span class="code-line">    <span class="kw">var</span> p = team[<span class="nu">1</span>];</span>
+<span class="code-line">    p.<span class="fn">addPoint</span>();</span>
+<span class="code-line">    <span class="kw">const</span> stdout = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>();</span>
+<span class="code-line">    <span class="kw">var</span> w = stdout.<span class="fn">writer</span>(init.io, &amp;.{});</span>
+<span class="code-line">    <span class="kw">const</span> out = &amp;w.interface;</span>
+<span class="code-line">    <span class="kw">try</span> out.<span class="fn">print</span>(<span class="st">"{any}\n"</span>, .{team});</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    チームの2人目の選手に1点を足してから、チーム全員の得点を表示するつもりのコードです。本来は <code>{ .{ .score = 0 }, .{ .score = 1 } }</code> を出力するはずが、いまは <code>{ .{ .score = 0 }, .{ .score = 0 } }</code> を出力し、点が増えていません。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del"><span class="chg"><span class="kw">const</span></span> team = [_]<span class="ty">Player</span>{ .{}, .{} };</span>
+<span class="code-line del"><span class="chg"><span class="kw">var</span></span> p = team[<span class="nu">1</span>];</span>
+<span class="code-line">p.<span class="fn">addPoint</span>();</span>
+</code></pre>
+      <p>
+        Zig の配列は要素の値そのものを並べて持つので、<code>var p = team[1];</code> は2人目の <code>Player</code> を新しい変数 <code>p</code> にコピーします。<code>addPoint</code> は <code>self</code> を <code>*Player</code> で受け取るので、<code>p.addPoint()</code> は <code>p</code> のアドレスを自動で取り、<code>Player.addPoint(&amp;p)</code> として呼ばれます。1 が足されるのはコピーの <code>p</code> の <code>score</code> で、<code>team</code> の中は 0 のまま表示されます。
+      </p>
+      <p>
+        <code>const</code> と <code>var</code> の付け方も、この欠陥と結び付いています。<code>var p</code> を <code>const p</code> にすると、取れるアドレスは <code>*const Player</code> なので <code>addPoint</code> に渡せず、コンパイルエラーになります。逆に <code>const team</code> を <code>var team</code> にすると、<code>team</code> にはどこからも書き込まないので、「local variable is never mutated」というコンパイルエラーになります。コンパイラは <code>team</code> が変わらないことを知っていて、その指摘に従って <code>const</code> にした結果、書き換えの行き先がコピーだけになりました。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins"><span class="chg"><span class="kw">var</span></span> team = [_]<span class="ty">Player</span>{ .{}, .{} };</span>
+<span class="code-line ins"><span class="chg"><span class="kw">const</span></span> p = <span class="chg">&amp;</span>team[<span class="nu">1</span>];</span>
+<span class="code-line">p.<span class="fn">addPoint</span>();</span>
+</code></pre>
+      <p>
+        <code>&amp;team[1]</code> は配列の中の2人目を指す <code>*Player</code> です。メソッドを呼ぶ値がすでに <code>*Player</code> なら、<code>p.addPoint()</code> はそのポインタをそのまま <code>self</code> に渡すので、1 は <code>team</code> の中の <code>score</code> に足されます。<code>team</code> はこのポインタを通して書き換えられるので <code>var</code> にする必要があり、今度は「never mutated」とも言われません。<code>p</code> 自身は別の要素を指し直さないので <code>const</code> です。<code>team[1].addPoint();</code> と直接書いても同じく配列の中の要素が変わります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/debug">Today</a></li>
+    <li><a href="/zig/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

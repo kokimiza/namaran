@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="qsort に渡す int の比較関数を、分岐を使わず、INT_MIN や INT_MAX を含むどの値でも -1、0、1 を返すように書きます。比較演算子が返す int の 0 と 1 を使います。2026-11-25のC WRITE。">
+<title>比較関数を分岐なしで</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-11-25">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-25" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-11-25",
+      "url": "https://namaran.jocarium.productions/c/write/2026-11-25",
+      "datePublished": "2026-11-25",
+      "dateModified": "2026-11-25",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "比較関数を分岐なしで" },
+      "keywords": "comparison, integer-overflow, implicit-conversion, sorting",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "qsort に渡す int の比較関数を、分岐を使わず、INT_MIN や INT_MAX を含むどの値でも -1、0、1 を返すように書きます。比較演算子が返す int の 0 と 1 を使います。2026-11-25のC WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-25" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-11-25">C++26</a>
+  <a href="/rust/write/2026-11-25">Rust 2024</a>
+  <a href="/haskell/write/2026-11-25">Haskell 2010</a>
+  <a href="/zig/write/2026-11-25">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-25">READ</a>
+  <a href="/c/write/2026-11-25" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-11-25">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="比較関数を分岐なしで"
+  data-tags="comparison integer-overflow implicit-conversion sorting"
+  data-concepts="qsortの比較関数, 分岐なしの比較, 比較演算の結果は int, 引き算のオーバーフロー, qsort comparator, branchless compare, three-way comparison"
+  data-level="bison"
+>
+  <h2>2026-11-25</h2>
+  <div class="code-frame">
+    <p class="code-filename">cmp_int.c</p>
+    <pre class="code"><code><span class="code-line"><span class="ty">int</span> <span class="fn">cmp_int</span>(<span class="kw">const</span> <span class="ty">void</span>* a, <span class="kw">const</span> <span class="ty">void</span>* b) {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>qsort</code> で <code>int</code> の配列を昇順に並べるときに渡す比較関数 <code>cmp_int</code> を書いてください。<code>a</code> と <code>b</code> はどちらも <code>int</code> を指し、<code>a</code> の指す値のほうが小さければ -1、等しければ 0、大きければ 1 を返します。値は <code>INT_MIN</code> から <code>INT_MAX</code> までのどれでもあり得ます。関数の中では <code>if</code>、<code>switch</code>、条件演算子 <code>?:</code> を使いません。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>cmp_int(&amp;(int){INT_MIN}, &amp;(int){1})</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>-1</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>cmp_int(&amp;(int){5}, &amp;(int){5})</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>cmp_int(&amp;(int){INT_MAX}, &amp;(int){-1})</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>1</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="ty">int</span> <span class="fn">cmp_int</span>(<span class="kw">const</span> <span class="ty">void</span>* a, <span class="kw">const</span> <span class="ty">void</span>* b) {</span>
+<span class="code-line ins">    <span class="ty">int</span> x = *(<span class="kw">const</span> <span class="ty">int</span>*)a;</span>
+<span class="code-line ins">    <span class="ty">int</span> y = *(<span class="kw">const</span> <span class="ty">int</span>*)b;</span>
+<span class="code-line ins">    <span class="kw">return</span> (x &gt; y) - (x &lt; y);</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        <code>qsort</code> は要素の型を知らないので、比較関数には <code>const void*</code> が渡ります。まず <code>const int*</code> に変換して値を <code>x</code> と <code>y</code> に取り出します。比較演算子 <code>&gt;</code> と <code>&lt;</code> の結果は <code>int</code> の 1 か 0 なので、そのまま引き算に使えます。<code>x</code> が大きければ 1 - 0 で 1、等しければ 0 - 0 で 0、小さければ 0 - 1 で -1 になり、分岐を書かずに3通りの値が出ます。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        分岐を使わない比較関数としてよく見る <code>return x - y;</code> は、この問題の条件を2つの点で満たしません。返す値が -1、0、1 に限られないうえに、入力例1では <code>INT_MIN - 1</code> が <code>int</code> の範囲を下に外れます。符号付き整数のオーバーフローは未定義動作で、2の補数で折り返したとすると結果は <code>INT_MAX</code> になり、<code>INT_MIN</code> のほうが大きいという答えが返ります。入力例3の <code>INT_MAX - (-1)</code> も同じく範囲を上に外れます。比較の結果どうしの引き算なら、引かれる数も引く数も 0 か 1 なので、結果は -1 から 1 の間に収まり、どの <code>int</code> の組でも溢れません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

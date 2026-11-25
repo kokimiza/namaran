@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="ムーブコンストラクタだけを = default で宣言した型の std::vector を、波括弧の初期化子リストで作れるかを読みます。暗黙に削除されるコピーと、initializer_list の要素が const であることの組み合わせを扱います。2026-11-25のC++ READ。">
+<title>ムーブだけの型を並べる</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-11-25">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-25" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-11-25",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-11-25",
+      "datePublished": "2026-11-25",
+      "dateModified": "2026-11-25",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "ムーブだけの型を並べる" },
+      "keywords": "move-semantics, list-initialization, constructor, vector",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "ムーブコンストラクタだけを = default で宣言した型の std::vector を、波括弧の初期化子リストで作れるかを読みます。暗黙に削除されるコピーと、initializer_list の要素が const であることの組み合わせを扱います。2026-11-25のC++ READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-25">C23</a>
+  <a href="/cpp/read/2026-11-25" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-11-25">Rust 2024</a>
+  <a href="/haskell/read/2026-11-25">Haskell 2010</a>
+  <a href="/zig/read/2026-11-25">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-25" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-11-25">WRITE</a>
+  <a href="/cpp/debug/2026-11-25">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="ムーブだけの型を並べる"
+  data-tags="move-semantics list-initialization constructor vector"
+  data-concepts="ルール・オブ・ファイブ, ムーブコンストラクタの宣言, 削除されたコピーコンストラクタ, initializer_list, rule of five, deleted copy constructor, std::initializer_list, move-only type"
+  data-level="bison"
+>
+  <h2>2026-11-25</h2>
+  <div class="code-frame">
+    <p class="code-filename">job_list.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;vector&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">struct</span> <span class="ty">Job</span> {</span>
+<span class="code-line">    <span class="ty">int</span> id;</span>
+<span class="code-line">    <span class="kw">explicit</span> <span class="fn">Job</span>(<span class="ty">int</span> id) : <span class="fn">id</span>(id) {}</span>
+<span class="code-line">    <span class="fn">Job</span>(<span class="ty">Job</span>&amp;&amp;) = <span class="kw">default</span>;</span>
+<span class="code-line">};</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    std::<span class="ty">vector</span>&lt;<span class="ty">Job</span>&gt; jobs{<span class="fn">Job</span>(<span class="nu">1</span>), <span class="fn">Job</span>(<span class="nu">2</span>)};</span>
+<span class="code-line">    jobs.<span class="fn">push_back</span>(<span class="fn">Job</span>(<span class="nu">3</span>));</span>
+<span class="code-line">    std::cout &lt;&lt; jobs.<span class="fn">size</span>() &lt;&lt; <span class="st">'\n'</span>;</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>コンパイルエラー
+</samp></pre>
+      </div>
+      <p>
+        エラーになるのは <code>jobs</code> を初期化する行で、削除されたコピーコンストラクタ <code>Job(const Job&amp;)</code> を使おうとしたと報告されます。<code>Job(Job&amp;&amp;) = default;</code> は中身をコンパイラに任せていますが、ムーブコンストラクタを自分で宣言したことに変わりはありません。ムーブコンストラクタかムーブ代入演算子を宣言したクラスでは、コピーコンストラクタとコピー代入演算子が暗黙に削除されます。<code>Job</code> はムーブはできてもコピーはできない型です。
+      </p>
+      <p>
+        波括弧で要素を並べた <code>std::vector&lt;Job&gt; jobs{Job(1), Job(2)}</code> は、<code>std::initializer_list&lt;Job&gt;</code> を受け取るコンストラクタを呼びます。<code>Job(1)</code> と <code>Job(2)</code> はまず <code>initializer_list</code> が指す配列の要素として作られ、この配列の要素は <code>const Job</code> です。<code>vector</code> はそこから自分の領域へ要素を写しますが、<code>const</code> のオブジェクトは <code>Job&amp;&amp;</code> に束縛できないのでムーブはできず、残る手段は削除されたコピーだけです。
+      </p>
+      <p>
+        書いたのが一時オブジェクトなのでムーブで済むと読むと、<code>3</code> と答えることになります。ムーブを宣言してもコピーは暗黙に残ると考えても、やはり <code>3</code> です。次の行の <code>push_back(Job(3))</code> は一時オブジェクトを <code>Job&amp;&amp;</code> で受け取ってムーブするので、こちらはコンパイルできます。初期化の行を <code>jobs.push_back(Job(1));</code> のような呼び出しに分ければ、プログラムは <code>3</code> を出力します。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

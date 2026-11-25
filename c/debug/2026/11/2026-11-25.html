@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="flags &amp; f の結果を uint8_t で返す関数が、0x100 のフラグを立てていても偽を返す欠陥を直します。小さい符号なし整数型への変換と bool への変換の違いを扱います。2026-11-25のC DEBUG。">
+<title>uint8_tで返すフラグ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-11-25">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-25" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-11-25",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-11-25",
+      "datePublished": "2026-11-25",
+      "dateModified": "2026-11-25",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "uint8_tで返すフラグ" },
+      "keywords": "implicit-conversion, narrowing-conversion, bitmask",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "flags & f の結果を uint8_t で返す関数が、0x100 のフラグを立てていても偽を返す欠陥を直します。小さい符号なし整数型への変換と bool への変換の違いを扱います。2026-11-25のC DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-25" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-11-25">C++26</a>
+  <a href="/rust/debug/2026-11-25">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-25">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-25">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-25">READ</a>
+  <a href="/c/write/2026-11-25">WRITE</a>
+  <a href="/c/debug/2026-11-25" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="uint8_tで返すフラグ"
+  data-tags="implicit-conversion narrowing-conversion bitmask"
+  data-concepts="ビットフラグの判定, uint8_tへの切り詰め, boolへの変換, 下位ビットだけ残る, bit flag check, truncation to uint8_t, conversion to bool"
+  data-level="peacock"
+>
+  <h2>2026-11-25</h2>
+  <div class="code-frame">
+    <p class="code-filename">flags.c</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stdint.h&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">enum</span> { <span class="nu">F_READ</span> = <span class="nu">0x001</span>, <span class="nu">F_ADMIN</span> = <span class="nu">0x100</span> };</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">uint8_t</span> <span class="fn">has_flag</span>(<span class="ty">unsigned</span> flags,</span>
+<span class="code-line">                 <span class="ty">unsigned</span> f) {</span>
+<span class="code-line">    <span class="kw">return</span> flags &amp; f;</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {</span>
+<span class="code-line">    <span class="ty">unsigned</span> user = <span class="nu">F_READ</span> | <span class="nu">F_ADMIN</span>;</span>
+<span class="code-line">    <span class="kw">if</span> (<span class="fn">has_flag</span>(user, <span class="nu">F_ADMIN</span>)) {</span>
+<span class="code-line">        <span class="fn">puts</span>(<span class="st">"admin"</span>);</span>
+<span class="code-line">    } <span class="kw">else</span> {</span>
+<span class="code-line">        <span class="fn">puts</span>(<span class="st">"guest"</span>);</span>
+<span class="code-line">    }</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>has_flag</code> は、<code>flags</code> に <code>f</code> のビットが立っているかを判定するつもりの関数です。<code>F_READ</code> と <code>F_ADMIN</code> を両方立てた <code>user</code> について <code>has_flag(user, F_ADMIN)</code> を調べると、本来は <code>admin</code> と出力するはずが、いまは <code>guest</code> と出力します。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del"><span class="chg"><span class="ty">uint8_t</span></span> <span class="fn">has_flag</span>(<span class="ty">unsigned</span> flags,</span>
+<span class="code-line del">                 <span class="ty">unsigned</span> f) {</span>
+<span class="code-line">    <span class="kw">return</span> flags &amp; f;</span>
+<span class="code-line">}</span>
+</code></pre>
+      <p>
+        <code>flags &amp; f</code> の値は <code>0x101 &amp; 0x100</code> で 0x100（10進で 256）になり、0 ではありません。ところが関数の戻り値の型は <code>uint8_t</code> なので、<code>return</code> の時点で 256 は <code>uint8_t</code> に変換されます。符号なし整数型への変換は、その型で表せる個数（<code>uint8_t</code> なら 256）で割った余りを残すので、0x100 は 0 になります。<code>if</code> が受け取るのは変換後の 0 なので、<code>guest</code> の側へ進みます。
+      </p>
+      <p>
+        <code>if (flags &amp; f)</code> と直接書けば正しく動くので、見慣れた式をそのまま関数に包んだだけに見えます。違いは、0 かどうかを調べる前に、戻り値の型への変換が1回挟まることです。下位8ビットに立っているフラグ（<code>F_READ</code> など）は変換しても残るため、この欠陥は 0x100 以上のフラグを調べたときにだけ表に出ます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins"><span class="chg"><span class="ty">bool</span></span> <span class="fn">has_flag</span>(<span class="ty">unsigned</span> flags, <span class="chg"><span class="ty">unsigned</span> f) {</span></span>
+<span class="code-line">    <span class="kw">return</span> flags &amp; f;</span>
+<span class="code-line">}</span>
+</code></pre>
+      <p>
+        戻り値の型を <code>bool</code> にすると、<code>return</code> での変換は余りを取るのではなく、0 なら false、それ以外なら true にする変換になります<sup class="fn-ref">1</sup>。256 は 0 ではないので true が返り、<code>admin</code> と出力されます。どのビットのフラグでも、<code>flags &amp; f</code> が 0 でない限り true になるので、フラグの位置によって結果が変わることはありません。C23 では <code>bool</code> が予約語なので、<code>&lt;stdbool.h&gt;</code> を読み込まずに書けます。
+      </p>
+      <ol class="footnotes">
+        <li><code>_Bool</code> が C99 で入るまでは、<code>typedef unsigned char BOOL;</code> のような自作の真偽値型がよく使われ、ビット演算の結果を代入して同じ欠陥を生みました。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

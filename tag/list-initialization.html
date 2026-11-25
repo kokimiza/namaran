@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「リスト初期化」を扱ったNamaranのコーディングドリル4問。std::eraseと参照、auto{x}、値のコピー、decay-copy、std::erase with element reference、auto(x) prvalue copy。">
+<meta name="description" content="「リスト初期化」を扱ったNamaranのコーディングドリル5問。ルール・オブ・ファイブ、ムーブコンストラクタの宣言、削除されたコピーコンストラクタ、initializer_list、rule of five、deleted copy constructor。">
 <title>リスト初期化</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/list-initialization">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>リスト初期化</h2>
 
   <p class="lede">
-    「リスト初期化」を扱った4問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「リスト初期化」を扱った5問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/cpp/read/2026-11-25">C++ / READ · 2026-11-25</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">ムーブだけの型を並べる</span> <span class="past-concepts">ルール・オブ・ファイブ, ムーブコンストラクタの宣言, 削除されたコピーコンストラクタ, initializer_list, rule of five, deleted copy constructor, std::initializer_list, move-only type</span></li>
     <li><a href="/cpp/write/2026-10-03">C++ / WRITE · 2026-10-03</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">先頭と等しい値を消す</span> <span class="past-concepts">std::eraseと参照, auto{x}, 値のコピー, decay-copy, std::erase with element reference, auto(x) prvalue copy</span></li>
     <li><a href="/cpp/read/2026-10-03">C++ / READ · 2026-10-03</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">autoと波括弧とvector</span> <span class="past-concepts">auto x = {3}, auto y{3}, initializer_listの推論, vectorの丸括弧と波括弧, auto deduction from braced-init-list, std::initializer_list constructor</span></li>
     <li><a href="/cpp/debug/2026-10-03">C++ / DEBUG · 2026-10-03</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">連番のポートを返す</span> <span class="past-concepts">initializer_listを返す, 背後の配列の寿命, auto x = {}, dangling initializer_list, backing array lifetime</span></li>

@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="new[] で確保した配列を持つクラスに、ムーブコンストラクタを書きます。配列の持ち主を移し、ムーブ元を要素数0の空の状態に残して、両方のデストラクタが安全に走るようにします。2026-11-25のC++ WRITE。">
+<title>配列を手放すムーブ</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-11-25">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-25" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-11-25",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-11-25",
+      "datePublished": "2026-11-25",
+      "dateModified": "2026-11-25",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "配列を手放すムーブ" },
+      "keywords": "move-semantics, constructor, raii, destructor",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "new[] で確保した配列を持つクラスに、ムーブコンストラクタを書きます。配列の持ち主を移し、ムーブ元を要素数0の空の状態に残して、両方のデストラクタが安全に走るようにします。2026-11-25のC++ WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-25">C23</a>
+  <a href="/cpp/write/2026-11-25" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-11-25">Rust 2024</a>
+  <a href="/haskell/write/2026-11-25">Haskell 2010</a>
+  <a href="/zig/write/2026-11-25">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-25">READ</a>
+  <a href="/cpp/write/2026-11-25" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-11-25">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="配列を手放すムーブ"
+  data-tags="move-semantics constructor raii destructor"
+  data-concepts="ムーブコンストラクタ, 所有権の移動, ムーブ元の状態, std::exchange, ルール・オブ・ファイブ, move constructor, moved-from state, rule of five"
+  data-level="peacock"
+>
+  <h2>2026-11-25</h2>
+  <div class="code-frame">
+    <p class="code-filename">int_buf.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;cstddef&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">class</span> <span class="ty">IntBuf</span> {</span>
+<span class="code-line">    std::<span class="ty">size_t</span> n;</span>
+<span class="code-line">    <span class="ty">int</span>* p;</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">public</span>:</span>
+<span class="code-line">    <span class="kw">explicit</span> <span class="fn">IntBuf</span>(std::<span class="ty">size_t</span> n)</span>
+<span class="code-line">        : <span class="fn">n</span>(n), <span class="fn">p</span>(<span class="kw">new</span> <span class="ty">int</span>[n]{}) {}</span>
+<span class="code-line">    <span class="fn">IntBuf</span>(<span class="ty">IntBuf</span>&amp;&amp; o) <span class="kw">noexcept</span>;</span>
+<span class="code-line">    ~<span class="fn">IntBuf</span>() {</span>
+<span class="code-line">        <span class="kw">delete</span>[] p;</span>
+<span class="code-line">    }</span>
+<span class="code-line">    std::<span class="ty">size_t</span> <span class="fn">size</span>() <span class="kw">const</span> {</span>
+<span class="code-line">        <span class="kw">return</span> n;</span>
+<span class="code-line">    }</span>
+<span class="code-line">};</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">IntBuf</span>::<span class="fn">IntBuf</span>(<span class="ty">IntBuf</span>&amp;&amp; o) <span class="kw">noexcept</span> {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>IntBuf</code> は、要素数 <code>n</code> の <code>int</code> の配列を <code>new[]</code> で確保して持つクラスです。このクラスのムーブコンストラクタを書いてください。<code>o</code> が持っていた配列を、新しい配列を確保せずに新しいオブジェクトへ移し、<code>o</code> は要素数 0 のオブジェクトとして残します。要素数 0 の <code>IntBuf</code> をムーブしたときも同じです。例では、入力のコードを実行したあとの <code>a.size()</code> と <code>b.size()</code> をこの順に書きます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>IntBuf a(3); IntBuf b(std::move(a));</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>0 3</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>IntBuf a(0); IntBuf b(std::move(a));</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>0 0</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;cstddef&gt;</span></span>
+<span class="code-line ins"><span class="pp">#include</span> <span class="st">&lt;utility&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">class</span> <span class="ty">IntBuf</span> {</span>
+<span class="code-line">    std::<span class="ty">size_t</span> n;</span>
+<span class="code-line">    <span class="ty">int</span>* p;</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">public</span>:</span>
+<span class="code-line">    <span class="kw">explicit</span> <span class="fn">IntBuf</span>(std::<span class="ty">size_t</span> n)</span>
+<span class="code-line">        : <span class="fn">n</span>(n), <span class="fn">p</span>(<span class="kw">new</span> <span class="ty">int</span>[n]{}) {}</span>
+<span class="code-line">    <span class="fn">IntBuf</span>(<span class="ty">IntBuf</span>&amp;&amp; o) <span class="kw">noexcept</span>;</span>
+<span class="code-line">    ~<span class="fn">IntBuf</span>() {</span>
+<span class="code-line">        <span class="kw">delete</span>[] p;</span>
+<span class="code-line">    }</span>
+<span class="code-line">    std::<span class="ty">size_t</span> <span class="fn">size</span>() <span class="kw">const</span> {</span>
+<span class="code-line">        <span class="kw">return</span> n;</span>
+<span class="code-line">    }</span>
+<span class="code-line">};</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">IntBuf</span>::<span class="fn">IntBuf</span>(<span class="ty">IntBuf</span>&amp;&amp; o) <span class="kw">noexcept</span> {</span>
+<span class="code-line ins">    n = std::<span class="fn">exchange</span>(o.n, <span class="nu">0</span>);</span>
+<span class="code-line ins">    p = std::<span class="fn">exchange</span>(o.p, <span class="nu">nullptr</span>);</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        <code>std::exchange(o.p, nullptr)</code> は、<code>o.p</code> に <code>nullptr</code> を入れ、入れる前の値を返します。返ってきた元のポインタを <code>p</code> に受け取れば、配列の持ち主は新しいオブジェクトに移り、<code>o</code> はもう配列を指しません。要素数も同じように <code>o.n</code> から受け取り、<code>o.n</code> は 0 にします。掲載したのは参考実装で、唯一の正解ではありません。メンバ初期化子で <code>: n(o.n), p(o.p)</code> と受け取り、本体で <code>o.n = 0; o.p = nullptr;</code> と書いても同じです。
+      </p>
+      <p>
+        ポインタを写すだけで <code>o.p</code> を残すと、入力例1は <code>3 3</code> を出したあとで壊れます。ムーブされた <code>a</code> も、スコープを抜けるときにはデストラクタが呼ばれるからです。<code>a</code> と <code>b</code> の両方が同じ配列を <code>delete[]</code> して、二重解放になります。<code>o.p</code> を <code>nullptr</code> にしておけば、<code>a</code> のデストラクタの <code>delete[] nullptr</code> は何もしません。入力例2の要素数 0 でも、<code>new int[0]{}</code> が返すのは null でない有効なポインタで、<code>delete[]</code> で解放する必要があります。そのため要素数 0 のときも、ポインタを移して <code>o.p</code> を <code>nullptr</code> にする手順は変わりません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
