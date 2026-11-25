@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="コマンドライン引数に指定のオプションがあるかを strcmp で調べる関数が、あるときに false、ないときに true を返します。strcmp の戻り値の意味を確かめて直します。2026-11-26のC DEBUG。">
+<title>strcmpの0は一致</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-11-26">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-26" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-11-26",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-11-26",
+      "datePublished": "2026-11-26",
+      "dateModified": "2026-11-26",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "strcmpの0は一致" },
+      "keywords": "command-line-argument, string, comparison",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "コマンドライン引数に指定のオプションがあるかを strcmp で調べる関数が、あるときに false、ないときに true を返します。strcmp の戻り値の意味を確かめて直します。2026-11-26のC DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-26" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-11-26">C++26</a>
+  <a href="/rust/debug/2026-11-26">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-26">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-26">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-26">READ</a>
+  <a href="/c/write/2026-11-26">WRITE</a>
+  <a href="/c/debug/2026-11-26" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="strcmpの0は一致"
+  data-tags="command-line-argument string comparison"
+  data-concepts="strcmpの戻り値, 文字列の比較, オプションの有無, strcmp returns zero on match, string comparison, argv option check"
+  data-level="hedgehog"
+>
+  <h2>2026-11-26</h2>
+  <div class="code-frame">
+    <p class="code-filename">has_opt.c</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;string.h&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">bool</span> <span class="fn">has_opt</span>(<span class="ty">char</span>* argv[], <span class="kw">const</span> <span class="ty">char</span>* opt) {</span>
+<span class="code-line">    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">1</span>; argv[i]; i++) {</span>
+<span class="code-line">        <span class="kw">if</span> (<span class="fn">strcmp</span>(argv[i], opt)) {</span>
+<span class="code-line">            <span class="kw">return</span> <span class="nu">true</span>;</span>
+<span class="code-line">        }</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="kw">return</span> <span class="nu">false</span>;</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {</span>
+<span class="code-line">    <span class="ty">char</span>* v[] = {<span class="st">"prog"</span>, <span class="st">"-q"</span>, <span class="nu">NULL</span>};</span>
+<span class="code-line">    <span class="fn">printf</span>(<span class="st">"%d\n"</span>, <span class="fn">has_opt</span>(v, <span class="st">"-q"</span>));</span>
+<span class="code-line">    <span class="fn">printf</span>(<span class="st">"%d\n"</span>, <span class="fn">has_opt</span>(v, <span class="st">"-x"</span>));</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>has_opt</code> は、<code>argv</code> の <code>argv[1]</code> 以降に <code>opt</code> と同じ文字列があるかを返すつもりの関数です。<code>main</code> はコマンドライン <code>prog -q</code> に当たる配列を作り、<code>-q</code> と <code>-x</code> があるかを調べます。本来は <code>1</code> と <code>0</code> を1行ずつ出力するはずが、いまは <code>0</code> と <code>1</code> が出力されます。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del"><span class="kw">if</span> (<span class="fn">strcmp</span>(argv[i], opt)) {</span>
+<span class="code-line">    <span class="kw">return</span> <span class="nu">true</span>;</span>
+<span class="code-line">}</span>
+</code></pre>
+      <p>
+        <code>strcmp</code> は2つの文字列を比べ、等しければ 0 を、等しくなければ、どちらが辞書順で先かに応じて負か正の値を返します。<code>if</code> の条件は 0 なら偽、0 以外なら真なので、<code>if (strcmp(argv[i], opt))</code> が真になるのは文字列が違うときです。<code>-q</code> を探すと、<code>argv[1]</code> の <code>"-q"</code> とは等しいので条件は偽になり、ほかに要素はないので <code>false</code> を返して <code>0</code> と出ます。<code>-x</code> を探すと、<code>"-q"</code> と違うので条件が真になり、<code>true</code> を返して <code>1</code> と出ます。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins"><span class="kw">if</span> (<span class="fn">strcmp</span>(argv[i], opt) <span class="chg">== <span class="nu">0</span></span>) {</span>
+<span class="code-line">    <span class="kw">return</span> <span class="nu">true</span>;</span>
+<span class="code-line">}</span>
+</code></pre>
+      <p>
+        戻り値を 0 と比べれば、条件が真になるのは文字列が等しいときだけになります。<code>-q</code> は <code>argv[1]</code> と一致して <code>true</code>、<code>-x</code> はどの要素とも一致せずループを最後まで回って <code>false</code> を返すので、<code>1</code> と <code>0</code> が出力されます。直す前のコードは、引数が2つ以上あると <code>opt</code> と違う要素が1つでもあれば <code>true</code> を返すので、オプションがあってもなくてもたいてい <code>true</code> になっていました。<code>== 0</code> を書いておけば、引数の数によらず一致したときだけ <code>true</code> を返します<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li><code>strcmp</code> は真偽ではなく大小を返すので、<code>qsort</code> に渡す比較関数の中でもそのまま使えます。C の規格は、等しくないときの値を負か正かだけ定めていて、-1 や 1 になるとは限りません。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

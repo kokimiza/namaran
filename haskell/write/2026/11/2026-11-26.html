@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="小さい順に並んだリストから、どの節でも左右の部分木の要素数の差が 1 以下になる二分探索木を作る関数を書きます。整列済みの入力を1つずつ挿入すると偏る木を、偏らずに作ります。2026-11-26のHaskell WRITE。">
+<title>整列済みから釣り合う木</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-11-26">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-26" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-11-26",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-11-26",
+      "datePublished": "2026-11-26",
+      "dateModified": "2026-11-26",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "整列済みから釣り合う木" },
+      "keywords": "binary-search-tree, balanced-tree, recursion",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "小さい順に並んだリストから、どの節でも左右の部分木の要素数の差が 1 以下になる二分探索木を作る関数を書きます。整列済みの入力を1つずつ挿入すると偏る木を、偏らずに作ります。2026-11-26のHaskell WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-26">C23</a>
+  <a href="/cpp/write/2026-11-26">C++26</a>
+  <a href="/rust/write/2026-11-26">Rust 2024</a>
+  <a href="/haskell/write/2026-11-26" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/write/2026-11-26">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-26">READ</a>
+  <a href="/haskell/write/2026-11-26" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-11-26">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="整列済みから釣り合う木"
+  data-tags="binary-search-tree balanced-tree recursion"
+  data-concepts="二分探索木, 整列済みリストからの構築, 平衡な木, 中央の要素を根に, balanced BST from sorted list, splitAt, recursion"
+  data-level="hedgehog"
+>
+  <h2>2026-11-26</h2>
+  <div class="code-frame">
+    <p class="code-filename">FromSorted.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">data</span> <span class="ty">Tree</span> = <span class="ty">Leaf</span> | <span class="ty">Node</span> <span class="ty">Tree</span> <span class="ty">Int</span> <span class="ty">Tree</span></span>
+<span class="code-line">  <span class="kw">deriving</span> (<span class="ty">Show</span>)</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">fromSorted</span> <span class="op">::</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> <span class="ty">Tree</span></span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    小さい順に並んだ、重複のない <code>Int</code> のリストを受け取り、その要素をすべて持つ二分探索木を返す <code>fromSorted</code> を書いてください。どの節でも、左の部分木の要素は節の値より小さく、右の部分木の要素は大きくなるようにします。さらにどの節でも、左右の部分木の要素数の差を 0 か 1 にし、差が 1 のときは左を多くします。空のリストには <code>Leaf</code> を返します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>fromSorted [1, 2, 3]</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>Node (Node Leaf 1 Leaf) 2 (Node Leaf 3 Leaf)</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>fromSorted [1, 2]</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>Node (Node Leaf 1 Leaf) 2 Leaf</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>fromSorted []</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>Leaf</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="fn">fromSorted</span> <span class="op">::</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> <span class="ty">Tree</span></span>
+<span class="code-line ins"><span class="fn">fromSorted</span> xs =</span>
+<span class="code-line ins">  <span class="kw">case</span> splitAt (length xs `div` <span class="nu">2</span>) xs <span class="kw">of</span></span>
+<span class="code-line ins">    (l, v : r) <span class="op">-&gt;</span></span>
+<span class="code-line ins">      <span class="ty">Node</span> (fromSorted l) v (fromSorted r)</span>
+<span class="code-line ins">    (_, []) <span class="op">-&gt;</span> <span class="ty">Leaf</span></span>
+</code></pre>
+      </div>
+      <p>
+        要素数が <code>n</code> のリストを <code>splitAt (n `div` 2)</code> で分けると、前半の <code>l</code> は <code>n `div` 2</code> 個、後半はその次の要素 <code>v</code> から始まります。<code>v</code> を根にすると、左に <code>n `div` 2</code> 個、右に残りの <code>n - n `div` 2 - 1</code> 個が入り、この差は <code>n</code> が偶数なら 1(左が多い)、奇数なら 0 です。リストは小さい順なので、<code>l</code> の要素はすべて <code>v</code> より小さく、<code>r</code> の要素はすべて大きくなります。<code>l</code> と <code>r</code> にも同じ作り方を再帰的に使えば、どの節でも2つの条件が成り立ちます。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        入力例1の <code>[1, 2, 3]</code> は <code>([1], 2 : [3])</code> に分かれ、2 を根に 1 と 3 が左右に入ります。入力例2の <code>[1, 2]</code> は <code>([1], 2 : [])</code> に分かれ、左に1つ、右に0個です。空のリストは <code>splitAt 0 []</code> が <code>([], [])</code> を返し、2つ目の選択肢で <code>Leaf</code> になります。同じリストを先頭から1つずつ挿入すると、毎回最大の値を足すことになり、右にだけ伸びた高さ <code>n</code> の木ができます。この作り方なら高さはおよそ log<sub>2</sub> n で、値を探すときに比べる回数もその程度に収まります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

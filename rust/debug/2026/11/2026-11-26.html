@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Luhnアルゴリズムで番号の末尾に付けるチェックディジットを求める関数が、和が 10 の倍数のときに 0 ではなく 10 を返します。足りない分を求める式を直します。2026-11-26のRust DEBUG。">
+<title>足りない分が10になる</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/debug/2026-11-26">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / DEBUG", "item": "https://namaran.jocarium.productions/rust/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-26" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / DEBUG — 2026-11-26",
+      "url": "https://namaran.jocarium.productions/rust/debug/2026-11-26",
+      "datePublished": "2026-11-26",
+      "dateModified": "2026-11-26",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "足りない分が10になる" },
+      "keywords": "check-digit, division, modular-arithmetic, iterator",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "Luhnアルゴリズムで番号の末尾に付けるチェックディジットを求める関数が、和が 10 の倍数のときに 0 ではなく 10 を返します。足りない分を求める式を直します。2026-11-26のRust DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-26">C23</a>
+  <a href="/cpp/debug/2026-11-26">C++26</a>
+  <a href="/rust/debug/2026-11-26" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-26">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-26">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-26">READ</a>
+  <a href="/rust/write/2026-11-26">WRITE</a>
+  <a href="/rust/debug/2026-11-26" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="足りない分が10になる"
+  data-tags="check-digit division modular-arithmetic iterator"
+  data-concepts="Luhnアルゴリズム, チェックディジットの計算, 10から引く式, 剰余, Luhn check digit, remainder, off by ten"
+  data-level="peacock"
+>
+  <h2>2026-11-26</h2>
+  <div class="code-frame">
+    <p class="code-filename">check_digit.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">check_digit</span>(payload: &amp;<span class="ty">str</span>) -&gt; <span class="ty">u32</span> {</span>
+<span class="code-line">    <span class="kw">let</span> s: <span class="ty">u32</span> = payload</span>
+<span class="code-line">        .<span class="fn">chars</span>()</span>
+<span class="code-line">        .<span class="fn">rev</span>()</span>
+<span class="code-line">        .<span class="fn">enumerate</span>()</span>
+<span class="code-line">        .<span class="fn">map</span>(|(i, c)| {</span>
+<span class="code-line">            <span class="kw">let</span> d = c.<span class="fn">to_digit</span>(<span class="nu">10</span>).<span class="fn">unwrap</span>();</span>
+<span class="code-line">            <span class="kw">let</span> x = d * (<span class="nu">2</span> - i <span class="kw">as</span> <span class="ty">u32</span> % <span class="nu">2</span>);</span>
+<span class="code-line">            x / <span class="nu">10</span> + x % <span class="nu">10</span></span>
+<span class="code-line">        })</span>
+<span class="code-line">        .<span class="fn">sum</span>();</span>
+<span class="code-line">    <span class="nu">10</span> - s % <span class="nu">10</span></span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="kw">let</span> a = <span class="fn">check_digit</span>(<span class="st">"7992739871"</span>);</span>
+<span class="code-line">    <span class="mc">println!</span>(<span class="st">"{a} {}"</span>, <span class="fn">check_digit</span>(<span class="st">"123"</span>));</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>check_digit</code> は、番号 <code>payload</code> の末尾に付け足すと番号全体が次の検査に通るような1桁の数字を返すつもりの関数です。検査では、番号の右端の数字を 1 番目として右から数え、偶数番目の数字は2倍して、2倍した値が2桁なら十の位と一の位を足します。奇数番目の数字はそのままにして、すべてを足した和が 10 で割り切れれば通ります。<code>main</code> は <code>"7992739871"</code> と <code>"123"</code> に付ける数字を表示します。本来は <code>3 0</code> と出力するはずが、いまは <code>3 10</code> と出力されます。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del"><span class="nu">10</span> - s % <span class="nu">10</span></span>
+</code></pre>
+      <p>
+        付け足す数字は、付け足す前の番号の右端から 0 番目、1 番目と数えたとき、偶数番目の数字を2倍します。付け足した数字が新しい右端の 1 番目になり、元の数字はすべて1つずつ左へずれるからです。<code>x</code> を求める <code>2 - i as u32 % 2</code> はこのずれを表していて、<code>s</code> は付け足す前の数字の和として合っています。誤りは最後の1行です。付け足す数字は、<code>s</code> に足すと 10 で割り切れるようになる 0 から 9 の数です。<code>s % 10</code> が 1 から 9 なら <code>10 - s % 10</code> がその数ですが、<code>s % 10</code> が 0 なら足りない分はなく、付け足す数字は 0 です。<code>"123"</code> は、<code>3</code> を2倍して 6、<code>2</code> はそのまま 2、<code>1</code> を2倍して 2 で、<code>s</code> は 10 です。<code>10 - 0</code> で 10 が返り、1桁の数字ではない値を番号に付け足すことになります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins"><span class="chg">(</span><span class="nu">10</span> - s % <span class="nu">10</span><span class="chg">) % <span class="nu">10</span></span></span>
+</code></pre>
+      <p>
+        <code>10 - s % 10</code> は 1 から 10 の値を取り、10 になるのは <code>s</code> が 10 の倍数のときだけです。その結果をもう一度 10 で割った余りにすると、1 から 9 は変わらず、10 だけが 0 になります。<code>"7992739871"</code> は <code>s</code> が 67 で 3 のまま、<code>"123"</code> は 0 になり、<code>1230</code> は検査に通ります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/debug">Today</a></li>
+    <li><a href="/rust/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

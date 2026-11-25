@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="二分探索木の偏りを高さで比べるつもりの関数が、偏った木と釣り合った木に同じ値を返します。高さの再帰的な定義を思い出して直します。2026-11-26のHaskell DEBUG。">
+<title>高さのつもりが節の数</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-11-26">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-26" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-11-26",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-11-26",
+      "datePublished": "2026-11-26",
+      "dateModified": "2026-11-26",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "高さのつもりが節の数" },
+      "keywords": "binary-search-tree, recursion, tree, balanced-tree",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "二分探索木の偏りを高さで比べるつもりの関数が、偏った木と釣り合った木に同じ値を返します。高さの再帰的な定義を思い出して直します。2026-11-26のHaskell DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-26">C23</a>
+  <a href="/cpp/debug/2026-11-26">C++26</a>
+  <a href="/rust/debug/2026-11-26">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-26" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-26">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-26">READ</a>
+  <a href="/haskell/write/2026-11-26">WRITE</a>
+  <a href="/haskell/debug/2026-11-26" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="高さのつもりが節の数"
+  data-tags="binary-search-tree recursion tree balanced-tree"
+  data-concepts="木の高さ, 節の数, 再帰, 偏った二分探索木, tree height, tree size, recursion, degenerate tree"
+  data-level="hedgehog"
+>
+  <h2>2026-11-26</h2>
+  <div class="code-frame">
+    <p class="code-filename">Height.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">data</span> <span class="ty">Tree</span> = <span class="ty">Leaf</span> | <span class="ty">Node</span> <span class="ty">Tree</span> <span class="ty">Int</span> <span class="ty">Tree</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">height</span> <span class="op">::</span> <span class="ty">Tree</span> <span class="op">-&gt;</span> <span class="ty">Int</span></span>
+<span class="code-line"><span class="fn">height</span> <span class="ty">Leaf</span> = <span class="nu">0</span></span>
+<span class="code-line"><span class="fn">height</span> (<span class="ty">Node</span> l _ r) = <span class="nu">1</span> + height l + height r</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">leaf</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Tree</span></span>
+<span class="code-line"><span class="fn">leaf</span> x = <span class="ty">Node</span> <span class="ty">Leaf</span> x <span class="ty">Leaf</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">skewed</span> <span class="op">::</span> <span class="ty">Tree</span></span>
+<span class="code-line"><span class="fn">skewed</span> = <span class="ty">Node</span> <span class="ty">Leaf</span> <span class="nu">1</span> (<span class="ty">Node</span> <span class="ty">Leaf</span> <span class="nu">2</span> (leaf <span class="nu">3</span>))</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">balanced</span> <span class="op">::</span> <span class="ty">Tree</span></span>
+<span class="code-line"><span class="fn">balanced</span> = <span class="ty">Node</span> (leaf <span class="nu">1</span>) <span class="nu">2</span> (leaf <span class="nu">3</span>)</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()</span>
+<span class="code-line"><span class="fn">main</span> = print (height skewed, height balanced)</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>height</code> は、根から葉までのいちばん長い道にある節の数を返すつもりの関数で、整列済みの順に挿入して右にだけ伸びた木 <code>skewed</code> と、釣り合った木 <code>balanced</code> を比べるのに使います。どちらも 1、2、3 の3つを持ちます。<code>main</code> を実行すると、本来は <code>(3,2)</code> と出力するはずが、いまは <code>(3,3)</code> と出力され、2つの木の違いが見えません。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del"><span class="fn">height</span> (<span class="ty">Node</span> l _ r) = <span class="chg"><span class="nu">1</span> + height l + height r</span></span>
+</code></pre>
+      <p>
+        この式は、左の部分木と右の部分木の値を両方足しています。<code>Leaf</code> が 0 で、節ごとに 1 を足して左右の結果を合計するので、返るのは木の中の節の総数です。<code>skewed</code> は節が一列に並んでいるので節の数と高さがどちらも 3 で、たまたま正しい値になります。<code>balanced</code> は根の左右に1つずつ節があり、<code>1 + 1 + 1</code> で 3 を返しますが、根から葉までの道にある節は2つです。節が同じ数なら、どんな形の木でも同じ値が返ります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins"><span class="fn">height</span> (<span class="ty">Node</span> l _ r) =</span>
+<span class="code-line ins">  <span class="nu">1</span> + max (height l) (height r)</span>
+</code></pre>
+      <p>
+        根から葉までのいちばん長い道は、根から左右どちらかの部分木へ下りて、その中でいちばん長い道をたどるものです。だから高さは、左右の部分木の高さのうち大きいほうに、根の分の 1 を足した値になります。<code>balanced</code> では左右がどちらも 1 なので 2、<code>skewed</code> では左が 0、右が 2 なので 3 になり、<code>(3,2)</code> が出力されます。要素が n 個のとき、右にだけ伸びた木の高さは n、釣り合った木ではおよそ log<sub>2</sub> n で、値を探すときに比べる回数はこの高さで決まります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

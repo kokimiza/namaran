@@ -459,6 +459,7 @@ type-conversion	型変換
 type-deduction	型推論
 type-defaulting	デフォルティング
 type-erasure	型消去
+type-inference	型推論
 type-punning	型の読み替え
 type-synonym	型シノニム
 typeclass	型クラス

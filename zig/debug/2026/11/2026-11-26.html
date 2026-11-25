@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="設定を変更する前の状態を const before = &amp;cfg; で残したつもりが、変更を見つけられません。&amp; で取ったポインタが写しではなく場所を指すことを確かめて直します。2026-11-26のZig DEBUG。">
+<title>ポインタで残した変更前</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/debug/2026-11-26">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / DEBUG", "item": "https://namaran.jocarium.productions/zig/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-26" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / DEBUG — 2026-11-26",
+      "url": "https://namaran.jocarium.productions/zig/debug/2026-11-26",
+      "datePublished": "2026-11-26",
+      "dateModified": "2026-11-26",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "ポインタで残した変更前" },
+      "keywords": "pointer, aliasing, struct, mutability",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "設定を変更する前の状態を const before = &cfg; で残したつもりが、変更を見つけられません。& で取ったポインタが写しではなく場所を指すことを確かめて直します。2026-11-26のZig DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-26">C23</a>
+  <a href="/cpp/debug/2026-11-26">C++26</a>
+  <a href="/rust/debug/2026-11-26">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-26">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-26" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-26">READ</a>
+  <a href="/zig/write/2026-11-26">WRITE</a>
+  <a href="/zig/debug/2026-11-26" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="ポインタで残した変更前"
+  data-tags="pointer aliasing struct mutability"
+  data-concepts="ポインタと値の写し, 変更前の状態の保存, 別名, const before = &cfg, pointer aliasing, snapshot copy, struct copy"
+  data-level="peacock"
+>
+  <h2>2026-11-26</h2>
+  <div class="code-frame">
+    <p class="code-filename">snapshot.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">const</span> <span class="ty">Config</span> = <span class="kw">struct</span> { port: <span class="ty">u16</span> };</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">apply</span>(cfg: *<span class="ty">Config</span>) <span class="ty">void</span> {</span>
+<span class="code-line">    cfg.port = <span class="nu">8080</span>;</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {</span>
+<span class="code-line">    <span class="kw">var</span> cfg = <span class="ty">Config</span>{ .port = <span class="nu">80</span> };</span>
+<span class="code-line">    <span class="kw">const</span> before = &amp;cfg;</span>
+<span class="code-line">    <span class="fn">apply</span>(&amp;cfg);</span>
+<span class="code-line">    <span class="kw">const</span> changed = before.port != cfg.port;</span>
+<span class="code-line">    <span class="kw">const</span> stdout = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>();</span>
+<span class="code-line">    <span class="kw">var</span> w = stdout.<span class="fn">writer</span>(init.io, &amp;.{});</span>
+<span class="code-line">    <span class="kw">const</span> out = &amp;w.interface;</span>
+<span class="code-line">    <span class="kw">try</span> out.<span class="fn">print</span>(<span class="st">"{}\n"</span>, .{changed});</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    このプログラムは、<code>apply</code> を呼ぶ前の設定を <code>before</code> に残しておき、呼んだあとの <code>cfg</code> と比べて、ポート番号が変わったかを表示するつもりのものです。<code>apply</code> はポートを 80 から 8080 に変えるので、本来は <code>true</code> と出力するはずが、いまは <code>false</code> と出力されます。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del"><span class="kw">const</span> before = <span class="chg">&amp;</span>cfg;</span>
+<span class="code-line"><span class="fn">apply</span>(&amp;cfg);</span>
+<span class="code-line"><span class="kw">const</span> changed = before.port != cfg.port;</span>
+</code></pre>
+      <p>
+        <code>&amp;cfg</code> は <code>cfg</code> の中身の写しではなく、<code>cfg</code> が置かれている場所を指すポインタです。<code>before</code> は <code>const</code> ですが、<code>const</code> が止めるのは <code>before</code> に別のポインタを入れ直すことだけで、指す先の <code>cfg</code> が書き換わるのは止めません。<code>apply(&amp;cfg)</code> がポートを 8080 にすると、<code>before.port</code> も同じ場所を読むので 8080 になります。8080 と 8080 を比べるので、<code>changed</code> はいつも <code>false</code> です。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins"><span class="kw">const</span> before = cfg;</span>
+<span class="code-line"><span class="fn">apply</span>(&amp;cfg);</span>
+<span class="code-line"><span class="kw">const</span> changed = before.port != cfg.port;</span>
+</code></pre>
+      <p>
+        構造体の値を代入すると、Zig はその時点の中身を写します。<code>const before = cfg;</code> の <code>before</code> は <code>cfg</code> とは別の場所にある <code>Config</code> で、そのあと <code>cfg</code> が書き換わっても 80 のまま残ります。8080 と 80 を比べて <code>true</code> が出力されます。<code>before.port</code> の読み方は、ポインタでも値でも同じ <code>.</code> で書けるので<sup class="fn-ref">1</sup>、<code>&amp;</code> を1文字消すだけで直ります。
+      </p>
+      <ol class="footnotes">
+        <li>Zig では、構造体へのポインタ <code>p</code> のフィールドを <code>p.*.port</code> と書かずに <code>p.port</code> と書けます。C の <code>-&gt;</code> と <code>.</code> のような書き分けがないので、比べる行を読んでも <code>before</code> がポインタか値かは見分けられません。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/debug">Today</a></li>
+    <li><a href="/zig/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

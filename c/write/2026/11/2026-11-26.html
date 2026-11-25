@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="-vv のようにまとめて書ける短いオプションと、値を同じ要素にも次の要素にも取れる -o、それに -- を扱いながら、コマンドライン引数から -v の数を数える関数を書きます。2026-11-26のC WRITE。">
+<title>まとめた短いオプション</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-11-26">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-26" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-11-26",
+      "url": "https://namaran.jocarium.productions/c/write/2026-11-26",
+      "datePublished": "2026-11-26",
+      "dateModified": "2026-11-26",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "まとめた短いオプション" },
+      "keywords": "command-line-argument, string, null-terminated-string, loop",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "-vv のようにまとめて書ける短いオプションと、値を同じ要素にも次の要素にも取れる -o、それに -- を扱いながら、コマンドライン引数から -v の数を数える関数を書きます。2026-11-26のC WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-26" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-11-26">C++26</a>
+  <a href="/rust/write/2026-11-26">Rust 2024</a>
+  <a href="/haskell/write/2026-11-26">Haskell 2010</a>
+  <a href="/zig/write/2026-11-26">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-26">READ</a>
+  <a href="/c/write/2026-11-26" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-11-26">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="まとめた短いオプション"
+  data-tags="command-line-argument string null-terminated-string loop"
+  data-concepts="短いオプションのまとめ書き, オプションの値, オプションの終わりを示す --, getoptの規則, argv parsing, grouped short options, option argument, end of options"
+  data-level="bison"
+>
+  <h2>2026-11-26</h2>
+  <div class="code-frame">
+    <p class="code-filename">verbosity.c</p>
+    <pre class="code"><code><span class="code-line"><span class="ty">int</span> <span class="fn">verbosity</span>(<span class="ty">int</span> argc, <span class="ty">char</span>* argv[]) {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    コマンドライン引数 <code>argc</code>・<code>argv</code> を受け取り、<code>-v</code> が何回指定されたかを返す <code>verbosity</code> を書いてください。<code>argv[0]</code> はプログラム名で、読むのは <code>argv[1]</code> からです。<code>-</code> で始まる要素はオプションで、オプションの文字は <code>v</code> と <code>o</code> だけとします。1つの <code>-</code> のあとに文字を続けて <code>-vv</code> のようにまとめて書けます。<code>o</code> は値を1つ取り、同じ要素の中で <code>o</code> のあとに文字が続けばその残りが、続かなければ次の要素が値です。値になった部分は、<code>-</code> で始まっていてもオプションとしては読みません。<code>-</code> で始まらない要素は読み飛ばし、ちょうど <code>--</code> の要素があれば、それより後ろは何も読みません。例では、プログラムに渡したコマンドラインをそのまま書きます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>prog -vv -ov x -v</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>3</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>prog -vo -v</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>1</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>prog -- -v</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="ty">int</span> <span class="fn">verbosity</span>(<span class="ty">int</span> argc, <span class="ty">char</span>* argv[]) {</span>
+<span class="code-line ins">    <span class="ty">int</span> v = <span class="nu">0</span>;</span>
+<span class="code-line ins">    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">1</span>; i &lt; argc; i++) {</span>
+<span class="code-line ins">        <span class="kw">const</span> <span class="ty">char</span>* a = argv[i];</span>
+<span class="code-line ins">        <span class="kw">if</span> (<span class="fn">strcmp</span>(a, <span class="st">"--"</span>) == <span class="nu">0</span>) {</span>
+<span class="code-line ins">            <span class="kw">break</span>;</span>
+<span class="code-line ins">        }</span>
+<span class="code-line ins">        <span class="kw">if</span> (a[<span class="nu">0</span>] != <span class="st">'-'</span>) {</span>
+<span class="code-line ins">            <span class="kw">continue</span>;</span>
+<span class="code-line ins">        }</span>
+<span class="code-line ins">        <span class="kw">for</span> (<span class="ty">int</span> k = <span class="nu">1</span>; a[k]; k++) {</span>
+<span class="code-line ins">            <span class="kw">if</span> (a[k] == <span class="st">'v'</span>) {</span>
+<span class="code-line ins">                v++;</span>
+<span class="code-line ins">            } <span class="kw">else</span> <span class="kw">if</span> (a[k] == <span class="st">'o'</span>) {</span>
+<span class="code-line ins">                <span class="kw">if</span> (a[k + <span class="nu">1</span>] == <span class="st">'\0'</span>) {</span>
+<span class="code-line ins">                    i++;</span>
+<span class="code-line ins">                }</span>
+<span class="code-line ins">                <span class="kw">break</span>;</span>
+<span class="code-line ins">            }</span>
+<span class="code-line ins">        }</span>
+<span class="code-line ins">    }</span>
+<span class="code-line ins">    <span class="kw">return</span> v;</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        外側のループが要素を1つずつ、内側のループが1つの要素の中の文字を1つずつ読みます。<code>--</code> を見たら外側のループを抜け、<code>-</code> で始まらない要素は内側に入らずに飛ばします。内側のループは <code>v</code> を見るたびに数え、<code>o</code> を見たらそこで止まります。<code>o</code> のあとにまだ文字があれば、それは値なので、同じ要素の残りを読まずに次の要素へ進みます。<code>o</code> がその要素の最後の文字なら、値は次の要素なので <code>i++</code> で1つ飛ばし、外側の <code>i++</code> と合わせて値の次の要素から読み直します。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        入力例1では、<code>-ov</code> の <code>v</code> は <code>o</code> の値なので数えません。値を同じ要素から取ったので、次の <code>x</code> は値にはならず、<code>-</code> で始まらない要素として読み飛ばされます。<code>-vv</code> の2つと最後の <code>-v</code> を合わせて 3 です。入力例2の <code>-vo</code> は、<code>v</code> を数えたあと <code>o</code> が要素の最後なので次の <code>-v</code> を値として飲み込み、1 になります。<code>-</code> で始まる要素をすべてオプションとして数える実装はここで 2 を返します。入力例3は <code>--</code> で読むのを止めるので 0 です。<code>argc</code> が 1 のときは外側のループに一度も入らず、0 を返します。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

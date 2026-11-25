@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="番号の数字を左から1度だけ読めるイテレータで受け取り、桁数を知らないまま、数字を溜めずにLuhnアルゴリズムの検査をする関数を書きます。2026-11-26のRust WRITE。">
+<title>左から1度だけ読むLuhn</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-11-26">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-26" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-11-26",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-11-26",
+      "datePublished": "2026-11-26",
+      "dateModified": "2026-11-26",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "左から1度だけ読むLuhn" },
+      "keywords": "check-digit, iterator, fold",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "番号の数字を左から1度だけ読めるイテレータで受け取り、桁数を知らないまま、数字を溜めずにLuhnアルゴリズムの検査をする関数を書きます。2026-11-26のRust WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-26">C23</a>
+  <a href="/cpp/write/2026-11-26">C++26</a>
+  <a href="/rust/write/2026-11-26" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-11-26">Haskell 2010</a>
+  <a href="/zig/write/2026-11-26">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-26">READ</a>
+  <a href="/rust/write/2026-11-26" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-11-26">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="左から1度だけ読むLuhn"
+  data-tags="check-digit iterator fold"
+  data-concepts="Luhnアルゴリズム, チェックディジット, 1パスの検査, foldで2つの和を持つ, Luhn algorithm, single pass, streaming validation"
+  data-level="whale"
+>
+  <h2>2026-11-26</h2>
+  <div class="code-frame">
+    <p class="code-filename">one_pass.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">is_valid</span>(</span>
+<span class="code-line">    digits: <span class="kw">impl</span> <span class="ty">Iterator</span>&lt;<span class="ty">Item</span> = <span class="ty">u32</span>&gt;,</span>
+<span class="code-line">) -&gt; <span class="ty">bool</span> {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    クレジットカードなどの番号は、次の検査で打ち間違いを見つけます。番号の右端の数字を 1 番目として右から数え、偶数番目の数字は2倍し、2倍した値が2桁なら十の位と一の位を足して1桁にします。奇数番目の数字はそのままにして、これらをすべて足した和が 10 で割り切れれば、番号は正しいとします。番号の数字を左から順に出す <code>digits</code> を受け取り、番号が正しいかを返す <code>is_valid</code> を書いてください。<code>digits</code> は前から1度しか読めず、数字がいくつあるかは読み終えるまで分かりません。使うメモリは数字の個数によらず一定にし、数字を <code>Vec</code> などに溜めないでください。数字は1つ以上あります。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>is_valid([1, 8].into_iter())</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>true</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>is_valid([8, 1].into_iter())</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>false</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>is_valid([0].into_iter())</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>true</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">is_valid</span>(</span>
+<span class="code-line">    digits: <span class="kw">impl</span> <span class="ty">Iterator</span>&lt;<span class="ty">Item</span> = <span class="ty">u32</span>&gt;,</span>
+<span class="code-line">) -&gt; <span class="ty">bool</span> {</span>
+<span class="code-line ins">    <span class="kw">let</span> (plain, _) = digits.<span class="fn">fold</span>(</span>
+<span class="code-line ins">        (<span class="nu">0</span>, <span class="nu">0</span>),</span>
+<span class="code-line ins">        |(plain, twice), d| {</span>
+<span class="code-line ins">            <span class="kw">let</span> x = <span class="nu">2</span> * d;</span>
+<span class="code-line ins">            (</span>
+<span class="code-line ins">                twice + d,</span>
+<span class="code-line ins">                plain + x / <span class="nu">10</span> + x % <span class="nu">10</span>,</span>
+<span class="code-line ins">            )</span>
+<span class="code-line ins">        },</span>
+<span class="code-line ins">    );</span>
+<span class="code-line ins">    plain % <span class="nu">10</span> == <span class="nu">0</span></span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        どの数字を2倍するかは右端から数えた位置で決まるので、左から読んでいる途中では、いま読んだ数字を2倍すべきかが分かりません。そこで、いま読んだ数字が右端になる場合の和を2通り持ち続けます。<code>plain</code> は、最後に読んだ数字をそのまま足す数え方の和で、番号がここで終われば、これが検査に使う和です。<code>twice</code> は、最後に読んだ数字を2倍する数え方の和で、後ろに続く数字が奇数個のときに正しい和になります。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        新しい数字 <code>d</code> を読むと、それまでの数字はすべて右へ1つずれ、奇数番目と偶数番目が入れ替わります。<code>d</code> がそのまま足される新しい <code>plain</code> は、直前の数字が2倍される側の和 <code>twice</code> に <code>d</code> を足したもので、<code>d</code> が2倍される新しい <code>twice</code> は、直前の数字がそのまま足される側の和 <code>plain</code> に <code>d</code> を2倍した値の位の和を足したものです。2つの和を入れ替えながら足していくので、読み終えた時点の <code>plain</code> が、最後に読んだ数字を右端とした正しい和になります。持つのは整数2つだけなので、メモリは数字の個数によりません。
+      </p>
+      <p>
+        入力例1では、<code>1</code> を読んで <code>(plain, twice)</code> が <code>(1, 2)</code> になり、<code>8</code> を読むと <code>plain</code> は 2 + 8 = 10、<code>twice</code> は 1 + 7 = 8 です。<code>plain</code> が 10 なので <code>true</code> を返します。入力例2は <code>8</code> で <code>(8, 7)</code>、<code>1</code> で <code>plain</code> が 7 + 1 = 8 になり、<code>false</code> です。数字が1つだけの入力例3は、最初の数字がそのまま足されて <code>plain</code> が 0 になり、<code>true</code> を返します。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

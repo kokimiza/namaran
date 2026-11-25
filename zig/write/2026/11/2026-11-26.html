@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="[]i32 のスライスを受け取り、上限より大きい要素をその場で上限に書き換える関数を書きます。for のキャプチャで要素を書き換える書き方を確かめます。2026-11-26のZig WRITE。">
+<title>スライスの要素を上限で切る</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/write/2026-11-26">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / WRITE", "item": "https://namaran.jocarium.productions/zig/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-26" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / WRITE — 2026-11-26",
+      "url": "https://namaran.jocarium.productions/zig/write/2026-11-26",
+      "datePublished": "2026-11-26",
+      "dateModified": "2026-11-26",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "スライスの要素を上限で切る" },
+      "keywords": "slice, capture, pointer, mutability",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "[]i32 のスライスを受け取り、上限より大きい要素をその場で上限に書き換える関数を書きます。for のキャプチャで要素を書き換える書き方を確かめます。2026-11-26のZig WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-26">C23</a>
+  <a href="/cpp/write/2026-11-26">C++26</a>
+  <a href="/rust/write/2026-11-26">Rust 2024</a>
+  <a href="/haskell/write/2026-11-26">Haskell 2010</a>
+  <a href="/zig/write/2026-11-26" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-26">READ</a>
+  <a href="/zig/write/2026-11-26" class="active" aria-current="page">WRITE</a>
+  <a href="/zig/debug/2026-11-26">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="スライスの要素を上限で切る"
+  data-tags="slice capture pointer mutability"
+  data-concepts="forのポインタキャプチャ, |*x|, スライスの要素の書き換え, 上限で切る, pointer capture, mutable slice, clamp in place"
+  data-level="hedgehog"
+>
+  <h2>2026-11-26</h2>
+  <div class="code-frame">
+    <p class="code-filename">cap_all.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">capAll</span>(xs: []<span class="ty">i32</span>, limit: <span class="ty">i32</span>) <span class="ty">void</span> {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>xs</code> の要素のうち <code>limit</code> より大きいものを <code>limit</code> に書き換える <code>capAll</code> を書いてください。<code>limit</code> 以下の要素はそのまま残し、新しい配列は作らずに <code>xs</code> の要素を直接書き換えます。<code>xs</code> が空なら何もしません。例では、呼ぶ前の配列 <code>xs</code> の宣言と呼び出しを入力に、呼んだあとの <code>xs</code> の中身を出力に書きます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>var xs = [_]i32{ 3, 9, 5 };
+capAll(&amp;xs, 5);</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>{ 3, 5, 5 }</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>var xs = [_]i32{ -2, 8 };
+capAll(&amp;xs, -1);</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>{ -2, -1 }</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>var xs = [_]i32{};
+capAll(&amp;xs, 0);</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>{  }</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">capAll</span>(xs: []<span class="ty">i32</span>, limit: <span class="ty">i32</span>) <span class="ty">void</span> {</span>
+<span class="code-line ins">    <span class="kw">for</span> (xs) |*x| {</span>
+<span class="code-line ins">        <span class="kw">if</span> (x.* &gt; limit) x.* = limit;</span>
+<span class="code-line ins">    }</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        <code>for (xs) |x|</code> と書くと、<code>x</code> は要素の値の写しで、しかも <code>const</code> なので代入できません。要素そのものを書き換えるには、<code>|*x|</code> と書いて要素へのポインタを受け取ります。<code>xs</code> は <code>[]i32</code> で要素を書き換えられるスライスなので、<code>x</code> の型は <code>*i32</code> になり、<code>x.*</code> で読み書きできます。<code>limit</code> を超えた要素だけに <code>limit</code> を書き込めば、ほかの要素はそのまま残ります。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        入力例1では 9 だけが 5 を超えるので、<code>{ 3, 5, 5 }</code> になります。入力例2の上限は -1 で、-2 は残り、8 が -1 になります。空のスライスではループの本体が一度も実行されず、何も書き換えません。<code>&amp;xs</code> の型は配列へのポインタ <code>*[3]i32</code> で、要素の数を持っているので、そのまま <code>[]i32</code> の引数に渡せます。仮引数を <code>[]const i32</code> にすると、要素へのポインタも <code>*const i32</code> になり、<code>x.* = limit</code> がコンパイルエラーになります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/write">Today</a></li>
+    <li><a href="/zig/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

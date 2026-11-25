@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Luhnアルゴリズムの和を、rev・enumerate・filter_map をつないだイテレータで求めます。空白を含む番号で、enumerate が振る位置と ? で捨てた文字がどう関わるかを読みます。2026-11-26のRust READ。">
+<title>空白も数える位置</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-11-26">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / READ", "item": "https://namaran.jocarium.productions/rust/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-26" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / READ — 2026-11-26",
+      "url": "https://namaran.jocarium.productions/rust/read/2026-11-26",
+      "datePublished": "2026-11-26",
+      "dateModified": "2026-11-26",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "空白も数える位置" },
+      "keywords": "iterator, check-digit, closure, optional",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "Luhnアルゴリズムの和を、rev・enumerate・filter_map をつないだイテレータで求めます。空白を含む番号で、enumerate が振る位置と ? で捨てた文字がどう関わるかを読みます。2026-11-26のRust READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-26">C23</a>
+  <a href="/cpp/read/2026-11-26">C++26</a>
+  <a href="/rust/read/2026-11-26" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/read/2026-11-26">Haskell 2010</a>
+  <a href="/zig/read/2026-11-26">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-26" class="active" aria-current="page">READ</a>
+  <a href="/rust/write/2026-11-26">WRITE</a>
+  <a href="/rust/debug/2026-11-26">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="空白も数える位置"
+  data-tags="iterator check-digit closure optional"
+  data-concepts="Luhnアルゴリズム, enumerateとfilter_mapの順序, クロージャの中の?, 右から数えた位置, Luhn algorithm, iterator adapter order, question mark in closure"
+  data-level="bison"
+>
+  <h2>2026-11-26</h2>
+  <div class="code-frame">
+    <p class="code-filename">spaced.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">luhn</span>(s: &amp;<span class="ty">str</span>) -&gt; <span class="ty">u32</span> {</span>
+<span class="code-line">    s.<span class="fn">chars</span>()</span>
+<span class="code-line">        .<span class="fn">rev</span>()</span>
+<span class="code-line">        .<span class="fn">enumerate</span>()</span>
+<span class="code-line">        .<span class="fn">filter_map</span>(|(i, c)| {</span>
+<span class="code-line">            <span class="kw">let</span> d = c.<span class="fn">to_digit</span>(<span class="nu">10</span>)?;</span>
+<span class="code-line">            <span class="kw">let</span> x = d * (<span class="nu">1</span> + i <span class="kw">as</span> <span class="ty">u32</span> % <span class="nu">2</span>);</span>
+<span class="code-line">            <span class="fn">Some</span>(x / <span class="nu">10</span> + x % <span class="nu">10</span>)</span>
+<span class="code-line">        })</span>
+<span class="code-line">        .<span class="fn">sum</span>()</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">fn</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="kw">let</span> a = <span class="fn">luhn</span>(<span class="st">"59"</span>);</span>
+<span class="code-line">    <span class="kw">let</span> b = <span class="fn">luhn</span>(<span class="st">"5 9"</span>);</span>
+<span class="code-line">    <span class="mc">println!</span>(<span class="st">"{a} {b}"</span>);</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>10 14
+</samp></pre>
+      </div>
+      <p>
+        <code>luhn</code> は、番号の数字を右から数えて、偶数番目(0 から数える)の数字はそのまま、奇数番目の数字は2倍してから、それぞれの位の和を足し合わせます。<code>x</code> は <code>i</code> が奇数のとき <code>2 * d</code>、偶数のとき <code>d</code> で、<code>x / 10 + x % 10</code> はその十の位と一の位の和です。どの数字が2倍されるかは <code>i</code> で決まり、<code>i</code> を振るのは <code>enumerate</code> です。<code>rev</code> のあとに <code>enumerate</code> があるので、<code>i</code> は文字列の右端の文字から 0, 1, 2 と振られます。
+      </p>
+      <p>
+        <code>"59"</code> では、<code>9</code> が 0 番目でそのまま 9、<code>5</code> が 1 番目で 2 倍の 10 になり、位の和は 1 です。合わせて 10 になります。
+      </p>
+      <p>
+        <code>"5 9"</code> では、<code>enumerate</code> が数字だけでなく空白にも位置を振ります。数字を選り分ける <code>filter_map</code> は <code>enumerate</code> より後ろにあるので、空白が 1 番目を受け取ってから捨てられます。捨てるのは、クロージャの中の <code>c.to_digit(10)?</code> です。空白は数字ではないので <code>to_digit</code> が <code>None</code> を返し、<code>?</code> がクロージャから <code>None</code> を返します。<code>filter_map</code> はその要素を飛ばしますが、1 番目は空白に使われたままなので、<code>5</code> は 2 番目になり、2倍されずに 5 のまま足されます。<code>9</code> と合わせて 14 です。
+      </p>
+      <p>
+        空白を捨ててから数えると考えると、2つとも同じ番号として <code>10 10</code> と答えることになります。<code>rev</code> を読み落として左から数えると、<code>"59"</code> では <code>9</code> が2倍されて 5 + 9 = 14、<code>"5 9"</code> でも <code>9</code> は 2 番目でそのまま 14 になり、<code>14 14</code> です。右から数えることと、空白も位置を1つ使うことの両方を合わせて、初めて <code>10 14</code> になります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/read">Today</a></li>
+    <li><a href="/rust/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

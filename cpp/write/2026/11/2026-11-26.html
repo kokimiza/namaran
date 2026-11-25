@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="各整数の最小の素因数を引ける表 spf を受け取り、n の素因数を小さい順に重複も含めて並べた std::vector を返す関数を書きます。2026-11-26のC++ WRITE。">
+<title>最小素因数の表で分解</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/write/2026-11-26">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / WRITE", "item": "https://namaran.jocarium.productions/cpp/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-26" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / WRITE — 2026-11-26",
+      "url": "https://namaran.jocarium.productions/cpp/write/2026-11-26",
+      "datePublished": "2026-11-26",
+      "dateModified": "2026-11-26",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "最小素因数の表で分解" },
+      "keywords": "prime-factorization, vector, loop, division",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "各整数の最小の素因数を引ける表 spf を受け取り、n の素因数を小さい順に重複も含めて並べた std::vector を返す関数を書きます。2026-11-26のC++ WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-26">C23</a>
+  <a href="/cpp/write/2026-11-26" class="active" aria-current="page">C++26</a>
+  <a href="/rust/write/2026-11-26">Rust 2024</a>
+  <a href="/haskell/write/2026-11-26">Haskell 2010</a>
+  <a href="/zig/write/2026-11-26">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-26">READ</a>
+  <a href="/cpp/write/2026-11-26" class="active" aria-current="page">WRITE</a>
+  <a href="/cpp/debug/2026-11-26">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="最小素因数の表で分解"
+  data-tags="prime-factorization vector loop division"
+  data-concepts="素因数分解, 最小素因数の表, 割り算の繰り返し, prime factorization, smallest prime factor, spf table"
+  data-level="hedgehog"
+>
+  <h2>2026-11-26</h2>
+  <div class="code-frame">
+    <p class="code-filename">factorize.cpp</p>
+    <pre class="code"><code><span class="code-line">std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt;</span>
+<span class="code-line"><span class="fn">factorize</span>(<span class="ty">int</span> n,</span>
+<span class="code-line">          <span class="kw">const</span> std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt;&amp; spf) {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>spf</code> は、2 以上 <code>spf.size()</code> 未満の各整数 <code>k</code> について、<code>k</code> を割り切る最も小さい素数を <code>spf[k]</code> に入れた表です。1 以上 <code>spf.size()</code> 未満の <code>n</code> を受け取り、<code>n</code> を素数の積で表したときの素数を、小さい順に、同じ素数は掛けた回数だけ並べて返す <code>factorize</code> を書いてください。<code>n</code> が 1 のときは空の <code>std::vector</code> を返します。例の <code>spf</code> は、100 以下の整数の表です。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>factorize(12, spf)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>{2, 2, 3}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>factorize(97, spf)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>{97}</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>factorize(1, spf)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>{}</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference</summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line">std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt;</span>
+<span class="code-line"><span class="fn">factorize</span>(<span class="ty">int</span> n,</span>
+<span class="code-line">          <span class="kw">const</span> std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt;&amp; spf) {</span>
+<span class="code-line ins">    std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt; fs;</span>
+<span class="code-line ins">    <span class="kw">while</span> (n &gt; <span class="nu">1</span>) {</span>
+<span class="code-line ins">        fs.<span class="fn">push_back</span>(spf[n]);</span>
+<span class="code-line ins">        n /= spf[n];</span>
+<span class="code-line ins">    }</span>
+</code></pre>
+      </div>
+      <p>
+        <code>spf[n]</code> は <code>n</code> を割り切る最も小さい素数なので、それが分解の最初の素数です。<code>n</code> をその素数で割ると、残りの素因数だけを持つ数になり、その数の最小の素因数がまた表から引けます。これを <code>n</code> が 1 になるまで繰り返すと、素因数が1つずつ取り出されます。割ったあとの数の最小の素因数は、割る前の最小の素因数より小さくはならないので、取り出した順がそのまま小さい順です。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        入力例1の 12 は、<code>spf[12]</code> の 2 で割って 6、<code>spf[6]</code> の 2 で割って 3、<code>spf[3]</code> の 3 で割って 1 になり、<code>{2, 2, 3}</code> が返ります。97 は素数で <code>spf[97]</code> が 97 なので、1回割って終わります。<code>n</code> が 1 のときはループに一度も入らないので、空の <code>std::vector</code> を返します。1回の割り算で <code>n</code> は半分以下になるので、ループの回数は多くても log<sub>2</sub> n 回です。表を一度作っておけば、たくさんの数をそれぞれこの回数で分解できます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/write">Today</a></li>
+    <li><a href="/cpp/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

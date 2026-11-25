@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="同じリストを foldl と foldr で二分探索木に挿入し、最大値を探すときにたどる節の数を比べます。畳み込みの向きで挿入の順序がどう変わるかを読みます。2026-11-26のHaskell READ。">
+<title>foldrは後ろから挿入</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-11-26">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-26" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-11-26",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-11-26",
+      "datePublished": "2026-11-26",
+      "dateModified": "2026-11-26",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "foldrは後ろから挿入" },
+      "keywords": "binary-search-tree, fold, recursion, balanced-tree",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "同じリストを foldl と foldr で二分探索木に挿入し、最大値を探すときにたどる節の数を比べます。畳み込みの向きで挿入の順序がどう変わるかを読みます。2026-11-26のHaskell READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-26">C23</a>
+  <a href="/cpp/read/2026-11-26">C++26</a>
+  <a href="/rust/read/2026-11-26">Rust 2024</a>
+  <a href="/haskell/read/2026-11-26" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/read/2026-11-26">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-26" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-11-26">WRITE</a>
+  <a href="/haskell/debug/2026-11-26">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="foldrは後ろから挿入"
+  data-tags="binary-search-tree fold recursion balanced-tree"
+  data-concepts="二分探索木, 挿入順序, foldrとfoldlの違い, 木の偏り, binary search tree, insertion order, foldr vs foldl"
+  data-level="peacock"
+>
+  <h2>2026-11-26</h2>
+  <div class="code-frame">
+    <p class="code-filename">FoldOrder.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">data</span> <span class="ty">Tree</span> = <span class="ty">Leaf</span> | <span class="ty">Node</span> <span class="ty">Tree</span> <span class="ty">Int</span> <span class="ty">Tree</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">insert</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">Tree</span> <span class="op">-&gt;</span> <span class="ty">Tree</span></span>
+<span class="code-line"><span class="fn">insert</span> x <span class="ty">Leaf</span> = <span class="ty">Node</span> <span class="ty">Leaf</span> x <span class="ty">Leaf</span></span>
+<span class="code-line"><span class="fn">insert</span> x (<span class="ty">Node</span> l v r)</span>
+<span class="code-line">  | x &lt; v = <span class="ty">Node</span> (insert x l) v r</span>
+<span class="code-line">  | otherwise = <span class="ty">Node</span> l v (insert x r)</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">costOfMax</span> <span class="op">::</span> <span class="ty">Tree</span> <span class="op">-&gt;</span> <span class="ty">Int</span></span>
+<span class="code-line"><span class="fn">costOfMax</span> <span class="ty">Leaf</span> = <span class="nu">0</span></span>
+<span class="code-line"><span class="fn">costOfMax</span> (<span class="ty">Node</span> _ _ r) = <span class="nu">1</span> + costOfMax r</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()</span>
+<span class="code-line"><span class="fn">main</span> = <span class="kw">do</span></span>
+<span class="code-line">  <span class="kw">let</span> xs = [<span class="nu">4</span>, <span class="nu">2</span>, <span class="nu">6</span>, <span class="nu">1</span>, <span class="nu">3</span>, <span class="nu">5</span>, <span class="nu">7</span>]</span>
+<span class="code-line">  print</span>
+<span class="code-line">    (costOfMax (foldl (flip insert) <span class="ty">Leaf</span> xs))</span>
+<span class="code-line">  print (costOfMax (foldr insert <span class="ty">Leaf</span> xs))</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>3
+1
+</samp></pre>
+      </div>
+      <p>
+        <code>costOfMax</code> は、根から右の子だけをたどって数えた節の数で、最大値を探すときに比べる回数に当たります。<code>foldl (flip insert) Leaf xs</code> は、<code>Leaf</code> から始めてリストの先頭の要素から順に挿入します。4 が根になり、2 と 6 がその左右、1 と 3 が 2 の下、5 と 7 が 6 の下に入って、どの葉も根から3つ目にある木になります。右をたどると 4、6、7 なので、1行目は 3 です。
+      </p>
+      <p>
+        <code>foldr insert Leaf xs</code> は <code>insert 4 (insert 2 (insert 6 (… (insert 7 Leaf))))</code> と展開されます。最初に <code>Leaf</code> へ挿入されるのは一番内側の 7 で、そのあと 5、3、1、6、2、4 と、リストの後ろの要素から順に挿入されます。根の 7 はリストの最大値なので、あとから来る要素はすべて左へ入り、根の右の子は空のままです。2行目は根の1つだけを数えて 1 になります。
+      </p>
+      <p>
+        <code>foldr</code> も <code>foldl</code> と同じく先頭の要素から挿入すると読むと、2行とも 3 と答えることになります。<code>foldr</code> で先頭の 4 を受け取るのは一番外側の <code>insert</code> で、木に入るのは最後です。釣り合いが取れるように並べたリストでも、畳み込みの向きを逆にすると挿入の順序が逆になり、最大値を根に置いた偏った木ができます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

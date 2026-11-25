@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="i*i から倍数に印を付ける篩で、各整数の最小の素因数の表を作ったところ、素数の欄だけが 0 のまま残ります。表を正しく埋めるように直します。2026-11-26のC++ DEBUG。">
+<title>素数の欄が0のまま</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-11-26">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-26" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-11-26",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-11-26",
+      "datePublished": "2026-11-26",
+      "dateModified": "2026-11-26",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "素数の欄が0のまま" },
+      "keywords": "sieve-of-eratosthenes, prime-factorization, vector, loop",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "i*i から倍数に印を付ける篩で、各整数の最小の素因数の表を作ったところ、素数の欄だけが 0 のまま残ります。表を正しく埋めるように直します。2026-11-26のC++ DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-26">C23</a>
+  <a href="/cpp/debug/2026-11-26" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-11-26">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-26">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-26">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-26">READ</a>
+  <a href="/cpp/write/2026-11-26">WRITE</a>
+  <a href="/cpp/debug/2026-11-26" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="素数の欄が0のまま"
+  data-tags="sieve-of-eratosthenes prime-factorization vector loop"
+  data-concepts="最小素因数の表, 篩の開始位置, i*iから始める篩, 素数の欄, smallest prime factor table, sieve starting at i squared"
+  data-level="hedgehog"
+>
+  <h2>2026-11-26</h2>
+  <div class="code-frame">
+    <p class="code-filename">sieve.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;cstdio&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;vector&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    std::<span class="ty">vector</span>&lt;<span class="ty">int</span>&gt; <span class="fn">spf</span>(<span class="nu">21</span>);</span>
+<span class="code-line">    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">2</span>; i &lt;= <span class="nu">20</span>; i++) {</span>
+<span class="code-line">        <span class="kw">for</span> (<span class="ty">int</span> j = i * i; j &lt;= <span class="nu">20</span>;</span>
+<span class="code-line">             j += i) {</span>
+<span class="code-line">            <span class="kw">if</span> (spf[j] == <span class="nu">0</span>) {</span>
+<span class="code-line">                spf[j] = i;</span>
+<span class="code-line">            }</span>
+<span class="code-line">        }</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="kw">for</span> (<span class="ty">int</span> n : {<span class="nu">12</span>, <span class="nu">15</span>, <span class="nu">17</span>}) {</span>
+<span class="code-line">        std::<span class="fn">printf</span>(<span class="st">"%d\n"</span>, spf[n]);</span>
+<span class="code-line">    }</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    このプログラムは、20 以下の各整数 <code>k</code> について、<code>k</code> を割り切る最も小さい素数を <code>spf[k]</code> に入れた表を作り、たくさんの数の素因数分解に使うつもりのものです。試しに 12、15、17 の欄を表示すると、本来は <code>2</code>、<code>3</code>、<code>17</code> を1行ずつ出力するはずが、いまは <code>2</code>、<code>3</code>、<code>0</code> が出力されます。
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del"><span class="kw">for</span> (<span class="ty">int</span> j = i <span class="chg">* i</span>; j &lt;= <span class="nu">20</span>;</span>
+<span class="code-line del">     j += i) {</span>
+</code></pre>
+      <p>
+        <code>spf</code> は 0 で初期化され、内側のループが <code>i</code> の倍数のうちまだ 0 の欄に <code>i</code> を書き込みます。書き込みは <code>i * i</code> から始まるので、<code>i</code> 自身の欄にはどの <code>i</code> も書き込みません。12 や 15 は 2 や 3 の倍数として <code>i * i</code> 以降に現れるので正しく埋まりますが、17 を割り切る2以上の数は 17 だけです。<code>i</code> が 17 のときの書き込みは 289 から始まって表の外なので、<code>spf[17]</code> は 0 のまま残ります。2 から 19 までのすべての素数の欄が同じ理由で 0 で、素因数分解でこの表を引くと、0 で割ることになります。
+      </p>
+      <h3 class="right">Right</h3>
+      <pre class="code"><code><span class="code-line ins"><span class="kw">for</span> (<span class="ty">int</span> j = i; j &lt;= <span class="nu">20</span>; <span class="chg">j += i) {</span></span>
+</code></pre>
+      <p>
+        書き込みを <code>i</code> 自身から始めると、素数 <code>p</code> の欄には、<code>i</code> が <code>p</code> のときに <code>p</code> が書き込まれます。<code>p</code> を割り切る2以上の数は <code>p</code> しかないので、それより前に書き込む <code>i</code> はなく、欄は 0 のまま <code>p</code> を待っています。合成数の欄は、自分より小さい最小の素因数がすでに埋めているので、<code>i</code> 自身から書き始めても <code>if</code> が上書きを防ぎ、値は変わりません<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li><code>i * i</code> から書き始めるのは、<code>i</code> より小さい素因数を持つ倍数がもう埋まっていることを使った省略です。素数を求めるだけのエラトステネスの篩では、印の付かなかった数を素数と読むので素数の欄には何も書きませんが、最小の素因数の表では、その欄にも値が要ります。<code>i * i</code> から始める形を残すなら、<code>spf[i]</code> が 0 の <code>i</code> を素数とみなし、ループの前で <code>spf[i] = i</code> と書き込みます。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

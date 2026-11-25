@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="K&amp;Rの形でコマンドライン引数のオプションを数える関数を、同じ配列で2回呼びます。++argv と ++argv[0] がそれぞれ何を進めるかを読みます。2026-11-26のC READ。">
+<title>二度目の解析は空振り</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/read/2026-11-26">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / READ", "item": "https://namaran.jocarium.productions/c/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-26" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / READ — 2026-11-26",
+      "url": "https://namaran.jocarium.productions/c/read/2026-11-26",
+      "datePublished": "2026-11-26",
+      "dateModified": "2026-11-26",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "二度目の解析は空振り" },
+      "keywords": "command-line-argument, pointer, operator-precedence, pass-by-value, side-effect",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "K&Rの形でコマンドライン引数のオプションを数える関数を、同じ配列で2回呼びます。++argv と ++argv[0] がそれぞれ何を進めるかを読みます。2026-11-26のC READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-26" class="active" aria-current="page">C23</a>
+  <a href="/cpp/read/2026-11-26">C++26</a>
+  <a href="/rust/read/2026-11-26">Rust 2024</a>
+  <a href="/haskell/read/2026-11-26">Haskell 2010</a>
+  <a href="/zig/read/2026-11-26">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-26" class="active" aria-current="page">READ</a>
+  <a href="/c/write/2026-11-26">WRITE</a>
+  <a href="/c/debug/2026-11-26">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="二度目の解析は空振り"
+  data-tags="command-line-argument pointer operator-precedence pass-by-value side-effect"
+  data-concepts="argvの走査, ポインタの配列, *++argv[0], 引数の値渡し, 呼び出し元の配列の書き換え, argv parsing, array of pointers, K&R option parsing"
+  data-level="whale"
+>
+  <h2>2026-11-26</h2>
+  <div class="code-frame">
+    <p class="code-filename">flags.c</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">void</span> <span class="fn">parse</span>(<span class="ty">int</span> argc, <span class="ty">char</span>* argv[]) {</span>
+<span class="code-line">    <span class="ty">int</span> flags = <span class="nu">0</span>;</span>
+<span class="code-line">    <span class="kw">while</span> (--argc &gt; <span class="nu">0</span> &amp;&amp; (*++argv)[<span class="nu">0</span>] == <span class="st">'-'</span>)</span>
+<span class="code-line">        <span class="kw">while</span> (*++argv[<span class="nu">0</span>])</span>
+<span class="code-line">            flags++;</span>
+<span class="code-line">    <span class="fn">printf</span>(<span class="st">"%d %d\n"</span>, flags, argc);</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {</span>
+<span class="code-line">    <span class="ty">char</span>* v[] = {</span>
+<span class="code-line">        <span class="st">"prog"</span>, <span class="st">"-ab"</span>, <span class="st">"-c"</span>, <span class="st">"x"</span>, <span class="nu">NULL</span>};</span>
+<span class="code-line">    <span class="fn">parse</span>(<span class="nu">4</span>, v);</span>
+<span class="code-line">    <span class="fn">parse</span>(<span class="nu">4</span>, v);</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>3 1
+0 3
+</samp></pre>
+      </div>
+      <p>
+        <code>parse</code> の中には、進め方の違う2種類のポインタがあります。仮引数の <code>argv</code> は <code>main</code> の配列 <code>v</code> の先頭を指すポインタの写しで、<code>++argv</code> が進めるのはこの写しだけです。一方 <code>*++argv[0]</code> は、<code>[]</code> が前置の <code>++</code> より強く結び付くので <code>++(argv[0])</code> と読みます。<code>argv[0]</code> は <code>v</code> の要素そのもので、これを進めると、<code>v</code> に入っている文字列へのポインタが書き換わります。この書き換えは <code>parse</code> から戻っても残ります。
+      </p>
+      <p>
+        1回目の呼び出しでは、<code>argc</code> が 3 になったところで <code>argv</code> が <code>v[1]</code> を指し、<code>"-ab"</code> の先頭は <code>-</code> なので内側のループに入ります。内側のループは <code>v[1]</code> を1文字ずつ進め、<code>a</code> と <code>b</code> で <code>flags</code> を2回増やし、終端の <code>'\0'</code> を指したところで止まります。<code>v[2]</code> の <code>"-c"</code> も同じで <code>flags</code> は 3 になり、<code>v[2]</code> も終端を指して残ります。<code>argc</code> が 1 になったところで <code>v[3]</code> の <code>"x"</code> を見て外側のループを抜けるので、<code>3 1</code> を出力します。
+      </p>
+      <p>
+        2回目の呼び出しも <code>argc</code> を 3 に減らし、<code>argv</code> を <code>v[1]</code> へ進めます。ところが <code>v[1]</code> はもう <code>"-ab"</code> の先頭ではなく、1回目が残した終端の位置を指しており、そこから読める文字列は空です。先頭の文字は <code>'\0'</code> で <code>-</code> ではないので、外側のループは何も数えずに抜け、<code>0 3</code> を出力します。
+      </p>
+      <p>
+        2回の呼び出しは引数がまったく同じなので、同じ処理を2度たどって <code>3 1</code> を2行と答えたくなります。<code>argc</code> と <code>argv</code> は呼ぶたびに新しく写されますが、<code>v</code> の要素は1つしかありません。1回目の呼び出しが何を書き換えたままにしたかを見れば、2回目は1行目を読むだけで答えが出ます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/read">Today</a></li>
+    <li><a href="/c/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「二分探索木」を扱ったNamaranのコーディングドリル3問。平衡二分探索木、幅優先の順、中央から挿入、VecDeque、level order、balanced BST。">
+<meta name="description" content="「二分探索木」を扱ったNamaranのコーディングドリル6問。二分探索木、整列済みリストからの構築、平衡な木、中央の要素を根に、balanced BST from sorted list、splitAt。">
 <title>二分探索木</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/binary-search-tree">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>二分探索木</h2>
 
   <p class="lede">
-    「二分探索木」を扱った3問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「二分探索木」を扱った6問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/haskell/write/2026-11-26">Haskell / WRITE · 2026-11-26</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">整列済みから釣り合う木</span> <span class="past-concepts">二分探索木, 整列済みリストからの構築, 平衡な木, 中央の要素を根に, balanced BST from sorted list, splitAt, recursion</span></li>
+    <li><a href="/haskell/read/2026-11-26">Haskell / READ · 2026-11-26</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">foldrは後ろから挿入</span> <span class="past-concepts">二分探索木, 挿入順序, foldrとfoldlの違い, 木の偏り, binary search tree, insertion order, foldr vs foldl</span></li>
+    <li><a href="/haskell/debug/2026-11-26">Haskell / DEBUG · 2026-11-26</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">高さのつもりが節の数</span> <span class="past-concepts">木の高さ, 節の数, 再帰, 偏った二分探索木, tree height, tree size, recursion, degenerate tree</span></li>
     <li><a href="/rust/write/2026-10-26">Rust / WRITE · 2026-10-26</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">高さが最小になる挿入順</span> <span class="past-concepts">平衡二分探索木, 幅優先の順, 中央から挿入, VecDeque, level order, balanced BST</span></li>
     <li><a href="/rust/read/2026-10-26">Rust / READ · 2026-10-26</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">両端から詰める挿入順</span> <span class="past-concepts">二分探索木の高さ, 挿入順による偏り, 退化した木, flat_map, binary search tree height, degenerate tree</span></li>
     <li><a href="/rust/debug/2026-10-26">Rust / DEBUG · 2026-10-26</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">等しいキーで伸びる木</span> <span class="past-concepts">二分探索木の重複キー, 退化した木, matchのガード, duplicate keys, degenerate tree</span></li>
