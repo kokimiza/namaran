@@ -557,10 +557,11 @@ def render(lang, raw, numbered=False, marks=None):
 
 def role(page, start):
     """What a listing is, from the markup right before it."""
-    head = page[max(0, start - 400):start]
+    # Wide enough for a Right heading that carries the complexity line.
+    head = page[max(0, start - 1500):start]
     if re.search(r'<h3 class="wrong">[^<]*</h3>\s*\Z', head):
         return "wrong"
-    if re.search(r'<h3 class="right">[^<]*</h3>\s*\Z', head):
+    if re.search(r'<h3 class="right">Right\b(?:(?!<h3).)*?</h3>\s*\Z', head, re.S):
         return "right"
     if re.search(r'<div class="code-frame diff-added"[^>]*>\s*'
                  r'(?:<p class="code-filename">[^<]*</p>\s*)?\Z', head):

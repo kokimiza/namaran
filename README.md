@@ -91,6 +91,7 @@ script/verify.py                             問題ページと検証用ソー�
 script/format.py                             検証用ソースの整形
 .clang-format, rustfmt.toml, fourmolu.yaml   ドリルのコードの整形規則(C/C++、Rust、Haskell)
 script/highlight.py                          コードのシンタックスハイライト
+script/complexity.py                         WRITE・DEBUGの解答の計算量の行の形を確かめる(verify.py から呼ぶ)
 script/odai.py                               お題の抽選
 script/level.py                              難易度の抽選
 script/check_patch.py                        公開前のパッチ検査

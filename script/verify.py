@@ -69,7 +69,8 @@ one matching NAME.bug.stdout, the right one NAME.stdout, when the page has
 one example and the sources one such file), every line of every listing (answers too)
 is at most 45 columns wide on pages from 2026-11-17 on (a wide character,
 kana in a string, takes two), a WRITE page's examples sit in
-<div class="examples">, a DEBUG answer is Wrong + listing then Right +
+<div class="examples">, WRITE and DEBUG answers from 2026-11-27 on carry a complexity line in the
+form script/complexity.py checks, a DEBUG answer is Wrong + listing then Right +
 listing, the Japanese prose has none of the patterns the humanizer-ja-tech
 revision pass removes (AI stock phrases, dashes, full-width alphanumerics,
 だ・である sentences), footnote references and notes match one to one —
@@ -99,6 +100,7 @@ import sys
 import tempfile
 import unicodedata
 
+import complexity
 import format as formatter
 import highlight
 from namaran import CODE_EXT, ROOT, die, page_file, parse_combos
@@ -553,12 +555,16 @@ def page_problems(lang, typ, date, src_dir):
                          r'<pre class="output"><samp>.+?</samp></pre>\s*</div>',
                          s[s.find('<details class="answer">'):], re.S):
             problems.append('READ needs its result in the Output terminal (<pre class="output"><samp>)')
+    # WRITE / DEBUG answers state the big-O of their final code; the form of
+    # that line is script/complexity.py's to check.
+    if typ in ("write", "debug") and date >= complexity.COMPLEXITY_SINCE:
+        problems += complexity.problems(s, typ)
     if typ == "debug" and date >= DEBUG_EXAMPLES_SINCE:
         problems += debug_example_problems(s, src_dir)
     if typ == "debug":
         answer = s[s.find('<details class="answer">'):]
         if not re.search(r'<h3 class="wrong">Wrong</h3>\s*<pre class="code">.*?'
-                         r'<h3 class="right">Right</h3>\s*<pre class="code">', answer, re.S):
+                         r'<h3 class="right">Right\b(?:(?!<h3).)*?</h3>\s*<pre class="code">', answer, re.S):
             problems.append('DEBUG answer must be <h3 class="wrong">Wrong</h3> + listing, '
                             'then <h3 class="right">Right</h3> + listing')
 

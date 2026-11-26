@@ -939,6 +939,67 @@ details.answer summary::after {
   margin-top: var(--s-sibling);
 }
 
+/* ---------- complexity ----------
+   The time and space, in big-O, of the code an answer ends with, set on the
+   row of that code's heading, to the right: DEBUG's Right stamp, and WRITE's
+   Reference summary, past its hairline. The heading names the code and the
+   bounds describe it, so they share one row instead of adding one. A closed
+   summary shows nothing of the answer, the bounds included.
+
+   The heading's voice (capitals, spacing, colour) stops at the bounds. Their
+   labels are small stamps in the muted ink; the bounds are mathematics, in
+   a math face, which is where the script 𝒪 (U+1D4AA) lives; the note on
+   what n counts is quieter still. On a narrow row they wrap, staying on the
+   right. */
+
+.complexity {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: baseline;
+  gap: 0 1.25rem;
+  margin-left: auto;
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 400;
+  color: var(--ink);
+}
+
+details.answer summary .complexity {
+  order: 1;
+}
+
+details.answer:not([open]) .complexity {
+  display: none;
+}
+
+.answer-body h3:has(.complexity) {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem 1rem;
+}
+
+.complexity > span:not(.complexity-where) {
+  font-family: "Cambria Math", "STIX Two Math", "Noto Sans Math", math, var(--font-body);
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+.complexity-label {
+  margin-right: 0.5rem;
+  font-family: var(--font-ui);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--ink-muted);
+}
+
+.complexity > .complexity-where {
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
+}
+
 /* A DEBUG answer's two stamps, Wrong and Right, each over the listing it
    names. Styled like the ANSWER label, in red and green. Right opens a new
    block; Wrong is the first thing in the answer and needs no gap. */
@@ -961,6 +1022,16 @@ details.answer summary::after {
 /* The rule on the left ends with the answer, not a margin after it. */
 .answer-body > :last-child {
   margin-bottom: 0;
+}
+
+/* The Reference summary sits outside .answer-body, so a code chip in its
+   complexity note is named here too. */
+details.answer summary .complexity code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: var(--panel);
+  padding: 0.12em 0.34em;
+  border-radius: 3px;
 }
 
 /* Only inline code, in the question as well as the answer: WRITE questions
