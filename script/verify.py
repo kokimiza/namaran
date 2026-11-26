@@ -63,7 +63,10 @@ non-comment line of every <pre class="code"> block appears in one of that
 combo's ok/ng/bug files, indented as it is there (a block may be shifted
 left as a whole, nothing more) — so the code readers see is the code that
 was checked and formatted — READ/DEBUG question code (outside
-<details>) is at most 18 lines, every line of every listing (answers too)
+<details>) is at most 18 lines, a DEBUG page from 2026-11-27 on sets its
+input, wrong output and right output in <div class="examples"> (the wrong
+one matching NAME.bug.stdout, the right one NAME.stdout, when the page has
+one example and the sources one such file), every line of every listing (answers too)
 is at most 45 columns wide on pages from 2026-11-17 on (a wide character,
 kana in a string, takes two), a WRITE page's examples sit in
 <div class="examples">, a DEBUG answer is Wrong + listing then Right +
@@ -112,6 +115,8 @@ failures = 0
 
 # The first day whose listings must fit in 45 columns (see page_problems).
 MAX_COLUMNS_SINCE = "2026-11-17"
+# The first day whose DEBUG question puts its values in <div class="examples">.
+DEBUG_EXAMPLES_SINCE = "2026-11-27"
 
 
 def fail(msg, details=()):
@@ -339,6 +344,39 @@ def verify_sources(lang, typ, src_dir, work):
             fail("DEBUG code must compile: use a bug file, not an ng file")
 
 
+def debug_example_problems(s, src_dir):
+    """A DEBUG question's values, set out like WRITE's examples: an optional
+    input, the output the broken program prints now (label class wrong), and
+    the output it should print (label class right), each in a pre.io box."""
+    question = re.sub(r"<details.*?</details>", "", s, flags=re.S)
+    if '<div class="examples">' not in question:
+        return ['DEBUG needs its input and outputs in <div class="examples">']
+    io = r'\s*<pre class="io"><code>(.*?)</code></pre>'
+    shape = re.compile(r'<div class="example">\s*'
+                       r'(?:<p class="example-label">入力例(?: \d+)?</p>' + io + r'\s*)?'
+                       r'<p class="example-label wrong">いまの出力</p>' + io + r'\s*'
+                       r'<p class="example-label right">本来の出力</p>' + io + r'\s*</div>', re.S)
+    blocks = re.findall(r'<div class="example">.*?</div>', question, re.S)
+    matches = [shape.fullmatch(b) for b in blocks]
+    if not blocks or not all(matches):
+        return ['each DEBUG example must be [入力例 + box], then <p class="example-label wrong">'
+                'いまの出力</p> + box, then <p class="example-label right">本来の出力</p> + box']
+    problems = []
+    if len(matches) == 1:
+        # The outputs a page shows are the ones the sources printed.
+        def text(markup):
+            return html.unescape(markup).rstrip("\n")
+        for group, pattern, what in ((2, "*.bug.stdout", "いまの出力"), (3, "*.stdout", "本来の出力")):
+            files = [f for f in pathlib.Path(src_dir).glob(pattern)
+                     if pattern != "*.stdout" or not f.name.endswith(".bug.stdout")]
+            if len(files) == 1:
+                want = files[0].read_text(encoding="utf-8").rstrip("\n")
+                if text(matches[0].group(group)) != want:
+                    problems.append(f"{what} on the page is not {files[0].name}: "
+                                    f"{text(matches[0].group(group))[:60]!r} vs {want[:60]!r}")
+    return problems
+
+
 def page_problems(lang, typ, date, src_dir):
     """What is wrong with one drill page, as a list of messages."""
     root = ROOT
@@ -515,6 +553,8 @@ def page_problems(lang, typ, date, src_dir):
                          r'<pre class="output"><samp>.+?</samp></pre>\s*</div>',
                          s[s.find('<details class="answer">'):], re.S):
             problems.append('READ needs its result in the Output terminal (<pre class="output"><samp>)')
+    if typ == "debug" and date >= DEBUG_EXAMPLES_SINCE:
+        problems += debug_example_problems(s, src_dir)
     if typ == "debug":
         answer = s[s.find('<details class="answer">'):]
         if not re.search(r'<h3 class="wrong">Wrong</h3>\s*<pre class="code">.*?'

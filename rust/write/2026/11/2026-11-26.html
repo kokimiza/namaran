@@ -78,7 +78,7 @@
   </div>
 
   <p class="question">
-    クレジットカードなどの番号は、次の検査で打ち間違いを見つけます。番号の右端の数字を 1 番目として右から数え、偶数番目の数字は2倍し、2倍した値が2桁なら十の位と一の位を足して1桁にします。奇数番目の数字はそのままにして、これらをすべて足した和が 10 で割り切れれば、番号は正しいとします。番号の数字を左から順に出す <code>digits</code> を受け取り、番号が正しいかを返す <code>is_valid</code> を書いてください。<code>digits</code> は前から1度しか読めず、数字がいくつあるかは読み終えるまで分かりません。使うメモリは数字の個数によらず一定にし、数字を <code>Vec</code> などに溜めないでください。数字は1つ以上あります。
+    クレジットカードなどの番号は、次の検査で打ち間違いを見つけます。番号の右端の数字を 1 番目として右から数え、偶数番目の数字は2倍し、2倍した値が2桁なら十の位と一の位を足して1桁にします。奇数番目の数字はそのままにして、これらをすべて足した和が 10 で割り切れれば、番号は正しいとします。番号の数字を左から順に出す <code>digits</code> を受け取り、番号が正しいかを返す <code>is_valid</code> を書いてください。<code>digits</code> は前から1度しか読めず、数字がいくつあるかは読み終えるまで分かりません。使うメモリは数字の個数によらず一定にし、数字を <code>Vec</code> などに溜めないでください。数字は1つ以上あり、個数に上限はありません。
   </p>
 
   <div class="examples">
@@ -114,13 +114,14 @@
 <span class="code-line ins">        (<span class="nu">0</span>, <span class="nu">0</span>),</span>
 <span class="code-line ins">        |(plain, twice), d| {</span>
 <span class="code-line ins">            <span class="kw">let</span> x = <span class="nu">2</span> * d;</span>
+<span class="code-line ins">            <span class="kw">let</span> s = x / <span class="nu">10</span> + x % <span class="nu">10</span>;</span>
 <span class="code-line ins">            (</span>
-<span class="code-line ins">                twice + d,</span>
-<span class="code-line ins">                plain + x / <span class="nu">10</span> + x % <span class="nu">10</span>,</span>
+<span class="code-line ins">                (twice + d) % <span class="nu">10</span>,</span>
+<span class="code-line ins">                (plain + s) % <span class="nu">10</span>,</span>
 <span class="code-line ins">            )</span>
 <span class="code-line ins">        },</span>
 <span class="code-line ins">    );</span>
-<span class="code-line ins">    plain % <span class="nu">10</span> == <span class="nu">0</span></span>
+<span class="code-line ins">    plain == <span class="nu">0</span></span>
 <span class="code-line">}</span>
 </code></pre>
       </div>
@@ -128,10 +129,13 @@
         どの数字を2倍するかは右端から数えた位置で決まるので、左から読んでいる途中では、いま読んだ数字を2倍すべきかが分かりません。そこで、いま読んだ数字が右端になる場合の和を2通り持ち続けます。<code>plain</code> は、最後に読んだ数字をそのまま足す数え方の和で、番号がここで終われば、これが検査に使う和です。<code>twice</code> は、最後に読んだ数字を2倍する数え方の和で、後ろに続く数字が奇数個のときに正しい和になります。掲載したのは参考実装で、唯一の正解ではありません。
       </p>
       <p>
-        新しい数字 <code>d</code> を読むと、それまでの数字はすべて右へ1つずれ、奇数番目と偶数番目が入れ替わります。<code>d</code> がそのまま足される新しい <code>plain</code> は、直前の数字が2倍される側の和 <code>twice</code> に <code>d</code> を足したもので、<code>d</code> が2倍される新しい <code>twice</code> は、直前の数字がそのまま足される側の和 <code>plain</code> に <code>d</code> を2倍した値の位の和を足したものです。2つの和を入れ替えながら足していくので、読み終えた時点の <code>plain</code> が、最後に読んだ数字を右端とした正しい和になります。持つのは整数2つだけなので、メモリは数字の個数によりません。
+        新しい数字 <code>d</code> を読むと、それまでの数字はすべて右へ1つずれ、奇数番目と偶数番目が入れ替わります。<code>d</code> がそのまま足される新しい <code>plain</code> は、直前の数字が2倍される側の和 <code>twice</code> に <code>d</code> を足したもので、<code>d</code> が2倍される新しい <code>twice</code> は、直前の数字がそのまま足される側の和 <code>plain</code> に <code>d</code> を2倍した値の位の和を足したものです。2つの和を入れ替えながら足していくので、読み終えた時点の <code>plain</code> が、最後に読んだ数字を右端とした正しい和になります。
       </p>
       <p>
-        入力例1では、<code>1</code> を読んで <code>(plain, twice)</code> が <code>(1, 2)</code> になり、<code>8</code> を読むと <code>plain</code> は 2 + 8 = 10、<code>twice</code> は 1 + 7 = 8 です。<code>plain</code> が 10 なので <code>true</code> を返します。入力例2は <code>8</code> で <code>(8, 7)</code>、<code>1</code> で <code>plain</code> が 7 + 1 = 8 になり、<code>false</code> です。数字が1つだけの入力例3は、最初の数字がそのまま足されて <code>plain</code> が 0 になり、<code>true</code> を返します。
+        数字の個数には上限が無いので、和をそのまま足し続けると、いずれ <code>u32</code> に収まらなくなります。たとえば 9 が 477,218,590 個続くと和は 4,294,967,310 になり、<code>u32::MAX</code> を超えて、デバッグビルドではパニックします。検査に要るのは和を 10 で割った余りだけなので、足すたびに <code>% 10</code> を取り、2つの値を常に 0 から 9 に保ちます。足す前の値が 10 未満で、足す数も 9 以下なので、途中の和も 18 を超えません。持つのは 10 未満の整数2つだけで、メモリも数字の個数によりません。
+      </p>
+      <p>
+        入力例1では、<code>1</code> を読んで <code>(plain, twice)</code> が <code>(1, 2)</code> になり、<code>8</code> を読むと <code>plain</code> は 2 + 8 = 10 の余りで 0、<code>twice</code> は 1 + 7 = 8 です。<code>plain</code> が 0 なので <code>true</code> を返します。入力例2は <code>8</code> で <code>(8, 7)</code>、<code>1</code> で <code>plain</code> が 7 + 1 = 8 になり、<code>false</code> です。数字が1つだけの入力例3は、最初の数字がそのまま足されて <code>plain</code> が 0 になり、<code>true</code> を返します。
       </p>
     </div>
   </details>

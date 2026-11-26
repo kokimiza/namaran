@@ -56,7 +56,8 @@ def render(lang, typ, date):
 
     Each type has its own template because the question and answer differ
     in shape: READ asks one fixed question, WRITE pairs input/output
-    examples, DEBUG answers as Wrong / Right. Block placeholders
+    examples, DEBUG sets its input beside the wrong output and the right
+    one and answers as Wrong / Right. Block placeholders
     (@@LANG_NAV@@ etc.) must appear alone on their own line in the
     template; everything else is a plain inline substitution.
     """

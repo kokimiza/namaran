@@ -786,9 +786,13 @@ pre.code .lt { color: var(--ansi-9); }   /* Special */
   text-wrap: pretty;
 }
 
-/* ---------- WRITE examples ----------
-   Each example is one row: input on the left, its output on the right, so
-   pair n reads across and never has to be matched by eye. They are data, so
+/* ---------- examples (WRITE and DEBUG) ----------
+   Each WRITE example is one row: input on the left, its output on the right,
+   so pair n reads across and never has to be matched by eye. A DEBUG example
+   is the input across the top, and under it the output the program prints
+   now beside the one it should print, so the two can be compared column by
+   column; their labels take the red and green of the Wrong and Right stamps
+   in the answer. They are data, so
    mono on the paper panel — not the terminal, which means "code to compile". The
    examples take over the question's section step; the question keeps a block
    step above them. */
@@ -820,6 +824,39 @@ pre.code .lt { color: var(--ansi-9); }   /* Special */
   color: var(--ink-muted);
 }
 
+/* DEBUG: the two outputs side by side under the input, which spans both.
+   A program that takes no input has no input pair, and its two rows stay
+   empty. Narrow screens stack everything in order (below). */
+@media (min-width: 40rem) {
+  .example:has(> .example-label.wrong) {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: none;
+    grid-template-areas:
+      "input-label input-label"
+      "input       input"
+      "now-label   want-label"
+      "now         want";
+    grid-auto-flow: row;
+  }
+
+  .example:has(> .wrong) > .example-label:first-child:not(.wrong) {
+    grid-area: input-label;
+  }
+
+  .example:has(> .wrong) > .example-label:first-child:not(.wrong) + pre.io {
+    grid-area: input;
+    margin-bottom: var(--s-sibling);
+  }
+
+  .example > .example-label.wrong { grid-area: now-label; }
+  .example > .example-label.wrong + pre.io { grid-area: now; }
+  .example > .example-label.right { grid-area: want-label; }
+  .example > .example-label.right + pre.io { grid-area: want; }
+}
+
+.example-label.wrong { color: var(--wrong); }
+.example-label.right { color: var(--right); }
+
 pre.io {
   margin: 0;
   padding: 0.75rem 1rem;
@@ -831,7 +868,8 @@ pre.io {
   line-height: 1.7;
 }
 
-/* Too narrow for two columns: input above its output, then the next pair. */
+/* Too narrow for two columns: input above its output, then the next pair;
+   in DEBUG, input, then the output now, then the output it should be. */
 @media (max-width: 39.99rem) {
   .example {
     grid-template-columns: 1fr;
