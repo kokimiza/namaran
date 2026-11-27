@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="-vo のようにまとめて書いたオプションを1文字ずつ解析するC23のドリル。-o に続けて書いた値の文字までオプションとして読み続ける欠陥を、出力から逆にたどって直す。">
+<title>-oの後ろも読む走査</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-11-28">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-28" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-11-28",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-11-28",
+      "datePublished": "2026-11-28",
+      "dateModified": "2026-11-28",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "-oの後ろも読む走査" },
+      "keywords": "command-line-argument, string, loop",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "-vo のようにまとめて書いたオプションを1文字ずつ解析するC23のドリル。-o に続けて書いた値の文字までオプションとして読み続ける欠陥を、出力から逆にたどって直す。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-28" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-11-28">C++26</a>
+  <a href="/rust/debug/2026-11-28">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-28">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-28">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-28">READ</a>
+  <a href="/c/write/2026-11-28">WRITE</a>
+  <a href="/c/debug/2026-11-28" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="-oの後ろも読む走査"
+  data-tags="command-line-argument string loop"
+  data-concepts="オプション解析, まとめて書く短いオプション, オプションの値, getopt, option parsing, clustered short options"
+  data-level="whale"
+>
+  <h2>2026-11-28</h2>
+  <div class="code-frame">
+    <p class="code-filename">parse_flags.c</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">static</span> <span class="ty">int</span> verbose;</span>
+<span class="code-line"><span class="kw">static</span> <span class="kw">const</span> <span class="ty">char</span>* out = <span class="st">"a.out"</span>;</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">static</span> <span class="ty">void</span> <span class="fn">parse</span>(<span class="kw">const</span> <span class="ty">char</span>* arg) {</span>
+<span class="code-line">    <span class="kw">for</span> (<span class="kw">const</span> <span class="ty">char</span>* c = arg + <span class="nu">1</span>; *c; c++) {</span>
+<span class="code-line">        <span class="kw">if</span> (*c == <span class="st">'v'</span>)</span>
+<span class="code-line">            verbose = <span class="nu">1</span>;</span>
+<span class="code-line">        <span class="kw">if</span> (*c == <span class="st">'o'</span>)</span>
+<span class="code-line">            out = c + <span class="nu">1</span>;</span>
+<span class="code-line">    }</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {</span>
+<span class="code-line">    <span class="fn">parse</span>(<span class="st">"-ovideo.mp4"</span>);</span>
+<span class="code-line">    <span class="fn">printf</span>(<span class="st">"%d %s\n"</span>, verbose, out);</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>parse</code> は、<code>-</code> で始まるコマンドライン引数を1つ受け取り、オプションを1文字ずつ解析するつもりの関数です。<code>v</code> があれば <code>verbose</code> を 1 にし、<code>o</code> があれば、その直後から引数の終わりまでを出力先のファイル名として <code>out</code> に入れます。<code>-vofile</code> のように、複数のオプションを1つの引数にまとめて書けます。<code>main</code> は引数 <code>-ovideo.mp4</code> を解析し、<code>verbose</code> と <code>out</code> を出力します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label wrong">いまの出力</p>
+      <pre class="io"><code>1 .mp4</code></pre>
+      <p class="example-label right">本来の出力</p>
+      <pre class="io"><code>0 video.mp4</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line"><span class="kw">for</span> (<span class="kw">const</span> <span class="ty">char</span>* c = arg + <span class="nu">1</span>; *c; c++) {</span>
+<span class="code-line">    <span class="kw">if</span> (*c == <span class="st">'v'</span>)</span>
+<span class="code-line">        verbose = <span class="nu">1</span>;</span>
+<span class="code-line del">    <span class="kw">if</span> (*c == <span class="st">'o'</span>)</span>
+<span class="code-line">        out = c + <span class="nu">1</span>;</span>
+<span class="code-line">}</span>
+</code></pre>
+      <p>
+        ループは <code>o</code> を見つけて <code>out</code> を決めたあとも止まらず、残りの文字もオプションとして読み続けます。<code>-ovideo.mp4</code> では、<code>o</code> の直後の <code>video.mp4</code> はファイル名の文字ですが、その先頭の <code>v</code> で <code>verbose</code> が 1 になります。さらに <code>video</code> の最後の <code>o</code> でもう一度 <code>out = c + 1</code> が実行され、<code>out</code> はその次の文字を指し直します。そこから引数の終わりまでが <code>.mp4</code> です。出力の <code>1</code> と <code>.mp4</code> はどちらも、ファイル名の中の <code>v</code> と <code>o</code> から来ています。
+      </p>
+      <h3 class="right">Right
+        <span class="complexity">
+          <span><span class="complexity-label">時間計算量</span> &#x1D4AA;(<var>n</var>)</span>
+          <span><span class="complexity-label">空間計算量</span> &#x1D4AA;(1)</span>
+          <span class="complexity-where"><var>n</var> は <code>arg</code> の文字数</span>
+        </span>
+      </h3>
+      <pre class="code"><code><span class="code-line"><span class="kw">for</span> (<span class="kw">const</span> <span class="ty">char</span>* c = arg + <span class="nu">1</span>; *c; c++) {</span>
+<span class="code-line">    <span class="kw">if</span> (*c == <span class="st">'v'</span>)</span>
+<span class="code-line">        verbose = <span class="nu">1</span>;</span>
+<span class="code-line ins">    <span class="kw">if</span> (*c == <span class="st">'o'</span>) <span class="chg">{</span></span>
+<span class="code-line">        out = c + <span class="nu">1</span>;</span>
+<span class="code-line ins">        <span class="kw">return</span>;</span>
+<span class="code-line ins">    }</span>
+<span class="code-line">}</span>
+</code></pre>
+      <p>
+        <code>o</code> の後ろは、引数の終わりまでがまるごとファイル名なので、そこから先にオプションの文字はありません<sup class="fn-ref">1</sup>。<code>out</code> を決めたら <code>return</code> で解析を終えれば、ファイル名の文字がオプションとして読まれることはなくなります。<code>-vofile</code> でも <code>v</code> を読んでから <code>o</code> で止まるので、<code>verbose</code> は 1、<code>out</code> は <code>file</code> になります。<code>o</code> を含まない引数は、これまでどおり最後の文字まで読みます。
+      </p>
+      <ol class="footnotes">
+        <li>POSIX の <code>getopt</code> も同じ決まりで動きます。値を取るオプションの文字が見つかると、同じ引数の残りをその値とし、残りが空なら次の引数を値にします。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「ポインタ」を扱ったNamaranのコーディングドリル68問。forのポインタキャプチャ、|*x|、スライスの要素の書き換え、上限で切る、pointer capture、mutable slice。">
+<meta name="description" content="「ポインタ」を扱ったNamaranのコーディングドリル69問。argv[argc]、NULLポインタ、番兵、コマンドライン引数、argv terminator、null pointer sentinel。">
 <title>ポインタ</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/pointer">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>ポインタ</h2>
 
   <p class="lede">
-    「ポインタ」を扱った68問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「ポインタ」を扱った69問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/c/read/2026-11-28">C / READ · 2026-11-28</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">argvを末尾から数える</span> <span class="past-concepts">argv[argc], NULLポインタ, 番兵, コマンドライン引数, argv terminator, null pointer sentinel</span></li>
     <li><a href="/zig/write/2026-11-26">Zig / WRITE · 2026-11-26</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">スライスの要素を上限で切る</span> <span class="past-concepts">forのポインタキャプチャ, |*x|, スライスの要素の書き換え, 上限で切る, pointer capture, mutable slice, clamp in place</span></li>
     <li><a href="/zig/read/2026-11-26">Zig / READ · 2026-11-26</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">varのポインタにconst</span> <span class="past-concepts">constへのポインタ, *Tと*const T, ポインタ変数のvar, 型推論, pointer to const, const pointer, mutability</span></li>
     <li><a href="/zig/debug/2026-11-26">Zig / DEBUG · 2026-11-26</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">ポインタで残した変更前</span> <span class="past-concepts">ポインタと値の写し, 変更前の状態の保存, 別名, const before = &amp;cfg, pointer aliasing, snapshot copy, struct copy</span></li>

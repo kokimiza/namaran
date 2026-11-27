@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="無限のリストに負の数があるかを foldl と || で調べるHaskell 2010のドリル。foldl はリストを最後までたどらないと結果を返さないので、|| の短絡が効かずに止まらない。">
+<title>foldlの||は止まらない</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-11-28">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-28" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-11-28",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-11-28",
+      "datePublished": "2026-11-28",
+      "dateModified": "2026-11-28",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "foldlの||は止まらない" },
+      "keywords": "short-circuit, fold, infinite-list, laziness",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "無限のリストに負の数があるかを foldl と || で調べるHaskell 2010のドリル。foldl はリストを最後までたどらないと結果を返さないので、|| の短絡が効かずに止まらない。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-28">C23</a>
+  <a href="/cpp/debug/2026-11-28">C++26</a>
+  <a href="/rust/debug/2026-11-28">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-28" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-28">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-28">READ</a>
+  <a href="/haskell/write/2026-11-28">WRITE</a>
+  <a href="/haskell/debug/2026-11-28" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="foldlの||は止まらない"
+  data-tags="short-circuit fold infinite-list laziness"
+  data-concepts="短絡評価, foldl, foldr, any, 無限リスト, short-circuit, left fold, infinite list"
+  data-level="hedgehog"
+>
+  <h2>2026-11-28</h2>
+  <div class="code-frame">
+    <p class="code-filename">HasNeg.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="fn">hasNeg</span> <span class="op">::</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> <span class="ty">Bool</span></span>
+<span class="code-line"><span class="fn">hasNeg</span> = foldl (\acc x <span class="op">-&gt;</span> acc || x &lt; <span class="nu">0</span>) <span class="ty">False</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()</span>
+<span class="code-line"><span class="fn">main</span> = print (hasNeg (<span class="nu">5</span> : -<span class="nu">2</span> : [<span class="nu">1</span> ..]))</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>hasNeg</code> は、リストに負の数が1つでもあれば <code>True</code> を返すつもりの関数です。リストが無限に続いても、負の数が現れたところで答えを返すようにしたいものです。<code>main</code> は、5 と -2 のあとに 1 から始まる無限の列が続くリストを調べ、結果を出力します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label wrong">いまの出力</p>
+      <pre class="io"><code>（何も出力せずに止まらない）</code></pre>
+      <p class="example-label right">本来の出力</p>
+      <pre class="io"><code>True</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del"><span class="fn">hasNeg</span> = <span class="chg">foldl (\acc x <span class="op">-&gt;</span> acc || x</span> &lt; <span class="nu">0</span>) <span class="chg"><span class="ty">False</span></span></span>
+</code></pre>
+      <p>
+        <code>foldl</code> は <code>foldl f z (x : xs) = foldl f (f z x) xs</code> と、リストの残りに対して自分を呼び続け、空のリストに着いたときに初めて溜めた値を返します。<code>-2</code> を見た時点で溜めた値は <code>False || -2 &lt; 0</code> で <code>True</code> になりますが、<code>foldl</code> は値を返さずに次の要素へ進みます。リストに終わりが無いので、<code>||</code> が結果を確かめる時はいつまでも来ず、<code>foldl</code> はまだ評価していない <code>||</code> の式をメモリに溜めながら進み続けます。<code>print</code> は何も出力しないまま止まりません。
+      </p>
+      <h3 class="right">Right
+        <span class="complexity">
+          <span><span class="complexity-label">時間計算量</span> &#x1D4AA;(<var>k</var>)</span>
+          <span><span class="complexity-label">空間計算量</span> &#x1D4AA;(1)</span>
+          <span class="complexity-where"><var>k</var> は最初の負の数までの要素の個数(負の数が無ければリストの長さ)</span>
+        </span>
+      </h3>
+      <pre class="code"><code><span class="code-line ins"><span class="fn">hasNeg</span> = <span class="chg">any</span> (&lt; <span class="nu">0</span>)</span>
+</code></pre>
+      <p>
+        <code>any</code> は <code>foldr</code> と同じ向きにたどり、<code>p x || any p xs</code> の形で結果を返します。<code>||</code> は左が <code>True</code> なら右を評価しないので、<code>-2 &lt; 0</code> が <code>True</code> になった時点で、残りの無限の列を見ずに <code>True</code> が返ります。負の数が1つも無い有限のリストなら最後まで調べて <code>False</code> を返し、負の数が無い無限のリストでは、どんな書き方でも答えは出ません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

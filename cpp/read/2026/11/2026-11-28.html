@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="引数1つの f(long) と、既定の引数を持つ f(int, int = 0) のどちらが呼ばれるか。オーバーロード解決が、書いた実引数の変換だけで候補を比べることを確かめるC++26のドリル。">
+<title>既定値で埋まる引数と候補</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-11-28">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-28" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-11-28",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-11-28",
+      "datePublished": "2026-11-28",
+      "dateModified": "2026-11-28",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "既定値で埋まる引数と候補" },
+      "keywords": "overload-resolution, default-argument, implicit-conversion",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "引数1つの f(long) と、既定の引数を持つ f(int, int = 0) のどちらが呼ばれるか。オーバーロード解決が、書いた実引数の変換だけで候補を比べることを確かめるC++26のドリル。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-28">C23</a>
+  <a href="/cpp/read/2026-11-28" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-11-28">Rust 2024</a>
+  <a href="/haskell/read/2026-11-28">Haskell 2010</a>
+  <a href="/zig/read/2026-11-28">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-28" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-11-28">WRITE</a>
+  <a href="/cpp/debug/2026-11-28">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="既定値で埋まる引数と候補"
+  data-tags="overload-resolution default-argument implicit-conversion"
+  data-concepts="オーバーロード解決, デフォルト引数, 整数の変換, 完全一致, overload resolution, default argument, exact match"
+  data-level="peacock"
+>
+  <h2>2026-11-28</h2>
+  <div class="code-frame">
+    <p class="code-filename">pick_overload.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">void</span> <span class="fn">f</span>(<span class="ty">long</span>) {</span>
+<span class="code-line">    std::cout &lt;&lt; <span class="st">"long\n"</span>;</span>
+<span class="code-line">}</span>
+<span class="code-line"><span class="ty">void</span> <span class="fn">f</span>(<span class="ty">int</span>, <span class="ty">int</span> = <span class="nu">0</span>) {</span>
+<span class="code-line">    std::cout &lt;&lt; <span class="st">"int\n"</span>;</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="fn">f</span>(<span class="nu">1</span>);</span>
+<span class="code-line">    <span class="fn">f</span>(<span class="nu">1L</span>);</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>int
+long</samp></pre>
+      </div>
+      <p>
+        <code>f(1)</code> では、どちらの <code>f</code> も呼び出せます。<code>f(int, int = 0)</code> は2つ目の引数に既定の値があるので、引数1つで呼べるからです。このとき、2つの候補の優劣は実際に書いた引数 <code>1</code> の変換だけで比べ、既定の値で埋まる2つ目の引数は比べる材料になりません。<code>1</code> は <code>int</code> なので、<code>f(int, int = 0)</code> へは変換の要らない完全一致で、<code>f(long)</code> へは <code>int</code> から <code>long</code> への整数の変換が要ります。完全一致のほうが優先され、1行目は <code>int</code> です。
+      </p>
+      <p>
+        <code>f(1L)</code> では立場が入れ替わります。<code>1L</code> は <code>long</code> なので、<code>f(long)</code> が完全一致になり、<code>f(int, int = 0)</code> のほうは <code>long</code> から <code>int</code> への変換が要ります。2行目は <code>long</code> です。引数を1つだけ書いた呼び出しには、引数が1つの関数のほうがよく合うように見えます。しかし引数の数は候補に残るかどうかを決めるだけで、残った候補の優劣は書いた引数の型で決まります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

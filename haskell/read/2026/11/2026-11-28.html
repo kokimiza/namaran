@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="(&amp;&amp;) &lt;$&gt; check 1 &lt;*&gt; check 2 と、純粋な式の &amp;&amp; を並べたHaskell 2010のドリル。&amp;&amp; の短絡は式の評価には効くが、IO の動作は &amp;&amp; に渡る前に両方とも実行される。">
+<title>&&で止まらない動作</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-11-28">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-28" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-11-28",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-11-28",
+      "datePublished": "2026-11-28",
+      "dateModified": "2026-11-28",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "&&で止まらない動作" },
+      "keywords": "short-circuit, applicative, side-effect, laziness, io",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "(&&) <$> check 1 <*> check 2 と、純粋な式の && を並べたHaskell 2010のドリル。&& の短絡は式の評価には効くが、IO の動作は && に渡る前に両方とも実行される。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-28">C23</a>
+  <a href="/cpp/read/2026-11-28">C++26</a>
+  <a href="/rust/read/2026-11-28">Rust 2024</a>
+  <a href="/haskell/read/2026-11-28" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/read/2026-11-28">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-28" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-11-28">WRITE</a>
+  <a href="/haskell/debug/2026-11-28">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="&&で止まらない動作"
+  data-tags="short-circuit applicative side-effect laziness io"
+  data-concepts="短絡評価, 遅延評価, Applicative, IOの副作用, short-circuit evaluation, laziness, applicative effects"
+  data-level="bison"
+>
+  <h2>2026-11-28</h2>
+  <div class="code-frame">
+    <p class="code-filename">Checks.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="fn">check</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> <span class="ty">IO</span> <span class="ty">Bool</span></span>
+<span class="code-line"><span class="fn">check</span> n = <span class="kw">do</span></span>
+<span class="code-line">  print n</span>
+<span class="code-line">  pure (n &gt; <span class="nu">1</span>)</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()</span>
+<span class="code-line"><span class="fn">main</span> = <span class="kw">do</span></span>
+<span class="code-line">  ok <span class="op">&lt;-</span> (&amp;&amp;) &lt;$&gt; check <span class="nu">1</span> &lt;*&gt; check <span class="nu">2</span></span>
+<span class="code-line">  print (ok &amp;&amp; all (&gt; <span class="nu">0</span>) [<span class="nu">1</span> <span class="op">::</span> <span class="ty">Int</span> ..])</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>1
+2
+False</samp></pre>
+      </div>
+      <p>
+        <code>(&amp;&amp;) &lt;$&gt; check 1 &lt;*&gt; check 2</code> は、<code>check 1</code> と <code>check 2</code> を順に実行し、2つの結果がそろってから <code>(&amp;&amp;)</code> に渡す IO の動作です。<code>&lt;*&gt;</code> がつなぐのは動作そのものなので、<code>check 1</code> の結果が <code>False</code> だと分かっても、<code>check 2</code> の実行は止まりません。<code>check 1</code> が <code>1</code> を、<code>check 2</code> が <code>2</code> を出力し、<code>ok</code> は <code>False &amp;&amp; True</code> で <code>False</code> になります。<code>&amp;&amp;</code> が省けるのは、すでに得た値の評価だけです。
+      </p>
+      <p>
+        最後の行では、同じ <code>&amp;&amp;</code> が短絡します。<code>&amp;&amp;</code> は1つ目の引数を見て、<code>False</code> ならそのまま <code>False</code> を返す普通の関数で、2つ目の引数は遅延評価のために評価されないまま捨てられます。<code>ok</code> は <code>False</code> なので、無限のリストを最後まで調べる <code>all (&gt; 0) [1 :: Int ..]</code> は評価されず、<code>False</code> が出力されて終わります。<code>&lt;*&gt;</code> の行も短絡すると読むと <code>2</code> の行が消え、最後の行も2つ目の引数を評価すると読むと、<code>all</code> が終わらずに止まらないと答えることになります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

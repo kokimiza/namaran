@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「コンパイル時実行」を扱ったNamaranのコーディングドリル31問。comptime T: type、型を引数で渡す、汎用関数、スライスの合計、generic function、type parameter。">
+<meta name="description" content="「コンパイル時実行」を扱ったNamaranのコーディングドリル34問。型を返す関数、comptime引数、リングバッファ、移動和、type function、ring buffer。">
 <title>コンパイル時実行</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/comptime">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>コンパイル時実行</h2>
 
   <p class="lede">
-    「コンパイル時実行」を扱った31問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「コンパイル時実行」を扱った34問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/write/2026-11-28">Zig / WRITE · 2026-11-28</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">最新n個の和を持つ型</span> <span class="past-concepts">型を返す関数, comptime引数, リングバッファ, 移動和, type function, ring buffer, sliding window sum</span></li>
+    <li><a href="/zig/read/2026-11-28">Zig / READ · 2026-11-28</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">同じ引数で返る同じ型</span> <span class="past-concepts">型を返す関数, comptime引数, 型の同一性, ジェネリクス, type function, generic type, comptime memoization</span></li>
+    <li><a href="/zig/debug/2026-11-28">Zig / DEBUG · 2026-11-28</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">0から始める最大値</span> <span class="past-concepts">型を返す関数, 最大値の初期値, std.math.minInt, 符号付き整数, type function, generic type, initial value of maximum</span></li>
     <li><a href="/zig/write/2026-11-24">Zig / WRITE · 2026-11-24</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">型を引数で受ける合計</span> <span class="past-concepts">comptime T: type, 型を引数で渡す, 汎用関数, スライスの合計, generic function, type parameter, comptime parameter, slice sum</span></li>
     <li><a href="/zig/read/2026-11-24">Zig / READ · 2026-11-24</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">anytypeが受け取る型</span> <span class="past-concepts">anytype, @TypeOf, @typeName, comptime_int, 整数リテラルの型, 汎用関数, generic function, integer literal type, peer type resolution</span></li>
     <li><a href="/zig/write/2026-11-20">Zig / WRITE · 2026-11-20</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">型を返す関数のPair</span> <span class="past-concepts">ジェネリック型, 型を返す関数, @This, 無名構造体, メソッド, generic struct, type function</span></li>

@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="main が受け取る argc と argv から、- で始まるオプションの個数を数える関数を書くC23のドリル。argv[0] の扱いと -- の後ろを数えないことを確かめる。">
+<title>オプションの数を数える</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-11-28">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-28" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-11-28",
+      "url": "https://namaran.jocarium.productions/c/write/2026-11-28",
+      "datePublished": "2026-11-28",
+      "dateModified": "2026-11-28",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "オプションの数を数える" },
+      "keywords": "command-line-argument, string, loop",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "main が受け取る argc と argv から、- で始まるオプションの個数を数える関数を書くC23のドリル。argv[0] の扱いと -- の後ろを数えないことを確かめる。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-28" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-11-28">C++26</a>
+  <a href="/rust/write/2026-11-28">Rust 2024</a>
+  <a href="/haskell/write/2026-11-28">Haskell 2010</a>
+  <a href="/zig/write/2026-11-28">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-28">READ</a>
+  <a href="/c/write/2026-11-28" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-11-28">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="オプションの数を数える"
+  data-tags="command-line-argument string loop"
+  data-concepts="コマンドライン引数, argv[0], プログラム名, オプションの終わり, command-line options, double dash"
+  data-level="hedgehog"
+>
+  <h2>2026-11-28</h2>
+  <div class="code-frame">
+    <p class="code-filename">count_options.c</p>
+    <pre class="code"><code><span class="code-line"><span class="ty">int</span> <span class="fn">count_options</span>(<span class="ty">int</span> argc, <span class="ty">char</span>* argv[]) {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>main</code> が受け取ったままの <code>argc</code> と <code>argv</code> を受け取り、コマンドライン引数のうち <code>-</code> で始まるもの(オプション)の個数を返す <code>count_options</code> を書いてください。<code>--</code> だけの引数があれば、そこでオプションは終わりとし、<code>--</code> 自身もその後ろも数えません。引数が1つも無ければ 0 を返します。例では、<code>argv</code> の指す文字列を <code>argv[0]</code> から順に空白で区切って書きます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>ls -l src -a</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>2</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>rm -f -- -x</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>1</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>-bash</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference
+      <span class="complexity">
+        <span><span class="complexity-label">時間計算量</span> &#x1D4AA;(<var>n</var>)</span>
+        <span><span class="complexity-label">空間計算量</span> &#x1D4AA;(1)</span>
+        <span class="complexity-where"><var>n</var> は <code>argc</code></span>
+      </span>
+    </summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="ty">int</span> <span class="fn">count_options</span>(<span class="ty">int</span> argc, <span class="ty">char</span>* argv[]) {</span>
+<span class="code-line ins">    <span class="ty">int</span> n = <span class="nu">0</span>;</span>
+<span class="code-line ins">    <span class="kw">for</span> (<span class="ty">int</span> i = <span class="nu">1</span>; i &lt; argc; i++) {</span>
+<span class="code-line ins">        <span class="kw">if</span> (<span class="fn">strcmp</span>(argv[i], <span class="st">"--"</span>) == <span class="nu">0</span>)</span>
+<span class="code-line ins">            <span class="kw">break</span>;</span>
+<span class="code-line ins">        <span class="kw">if</span> (argv[i][<span class="nu">0</span>] == <span class="st">'-'</span>)</span>
+<span class="code-line ins">            n++;</span>
+<span class="code-line ins">    }</span>
+<span class="code-line ins">    <span class="kw">return</span> n;</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        <code>argv[0]</code> はプログラムの名前で、コマンドライン引数は <code>argv[1]</code> から <code>argv[argc - 1]</code> までに入っています。<code>argc</code> もプログラムの名前を含めた個数なので、ループは <code>i = 1</code> から <code>i &lt; argc</code> まで回します。各引数については、先に <code>strcmp</code> で <code>--</code> と内容を比べ、一致したらループを抜けます。<code>argv[i] == "--"</code> と書くとポインタどうしの比較になり、内容が同じでも一致しません。<code>--</code> でなければ先頭の1文字が <code>-</code> かどうかを見て数えます。これは参考実装で、唯一の正解ではありません。<code>argv[argc]</code> が NULL であることを使い、ポインタで NULL までたどる書き方もできます。
+      </p>
+      <p>
+        入力例 2 では <code>-f</code> を数えたあと <code>--</code> で止まるので、オプションのように見える <code>-x</code> は数えません。入力例 3 は <code>argc</code> が 1 で、ループは1度も回らずに 0 を返します。<code>argv[0]</code> を数えに入れると、ここで 1 になってしまいます。ログインシェルは自分の名前の先頭に <code>-</code> を付けた <code>argv[0]</code> で起動されるので<sup class="fn-ref">1</sup>、この違いは実際に起こります。空文字列の引数は先頭の文字が <code>'\0'</code> なので数えません。数える値は <code>argc</code> を超えないので、<code>int</code> の <code>n</code> があふれることもありません。
+      </p>
+      <ol class="footnotes">
+        <li>ログインシェルかどうかを、シェル自身が <code>argv[0]</code> の先頭の <code>-</code> で判断するという慣習です。<code>login</code> などがこの形でシェルを起動します。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

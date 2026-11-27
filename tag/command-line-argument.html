@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「コマンドライン引数」を扱ったNamaranのコーディングドリル6問。短いオプションのまとめ書き、オプションの値、オプションの終わりを示す --、getoptの規則、argv parsing、grouped short options。">
+<meta name="description" content="「コマンドライン引数」を扱ったNamaranのコーディングドリル9問。コマンドライン引数、argv[0]、プログラム名、オプションの終わり、command-line options、double dash。">
 <title>コマンドライン引数</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/command-line-argument">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>コマンドライン引数</h2>
 
   <p class="lede">
-    「コマンドライン引数」を扱った6問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「コマンドライン引数」を扱った9問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/c/write/2026-11-28">C / WRITE · 2026-11-28</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">オプションの数を数える</span> <span class="past-concepts">コマンドライン引数, argv[0], プログラム名, オプションの終わり, command-line options, double dash</span></li>
+    <li><a href="/c/read/2026-11-28">C / READ · 2026-11-28</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">argvを末尾から数える</span> <span class="past-concepts">argv[argc], NULLポインタ, 番兵, コマンドライン引数, argv terminator, null pointer sentinel</span></li>
+    <li><a href="/c/debug/2026-11-28">C / DEBUG · 2026-11-28</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">-oの後ろも読む走査</span> <span class="past-concepts">オプション解析, まとめて書く短いオプション, オプションの値, getopt, option parsing, clustered short options</span></li>
     <li><a href="/c/write/2026-11-26">C / WRITE · 2026-11-26</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">まとめた短いオプション</span> <span class="past-concepts">短いオプションのまとめ書き, オプションの値, オプションの終わりを示す --, getoptの規則, argv parsing, grouped short options, option argument, end of options</span></li>
     <li><a href="/c/read/2026-11-26">C / READ · 2026-11-26</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">二度目の解析は空振り</span> <span class="past-concepts">argvの走査, ポインタの配列, *++argv[0], 引数の値渡し, 呼び出し元の配列の書き換え, argv parsing, array of pointers, K&amp;R option parsing</span></li>
     <li><a href="/c/debug/2026-11-26">C / DEBUG · 2026-11-26</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">strcmpの0は一致</span> <span class="past-concepts">strcmpの戻り値, 文字列の比較, オプションの有無, strcmp returns zero on match, string comparison, argv option check</span></li>

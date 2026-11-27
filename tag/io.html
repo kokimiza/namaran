@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「IOアクション」を扱ったNamaranのコーディングドリル30問。std.Io.Reader、std.Io.Writer、takeByte、行番号、行の先頭、最後の改行。">
+<meta name="description" content="「IOアクション」を扱ったNamaranのコーディングドリル31問。短絡評価、遅延評価、Applicative、IOの副作用、short-circuit evaluation、laziness。">
 <title>IOアクション</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/io">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,11 @@
   <h2>IOアクション</h2>
 
   <p class="lede">
-    「IOアクション」を扱った30問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「IOアクション」を扱った31問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/haskell/read/2026-11-28">Haskell / READ · 2026-11-28</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">&amp;&amp;で止まらない動作</span> <span class="past-concepts">短絡評価, 遅延評価, Applicative, IOの副作用, short-circuit evaluation, laziness, applicative effects</span></li>
     <li><a href="/zig/write/2026-11-14">Zig / WRITE · 2026-11-14</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">空でない行に番号を振る</span> <span class="past-concepts">std.Io.Reader, std.Io.Writer, takeByte, 行番号, 行の先頭, 最後の改行, EndOfStream, line numbering, streaming copy</span></li>
     <li><a href="/zig/read/2026-11-14">Zig / READ · 2026-11-14</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">まだ送っていない分を書く</span> <span class="past-concepts">std.Io.Writer, buffered, flush, バッファ付き出力, まだ書き出していないバイト, 引数の評価順, buffered writer, pending bytes</span></li>
     <li><a href="/zig/debug/2026-11-14">Zig / DEBUG · 2026-11-14</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">写したinterfaceで書く</span> <span class="past-concepts">std.Io.Writer, interface フィールド, @fieldParentPtr, 構造体のコピー, ポインタで渡す, flush, writer interface, copied interface</span></li>

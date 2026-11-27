@@ -118,6 +118,7 @@ deriving	自動導出
 design-by-contract	契約による設計
 designated-initializer	指示付き初期化子
 destructor	デストラクタ
+destructuring-assignment	分割代入
 difference-list	差分リスト
 differential-testing	差分テスト
 digit-dp	桁DP
@@ -329,6 +330,7 @@ phantom-type	ファントム型
 point-free	ポイントフリー
 pointer	ポインタ
 pointer-decay	配列のポインタ化
+pointer-equality	アドレスの比較
 population-count	ポップカウント
 precise-capturing	精密な捕捉
 prefix-sum	累積和

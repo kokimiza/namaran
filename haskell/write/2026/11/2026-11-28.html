@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="整数 n がリストのすべての数で割り切れるかを返す関数を、0 を含むリストでも例外を出さずに書くHaskell 2010のドリル。&amp;&amp; の左側で 0 を除いてから mod を使う。">
+<title>0で割らない割り切れ判定</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-11-28">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-28" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-11-28",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-11-28",
+      "datePublished": "2026-11-28",
+      "dateModified": "2026-11-28",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "0で割らない割り切れ判定" },
+      "keywords": "short-circuit, division, partial-function, laziness",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "整数 n がリストのすべての数で割り切れるかを返す関数を、0 を含むリストでも例外を出さずに書くHaskell 2010のドリル。&& の左側で 0 を除いてから mod を使う。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-28">C23</a>
+  <a href="/cpp/write/2026-11-28">C++26</a>
+  <a href="/rust/write/2026-11-28">Rust 2024</a>
+  <a href="/haskell/write/2026-11-28" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/write/2026-11-28">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-28">READ</a>
+  <a href="/haskell/write/2026-11-28" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-11-28">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="0で割らない割り切れ判定"
+  data-tags="short-circuit division partial-function laziness"
+  data-concepts="短絡評価, ゼロ除算, 割り切れる, mod, short-circuit evaluation, division by zero, guard condition"
+  data-level="peacock"
+>
+  <h2>2026-11-28</h2>
+  <div class="code-frame">
+    <p class="code-filename">AllDivide.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="fn">allDivide</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> <span class="ty">Bool</span></span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>allDivide n ds</code> が、<code>ds</code> のどの要素 <code>d</code> も <code>n</code> を割り切るときに <code>True</code> を返すように書いてください。0 はどの数も割り切らないものとし、<code>ds</code> に 0 があれば <code>False</code> です。<code>ds</code> が空なら <code>True</code> を返します。どの入力でも例外を出さずに値を返してください。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>allDivide 12 [2, 3, 4]</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>True</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>allDivide 12 [3, 0]</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>False</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>allDivide 5 []</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>True</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference
+      <span class="complexity">
+        <span><span class="complexity-label">時間計算量</span> &#x1D4AA;(<var>k</var>)</span>
+        <span><span class="complexity-label">空間計算量</span> &#x1D4AA;(1)</span>
+        <span class="complexity-where"><var>k</var> は <code>ds</code> の要素の個数</span>
+      </span>
+    </summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="fn">allDivide</span> <span class="op">::</span> <span class="ty">Int</span> <span class="op">-&gt;</span> [<span class="ty">Int</span>] <span class="op">-&gt;</span> <span class="ty">Bool</span></span>
+<span class="code-line ins"><span class="fn">allDivide</span> n = all divides</span>
+<span class="code-line ins"> <span class="kw">where</span></span>
+<span class="code-line ins">  divides d = d /= <span class="nu">0</span> &amp;&amp; n `mod` d == <span class="nu">0</span></span>
+</code></pre>
+      </div>
+      <p>
+        <code>n `mod` 0</code> は値を返さず、ゼロ除算の例外を投げます。そこで各要素を調べる <code>divides</code> を <code>d /= 0 &amp;&amp; n `mod` d == 0</code> とし、0 でないことを <code>&amp;&amp;</code> の左側で先に確かめます。<code>&amp;&amp;</code> は左が <code>False</code> なら右を評価しないので、<code>d</code> が 0 のときは <code>mod</code> まで進まずに <code>False</code> になります。左右を入れ替えた <code>n `mod` d == 0 &amp;&amp; d /= 0</code> は、論理式としては同じでも、0 が来ると先に <code>mod</code> を評価して例外を投げます。これは参考実装で、唯一の正解ではありません。<code>all</code> を使わずに再帰で書いても、0 の判定を先にする点は変わりません。
+      </p>
+      <p>
+        入力例 2 では、3 が 12 を割り切ったあと、0 で <code>d /= 0</code> が <code>False</code> になり、<code>all</code> も <code>False</code> を返します。<code>all</code> も <code>False</code> が出たところで残りを見ないので、0 の後ろにどんな要素があっても調べません。空のリストでは調べる要素が無く、<code>all</code> は <code>True</code> を返します。<code>-1</code> で割る場合も、GHC の <code>Int</code> の <code>mod</code> は <code>n</code> が <code>minBound</code> でも 0 を返すので、例外もあふれも起きません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

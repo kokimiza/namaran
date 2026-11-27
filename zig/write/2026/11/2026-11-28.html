@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="要素の型 T と個数 n を comptime 引数で受け取り、最後に push した n 個の値の和を返す struct 型を作る Window を書くZig 0.17のドリル。n を配列 [n]T の長さに使って、確保なしのリングバッファにする。">
+<title>最新n個の和を持つ型</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/write/2026-11-28">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / WRITE", "item": "https://namaran.jocarium.productions/zig/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-28" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / WRITE — 2026-11-28",
+      "url": "https://namaran.jocarium.productions/zig/write/2026-11-28",
+      "datePublished": "2026-11-28",
+      "dateModified": "2026-11-28",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "最新n個の和を持つ型" },
+      "keywords": "comptime, generic-programming, ring-buffer, struct",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "要素の型 T と個数 n を comptime 引数で受け取り、最後に push した n 個の値の和を返す struct 型を作る Window を書くZig 0.17のドリル。n を配列 [n]T の長さに使って、確保なしのリングバッファにする。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-28">C23</a>
+  <a href="/cpp/write/2026-11-28">C++26</a>
+  <a href="/rust/write/2026-11-28">Rust 2024</a>
+  <a href="/haskell/write/2026-11-28">Haskell 2010</a>
+  <a href="/zig/write/2026-11-28" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-28">READ</a>
+  <a href="/zig/write/2026-11-28" class="active" aria-current="page">WRITE</a>
+  <a href="/zig/debug/2026-11-28">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="最新n個の和を持つ型"
+  data-tags="comptime generic-programming ring-buffer struct"
+  data-concepts="型を返す関数, comptime引数, リングバッファ, 移動和, type function, ring buffer, sliding window sum"
+  data-level="peacock"
+>
+  <h2>2026-11-28</h2>
+  <div class="code-frame">
+    <p class="code-filename">window.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">Window</span>(</span>
+<span class="code-line">    <span class="kw">comptime</span> <span class="ty">T</span>: <span class="ty">type</span>,</span>
+<span class="code-line">    <span class="kw">comptime</span> n: <span class="ty">usize</span>,</span>
+<span class="code-line">) <span class="ty">type</span> {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    要素の型 <code>T</code> と個数 <code>n</code> を受け取り、値を1つずつ受け取って最後の <code>n</code> 個の和を答える struct 型を返す <code>Window</code> を書いてください。返す型の値は <code>.{}</code> で作れて、値を足すメソッド <code>push(self: *@This(), x: T) void</code> と、最後に <code>push</code> した <code>n</code> 個の和を返すメソッド <code>sum(self: @This()) T</code> を持ちます。<code>push</code> した値が <code>n</code> 個に満たなければ、それまでに <code>push</code> した値すべての和を返し、1つも無ければ 0 です。<code>T</code> は符号なし整数型、<code>n</code> は 1 以上で、<code>sum</code> の答えは <code>T</code> に収まるものとし、メモリを動的に確保しないでください。例では、作る型と、<code>push</code> した値を順に並べた配列を書き、出力例に <code>sum</code> の結果を書きます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>Window(u32, 3), [1, 2, 3, 4]</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>9</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>Window(u16, 4), [5, 2]</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>7</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>Window(u8, 2), []</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference
+      <span class="complexity">
+        <span><span class="complexity-label">時間計算量</span> &#x1D4AA;(<var>n</var>)</span>
+        <span><span class="complexity-label">空間計算量</span> &#x1D4AA;(<var>n</var>)</span>
+        <span class="complexity-where"><var>n</var> は <code>Window</code> に渡した個数。時間は <code>sum</code> 1回あたりで、<code>push</code> は &#x1D4AA;(1)</span>
+      </span>
+    </summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">Window</span>(</span>
+<span class="code-line">    <span class="kw">comptime</span> <span class="ty">T</span>: <span class="ty">type</span>,</span>
+<span class="code-line">    <span class="kw">comptime</span> n: <span class="ty">usize</span>,</span>
+<span class="code-line">) <span class="ty">type</span> {</span>
+<span class="code-line ins">    <span class="kw">return</span> <span class="kw">struct</span> {</span>
+<span class="code-line ins">        buf: [n]<span class="ty">T</span> = <span class="mc">@splat</span>(<span class="nu">0</span>),</span>
+<span class="code-line ins">        next: <span class="ty">usize</span> = <span class="nu">0</span>,</span>
+<span class="code-line ins"></span>
+<span class="code-line ins">        <span class="kw">fn</span> <span class="fn">push</span>(self: *<span class="mc">@This</span>(), x: <span class="ty">T</span>) <span class="ty">void</span> {</span>
+<span class="code-line ins">            self.buf[self.next] = x;</span>
+<span class="code-line ins">            self.next = (self.next + <span class="nu">1</span>) % n;</span>
+<span class="code-line ins">        }</span>
+<span class="code-line ins"></span>
+<span class="code-line ins">        <span class="kw">fn</span> <span class="fn">sum</span>(self: <span class="mc">@This</span>()) <span class="ty">T</span> {</span>
+<span class="code-line ins">            <span class="kw">var</span> s: <span class="ty">T</span> = <span class="nu">0</span>;</span>
+<span class="code-line ins">            <span class="kw">for</span> (self.buf) |x| s += x;</span>
+<span class="code-line ins">            <span class="kw">return</span> s;</span>
+<span class="code-line ins">        }</span>
+<span class="code-line ins">    };</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        <code>n</code> は comptime の引数なので、返す struct の中でフィールドの型 <code>[n]T</code> の長さに使えます。<code>Window(u32, 3)</code> は長さ3の配列を中に持つ型になり、値を作るときに動的な確保は要りません。配列は輪のように使い、<code>next</code> が次に書き込む位置を指します。<code>push</code> は <code>next</code> の位置に値を書いて <code>next</code> を1つ進め、<code>n</code> に着いたら <code>% n</code> で 0 に戻します。書き込む位置がいちばん古い値の位置なので、配列にはいつも最後の <code>n</code> 個が残ります。これは参考実装で、唯一の正解ではありません。<code>push</code> のたびに和を更新しておき、<code>sum</code> を &#x1D4AA;(1) にする書き方もあります。
+      </p>
+      <p>
+        <code>n</code> 個に満たないときの答えは、配列を <code>@splat(0)</code> ですべて 0 で埋めておくことで出しています。まだ書き込んでいない場所は 0 なので、配列全体を足せば <code>push</code> した値だけの和になり、入力例 3 は 0 を返します。入力例 1 では 4 が最初の 1 の場所に書かれて配列が <code>{4, 2, 3}</code> になり、和は 9 です。<code>T</code> が符号なしなら途中までの和は最後の和を超えないので、答えが <code>T</code> に収まれば <code>s += x</code> もあふれません。<code>next</code> は <code>n</code> 未満を回り続けるだけなので、何回 <code>push</code> してもあふれません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/write">Today</a></li>
+    <li><a href="/zig/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

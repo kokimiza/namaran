@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="(a, b) = (b, a + b) と書いた分割代入と、x = y; y += x; と1つずつ書いた代入を並べて回すRust 2024のドリル。右辺をいつ評価するかの違いで値がずれる。">
+<title>組への代入と1つずつの代入</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/read/2026-11-28">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / READ", "item": "https://namaran.jocarium.productions/rust/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-28" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / READ — 2026-11-28",
+      "url": "https://namaran.jocarium.productions/rust/read/2026-11-28",
+      "datePublished": "2026-11-28",
+      "dateModified": "2026-11-28",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "組への代入と1つずつの代入" },
+      "keywords": "destructuring-assignment, tuple, evaluation-order",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "(a, b) = (b, a + b) と書いた分割代入と、x = y; y += x; と1つずつ書いた代入を並べて回すRust 2024のドリル。右辺をいつ評価するかの違いで値がずれる。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-28">C23</a>
+  <a href="/cpp/read/2026-11-28">C++26</a>
+  <a href="/rust/read/2026-11-28" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/read/2026-11-28">Haskell 2010</a>
+  <a href="/zig/read/2026-11-28">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-28" class="active" aria-current="page">READ</a>
+  <a href="/rust/write/2026-11-28">WRITE</a>
+  <a href="/rust/debug/2026-11-28">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="組への代入と1つずつの代入"
+  data-tags="destructuring-assignment tuple evaluation-order"
+  data-concepts="分割代入, タプルへの代入, 右辺の評価, 同時代入, destructuring assignment, tuple assignment, simultaneous assignment"
+  data-level="peacock"
+>
+  <h2>2026-11-28</h2>
+  <div class="code-frame">
+    <p class="code-filename">two_steps.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="kw">let</span> (<span class="kw">mut</span> a, <span class="kw">mut</span> b) = (<span class="nu">1</span>, <span class="nu">1</span>);</span>
+<span class="code-line">    <span class="kw">let</span> (<span class="kw">mut</span> x, <span class="kw">mut</span> y) = (<span class="nu">1</span>, <span class="nu">1</span>);</span>
+<span class="code-line">    <span class="kw">for</span> _ <span class="kw">in</span> <span class="nu">0</span>..<span class="nu">3</span> {</span>
+<span class="code-line">        (a, b) = (b, a + b);</span>
+<span class="code-line">        x = y;</span>
+<span class="code-line">        y += x;</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="mc">println!</span>(<span class="st">"{a} {b}"</span>);</span>
+<span class="code-line">    <span class="mc">println!</span>(<span class="st">"{x} {y}"</span>);</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>3 5
+4 8</samp></pre>
+      </div>
+      <p>
+        <code>(a, b) = (b, a + b)</code> は、右辺のタプル <code>(b, a + b)</code> を先に作り終えてから、その2つの値を <code>a</code> と <code>b</code> に入れます。<code>a + b</code> を計算する時点の <code>a</code> はまだ書き換わっていないので、<code>(a, b)</code> は 1 回ごとに <code>(1, 2)</code>、<code>(2, 3)</code>、<code>(3, 5)</code> と進みます。1行目は <code>3 5</code> です。
+      </p>
+      <p>
+        <code>x = y;</code> と <code>y += x;</code> は別々の文なので、2つ目の文で足す <code>x</code> は、1つ目の文で <code>y</code> の値に書き換わったあとの <code>x</code> です。<code>y += x</code> は <code>y</code> に自分と同じ値を足すことになり、<code>(x, y)</code> は <code>(1, 2)</code>、<code>(2, 4)</code>、<code>(4, 8)</code> と、<code>y</code> が毎回2倍になるだけです。2つの書き方を同じ計算と読むと、2行目も <code>3 5</code> だと答えてしまいます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/read">Today</a></li>
+    <li><a href="/rust/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>
