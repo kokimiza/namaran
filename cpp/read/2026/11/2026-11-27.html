@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="std::println の書式で幅だけを指定したとき、文字列と整数がそれぞれ左と右のどちらに寄るかを読むドリル。寄せ方を書かないと、既定の寄せ方は引数の型で決まる。2026-11-27のC++ READ。">
+<title>幅だけ決めた欄の寄せ方</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/read/2026-11-27">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / READ", "item": "https://namaran.jocarium.productions/cpp/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-27" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / READ — 2026-11-27",
+      "url": "https://namaran.jocarium.productions/cpp/read/2026-11-27",
+      "datePublished": "2026-11-27",
+      "dateModified": "2026-11-27",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "幅だけ決めた欄の寄せ方" },
+      "keywords": "format-string, stdio, string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "std::println の書式で幅だけを指定したとき、文字列と整数がそれぞれ左と右のどちらに寄るかを読むドリル。寄せ方を書かないと、既定の寄せ方は引数の型で決まる。2026-11-27のC++ READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-27">C23</a>
+  <a href="/cpp/read/2026-11-27" class="active" aria-current="page">C++26</a>
+  <a href="/rust/read/2026-11-27">Rust 2024</a>
+  <a href="/haskell/read/2026-11-27">Haskell 2010</a>
+  <a href="/zig/read/2026-11-27">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-27" class="active" aria-current="page">READ</a>
+  <a href="/cpp/write/2026-11-27">WRITE</a>
+  <a href="/cpp/debug/2026-11-27">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="幅だけ決めた欄の寄せ方"
+  data-tags="format-string stdio string"
+  data-concepts="std::format, std::println, 書式指定, 幅, 既定の寄せ方, format spec, width, default alignment"
+  data-level="peacock"
+>
+  <h2>2026-11-27</h2>
+  <div class="code-frame">
+    <p class="code-filename">column.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;print&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;string&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    std::<span class="ty">string</span> id = <span class="st">"7"</span>;</span>
+<span class="code-line">    <span class="ty">int</span> qty = <span class="nu">7</span>;</span>
+<span class="code-line">    std::<span class="fn">println</span>(<span class="st">"|{:3}|{:3}|"</span>, id, qty);</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>|7  |  7|
+</samp></pre>
+      </div>
+      <p>
+        <code>{:3}</code> は幅を3文字にする指定で、寄せ方(<code>&lt;</code>、<code>^</code>、<code>&gt;</code>)は書いていません。寄せ方を省くと、どちらに寄せるかは引数の型で決まります。文字列は左寄せ、整数や浮動小数点数のような数値は右寄せです。<code>id</code> は <code>std::string</code> なので <code>7</code> のあとに空白が2つ続き、<code>qty</code> は <code>int</code> なので空白2つのあとに <code>7</code> が来ます。
+      </p>
+      <p>
+        どちらの欄にも同じ <code>7</code> が見え、指定も同じ <code>{:3}</code> なので、2つとも同じ寄せ方で <code>|  7|  7|</code> や <code>|7  |7  |</code> になると読みがちです。表を作るときは文字列の列と数値の列で寄せ方が揃わないので、揃えたい列には <code>{:&gt;3}</code> のように寄せ方を明示します。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/read">Today</a></li>
+    <li><a href="/cpp/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

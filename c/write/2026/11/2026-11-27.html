@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="符号なし整数の10進表記の桁数を、ループを使わず再帰で数える関数を書くドリル。基底ケースを1桁の数にすると、0 も正しく1桁と数えられる。2026-11-27のC WRITE。">
+<title>0も1桁と数える再帰</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/write/2026-11-27">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / WRITE", "item": "https://namaran.jocarium.productions/c/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-27" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / WRITE — 2026-11-27",
+      "url": "https://namaran.jocarium.productions/c/write/2026-11-27",
+      "datePublished": "2026-11-27",
+      "dateModified": "2026-11-27",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "0も1桁と数える再帰" },
+      "keywords": "recursion, base-case, integer-arithmetic",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "符号なし整数の10進表記の桁数を、ループを使わず再帰で数える関数を書くドリル。基底ケースを1桁の数にすると、0 も正しく1桁と数えられる。2026-11-27のC WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-27" class="active" aria-current="page">C23</a>
+  <a href="/cpp/write/2026-11-27">C++26</a>
+  <a href="/rust/write/2026-11-27">Rust 2024</a>
+  <a href="/haskell/write/2026-11-27">Haskell 2010</a>
+  <a href="/zig/write/2026-11-27">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-27">READ</a>
+  <a href="/c/write/2026-11-27" class="active" aria-current="page">WRITE</a>
+  <a href="/c/debug/2026-11-27">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="0も1桁と数える再帰"
+  data-tags="recursion base-case integer-arithmetic"
+  data-concepts="再帰, 基底ケース, 桁数, 10で割る, recursion, base case, number of digits"
+  data-level="hedgehog"
+>
+  <h2>2026-11-27</h2>
+  <div class="code-frame">
+    <p class="code-filename">digits.c</p>
+    <pre class="code"><code><span class="code-line"><span class="ty">int</span> <span class="fn">digits</span>(<span class="ty">unsigned</span> n) {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>unsigned</code> の値 <code>n</code> を10進数で書いたときの桁数を返す <code>digits</code> を、ループを使わずに再帰で書いてください。<code>0</code> は1桁と数えます。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>digits(2026)</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>4</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>digits(7)</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>1</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>digits(0)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>1</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference
+      <span class="complexity">
+        <span><span class="complexity-label">時間計算量</span> &#x1D4AA;(<var>d</var>)</span>
+        <span><span class="complexity-label">空間計算量</span> &#x1D4AA;(<var>d</var>)</span>
+        <span class="complexity-where"><var>d</var> は <code>n</code> の桁数</span>
+      </span>
+    </summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="ty">int</span> <span class="fn">digits</span>(<span class="ty">unsigned</span> n) {</span>
+<span class="code-line ins">    <span class="kw">if</span> (n &lt; <span class="nu">10</span>)</span>
+<span class="code-line ins">        <span class="kw">return</span> <span class="nu">1</span>;</span>
+<span class="code-line ins">    <span class="kw">return</span> <span class="nu">1</span> + <span class="fn">digits</span>(n / <span class="nu">10</span>);</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        <code>n / 10</code> は <code>n</code> の一の位を切り捨てた数で、桁がちょうど1つ少なくなります。そこで、<code>n</code> の桁数を「<code>n / 10</code> の桁数に 1 を足したもの」と考え、再帰で <code>n</code> を小さくしていきます。止めるのは <code>n</code> が1桁になったときで、そこでは答えが 1 と分かっています。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        基底ケースを <code>n == 0</code> にして 0 を返す書き方もよく見かけますが、その形では <code>digits(0)</code> が 0 になり、入力例3を満たしません。0 を1桁と数えるには、「1桁の数」を基底ケースにして 1 を返すのが素直です。<code>digits(2026)</code> は 2026, 202, 20, 2 と4回呼ばれ、<code>2</code> で止まって 1 + 1 + 1 + 1 = 4 を返します。
+      </p>
+      <p>
+        <code>unsigned</code> の最大値は環境によって違いますが、どの値でも呼び出しは桁数の回数だけしか重ならず、32ビットなら最大でも10回です。値が大きくても再帰が深くなりすぎることはなく、足し算も桁数までしか増えないので、あふれることもありません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/write">Today</a></li>
+    <li><a href="/c/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="メートルとキロメートルの2つの場合を持つ union(enum) の長さを合計するとき、km の値から m のフィールドを読んで安全検査でパニックするドリル。switch でタグごとに場合分けして直す。2026-11-27のZig DEBUG。">
+<title>いま有効でないフィールド</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/zig/debug/2026-11-27">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Zig / DEBUG", "item": "https://namaran.jocarium.productions/zig/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-27" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Zig / DEBUG — 2026-11-27",
+      "url": "https://namaran.jocarium.productions/zig/debug/2026-11-27",
+      "datePublished": "2026-11-27",
+      "dateModified": "2026-11-27",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "いま有効でないフィールド" },
+      "keywords": "union, switch, exhaustiveness",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "メートルとキロメートルの2つの場合を持つ union(enum) の長さを合計するとき、km の値から m のフィールドを読んで安全検査でパニックするドリル。switch でタグごとに場合分けして直す。2026-11-27のZig DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-27">C23</a>
+  <a href="/cpp/debug/2026-11-27">C++26</a>
+  <a href="/rust/debug/2026-11-27">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-27">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-27" class="active" aria-current="page">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/zig/read/2026-11-27">READ</a>
+  <a href="/zig/write/2026-11-27">WRITE</a>
+  <a href="/zig/debug/2026-11-27" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="いま有効でないフィールド"
+  data-tags="union switch exhaustiveness"
+  data-concepts="タグ付きunion, union(enum), 有効でないフィールドへのアクセス, illegal behavior, switch, 網羅性, inactive union field, tagged union"
+  data-level="hedgehog"
+>
+  <h2>2026-11-27</h2>
+  <div class="code-frame">
+    <p class="code-filename">length.zig</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">const</span> std = <span class="mc">@import</span>(<span class="st">"std"</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">const</span> <span class="ty">Len</span> = <span class="kw">union</span>(<span class="kw">enum</span>) { m: <span class="ty">u32</span>, km: <span class="ty">u32</span> };</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">main</span>(init: std.process.<span class="ty">Init</span>) !<span class="ty">void</span> {</span>
+<span class="code-line">    <span class="kw">const</span> ls = [_]<span class="ty">Len</span>{</span>
+<span class="code-line">        .{ .m = <span class="nu">500</span> },</span>
+<span class="code-line">        .{ .km = <span class="nu">2</span> },</span>
+<span class="code-line">    };</span>
+<span class="code-line">    <span class="kw">var</span> sum: <span class="ty">u32</span> = <span class="nu">0</span>;</span>
+<span class="code-line">    <span class="kw">for</span> (ls) |l| sum += l.m;</span>
+<span class="code-line">    <span class="kw">const</span> stdout = std.<span class="ty">Io</span>.<span class="ty">File</span>.<span class="fn">stdout</span>();</span>
+<span class="code-line">    <span class="kw">var</span> w = stdout.<span class="fn">writer</span>(init.io, &amp;.{});</span>
+<span class="code-line">    <span class="kw">try</span> w.interface.<span class="fn">print</span>(<span class="st">"{d}\n"</span>, .{sum});</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    このプログラムは、メートルかキロメートルで記録した長さ <code>ls</code> の合計を、メートルに直して出力するつもりのものです。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label wrong">いまの出力</p>
+      <pre class="io"><code>（何も出力せずにパニックで止まる）</code></pre>
+      <p class="example-label right">本来の出力</p>
+      <pre class="io"><code>2500</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del"><span class="kw">for</span> (ls) |l| sum += l<span class="chg">.m;</span></span>
+</code></pre>
+      <p>
+        <code>union(enum)</code> の値は、どのタグが有効かを覚えていて、読めるのはそのタグのフィールドだけです。2つ目の要素 <code>.{ .km = 2 }</code> では <code>km</code> が有効なのに、ループは <code>l.m</code> を読みます。有効でないフィールドを読むのは illegal behavior で、Debug ビルドの安全検査が <code>access of union field 'm' while field 'km' is active</code> と報告してパニックします。合計を出力する前に止まるので、何も出力されません。
+      </p>
+      <h3 class="right">Right
+        <span class="complexity">
+          <span><span class="complexity-label">時間計算量</span> &#x1D4AA;(<var>n</var>)</span>
+          <span><span class="complexity-label">空間計算量</span> &#x1D4AA;(1)</span>
+          <span class="complexity-where"><var>n</var> は <code>ls</code> の要素数</span>
+        </span>
+      </h3>
+      <pre class="code"><code><span class="code-line ins"><span class="kw">for</span> (ls) |l| sum += <span class="chg"><span class="kw">switch</span> (l) {</span></span>
+<span class="code-line ins">    .m =&gt; |m| m,</span>
+<span class="code-line ins">    .km =&gt; |km| km * <span class="nu">1000</span>,</span>
+<span class="code-line ins">};</span>
+</code></pre>
+      <p>
+        <code>switch (l)</code> は有効なタグで腕を選び、そのタグのフィールドの値を <code>|m|</code> や <code>|km|</code> で受け取ります。<code>.km</code> の腕では 2 を 1000 倍した 2000 が足され、合計は 500 + 2000 = 2500 です。<code>union(enum)</code> の <code>switch</code> は、<code>else</code> を書かない限り、すべてのタグの腕がないとコンパイルが通りません。そのため、あとで <code>cm</code> のようなタグを足したときも、このループを直し忘れることがありません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/zig/debug">Today</a></li>
+    <li><a href="/zig/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

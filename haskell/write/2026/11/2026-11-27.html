@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="? と * を使うワイルドカードのパターンが文字列全体に一致するかを、再帰で判定する関数を書くドリル。* は残りの文字列の後ろの部分をすべて試す。2026-11-27のHaskell WRITE。">
+<title>残りすべてを試す*</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/write/2026-11-27">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / WRITE", "item": "https://namaran.jocarium.productions/haskell/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-27" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / WRITE — 2026-11-27",
+      "url": "https://namaran.jocarium.productions/haskell/write/2026-11-27",
+      "datePublished": "2026-11-27",
+      "dateModified": "2026-11-27",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "残りすべてを試す*" },
+      "keywords": "pattern-matching, backtracking, recursion, string",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "? と * を使うワイルドカードのパターンが文字列全体に一致するかを、再帰で判定する関数を書くドリル。* は残りの文字列の後ろの部分をすべて試す。2026-11-27のHaskell WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-27">C23</a>
+  <a href="/cpp/write/2026-11-27">C++26</a>
+  <a href="/rust/write/2026-11-27">Rust 2024</a>
+  <a href="/haskell/write/2026-11-27" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/write/2026-11-27">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-27">READ</a>
+  <a href="/haskell/write/2026-11-27" class="active" aria-current="page">WRITE</a>
+  <a href="/haskell/debug/2026-11-27">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="残りすべてを試す*"
+  data-tags="pattern-matching backtracking recursion string"
+  data-concepts="ワイルドカード, glob, バックトラック, tails, 再帰, wildcard matching, backtracking"
+  data-level="hedgehog"
+>
+  <h2>2026-11-27</h2>
+  <div class="code-frame">
+    <p class="code-filename">Glob.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="fn">glob</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">Bool</span></span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    パターン <code>p</code> が文字列 <code>s</code> 全体に一致するかを返す <code>glob p s</code> を書いてください。パターンの <code>?</code> は任意の1文字に、<code>*</code> は0文字以上の任意の文字の並びに一致し、それ以外の文字はその文字そのものに一致します。空のパターンは空の文字列にだけ一致します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>glob "*.hs" "Main.hs"</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>True</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>glob "a?c" "abbc"</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>False</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>glob "*" ""</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>True</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference
+      <span class="complexity">
+        <span><span class="complexity-label">時間計算量</span> &#x1D4AA;(2<sup><var>n</var></sup>)</span>
+        <span><span class="complexity-label">空間計算量</span> &#x1D4AA;(<var>n</var>)</span>
+        <span class="complexity-where"><var>n</var> は <code>p</code> と <code>s</code> の長さの和</span>
+      </span>
+    </summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="fn">glob</span> <span class="op">::</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">Bool</span></span>
+<span class="code-line ins"><span class="fn">glob</span> [] s = null s</span>
+<span class="code-line ins"><span class="fn">glob</span> (<span class="st">'*'</span> : ps) s = any (glob ps) (tails s)</span>
+<span class="code-line ins"><span class="fn">glob</span> (p : ps) (c : cs) =</span>
+<span class="code-line ins">  (p == <span class="st">'?'</span> || p == c) &amp;&amp; glob ps cs</span>
+<span class="code-line ins"><span class="fn">glob</span> _ [] = <span class="ty">False</span></span>
+</code></pre>
+      </div>
+      <p>
+        パターンの先頭で場合を分けます。<code>*</code> が何文字に一致するかは、後ろが一致するかを確かめるまで決まりません。そこで <code>tails s</code> で <code>s</code> の後ろの部分を長い順にすべて作り、残りのパターン <code>ps</code> がどれか1つに一致すれば <code>True</code> とします。<code>tails "ab"</code> は <code>["ab", "b", ""]</code> で、<code>*</code> が 0, 1, 2 文字を食べた場合に当たります。<code>?</code> とふつうの文字は先頭の1文字と比べて、両方を1文字ずつ進めます。<code>tails</code> を使うには <code>import Data.List (tails)</code> が要ります。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        入力例3では、<code>*</code> の行で <code>tails ""</code> が <code>[""]</code> を返し、空のパターンと空の文字列が一致して <code>True</code> になります。入力例2は <code>?</code> が <code>b</code> を食べたあと <code>c</code> と <code>b</code> を比べて <code>False</code> です。パターンと文字列のどちらかが尽きた場合は、1行目と最後の行が受け持ちます。この書き方は <code>*</code> ごとに候補を総当たりするので、<code>*a*a*a*b</code> のように <code>*</code> の多いパターンが一致しない入力では、試す組合せが急に増えます。再帰の深さはパターンと文字列の長さの和までです。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/write">Today</a></li>
+    <li><a href="/haskell/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「累積和」を扱ったNamaranのコーディングドリル16問。累積確率、fromIntegral、Int と Double の変換、累積和、scanl1、cumulative probability。">
+<meta name="description" content="「累積和」を扱ったNamaranのコーディングドリル18問。重み付き抽選、累積和、partition_point、二分探索、move クロージャ、impl Fn。">
 <title>累積和</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/prefix-sum">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,12 @@
   <h2>累積和</h2>
 
   <p class="lede">
-    「累積和」を扱った16問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「累積和」を扱った18問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/write/2026-11-27">Rust / WRITE · 2026-11-27</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">累積表を抱える抽選器</span> <span class="past-concepts">重み付き抽選, 累積和, partition_point, 二分探索, move クロージャ, impl Fn, weighted random selection, cumulative weight</span></li>
+    <li><a href="/rust/read/2026-11-27">Rust / READ · 2026-11-27</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">重み0が奪う当たり</span> <span class="past-concepts">BTreeMap, insertの上書き, range, 累積和, 重み付き抽選, weighted random selection, cumulative weight</span></li>
     <li><a href="/haskell/write/2026-11-24">Haskell / WRITE · 2026-11-24</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">整数の重みを累積確率に</span> <span class="past-concepts">累積確率, fromIntegral, Int と Double の変換, 累積和, scanl1, cumulative probability, numeric conversion, running total</span></li>
     <li><a href="/haskell/read/2026-11-24">Haskell / READ · 2026-11-24</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">重みを引いていく抽選</span> <span class="past-concepts">重み付き抽選, 重みを引いていく再帰, 重み0, ガード, weighted random choice, cumulative weight, guard, zero weight</span></li>
     <li><a href="/haskell/debug/2026-11-24">Haskell / DEBUG · 2026-11-24</a> <span class="level" data-level="whale" role="img" aria-label="クジラ（特級）" title="クジラ（特級）"></span> <span class="past-topic">隣へずれた抽選の境目</span> <span class="past-concepts">重み付き抽選, 累積和, scanl と scanl1, zip の切り詰め, 境目のずれ, weighted random choice, cumulative sum, scanl vs scanl1, zip truncation</span></li>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「switch文」を扱ったNamaranのコーディングドリル18問。setjmp、longjmp、volatile、非局所脱出、setjmpの戻り値、non-local jump。">
+<meta name="description" content="「switch文」を扱ったNamaranのコーディングドリル21問。タグ付きunion、union(enum)、switch、error union、try、std.math.divTrunc。">
 <title>switch文</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/switch">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>switch文</h2>
 
   <p class="lede">
-    「switch文」を扱った18問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「switch文」を扱った21問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/write/2026-11-27">Zig / WRITE · 2026-11-27</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">割り算の木を評価する</span> <span class="past-concepts">タグ付きunion, union(enum), switch, error union, try, std.math.divTrunc, 0への切り捨て, 式の木, tagged union, expression tree</span></li>
+    <li><a href="/zig/read/2026-11-27">Zig / READ · 2026-11-27</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">名前のない列挙の値</span> <span class="past-concepts">列挙型, 非網羅的なenum, non-exhaustive enum, タグの値, @fromBackingInt, switchの_の腕, enum tag value</span></li>
+    <li><a href="/zig/debug/2026-11-27">Zig / DEBUG · 2026-11-27</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">いま有効でないフィールド</span> <span class="past-concepts">タグ付きunion, union(enum), 有効でないフィールドへのアクセス, illegal behavior, switch, 網羅性, inactive union field, tagged union</span></li>
     <li><a href="/c/read/2026-11-15">C / READ · 2026-11-15</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">longjmpは値を戻さない</span> <span class="past-concepts">setjmp, longjmp, volatile, 非局所脱出, setjmpの戻り値, non-local jump, jmp_buf</span></li>
     <li><a href="/zig/write/2026-11-07">Zig / WRITE · 2026-11-07</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">図形ごとの面積</span> <span class="past-concepts">タグ付きunion, union(enum), switchのキャプチャ, ペイロード, 網羅的なswitch, tagged union, payload capture, exhaustive switch</span></li>
     <li><a href="/zig/read/2026-11-07">Zig / READ · 2026-11-07</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">命令バイトとbreak</span> <span class="past-concepts">enumの値, 値を省略したフィールド, @fromBackingInt, switchの中のbreak, ループを抜ける, enum tag value, break in switch prong, bytecode interpreter</span></li>

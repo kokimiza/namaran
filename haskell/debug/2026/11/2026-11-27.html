@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="続きを関数で受け取る正規表現の照合器で、空にも一致する (a?)* が一致しない入力だけで止まらなくなるドリル。|| の短絡で一致する入力では欠陥が表に出ず、星が何も食べずに自分を呼び直す道が残っている。2026-11-27のHaskell DEBUG。">
+<title>空を食べ続ける星</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/debug/2026-11-27">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / DEBUG", "item": "https://namaran.jocarium.productions/haskell/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-27" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / DEBUG — 2026-11-27",
+      "url": "https://namaran.jocarium.productions/haskell/debug/2026-11-27",
+      "datePublished": "2026-11-27",
+      "dateModified": "2026-11-27",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "空を食べ続ける星" },
+      "keywords": "regular-expression, backtracking, infinite-loop, short-circuit",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "続きを関数で受け取る正規表現の照合器で、空にも一致する (a?)* が一致しない入力だけで止まらなくなるドリル。|| の短絡で一致する入力では欠陥が表に出ず、星が何も食べずに自分を呼び直す道が残っている。2026-11-27のHaskell DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-27">C23</a>
+  <a href="/cpp/debug/2026-11-27">C++26</a>
+  <a href="/rust/debug/2026-11-27">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-27" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-27">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-27">READ</a>
+  <a href="/haskell/write/2026-11-27">WRITE</a>
+  <a href="/haskell/debug/2026-11-27" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="空を食べ続ける星"
+  data-tags="regular-expression backtracking infinite-loop short-circuit"
+  data-concepts="正規表現, バックトラック, 空文字列への一致, 無限ループ, 継続渡し, 短絡評価, empty match loop, continuation-passing style"
+  data-level="bison"
+>
+  <h2>2026-11-27</h2>
+  <div class="code-frame">
+    <p class="code-filename">Loop.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">data</span> <span class="ty">Re</span> = <span class="ty">Chr</span> <span class="ty">Char</span> | <span class="ty">Opt</span> <span class="ty">Re</span> | <span class="ty">Star</span> <span class="ty">Re</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">match</span></span>
+<span class="code-line">  <span class="op">::</span> <span class="ty">Re</span> <span class="op">-&gt;</span> <span class="ty">String</span> <span class="op">-&gt;</span> (<span class="ty">String</span> <span class="op">-&gt;</span> <span class="ty">Bool</span>) <span class="op">-&gt;</span> <span class="ty">Bool</span></span>
+<span class="code-line"><span class="fn">match</span> (<span class="ty">Chr</span> c) (x : xs) k = x == c &amp;&amp; k xs</span>
+<span class="code-line"><span class="fn">match</span> (<span class="ty">Chr</span> _) [] _ = <span class="ty">False</span></span>
+<span class="code-line"><span class="fn">match</span> (<span class="ty">Opt</span> r) s k = match r s k || k s</span>
+<span class="code-line"><span class="fn">match</span> (<span class="ty">Star</span> r) s k = k s || match r s next</span>
+<span class="code-line"> <span class="kw">where</span></span>
+<span class="code-line">  next t = match (<span class="ty">Star</span> r) t k</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()</span>
+<span class="code-line"><span class="fn">main</span> = <span class="kw">do</span></span>
+<span class="code-line">  <span class="kw">let</span> re = <span class="ty">Star</span> (<span class="ty">Opt</span> (<span class="ty">Chr</span> <span class="st">'a'</span>))</span>
+<span class="code-line">  print</span>
+<span class="code-line">    [match re s (== <span class="st">"b"</span>) | s <span class="op">&lt;-</span> [<span class="st">"ab"</span>, <span class="st">"a"</span>]]</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>match re s k</code> は、正規表現 <code>re</code> が <code>s</code> の先頭に一致する食べ方のどれかについて、食べ残しを <code>k</code> に渡して <code>True</code> になれば <code>True</code> を返すつもりの関数です。<code>Chr c</code> は文字 <code>c</code>、<code>Opt r</code> は <code>r?</code>、<code>Star r</code> は <code>r*</code> に当たります。<code>main</code> は <code>(a?)*</code> のあとに <code>b</code> が1つだけ残るかを、<code>"ab"</code> と <code>"a"</code> について出力します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label wrong">いまの出力</p>
+      <pre class="io"><code>（何も出力せずに止まらない）</code></pre>
+      <p class="example-label right">本来の出力</p>
+      <pre class="io"><code>[True,False]</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line"><span class="fn">match</span> (<span class="ty">Star</span> r) s k = k s || match r s next</span>
+<span class="code-line"> <span class="kw">where</span></span>
+<span class="code-line del">  next t = match (<span class="ty">Star</span> r) t k</span>
+</code></pre>
+      <p>
+        <code>"ab"</code> では照合が終わります。<code>Star</code> は <code>k s</code> を先に試し、だめなら <code>r</code> を1回使ってから <code>next</code> で自分に戻ります。<code>a?</code> が <code>a</code> を1回食べたところで <code>k "b"</code> が <code>True</code> になり、<code>||</code> は右側を評価せずに <code>True</code> を返します。食べ方を最後まで調べる前に答えが出るので、欠陥は表に出ません。
+      </p>
+      <p>
+        <code>"a"</code> にはどの食べ方でも <code>b</code> が残らないので、すべての食べ方を調べ切らなければなりません。<code>a</code> を1つ食べて <code>s</code> が <code>""</code> になると、<code>Opt</code> の <code>match r s k</code> は失敗し、右側の <code>k s</code> に回ります。ここでの <code>k</code> は <code>next</code> なので、<code>a?</code> が何も食べないまま <code>match (Star r) "" k</code> がもう一度呼ばれます。引数は前回とまったく同じなので、同じ道を何度でもたどり、<code>False</code> を返す時が来ません。1つ目の <code>True</code> は求まっていますが、リストの表示が改行まで進まないので、画面には何も出ません。
+      </p>
+      <h3 class="right">Right
+        <span class="complexity">
+          <span><span class="complexity-label">時間計算量</span> &#x1D4AA;(<var>n</var><sup>2</sup>)</span>
+          <span><span class="complexity-label">空間計算量</span> &#x1D4AA;(<var>n</var>)</span>
+          <span class="complexity-where"><var>n</var> は <code>main</code> の <code>re</code> で照合する文字列の長さ</span>
+        </span>
+      </h3>
+      <pre class="code"><code><span class="code-line"><span class="fn">match</span> (<span class="ty">Star</span> r) s k = k s || match r s next</span>
+<span class="code-line"> <span class="kw">where</span></span>
+<span class="code-line ins">  next t = <span class="chg">t /= s &amp;&amp;</span> match (<span class="ty">Star</span> r) t k</span>
+</code></pre>
+      <p>
+        <code>r</code> が1文字も食べなかったとき、つまり食べ残し <code>t</code> が <code>s</code> と同じときは、<code>Star</code> に戻らずにその道を捨てます。何も食べない場合はすでに先頭の <code>k s</code> で試しているので、捨てても一致を見逃しません。<code>Star</code> に戻るたびに文字列は1文字以上短くなるので、どんな入力でも再帰は文字列の長さの分で止まり、<code>"a"</code> は <code>False</code> になります。<code>t /= s</code> は等しい2つの文字列を最後まで比べるので1回に <var>n</var> に比例する手間がかかり、全体では <var>n</var> の2乗に比例します。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/debug">Today</a></li>
+    <li><a href="/haskell/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

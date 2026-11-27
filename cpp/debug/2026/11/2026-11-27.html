@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="ログの文字列を std::runtime_format で書式文字列として渡したため、波括弧を含む文で std::format_error が投げられて落ちるドリル。外から来た文字列は書式ではなく引数として渡す。2026-11-27のC++ DEBUG。">
+<title>書式として読まれる文</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/cpp/debug/2026-11-27">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C++ / DEBUG", "item": "https://namaran.jocarium.productions/cpp/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-27" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C++ / DEBUG — 2026-11-27",
+      "url": "https://namaran.jocarium.productions/cpp/debug/2026-11-27",
+      "datePublished": "2026-11-27",
+      "dateModified": "2026-11-27",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "書式として読まれる文" },
+      "keywords": "format-string, exception, stdio",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "ログの文字列を std::runtime_format で書式文字列として渡したため、波括弧を含む文で std::format_error が投げられて落ちるドリル。外から来た文字列は書式ではなく引数として渡す。2026-11-27のC++ DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-27">C23</a>
+  <a href="/cpp/debug/2026-11-27" class="active" aria-current="page">C++26</a>
+  <a href="/rust/debug/2026-11-27">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-27">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-27">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/cpp/read/2026-11-27">READ</a>
+  <a href="/cpp/write/2026-11-27">WRITE</a>
+  <a href="/cpp/debug/2026-11-27" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="書式として読まれる文"
+  data-tags="format-string exception stdio"
+  data-concepts="std::print, std::runtime_format, 書式文字列, std::format_error, 波括弧, format string, uncontrolled format string"
+  data-level="hedgehog"
+>
+  <h2>2026-11-27</h2>
+  <div class="code-frame">
+    <p class="code-filename">note.cpp</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;print&gt;</span></span>
+<span class="code-line"><span class="pp">#include</span> <span class="st">&lt;string&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">void</span> <span class="fn">note</span>(<span class="kw">const</span> std::<span class="ty">string</span>&amp; msg) {</span>
+<span class="code-line">    std::<span class="fn">println</span>(std::<span class="fn">runtime_format</span>(msg));</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>() {</span>
+<span class="code-line">    <span class="fn">note</span>(<span class="st">"set x = {1, 2}"</span>);</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>note</code> は、受け取った文字列 <code>msg</code> をそのまま1行に出力するつもりの関数です。<code>main</code> は、波括弧を含むメッセージを1つ渡します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label wrong">いまの出力</p>
+      <pre class="io"><code>（何も出力せずに異常終了する）</code></pre>
+      <p class="example-label right">本来の出力</p>
+      <pre class="io"><code>set x = {1, 2}</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del">std::<span class="fn">println</span>(<span class="chg">std::<span class="fn">runtime_format</span>(</span>msg)<span class="chg">)</span>;</span>
+</code></pre>
+      <p>
+        <code>std::println</code> の最初の引数は、出力する文字列ではなく書式文字列です。<code>std::runtime_format</code> で包むと、実行時の文字列 <code>msg</code> がそのまま書式として解釈されます。書式の中の <code>{</code> は置換フィールドの始まりで、その直後には引数の番号、<code>:</code>、<code>}</code> のどれかが続くはずです。<code>{1, 2}</code> では番号 <code>1</code> のあとに <code>,</code> が来るので書式として正しくなく、<code>std::println</code> は <code>std::format_error</code> を投げます。どこでも捕まえていないので <code>std::terminate</code> が呼ばれ、何も出力せずに異常終了します。
+      </p>
+      <h3 class="right">Right
+        <span class="complexity">
+          <span><span class="complexity-label">時間計算量</span> &#x1D4AA;(<var>n</var>)</span>
+          <span><span class="complexity-label">空間計算量</span> &#x1D4AA;(1)</span>
+          <span class="complexity-where"><var>n</var> は <code>msg</code> の文字数</span>
+        </span>
+      </h3>
+      <pre class="code"><code><span class="code-line ins">std::<span class="fn">println</span>(<span class="chg"><span class="st">"{}"</span>,</span> msg);</span>
+</code></pre>
+      <p>
+        書式文字列を <code>"{}"</code> という定数にして、<code>msg</code> は引数として渡します。引数の中身は書式として読まれないので、<code>{</code> や <code>}</code> を含んでいても文字のまま出力されます。書式文字列が定数になったことで、置換フィールドと引数の対応もコンパイル時に検査されるようになります<sup class="fn-ref">1</sup>。
+      </p>
+      <ol class="footnotes">
+        <li><code>std::println(msg)</code> と書くとコンパイルエラーになります。書式文字列はコンパイル時に検査するために定数でなければならず、それを外すのが <code>std::runtime_format</code>(C++26)です。コンパイルエラーを消そうとして <code>std::runtime_format</code> で包むと、この欠陥ができあがります。C の <code>printf(msg)</code> も同じ形の欠陥で、こちらは例外ではなく未定義動作になります。</li>
+      </ol>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/cpp/debug">Today</a></li>
+    <li><a href="/cpp/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

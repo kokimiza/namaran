@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="n から step ずつ減らしながら正の値を足す再帰関数が、基底ケースの n == 0 を飛び越えて止まらなくなるドリル。再帰が届く値を基底ケースがすべて受け止めているかを確かめる。2026-11-27のC DEBUG。">
+<title>飛び越される基底ケース</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/c/debug/2026-11-27">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "C / DEBUG", "item": "https://namaran.jocarium.productions/c/debug" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-27" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "C / DEBUG — 2026-11-27",
+      "url": "https://namaran.jocarium.productions/c/debug/2026-11-27",
+      "datePublished": "2026-11-27",
+      "dateModified": "2026-11-27",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "飛び越される基底ケース" },
+      "keywords": "recursion, base-case, call-stack, infinite-loop",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "n から step ずつ減らしながら正の値を足す再帰関数が、基底ケースの n == 0 を飛び越えて止まらなくなるドリル。再帰が届く値を基底ケースがすべて受け止めているかを確かめる。2026-11-27のC DEBUG。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/debug/2026-11-27" class="active" aria-current="page">C23</a>
+  <a href="/cpp/debug/2026-11-27">C++26</a>
+  <a href="/rust/debug/2026-11-27">Rust 2024</a>
+  <a href="/haskell/debug/2026-11-27">Haskell 2010</a>
+  <a href="/zig/debug/2026-11-27">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/c/read/2026-11-27">READ</a>
+  <a href="/c/write/2026-11-27">WRITE</a>
+  <a href="/c/debug/2026-11-27" class="active" aria-current="page">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="飛び越される基底ケース"
+  data-tags="recursion base-case call-stack infinite-loop"
+  data-concepts="基底ケース, 再帰の停止条件, スタックオーバーフロー, 無限再帰, base case, infinite recursion, stack overflow"
+  data-level="hedgehog"
+>
+  <h2>2026-11-27</h2>
+  <div class="code-frame">
+    <p class="code-filename">sum_down.c</p>
+    <pre class="code"><code><span class="code-line"><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">sum_down</span>(<span class="ty">int</span> n, <span class="ty">int</span> step) {</span>
+<span class="code-line">    <span class="kw">if</span> (n == <span class="nu">0</span>)</span>
+<span class="code-line">        <span class="kw">return</span> <span class="nu">0</span>;</span>
+<span class="code-line">    <span class="kw">return</span> n + <span class="fn">sum_down</span>(n - step, step);</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="ty">int</span> <span class="fn">main</span>(<span class="ty">void</span>) {</span>
+<span class="code-line">    <span class="fn">printf</span>(<span class="st">"%d\n"</span>, <span class="fn">sum_down</span>(<span class="nu">10</span>, <span class="nu">3</span>));</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    <code>sum_down(n, step)</code> は、<code>n</code> から <code>step</code> ずつ減らしていった値 <code>n</code>, <code>n - step</code>, <code>n - 2 * step</code>, … のうち、正のものをすべて足した和を返すつもりの関数です。<code>n</code> は 0 以上 200 以下、<code>step</code> は 1 以上とします。<code>main</code> は <code>sum_down(10, 3)</code> を出力します。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label wrong">いまの出力</p>
+      <pre class="io"><code>（何も出力せずに異常終了する）</code></pre>
+      <p class="example-label right">本来の出力</p>
+      <pre class="io"><code>22</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <h3 class="wrong">Wrong</h3>
+      <pre class="code"><code><span class="code-line del"><span class="kw">if</span> (n <span class="chg">==</span> <span class="nu">0</span>)</span>
+<span class="code-line">    <span class="kw">return</span> <span class="nu">0</span>;</span>
+</code></pre>
+      <p>
+        <code>sum_down(10, 3)</code> は <code>n</code> を 10, 7, 4, 1 と減らしながら自分を呼び、次は <code>n</code> が -2 になります。基底ケースは <code>n == 0</code> の1点だけなので、3 ずつ減る <code>n</code> は 0 を踏まずに通り過ぎ、-5, -8, … と呼び出しが止まらなくなります。足し算は呼び出しが戻ってきてから行われるため、どの段も結果を待ったまま積み重なり、やがてスタックを使い切って異常終了します。<code>printf</code> まで進まないので、何も出力されません。
+      </p>
+      <h3 class="right">Right
+        <span class="complexity">
+          <span><span class="complexity-label">時間計算量</span> &#x1D4AA;(<var>k</var>)</span>
+          <span><span class="complexity-label">空間計算量</span> &#x1D4AA;(<var>k</var>)</span>
+          <span class="complexity-where"><var>k</var> は足す値の個数</span>
+        </span>
+      </h3>
+      <pre class="code"><code><span class="code-line ins"><span class="kw">if</span> (n <span class="chg">&lt;=</span> <span class="nu">0</span>)</span>
+<span class="code-line">    <span class="kw">return</span> <span class="nu">0</span>;</span>
+</code></pre>
+      <p>
+        基底ケースを <code>n &lt;= 0</code> にすると、0 を飛び越えて負になった <code>n</code> もそこで受け止められます。-2 に来た呼び出しが 0 を返し、そこから 1, 4, 7, 10 が順に足されて 22 になります。<code>step</code> が 1 以上なら <code>n</code> は呼ぶたびに必ず減るので、どの <code>n</code> と <code>step</code> でも、いつかは 0 以下になって止まります。
+      </p>
+      <p>
+        呼び出しの深さは足す値の個数より1多いだけで、<code>n</code> が 200、<code>step</code> が 1 のときでも約200段です。そのときの和は 1 から 200 までの和 20100 で、規格が <code>int</code> に保証する 32767 までに収まります。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/c/debug">Today</a></li>
+    <li><a href="/c/debug/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

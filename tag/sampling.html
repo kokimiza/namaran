@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「サンプリング」を扱ったNamaranのコーディングドリル9問。リザーバサンプリング、件数不明の入力、一様な抽出、reservoir sampling、Algorithm R、streaming sample。">
+<meta name="description" content="「サンプリング」を扱ったNamaranのコーディングドリル12問。重み付き抽選、累積和、partition_point、二分探索、move クロージャ、impl Fn。">
 <title>サンプリング</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/sampling">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,13 @@
   <h2>サンプリング</h2>
 
   <p class="lede">
-    「サンプリング」を扱った9問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「サンプリング」を扱った12問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/rust/write/2026-11-27">Rust / WRITE · 2026-11-27</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">累積表を抱える抽選器</span> <span class="past-concepts">重み付き抽選, 累積和, partition_point, 二分探索, move クロージャ, impl Fn, weighted random selection, cumulative weight</span></li>
+    <li><a href="/rust/read/2026-11-27">Rust / READ · 2026-11-27</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">重み0が奪う当たり</span> <span class="past-concepts">BTreeMap, insertの上書き, range, 累積和, 重み付き抽選, weighted random selection, cumulative weight</span></li>
+    <li><a href="/rust/debug/2026-11-27">Rust / DEBUG · 2026-11-27</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">u8のまま足した合計</span> <span class="past-concepts">整数オーバーフロー, Iterator::sum, u8, 和の型, 重み付き抽選, integer overflow, sum type, weighted random selection</span></li>
     <li><a href="/cpp/write/2026-10-13">C++ / WRITE · 2026-10-13</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">k個を残しながら読む</span> <span class="past-concepts">リザーバサンプリング, 件数不明の入力, 一様な抽出, reservoir sampling, Algorithm R, streaming sample</span></li>
     <li><a href="/cpp/read/2026-10-13">C++ / READ · 2026-10-13</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">最後に残る二つの値</span> <span class="past-concepts">リザーバサンプリング, 件数不明の入力, 一様な抽出, reservoir sampling, Algorithm R, random sampling from a stream</span></li>
     <li><a href="/cpp/debug/2026-10-13">C++ / DEBUG · 2026-10-13</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">最後の値が必ず残る</span> <span class="past-concepts">リザーバサンプリング, 偏った抽出, 一様な抽出, reservoir sampling, Algorithm R, sampling bias</span></li>

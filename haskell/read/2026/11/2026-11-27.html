@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="リストのモナドで書いた小さな正規表現の照合器で、a* を3つ続けたパターンが6文字の入力に対して試す候補の数を数えるドリル。順に追わず、候補と a の分け方の対応に気付けば数えられる。2026-11-27のHaskell READ。">
+<title>3つの星が試す分け方</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/haskell/read/2026-11-27">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Haskell / READ", "item": "https://namaran.jocarium.productions/haskell/read" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-27" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Haskell / READ — 2026-11-27",
+      "url": "https://namaran.jocarium.productions/haskell/read/2026-11-27",
+      "datePublished": "2026-11-27",
+      "dateModified": "2026-11-27",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "3つの星が試す分け方" },
+      "keywords": "regular-expression, backtracking, list-monad, combinatorics",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "リストのモナドで書いた小さな正規表現の照合器で、a* を3つ続けたパターンが6文字の入力に対して試す候補の数を数えるドリル。順に追わず、候補と a の分け方の対応に気付けば数えられる。2026-11-27のHaskell READ。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/read/2026-11-27">C23</a>
+  <a href="/cpp/read/2026-11-27">C++26</a>
+  <a href="/rust/read/2026-11-27">Rust 2024</a>
+  <a href="/haskell/read/2026-11-27" class="active" aria-current="page">Haskell 2010</a>
+  <a href="/zig/read/2026-11-27">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/haskell/read/2026-11-27" class="active" aria-current="page">READ</a>
+  <a href="/haskell/write/2026-11-27">WRITE</a>
+  <a href="/haskell/debug/2026-11-27">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="3つの星が試す分け方"
+  data-tags="regular-expression backtracking list-monad combinatorics"
+  data-concepts="正規表現, バックトラック, 候補の数, リストモナド, Kleisli合成, 重複組合せ, catastrophic backtracking, regex backtracking"
+  data-level="whale"
+>
+  <h2>2026-11-27</h2>
+  <div class="code-frame">
+    <p class="code-filename">Splits.hs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">import</span> <span class="ty">Control.Monad</span> ((&gt;=&gt;))</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">type</span> <span class="ty">M</span> = <span class="ty">String</span> <span class="op">-&gt;</span> [<span class="ty">String</span>]</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">lit</span> <span class="op">::</span> <span class="ty">Char</span> <span class="op">-&gt;</span> <span class="ty">M</span></span>
+<span class="code-line"><span class="fn">lit</span> c (x : xs) | x == c = [xs]</span>
+<span class="code-line"><span class="fn">lit</span> _ _ = []</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">star</span> <span class="op">::</span> <span class="ty">M</span> <span class="op">-&gt;</span> <span class="ty">M</span></span>
+<span class="code-line"><span class="fn">star</span> p s = concatMap (star p) (p s) ++ [s]</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="fn">main</span> <span class="op">::</span> <span class="ty">IO</span> ()</span>
+<span class="code-line"><span class="fn">main</span> = <span class="kw">do</span></span>
+<span class="code-line">  <span class="kw">let</span> a = star (lit <span class="st">'a'</span>)</span>
+<span class="code-line">  print (length ((a &gt;=&gt; a &gt;=&gt; a) <span class="st">"aaaaaa"</span>))</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    これは何を出力するでしょうか?
+  </p>
+
+  <details class="answer">
+    <summary>Answer</summary>
+    <div class="answer-body">
+      <div class="code-frame answer-output" aria-label="実行結果">
+        <p class="code-filename">Output</p>
+        <pre class="output"><samp>84
+</samp></pre>
+      </div>
+      <p>
+        <code>M</code> は、文字列を受け取り、パターンが先頭を食べたあとの残りを、食べ方の数だけ並べて返す関数です。<code>lit 'a'</code> は先頭の <code>a</code> を1つ食べる食べ方が1通りか、0通りです。<code>star p</code> は <code>p</code> を1回使ってから続きをまた <code>star p</code> に任せる食べ方と、何も食べない食べ方 <code>[s]</code> を並べます。<code>a</code> は <code>a*</code> に当たり、<code>"aaaa"</code> なら <code>a</code> を 4, 3, 2, 1, 0 個食べた残り5つを返します。<code>&gt;=&gt;</code> はリストのモナドでの合成で、前のパターンが返した残りの1つ1つに次のパターンを当て、結果をすべてつなげます。
+      </p>
+      <p>
+        候補を1つずつ追うと、どこで数え漏らしたか分からなくなります。見方を変えると、<code>(a &gt;=&gt; a &gt;=&gt; a) "aaaaaa"</code> が返す要素は、3つの <code>a*</code> がそれぞれ <code>a</code> を何個食べたかの組 (<var>i</var>, <var>j</var>, <var>k</var>) と1つずつ対応しています。食べられるのは前が残した分だけなので、組の条件は <var>i</var> + <var>j</var> + <var>k</var> ≦ 6 で、各値は 0 以上です。残った個数を <var>l</var> = 6 − <var>i</var> − <var>j</var> − <var>k</var> とおけば、0 以上の4つの整数で和が 6 になる組の数を数えればよく、6個の <code>a</code> の間に3本の仕切りを入れる並べ方として、9個の場所から仕切りの3個を選ぶ <sub>9</sub>C<sub>3</sub> = 84 通りです。
+      </p>
+      <p>
+        3つの <code>a*</code> がそれぞれ 0〜6 個を独立に選ぶと考えると 7<sup>3</sup> = 343 になり、文字列を食べ切った候補だけを数えると <var>l</var> = 0 の <sub>8</sub>C<sub>2</sub> = 28 になります。<code>length</code> は食べ残しのある候補も数えるので、どちらでもありません。<code>a*</code> を3つ並べたパターンが照合に失敗する入力、たとえば末尾に <code>b</code> を足した文字列では、この84通りすべてが試されたうえで失敗します。<var>n</var> 文字なら試す数は <sub><var>n</var>+3</sub>C<sub>3</sub> で、<var>n</var> の3乗に比例して増えます。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/haskell/read">Today</a></li>
+    <li><a href="/haskell/read/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="重みの並びから累積和の表を一度だけ作り、それを move で抱えたクロージャを返して、引くたびに二分探索で項目を選ぶ抽選器を書くドリル。partition_point と impl Fn を使う。2026-11-27のRust WRITE。">
+<title>累積表を抱える抽選器</title>
+<link rel="canonical" href="https://namaran.jocarium.productions/rust/write/2026-11-27">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Namaran", "item": "https://namaran.jocarium.productions/" },
+        { "@type": "ListItem", "position": 2, "name": "Rust / WRITE", "item": "https://namaran.jocarium.productions/rust/write" },
+        { "@type": "ListItem", "position": 3, "name": "2026-11-27" }
+      ]
+    },
+    {
+      "@type": ["TechArticle", "LearningResource"],
+      "headline": "Rust / WRITE — 2026-11-27",
+      "url": "https://namaran.jocarium.productions/rust/write/2026-11-27",
+      "datePublished": "2026-11-27",
+      "dateModified": "2026-11-27",
+      "inLanguage": "ja",
+      "learningResourceType": "Practice problem",
+      "about": { "@type": "Thing", "name": "累積表を抱える抽選器" },
+      "keywords": "prefix-sum, binary-search, closure, sampling",
+      "author": { "@type": "Organization", "name": "Namaran" },
+      "publisher": { "@type": "Organization", "name": "Namaran" },
+      "isPartOf": { "@type": "WebSite", "name": "Namaran", "url": "https://namaran.jocarium.productions/" },
+      "description": "重みの並びから累積和の表を一度だけ作り、それを move で抱えたクロージャを返して、引くたびに二分探索で項目を選ぶ抽選器を書くドリル。partition_point と impl Fn を使う。2026-11-27のRust WRITE。"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page">
+
+<header class="masthead">
+  <h1><a href="/">Namaran</a></h1>
+  <p class="tagline">Code daily. Without assist.</p>
+</header>
+
+<nav class="lang-nav" aria-label="Language">
+  <a href="/c/write/2026-11-27">C23</a>
+  <a href="/cpp/write/2026-11-27">C++26</a>
+  <a href="/rust/write/2026-11-27" class="active" aria-current="page">Rust 2024</a>
+  <a href="/haskell/write/2026-11-27">Haskell 2010</a>
+  <a href="/zig/write/2026-11-27">Zig 0.17</a>
+</nav>
+
+<nav class="type-nav" aria-label="Exercise type">
+  <a href="/rust/read/2026-11-27">READ</a>
+  <a href="/rust/write/2026-11-27" class="active" aria-current="page">WRITE</a>
+  <a href="/rust/debug/2026-11-27">DEBUG</a>
+</nav>
+
+<main class="drill"
+  data-topic="累積表を抱える抽選器"
+  data-tags="prefix-sum binary-search closure sampling"
+  data-concepts="重み付き抽選, 累積和, partition_point, 二分探索, move クロージャ, impl Fn, weighted random selection, cumulative weight"
+  data-level="peacock"
+>
+  <h2>2026-11-27</h2>
+  <div class="code-frame">
+    <p class="code-filename">picker.rs</p>
+    <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">picker</span>(</span>
+<span class="code-line">    w: &amp;[<span class="ty">u32</span>],</span>
+<span class="code-line">) -&gt; <span class="kw">impl</span> <span class="fn">Fn</span>(<span class="ty">u64</span>) -&gt; <span class="ty">usize</span> {</span>
+<span class="code-line">}</span>
+</code></pre>
+  </div>
+
+  <p class="question">
+    重みの並び <code>w</code> を受け取り、抽選する関数を返す <code>picker</code> を書いてください。重みの合計を <code>T</code> とすると、返す関数には 0 以上 <code>T</code> 未満の整数 <code>r</code> が渡されます。0 から <code>T</code> 未満までの整数を、先頭の項目から重みの数ずつ順に割り当てたとき、<code>r</code> が割り当てられた項目の添字を返します。重みが 0 の項目には何も割り当てず、選ばれません。<code>w</code> は空でなく、<code>T</code> は 1 以上で <code>u64</code> に収まるものとします。返す関数は何度も呼ばれるので、1回の呼び出しで <code>w</code> を先頭からなめ直さないでください。
+  </p>
+
+  <div class="examples">
+    <div class="example">
+      <p class="example-label">入力例 1</p>
+      <pre class="io"><code>(0..6).map(picker(&amp;[3, 1, 2]))</code></pre>
+      <p class="example-label">出力例 1</p>
+      <pre class="io"><code>[0, 0, 0, 1, 2, 2]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 2</p>
+      <pre class="io"><code>(0..3).map(picker(&amp;[2, 0, 1]))</code></pre>
+      <p class="example-label">出力例 2</p>
+      <pre class="io"><code>[0, 0, 2]</code></pre>
+    </div>
+    <div class="example">
+      <p class="example-label">入力例 3</p>
+      <pre class="io"><code>picker(&amp;[5])(4)</code></pre>
+      <p class="example-label">出力例 3</p>
+      <pre class="io"><code>0</code></pre>
+    </div>
+  </div>
+
+  <details class="answer">
+    <summary>Reference
+      <span class="complexity">
+        <span><span class="complexity-label">時間計算量</span> &#x1D4AA;(<var>n</var>)</span>
+        <span><span class="complexity-label">空間計算量</span> &#x1D4AA;(<var>n</var>)</span>
+        <span class="complexity-where"><var>n</var> は <code>w</code> の要素数</span>
+      </span>
+    </summary>
+    <div class="answer-body">
+      <div class="code-frame diff-added" aria-label="追加する参考実装">
+        <p class="code-filename">Reference</p>
+        <pre class="code"><code><span class="code-line"><span class="kw">fn</span> <span class="fn">picker</span>(</span>
+<span class="code-line">    w: &amp;[<span class="ty">u32</span>],</span>
+<span class="code-line">) -&gt; <span class="kw">impl</span> <span class="fn">Fn</span>(<span class="ty">u64</span>) -&gt; <span class="ty">usize</span> {</span>
+<span class="code-line ins">    <span class="kw">let</span> cum: <span class="ty">Vec</span>&lt;<span class="ty">u64</span>&gt; = w</span>
+<span class="code-line ins">        .<span class="fn">iter</span>()</span>
+<span class="code-line ins">        .<span class="fn">scan</span>(<span class="nu">0</span>, |s, &amp;x| {</span>
+<span class="code-line ins">            *s += <span class="ty">u64</span>::<span class="fn">from</span>(x);</span>
+<span class="code-line ins">            <span class="fn">Some</span>(*s)</span>
+<span class="code-line ins">        })</span>
+<span class="code-line ins">        .<span class="fn">collect</span>();</span>
+<span class="code-line ins">    <span class="kw">move</span> |r| cum.<span class="fn">partition_point</span>(|&amp;c| c &lt;= r)</span>
+<span class="code-line">}</span>
+</code></pre>
+      </div>
+      <p>
+        項目 <code>i</code> に割り当たるのは、<code>i</code> の手前までの重みの和以上、<code>i</code> までの重みの和未満の整数です。そこで <code>scan</code> で <code>i</code> までの重みの和を並べた表 <code>cum</code> を作ります。入力例1なら <code>[3, 4, 6]</code> です。<code>r</code> を受け持つ項目は、<code>cum</code> の中で <code>r</code> より大きい最初の要素の位置になります。<code>cum</code> は小さい順に並んでいるので、<code>partition_point(|&amp;c| c &lt;= r)</code> が二分探索でその位置を返します。条件を <code>c &lt; r</code> にすると、<code>r</code> = 3 が項目 0 に入ってしまいます。掲載したのは参考実装で、唯一の正解ではありません。
+      </p>
+      <p>
+        表は <code>picker</code> の中で一度だけ作り、<code>move</code> でクロージャに持たせます。<code>move</code> を書かないと、クロージャは <code>picker</code> の終わりで消えるローカル変数 <code>cum</code> を借用したまま返ることになり、コンパイルが通りません。表を作るのが要素数に比例する手間で、そのあとの1回の抽選は二分探索なので log<sub>2</sub> <var>n</var> 回ほどの比較で済みます。重み0の項目は前の項目と同じ値を <code>cum</code> に持ちますが、<code>c &lt;= r</code> の範囲に入るので飛ばされ、入力例2のように選ばれません。<code>cum</code> の和は <code>u64</code> で取っているので、<code>T</code> が <code>u64</code> に収まる限りあふれません。
+      </p>
+    </div>
+  </details>
+</main>
+
+<aside class="past">
+  <h2>Past</h2>
+  <ul class="past-list">
+    <li><a href="/rust/write">Today</a></li>
+    <li><a href="/rust/write/archive">Archive</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/levels">Levels</a></li>
+  </ul>
+</aside>
+
+<footer>
+  <p>A daily maintenance routine for programmers.</p>
+  <p><a href="https://github.com/kokimiza/namaran/issues">Spot a mistake? Fix it on GitHub.</a></p>
+</footer>
+
+</div>
+</body>
+</html>

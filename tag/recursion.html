@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="「再帰」を扱ったNamaranのコーディングドリル125問。二分探索木、整列済みリストからの構築、平衡な木、中央の要素を根に、balanced BST from sorted list、splitAt。">
+<meta name="description" content="「再帰」を扱ったNamaranのコーディングドリル130問。タグ付きunion、union(enum)、switch、error union、try、std.math.divTrunc。">
 <title>再帰</title>
 <link rel="canonical" href="https://namaran.jocarium.productions/tag/recursion">
 <link rel="stylesheet" href="/style.css">
@@ -32,10 +32,15 @@
   <h2>再帰</h2>
 
   <p class="lede">
-    「再帰」を扱った125問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
+    「再帰」を扱った130問。日付を開くと、その日のドリルがそのまま読めます。日付の横の動物は難易度で、ハリネズミ・孔雀・バイソン・クジラの順に重くなります。
   </p>
 
   <ul class="past-list">
+    <li><a href="/zig/write/2026-11-27">Zig / WRITE · 2026-11-27</a> <span class="level" data-level="bison" role="img" aria-label="バイソン（高度）" title="バイソン（高度）"></span> <span class="past-topic">割り算の木を評価する</span> <span class="past-concepts">タグ付きunion, union(enum), switch, error union, try, std.math.divTrunc, 0への切り捨て, 式の木, tagged union, expression tree</span></li>
+    <li><a href="/haskell/write/2026-11-27">Haskell / WRITE · 2026-11-27</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">残りすべてを試す*</span> <span class="past-concepts">ワイルドカード, glob, バックトラック, tails, 再帰, wildcard matching, backtracking</span></li>
+    <li><a href="/c/write/2026-11-27">C / WRITE · 2026-11-27</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">0も1桁と数える再帰</span> <span class="past-concepts">再帰, 基底ケース, 桁数, 10で割る, recursion, base case, number of digits</span></li>
+    <li><a href="/c/read/2026-11-27">C / READ · 2026-11-27</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">戻り道で出す数字</span> <span class="past-concepts">再帰, 呼び出しの戻り, 基底ケース, 再帰の前後の処理, recursion unwinding, call stack</span></li>
+    <li><a href="/c/debug/2026-11-27">C / DEBUG · 2026-11-27</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">飛び越される基底ケース</span> <span class="past-concepts">基底ケース, 再帰の停止条件, スタックオーバーフロー, 無限再帰, base case, infinite recursion, stack overflow</span></li>
     <li><a href="/haskell/write/2026-11-26">Haskell / WRITE · 2026-11-26</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">整列済みから釣り合う木</span> <span class="past-concepts">二分探索木, 整列済みリストからの構築, 平衡な木, 中央の要素を根に, balanced BST from sorted list, splitAt, recursion</span></li>
     <li><a href="/haskell/read/2026-11-26">Haskell / READ · 2026-11-26</a> <span class="level" data-level="peacock" role="img" aria-label="孔雀（標準）" title="孔雀（標準）"></span> <span class="past-topic">foldrは後ろから挿入</span> <span class="past-concepts">二分探索木, 挿入順序, foldrとfoldlの違い, 木の偏り, binary search tree, insertion order, foldr vs foldl</span></li>
     <li><a href="/haskell/debug/2026-11-26">Haskell / DEBUG · 2026-11-26</a> <span class="level" data-level="hedgehog" role="img" aria-label="ハリネズミ（基礎）" title="ハリネズミ（基礎）"></span> <span class="past-topic">高さのつもりが節の数</span> <span class="past-concepts">木の高さ, 節の数, 再帰, 偏った二分探索木, tree height, tree size, recursion, degenerate tree</span></li>
